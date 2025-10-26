@@ -130,6 +130,16 @@ class MainWindow(QMainWindow):
         root.addLayout(controls, 0)
         root.addLayout(images, 1)
 
+        # Status bar at bottom
+        self.status_bar = QStatusBar()
+        self.setStatusBar(self.status_bar)
+        self.status_bar.showMessage("Ready")
+        
+        # Session ID label (permanent widget on right side of status bar)
+        self.session_id_label = QLabel("No session")
+        self.session_id_label.setStyleSheet("color: #666; padding: 2px 8px;")
+        self.status_bar.addPermanentWidget(self.session_id_label)
+
         # State
         self._color_hex = "#000000"
         self._last_result_png = None
@@ -168,6 +178,7 @@ class MainWindow(QMainWindow):
                 return
             self._last_local_path = file_path
             
+            self.status_bar.showMessage("Uploading image...", 0)
             payload = self.api_client.upload_image(file_path)
             
             # Load image with EXIF orientation correction
@@ -175,11 +186,19 @@ class MainWindow(QMainWindow):
             if image.isNull():
                 raise RuntimeError("Could not load selected image into viewer")
             self.src_view.set_image(image)
-            QMessageBox.information(self, "Uploaded", f"Session ID: {payload.get('id')}")
+            
+            # Update session ID in status bar (no popup)
+            session_id = payload.get('id')
+            self.session.session_id = session_id
+            self.session_id_label.setText(f"Session: {session_id[:8]}...")
+            self.session_id_label.setToolTip(f"Full session ID: {session_id}")
+            self.status_bar.showMessage("Image uploaded successfully", 3000)
+            
             # Clear previous outputs
             self.crop_preview.clear()
             self.res_view.scene().clear()
-            self.save_btn.setEnabled(False)
+            self.export_btn.setEnabled(False)
+            self.save_to_library_btn.setEnabled(False)
             # Hide preview/result panes until selection is made
             self.crop_preview_label.setVisible(False)
             self.crop_preview.setVisible(False)
@@ -187,11 +206,13 @@ class MainWindow(QMainWindow):
             self.res_view.setVisible(False)
         except KeyboardInterrupt:
             # User cancelled dialog or operation
+            self.status_bar.showMessage("Upload cancelled", 2000)
             return
         except Exception as e:
             import traceback
             error_details = f"{str(e)}\n\nTraceback:\n{traceback.format_exc()}"
             QMessageBox.critical(self, "Upload failed", error_details)
+            self.status_bar.showMessage("Upload failed", 3000)
 
     def _load_image_with_exif(self, file_path: str) -> QImage:
         """Load image and apply EXIF orientation correction."""
@@ -240,6 +261,8 @@ class MainWindow(QMainWindow):
         if x1 == x2 or y1 == y2:
             QMessageBox.warning(self, "No region selected", "Drag on the source image to select a region")
             return
+        
+        self.status_bar.showMessage("Processing...", 0)
         try:
             png_bytes = self.api_client.process_image(
                 session_id=self.session.session_id,
@@ -251,8 +274,10 @@ class MainWindow(QMainWindow):
             self.res_view.load_image_bytes(png_bytes)
             self.export_btn.setEnabled(True)
             self.save_to_library_btn.setEnabled(True)
+            self.status_bar.showMessage("Preview ready", 2000)
         except Exception as e:
             QMessageBox.critical(self, "Process failed", str(e))
+            self.status_bar.showMessage("Processing failed", 3000)
 
     def on_clear_selection(self):
         self.src_view.clear_selection()
@@ -324,8 +349,12 @@ class MainWindow(QMainWindow):
         if not self._last_result_png:
             return
         
+        self.status_bar.showMessage("Opening export dialog...", 1000)
         dialog = ExportDialog(self._last_result_png, self)
-        dialog.exec()
+        if dialog.exec():
+            self.status_bar.showMessage(f"Exported successfully", 3000)
+        else:
+            self.status_bar.showMessage("Export cancelled", 2000)
     
     def on_save_to_library(self):
         """Quick save to library with default PNG format."""
@@ -338,6 +367,7 @@ class MainWindow(QMainWindow):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         default_name = f"signature_{timestamp}.png"
         
+        self.status_bar.showMessage("Saving to library...", 0)
         out_path, _ = QFileDialog.getSaveFileName(
             self, 
             "Save to Library", 
@@ -345,15 +375,17 @@ class MainWindow(QMainWindow):
             "PNG Image (*.png)"
         )
         if not out_path:
+            self.status_bar.showMessage("Save cancelled", 2000)
             return
         
         try:
             with open(out_path, "wb") as f:
                 f.write(self._last_result_png)
-            QMessageBox.information(self, "Saved to Library", f"Saved: {out_path}")
+            self.status_bar.showMessage(f"Saved: {out_path}", 4000)
             # TODO: Add to library list widget
         except Exception as e:
             QMessageBox.critical(self, "Save failed", str(e))
+            self.status_bar.showMessage("Save failed", 3000)
     
     def on_library_item_clicked(self, item):
         """Load a signature from the library."""
