@@ -26,17 +26,20 @@ QIcon.fromTheme("view-refresh")   # Refresh
 ```
 
 ### Supported Themes
+
 - **macOS**: Uses SF Symbols (modern, beautiful)
 - **Windows**: Uses Fluent Design icons (modern)
 - **Linux**: Uses Breeze/Adwaita themes (KDE/GNOME)
 
 ### Pros
+
 - ✅ Native look on each platform
 - ✅ Automatically adapts to light/dark mode
 - ✅ Zero asset management
 - ✅ Scales perfectly (vector)
 
 ### Cons
+
 - ❌ Less control over exact appearance
 - ❌ May not be available on all systems (fallback needed)
 
@@ -57,6 +60,7 @@ icon = QIcon(":/icons/material/open_file.svg")
 ```
 
 ### Resource File (.qrc)
+
 ```xml
 <!DOCTYPE RCC>
 <RCC version="1.0">
@@ -72,12 +76,14 @@ icon = QIcon(":/icons/material/open_file.svg")
 Compile: `pyside6-rcc resources.qrc -o resources_rc.py`
 
 ### Pros
+
 - ✅ Consistent across all platforms
 - ✅ Beautiful, modern design
 - ✅ Huge icon library (2000+ icons)
 - ✅ Free and open source
 
 ### Cons
+
 - ❌ Needs manual asset management
 - ❌ Increases app size slightly
 - ❌ More setup work
@@ -89,10 +95,12 @@ Compile: `pyside6-rcc resources.qrc -o resources_rc.py`
 Microsoft's **Fluent UI** icons are gorgeous and modern.
 
 ### Source
+
 - https://github.com/microsoft/fluentui-system-icons
 - MIT licensed, free to use
 
 ### Similar to Material but:
+
 - More rounded, softer look
 - Matches Windows 11 aesthetic
 - Also works great on macOS/Linux
@@ -104,6 +112,7 @@ Microsoft's **Fluent UI** icons are gorgeous and modern.
 If targeting macOS primarily, use **SF Symbols**.
 
 ### Implementation
+
 ```python
 # macOS only
 from PySide6.QtGui import QIcon
@@ -111,11 +120,13 @@ icon = QIcon.fromTheme("folder.fill")  # SF Symbol name
 ```
 
 ### Pros
+
 - ✅ Native macOS icons (same as Finder, etc.)
 - ✅ Automatically matches system theme
 - ✅ Pixel-perfect on macOS
 
 ### Cons
+
 - ❌ macOS only (need fallback for Windows/Linux)
 
 ---
@@ -125,10 +136,12 @@ icon = QIcon.fromTheme("folder.fill")  # SF Symbol name
 **Hybrid Approach** (best of both worlds):
 
 1. **Primary**: Use Qt Icon Themes (`QIcon.fromTheme()`)
+
    - Adapts to system theme automatically
    - Native look on each platform
 
 2. **Fallback**: Bundle Material Icons as resources
+
    - When theme icon not available, load from resources
    - Ensures consistent experience everywhere
 
@@ -141,7 +154,7 @@ icon = QIcon.fromTheme("folder.fill")  # SF Symbol name
 ```python
 def get_icon(icon_type: str) -> QIcon:
     """Get icon with theme fallback to bundled resources."""
-    
+
     # Try theme icon first (native)
     theme_map = {
         'open': 'document-open',
@@ -151,19 +164,19 @@ def get_icon(icon_type: str) -> QIcon:
         'zoom_out': 'zoom-out',
         'delete': 'edit-delete',
     }
-    
+
     theme_name = theme_map.get(icon_type)
     if theme_name:
         icon = QIcon.fromTheme(theme_name)
         if not icon.isNull():
             return icon
-    
+
     # Fallback to bundled resource
     resource_path = f":/icons/material/{icon_type}.svg"
     icon = QIcon(resource_path)
     if not icon.isNull():
         return icon
-    
+
     # Final fallback: standard pixmap (what we have now)
     return IconManager.get_standard_icon(icon_type)
 ```
@@ -173,11 +186,13 @@ def get_icon(icon_type: str) -> QIcon:
 ## Implementation Steps
 
 1. **Phase 1** (Quick - Do Now):
+
    - Switch to `QIcon.fromTheme()` for common icons
    - Keeps native look, zero extra work
    - Fallback to current StandardPixmap
 
 2. **Phase 2** (Later - Polish):
+
    - Download Material Icons SVG pack
    - Create .qrc resource file
    - Bundle as fallback for consistency
