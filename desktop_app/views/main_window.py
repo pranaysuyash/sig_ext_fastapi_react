@@ -15,6 +15,7 @@ from desktop_app.api.client import ApiClient
 from desktop_app.state.session import SessionState
 from desktop_app.widgets.image_view import ImageView
 from desktop_app.views.export_dialog import ExportDialog
+from desktop_app.resources.icons import set_button_icon, get_icon
 
 
 class MainWindow(QMainWindow):
@@ -24,6 +25,11 @@ class MainWindow(QMainWindow):
         self.session = session_state
 
         self.setWindowTitle("Signature Extractor (Desktop)")
+        
+        # Set application icon
+        app_icon = get_icon('file')
+        if not app_icon.isNull():
+            self.setWindowIcon(app_icon)
         
         # Apply color theme
         self._apply_theme()
@@ -35,7 +41,8 @@ class MainWindow(QMainWindow):
 
         # Left controls
         controls = QVBoxLayout()
-        self.open_btn = QPushButton("📂 Open & Upload Image")
+        self.open_btn = QPushButton()
+        set_button_icon(self.open_btn, 'open', 'Open & Upload Image')
         self.open_btn.clicked.connect(self.on_open)
         controls.addWidget(self.open_btn)
 
@@ -46,19 +53,28 @@ class MainWindow(QMainWindow):
         controls.addWidget(self.threshold)
 
         self.color_label = QLabel("Color: #000000")
-        self.pick_color_btn = QPushButton("🎨 Pick Color")
+        self.pick_color_btn = QPushButton()
+        set_button_icon(self.pick_color_btn, 'color', 'Pick Color')
         self.pick_color_btn.clicked.connect(self.on_pick_color)
         controls.addWidget(self.color_label)
         controls.addWidget(self.pick_color_btn)
 
         # Zoom & reset controls
         zoom_row = QHBoxLayout()
-        self.zoom_in_btn = QPushButton("🔍+")
-        self.zoom_out_btn = QPushButton("🔍−")
-        self.fit_btn = QPushButton("⊡ Fit")
-        self.reset_view_btn = QPushButton("⊙ 100%")
-        self.toggle_mode_btn = QPushButton("🎯 Mode: Select")
-        self.clear_sel_btn = QPushButton("✖ Clear Selection")
+        self.zoom_in_btn = QPushButton()
+        self.zoom_out_btn = QPushButton()
+        self.fit_btn = QPushButton()
+        self.reset_view_btn = QPushButton()
+        self.toggle_mode_btn = QPushButton()
+        self.clear_sel_btn = QPushButton()
+        
+        set_button_icon(self.zoom_in_btn, 'zoom_in', None)  # Emoji only
+        set_button_icon(self.zoom_out_btn, 'zoom_out', None)
+        set_button_icon(self.fit_btn, 'fit', 'Fit')
+        set_button_icon(self.reset_view_btn, 'reset', '100%')
+        set_button_icon(self.toggle_mode_btn, 'select', 'Mode: Select')
+        set_button_icon(self.clear_sel_btn, 'clear', 'Clear Selection')
+        
         self.zoom_in_btn.clicked.connect(lambda: self.src_view.zoom_in())
         self.zoom_out_btn.clicked.connect(lambda: self.src_view.zoom_out())
         self.fit_btn.clicked.connect(lambda: self.src_view.fit())
@@ -75,17 +91,23 @@ class MainWindow(QMainWindow):
         self.sel_info = QLabel("Selection: –")
         controls.addWidget(self.sel_info)
 
-        self.preview_btn = QPushButton("👁 Preview")
+        self.preview_btn = QPushButton()
+        set_button_icon(self.preview_btn, 'preview', 'Preview')
         self.preview_btn.setToolTip("Process the selected region with current threshold and color settings")
         self.preview_btn.clicked.connect(self.on_preview)
-        self.export_btn = QPushButton("� Export...")
+        
+        self.export_btn = QPushButton()
+        set_button_icon(self.export_btn, 'export', 'Export...')
         self.export_btn.setToolTip("Export with advanced options (background, trim, format)")
         self.export_btn.clicked.connect(self.on_export)
         self.export_btn.setEnabled(False)
-        self.save_to_library_btn = QPushButton("📁 Save to Library")
+        
+        self.save_to_library_btn = QPushButton()
+        set_button_icon(self.save_to_library_btn, 'save', 'Save to Library')
         self.save_to_library_btn.setToolTip("Quick save as PNG to local library")
         self.save_to_library_btn.clicked.connect(self.on_save_to_library)
         self.save_to_library_btn.setEnabled(False)
+        
         controls.addWidget(self.preview_btn)
         controls.addWidget(self.export_btn)
         controls.addWidget(self.save_to_library_btn)
@@ -340,9 +362,10 @@ class MainWindow(QMainWindow):
         new_mode = not current_mode
         self.src_view.toggle_selection_mode(new_mode)
         if new_mode:
-              self.toggle_mode_btn.setText("🎯 Mode: Select")
+            set_button_icon(self.toggle_mode_btn, 'select', 'Mode: Select')
         else:
-              self.toggle_mode_btn.setText("✋ Mode: Pan")
+            # Use different emoji for pan mode (hand)
+            self.toggle_mode_btn.setText("✋ Mode: Pan")
 
     def on_export(self):
         """Open the export dialog with professional options."""
