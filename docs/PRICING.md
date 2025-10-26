@@ -11,6 +11,27 @@
 
 ## Pricing Tiers
 
+### 🪪 **Lifetime Desktop (One-Time)**
+
+**Price**: $49 one-time (B2C)
+
+**Includes**:
+
+- Full desktop app (macOS, Windows, Linux)
+- Unlimited local extractions forever
+- 12 months of updates included (bug fixes + minor features)
+
+**Limits**:
+
+- No cloud features (sync, API, webhooks)
+- No browser extension
+- No team workspace
+- After 12 months, optional update plan: $15/year (keeps lifetime license active with updates)
+
+**Best For**: Individuals who prefer one-time purchase and local-only privacy
+
+---
+
 ### 🆓 **Free (Desktop Only)**
 
 **Price**: $0

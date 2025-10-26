@@ -311,47 +311,53 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "Saved", f"Saved to {out_path}")
         except Exception as e:
             QMessageBox.critical(self, "Save failed", str(e))
-    
-        def _apply_theme(self):
-            """Apply subtle blue accent color theme for personality."""
-            # Accent color: #007AFF (iOS blue)
-            style = """
-                QPushButton {
-                    background-color: #f0f0f0;
-                    border: 1px solid #d0d0d0;
-                    border-radius: 4px;
-                    padding: 6px 12px;
-                    font-size: 13px;
-                }
-                QPushButton:hover {
-                    background-color: #e0e0e0;
-                    border-color: #007AFF;
-                }
-                QPushButton:pressed {
-                    background-color: #d0d0d0;
-                }
-                QPushButton:disabled {
-                    background-color: #f8f8f8;
-                    color: #a0a0a0;
-                }
-                QLabel {
-                    font-size: 13px;
-                }
-                QSlider::groove:horizontal {
-                    border: 1px solid #d0d0d0;
-                    height: 6px;
-                    background: #f0f0f0;
-                    border-radius: 3px;
-                }
-                QSlider::handle:horizontal {
-                    background: #007AFF;
-                    border: 1px solid #0051d5;
-                    width: 16px;
-                    margin: -6px 0;
-                    border-radius: 8px;
-                }
-                QSlider::handle:horizontal:hover {
-                    background: #0051d5;
-                }
-            """
-            self.setStyleSheet(style)
+
+    def _apply_theme(self):
+        """Apply subtle blue accent color theme for personality."""
+        # Accent color: #007AFF (iOS blue)
+        style = """
+            QWidget {
+                background-color: #f7f7f7;
+                color: #222222;
+            }
+            QPushButton {
+                background-color: #ffffff;
+                border: 1px solid #d0d0d0;
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-size: 13px;
+                color: #222222;
+            }
+            QPushButton:hover {
+                background-color: #e0e0e0;
+                border-color: #007AFF;
+            }
+            QPushButton:pressed {
+                background-color: #d0d0d0;
+            }
+            QPushButton:disabled {
+                background-color: #f8f8f8;
+                color: #888888;
+            }
+            QLabel {
+                font-size: 13px;
+                color: #222222;
+            }
+            QSlider::groove:horizontal {
+                border: 1px solid #d0d0d0;
+                height: 6px;
+                background: #f0f0f0;
+                border-radius: 3px;
+            }
+            QSlider::handle:horizontal {
+                background: #007AFF;
+                border: 1px solid #0051d5;
+                width: 16px;
+                margin: -6px 0;
+                border-radius: 8px;
+            }
+            QSlider::handle:horizontal:hover {
+                background: #0051d5;
+            }
+        """
+        self.setStyleSheet(style)

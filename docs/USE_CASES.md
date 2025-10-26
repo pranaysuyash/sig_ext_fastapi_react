@@ -263,6 +263,27 @@
 - Extract signature → hash with SHA-256 → store hash on blockchain (Ethereum, Polygon)
 - Immutable proof of original signature for legal disputes
 
+### 21. **Seal/Stamp Separation (Signature vs Seal)**
+
+- For documents that contain both a round/seal stamp and a handwritten signature:
+  - Remove seal while preserving signature (or the inverse)
+  - Techniques: hue/saturation masking (target colored seals), Hough Circle Transform to detect round stamps, color deconvolution to separate ink vs stamp pigment, morphological cleanup
+  - Output: Two layers — isolated signature (transparent PNG) and isolated seal (transparent PNG)
+
+### 22. **Digital Signature From Scanned Ink**
+
+- Convert a scanned wet-ink signature into a reusable digital signature asset:
+  - Denoise, threshold, vectorize (optional SVG via potrace), set uniform baseline and padding
+  - Export profile with recommended sizes for email, PDFs, and print
+  - Optionally auto-generate light/dark variants and brand-colored versions
+
+### 23. **Verifiable Signatures (Crypto/Audit)**
+
+- Pair extracted signature with cryptographic attestations:
+  - Create a signed hash (SHA-256) of the signature PNG and embed in PDF metadata or a sidecar JSON
+  - Optionally: timestamp authority (RFC 3161) or blockchain anchoring for immutability
+  - Provide a small verifier script to check integrity against the embedded hash
+
 ---
 
 ## Market Segments
