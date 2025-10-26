@@ -348,9 +348,9 @@
 #         )
 
 from sqlalchemy.orm import Session
-from app.models.user import User
-from app.schemas.user import UserCreate
-from app.utils.auth import verify_password, get_password_hash
+from backend.app.models.user import User
+from backend.app.schemas.user import UserCreate
+from backend.app.utils.auth import verify_password, get_password_hash
 import logging
 
 logger = logging.getLogger(__name__)

@@ -9,7 +9,7 @@ from psycopg2.extras import RealDictCursor
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://127.0.0.1:8001"
 TEST_USER = {
     "email": "test@example.com",
     "password": "test123456"

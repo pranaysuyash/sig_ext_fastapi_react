@@ -589,8 +589,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.routers import auth, extraction
-from app.database import Base, engine
+from backend.app.routers import auth, extraction
+from backend.app.database import Base, engine
 import os
 import logging
 import sys

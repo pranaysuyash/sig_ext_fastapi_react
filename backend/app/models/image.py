@@ -26,7 +26,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
-from app.database import Base
+from backend.app.database import Base
 
 class Image(Base):
     __tablename__ = "images"

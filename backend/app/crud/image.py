@@ -2,9 +2,9 @@
 
 from sqlalchemy.orm import Session
 from fastapi import UploadFile, HTTPException, status
-from app.models.image import Image
-from app.schemas.image import ExtractionData
-from app.database import safe_commit
+from backend.app.models.image import Image
+from backend.app.schemas.image import ExtractionData
+from backend.app.database import safe_commit
 import uuid
 import os
 import cv2
@@ -13,7 +13,7 @@ import logging
 from pathlib import Path
 import traceback
 from typing import Optional
-from app.models.user import User
+from backend.app.models.user import User
 import aiofiles
 
 logger = logging.getLogger(__name__)

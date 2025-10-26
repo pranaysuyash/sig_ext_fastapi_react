@@ -109,6 +109,7 @@
 from pydantic_settings import BaseSettings
 from pydantic import Field, ValidationError
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +132,7 @@ class Settings(BaseSettings):
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(30, env="JWT_ACCESS_TOKEN_EXPIRE_MINUTES")
 
     class Config:
-        env_file = ".env"
+        env_file = os.path.join(os.path.dirname(__file__), "..", ".env")
         case_sensitive = True
         
     def __init__(self, **kwargs):

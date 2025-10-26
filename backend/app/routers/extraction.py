@@ -664,9 +664,9 @@
 
 # extraction.py
 
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Request
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Request, Form
 from sqlalchemy.orm import Session
-from app.database import get_db
+from backend.app.database import get_db
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from PIL import Image
@@ -752,13 +752,13 @@ async def select_region(
 # Process image endpoint
 @router.post("/process_image/")
 async def process_image_endpoint(
-    session_id: str,
-    x1: int,
-    y1: int,
-    x2: int,
-    y2: int,
-    color: str,
-    threshold: int,
+    session_id: str = Form(...),
+    x1: int = Form(...),
+    y1: int = Form(...),
+    x2: int = Form(...),
+    y2: int = Form(...),
+    color: str = Form(...),
+    threshold: int = Form(...),
     db: Session = Depends(get_db)
 ):
     try:

@@ -651,13 +651,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.schemas.user import UserCreate, UserResponse
-from app.schemas.token import Token
-from app.crud.user import authenticate_user, create_user
-from app.database import get_db
-from app.utils import create_access_token
+from backend.app.schemas.user import UserCreate, UserResponse
+from backend.app.schemas.token import Token
+from backend.app.crud.user import authenticate_user, create_user
+from backend.app.database import get_db
+from backend.app.utils import create_access_token
 from datetime import timedelta
-from app.config import settings
+from backend.app.config import settings
 import logging
 
 logger = logging.getLogger(__name__)

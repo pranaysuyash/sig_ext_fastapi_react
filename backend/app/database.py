@@ -46,22 +46,45 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
-from app.config import settings
+from backend.app.config import settings
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Database URL
-SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.DATABASE_USERNAME}:{settings.DATABASE_PASSWORD}@{settings.DATABASE_HOSTNAME}:{settings.DATABASE_PORT}/{settings.DATABASE_NAME}"
+# Resolve database URL with optional SQLite fallback for desktop/local use
+import os
+ENV_DB_URL = os.getenv("DATABASE_URL")
+if ENV_DB_URL:
+    SQLALCHEMY_DATABASE_URL = ENV_DB_URL
+else:
+    # Default to Postgres via settings; users can flip to SQLite by setting DATABASE_URL
+    SQLALCHEMY_DATABASE_URL = (
+        f"postgresql://{settings.DATABASE_USERNAME}:{settings.DATABASE_PASSWORD}"
+        f"@{settings.DATABASE_HOSTNAME}:{settings.DATABASE_PORT}/{settings.DATABASE_NAME}"
+    )
 
-# Create engine with logging and connection pooling
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    echo=True,  # Log all SQL statements
-    pool_pre_ping=True,  # Enable connection health checks
-    pool_size=5,
-    max_overflow=10
-)
+# Ensure directory exists for SQLite file URLs like sqlite:///backend/data/app.db
+connect_args = {}
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    try:
+        path = SQLALCHEMY_DATABASE_URL.replace("sqlite:///", "", 1)
+        if path:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+    except Exception as _e:
+        logger.warning(f"Could not ensure SQLite directory: {_e}")
+    connect_args = {"check_same_thread": False}
+
+# Create engine (add pooling only when not using SQLite)
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False, connect_args=connect_args)
+else:
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        echo=True,  # Log all SQL statements
+        pool_pre_ping=True,  # Enable connection health checks
+        pool_size=5,
+        max_overflow=10
+    )
 
 # Create session factory
 SessionLocal = sessionmaker(

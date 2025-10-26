@@ -525,10 +525,10 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from app.database import get_db
-from app.models.user import User
+from backend.app.database import get_db
+from backend.app.models.user import User
 from passlib.context import CryptContext
-from app.config import settings
+from backend.app.config import settings
 
 # Initialize logger
 logger = logging.getLogger(__name__)

@@ -1,8 +1,8 @@
 import logging
 from sqlalchemy.exc import SQLAlchemyError
-from app.database import engine, Base
-from app.models.user import User
-from app.models.image import Image
+from backend.app.database import engine, Base
+from backend.app.models.user import User
+from backend.app.models.image import Image
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

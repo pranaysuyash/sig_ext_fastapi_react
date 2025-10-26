@@ -25,7 +25,7 @@ from sqlalchemy import Column, String, Enum, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 import uuid
-from app.database import Base
+from backend.app.database import Base
 import enum
 
 class SubscriptionPlan(enum.Enum):

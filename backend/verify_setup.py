@@ -1,8 +1,8 @@
 import logging
 from sqlalchemy.orm import Session
-from app.database import SessionLocal
-from app.models.user import User
-from app.models.image import Image
+from backend.app.database import SessionLocal
+from backend.app.models.user import User
+from backend.app.models.image import Image
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

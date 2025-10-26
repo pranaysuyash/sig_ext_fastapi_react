@@ -3,9 +3,9 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from datetime import datetime
-from app.database import get_db
-from app.models.user import User
-from app.config import settings
+from backend.app.database import get_db
+from backend.app.models.user import User
+from backend.app.config import settings
 import logging
 
 logger = logging.getLogger(__name__)

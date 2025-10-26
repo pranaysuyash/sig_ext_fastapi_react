@@ -2,7 +2,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from typing import Optional
-from app.config import settings
+from backend.app.config import settings
 import logging
 
 logger = logging.getLogger(__name__)
