@@ -1,26 +1,27 @@
 ## Repository snapshot (big picture)
 
-- This project is a two-piece app: a Vite + React frontend (root `src/`, `package.json`) and a FastAPI backend in `backend/app/`.
-- Frontend serves the UI and uploads images; backend exposes authentication and extraction APIs under `/auth` and `/extraction`.
-- Backend persists data via SQLAlchemy (models in `backend/app/models`) and stores uploaded files under `backend/uploads/` (mounted as `/uploads/images`).
+- This project is a **desktop-first signature extraction tool** with a PySide6/Qt frontend and FastAPI backend.
+- **Desktop app** is in `desktop_app/` (entry: `desktop_app/main.py`); backend is in `backend/app/`.
+- Backend exposes authentication and extraction APIs under `/auth` and `/extraction`.
+- Backend persists data via SQLAlchemy (models in `backend/app/models`) and stores uploaded files under `backend/uploads/`.
+- **Note**: The React/Vite web frontend has been **completely removed** — this is now a desktop-only application.
 
 ## Key commands & developer workflows
 
-- Frontend (from repository root)
+- **Desktop App** (from repository root)
+  - Install dependencies: `pip install PySide6 requests python-dotenv pillow opencv-python numpy`
+  - Run: `python -m desktop_app.main`
+  - The app connects to the backend at `http://127.0.0.1:8001` by default
 
-  - Install: `npm install`
-  - Run dev server (HMR): `npm run dev` (this runs `vite` per `package.json`).
-  - Build for production: `npm run build`
-
-- Backend (run from repo root)
-  - Typical dev server (example):
-    - `uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000`
+- **Backend** (run from repo root)
+  - Typical dev server:
+    - `uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8001`
     - The app exposes a health endpoint at `/health` useful for smoke tests.
   - Database setup / reset: `python backend/setup_db.py` (drops and recreates tables using SQLAlchemy metadata).
   - Quick verification: `python backend/verify_setup.py` (inspects tables and sample rows).
   - Auth test helper (requires backend running): `python backend/test_auth.py` (connects to DB and hits `/auth/login`).
 
-Notes: there are no npm-style scripts for the backend; use direct Python/uvicorn commands. Tests in `backend/` are small runnable scripts (not pytest suites).
+Notes: Tests in `backend/` are small runnable scripts (not pytest suites).
 
 ## Important environment & configuration
 
@@ -32,6 +33,11 @@ Example minimal `.env` for local development (place at repo root):
 
 ```text
 JWT_SECRET=replace-with-secure-string
+
+# SQLite (default, recommended for desktop app):
+DATABASE_URL=sqlite:///backend/data/app.db
+
+# OR PostgreSQL (optional):
 DATABASE_HOSTNAME=localhost
 DATABASE_PORT=5432
 DATABASE_USERNAME=pranay
@@ -41,63 +47,59 @@ DATABASE_NAME=signature_extractor
 
 ## Project-specific conventions & patterns
 
-- Router layout: backend endpoints are split into routers under `backend/app/routers/` — currently `auth.py` and `extraction.py`. They are included in `backend/app/main.py` with prefixes `/auth` and `/extraction`.
-- Persistence: SQLAlchemy models live under `backend/app/models/`. CRUD helpers are in `backend/app/crud/` and used by routers.
-- Static uploads: `backend/app/main.py` mounts `backend/uploads/images` at `/uploads/images`. When working with file paths reference that folder.
-- Frontend <> Backend communication:
-  - The frontend uses `src/utils/axiosInstance.js` which defaults to `http://127.0.0.1:8000` and attaches a Bearer token from `localStorage` where available.
-  - `axiosInstance` purposely avoids overriding `Content-Type` for FormData uploads — important when debugging file upload failures.
+- **Router layout**: backend endpoints are split into routers under `backend/app/routers/` — currently `auth.py` and `extraction.py`. They are included in `backend/app/main.py` with prefixes `/auth` and `/extraction`.
+- **Persistence**: SQLAlchemy models live under `backend/app/models/`. CRUD helpers are in `backend/app/crud/` and used by routers.
+- **Static uploads**: `backend/app/main.py` mounts `backend/uploads/images` at `/uploads/images`. When working with file paths reference that folder.
+- **Desktop <> Backend communication**:
+  - The desktop app uses `desktop_app/api/client.py` (ApiClient) which connects to `http://127.0.0.1:8001` by default.
+  - API usage: `/auth/login` (form), `/extraction/upload` (multipart field: file), `/extraction/process_image/` (form/query params: session_id, x1, y1, x2, y2, color, threshold).
+  - Color must include a leading hash character # to match backend parsing.
 
 ## Integration points & external deps
 
-- PostgreSQL is assumed (SQLAlchemy/psycopg2 usage). Ensure a running Postgres instance matching the `.env` values.
-- The frontend relies on Vite (see `vite.config.js`) and modern React libraries (`react`, `react-router-dom`, `react-redux` etc.).
-
-### Desktop frontend option (PyQt/PySide6)
-
-- An alternative desktop GUI can replace the React UI while reusing the same FastAPI backend.
-- See detailed spec: `docs/desktop-frontend/pyqt-spec.md` (flows, API contracts, packaging, migration plan).
-- Quick dev notes:
-  - Suggested layout under `desktop_app/` (entry: `desktop_app/main.py`).
-  - Install: `pip install PySide6 requests python-dotenv pillow`
-  - Run: `python desktop_app/main.py`
-  - API usage mirrors web: /auth/login (form), /extraction/upload (multipart field: file), /extraction/process_image/ (form/query params: session_id, x1, y1, x2, y2, color, threshold).
-  - Color must include a leading hash character # to match backend parsing.
+- **Database**: SQLite by default (no setup needed); PostgreSQL optional (SQLAlchemy/psycopg2 usage).
+- **Desktop app**: PySide6/Qt6 for GUI; PIL/Pillow for image handling; requests for HTTP client.
+- **Backend**: FastAPI, SQLAlchemy, OpenCV, NumPy for image processing.
 
 ## Files to inspect first when changing behavior
 
-- Backend API surface and bootstrapping:
-
+- **Backend API surface and bootstrapping:**
   - `backend/app/main.py` — CORS config, static mount, router includes, `/health` endpoint.
   - `backend/app/config.py` — env-driven settings; validates `JWT_SECRET`.
   - `backend/app/database.py` — SQLAlchemy engine and session (used across app).
 
-- Business logic & persistence:
-
+- **Business logic & persistence:**
   - `backend/app/routers/*.py` (auth/extraction) — request/response shapes and route wiring.
   - `backend/app/crud/*` and `backend/app/models/*` — where DB operations and schemas live.
 
-- Frontend:
-  - `src/utils/axiosInstance.js` — baseURL, auth header and upload behavior.
-  - `src/components/Extraction/` — UI components and dataflow for image upload/extraction.
+- **Desktop UI:**
+  - `desktop_app/main.py` — Application entry point and initialization.
+  - `desktop_app/views/main_window.py` — Main UI window, controls, and event handlers.
+  - `desktop_app/widgets/image_view.py` — Image display widget with zoom/pan/selection.
+  - `desktop_app/api/client.py` — Backend API client (upload, process, etc.).
+  - `desktop_app/state/session.py` — Session state management.
 
 ## Common pitfalls and debugging tips (project-specific)
 
 - Missing `JWT_SECRET` results in startup/config validation problems. Check `backend/app/config.py` logs.
-- If file uploads fail with 413/415 or appear empty in backend, ensure the browser request uses `FormData` and `Content-Type` is not overridden — `axiosInstance` contains logic around this.
-- If static uploads are not served, confirm `backend/uploads/images` exists and `main.py` mount path (`/uploads/images`) matches frontend requests.
-- Tests in `backend/` directly connect to DB (psycopg2). They will fail unless the DB credentials and network are correct and the backend is running for endpoint tests.
+- If file uploads fail with 413/415 or appear empty in backend, ensure the request uses proper `multipart/form-data` with the `file` field.
+- If static uploads are not served, confirm `backend/uploads/images` exists and `main.py` mount path (`/uploads/images`) is correct.
+- Tests in `backend/` directly connect to DB. They will fail unless the DB credentials and network are correct and the backend is running for endpoint tests.
+- Desktop app expects backend at `http://127.0.0.1:8001` by default — ensure backend is running on port 8001 (not 8000).
 
 ## What an agent should do first
 
-1. Check for a `.env` and `backend/app/config.py` values. If `JWT_SECRET` isn't present, prompt the developer or generate a secure secret using `python backend/generate_secret.py`.
-2. Start Postgres locally or point `DATABASE_*` envs to a reachable DB.
+1. Check for a `.env` and `backend/app/config.py` values. If `JWT_SECRET` isn't present, generate a secure secret using `python backend/generate_secret.py`.
+2. Decide on database: SQLite (default, zero-config) or PostgreSQL (set `DATABASE_*` envs).
 3. Run `python backend/setup_db.py` to ensure schema is present.
-4. Launch the backend via `uvicorn` and the frontend via `npm run dev` and hit `/health`.
+4. Launch the backend via `uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8001` and verify `/health` endpoint.
+5. Launch the desktop app via `python -m desktop_app.main`.
 
 ## Merging notes
 
-- There was no pre-existing `.github/copilot-instructions.md`. If you have internal agent docs (AGENT.md or similar), add them here and merge important steps — but prefer the concise checklist above.
+- The React/Vite web frontend was removed in October 2025. All references to `src/`, `package.json`, `vite.config.js`, `index.html` etc. are stale.
+- This is now a desktop-first application using PySide6/Qt6.
+- If you see instructions mentioning npm, React, or Vite, they are outdated.
 
 ---
 

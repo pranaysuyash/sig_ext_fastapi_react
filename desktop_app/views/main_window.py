@@ -6,12 +6,15 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QAction, QImage, QColor, QPixmap, QTransform
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog,
-    QLabel, QSlider, QColorDialog, QMessageBox
+    QLabel, QSlider, QColorDialog, QMessageBox, QListWidget, QListWidgetItem, QStatusBar
 )
 from PIL import Image as PILImage
 from PIL.ExifTags import TAGS
 
+from desktop_app.api.client import ApiClient
+from desktop_app.state.session import SessionState
 from desktop_app.widgets.image_view import ImageView
+from desktop_app.views.export_dialog import ExportDialog
 
 
 class MainWindow(QMainWindow):
@@ -73,12 +76,26 @@ class MainWindow(QMainWindow):
         controls.addWidget(self.sel_info)
 
         self.preview_btn = QPushButton("👁 Preview")
+        self.preview_btn.setToolTip("Process the selected region with current threshold and color settings")
         self.preview_btn.clicked.connect(self.on_preview)
-        self.save_btn = QPushButton("💾 Save Result")
-        self.save_btn.clicked.connect(self.on_save)
-        self.save_btn.setEnabled(False)
+        self.export_btn = QPushButton("� Export...")
+        self.export_btn.setToolTip("Export with advanced options (background, trim, format)")
+        self.export_btn.clicked.connect(self.on_export)
+        self.export_btn.setEnabled(False)
+        self.save_to_library_btn = QPushButton("📁 Save to Library")
+        self.save_to_library_btn.setToolTip("Quick save as PNG to local library")
+        self.save_to_library_btn.clicked.connect(self.on_save_to_library)
+        self.save_to_library_btn.setEnabled(False)
         controls.addWidget(self.preview_btn)
-        controls.addWidget(self.save_btn)
+        controls.addWidget(self.export_btn)
+        controls.addWidget(self.save_to_library_btn)
+
+        # Library list
+        controls.addWidget(QLabel("My Signatures"))
+        self.library_list = QListWidget()
+        self.library_list.itemClicked.connect(self.on_library_item_clicked)
+        self.library_list.setMinimumHeight(120)
+        controls.addWidget(self.library_list)
         controls.addStretch(1)
 
         # Right image views
@@ -214,6 +231,7 @@ class MainWindow(QMainWindow):
             self.schedule_preview()
 
     def on_preview(self):
+        """Process the selected region and show the result."""
         if not self.session.session_id:
             QMessageBox.warning(self, "No image uploaded", "Please open & upload an image first")
             return
@@ -231,7 +249,8 @@ class MainWindow(QMainWindow):
             )
             self._last_result_png = png_bytes
             self.res_view.load_image_bytes(png_bytes)
-            self.save_btn.setEnabled(True)
+            self.export_btn.setEnabled(True)
+            self.save_to_library_btn.setEnabled(True)
         except Exception as e:
             QMessageBox.critical(self, "Process failed", str(e))
 
@@ -239,7 +258,8 @@ class MainWindow(QMainWindow):
         self.src_view.clear_selection()
         self.sel_info.setText("Selection: –")
         self.crop_preview.clear()
-        self.save_btn.setEnabled(False)
+        self.export_btn.setEnabled(False)
+        self.save_to_library_btn.setEnabled(False)
         # Hide preview/result panes
         self.crop_preview_label.setVisible(False)
         self.crop_preview.setVisible(False)
@@ -299,18 +319,46 @@ class MainWindow(QMainWindow):
         else:
               self.toggle_mode_btn.setText("✋ Mode: Pan")
 
-    def on_save(self):
+    def on_export(self):
+        """Open the export dialog with professional options."""
         if not self._last_result_png:
             return
-        out_path, _ = QFileDialog.getSaveFileName(self, "Save result", filter="PNG Image (*.png)")
+        
+        dialog = ExportDialog(self._last_result_png, self)
+        dialog.exec()
+    
+    def on_save_to_library(self):
+        """Quick save to library with default PNG format."""
+        if not self._last_result_png:
+            return
+        
+        # TODO: Implement library directory and auto-naming
+        # For now, use a simple save dialog with PNG default
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        default_name = f"signature_{timestamp}.png"
+        
+        out_path, _ = QFileDialog.getSaveFileName(
+            self, 
+            "Save to Library", 
+            default_name,
+            "PNG Image (*.png)"
+        )
         if not out_path:
             return
+        
         try:
             with open(out_path, "wb") as f:
                 f.write(self._last_result_png)
-            QMessageBox.information(self, "Saved", f"Saved to {out_path}")
+            QMessageBox.information(self, "Saved to Library", f"Saved: {out_path}")
+            # TODO: Add to library list widget
         except Exception as e:
             QMessageBox.critical(self, "Save failed", str(e))
+    
+    def on_library_item_clicked(self, item):
+        """Load a signature from the library."""
+        # TODO: Implement library item loading
+        pass
 
     def _apply_theme(self):
         """Apply subtle blue accent color theme for personality."""
