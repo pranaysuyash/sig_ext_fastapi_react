@@ -11,17 +11,18 @@
 
 ## Pricing Tiers
 
-### 🎯 Free Trial (14 Days)
+### 🎯 Free Trial (7 Days)
 
 **$0 - Full feature trial**
 
 - All desktop features unlocked
-- Up to 50 signature extractions
-- 14-day time limit
+- Up to 10 signature extractions
+- 7-day time limit
 - Email support
 - **After trial**: Upgrade or app becomes view-only
 
 **Perfect for**: Evaluating if the tool fits your workflow
+**Rationale**: 7 days + 10 extractions is enough to understand value without giving it away
 
 ---
 
@@ -62,40 +63,24 @@
 
 ---
 
-### 🏢 Team (Multi-User)
+### 🏢 Team & Enterprise (Future)
 
-**$30/month per user** (min 3 users) or $300/year per user
+**Not available yet - focus on individual/freelancer market first**
 
-- **Everything in Pro, plus**:
-- **Team workspace** - Shared library of extracted signatures
-- **Role-based access** - Admin, Editor, Viewer roles
-- **Audit logs** - Who extracted what, when (compliance-friendly)
-- **API access** - 10,000 requests/month
-- **Webhooks** - Trigger external workflows
-- **SSO (Single Sign-On)** - Google Workspace, Microsoft 365, Okta
-- **Priority support** - Email/chat response within 4 hours
-- **Usage limits**: 5,000 cloud extractions/month per user
-- **Perfect for**: Law firms, healthcare providers, real estate agencies, design studios
+**Why wait?**
+- Solo dev can't support complex B2B sales cycles
+- Need product-market fit with individuals first
+- Team features require significant infrastructure (SSO, audit logs, etc.)
+- Enterprise deals need dedicated sales team and support
 
----
+**When to add:**
+- After 500+ Lifetime/Pro customers
+- Once you have funding or hire help
+- When customers are asking for team features
 
-### 🚀 Enterprise (Custom)
-
-**Starting at $500/month**
-
-- **Everything in Team, plus**:
-- **Unlimited users**
-- **On-premise deployment** - Deploy backend on your own infrastructure
-- **Custom integrations** - DocuSign, Salesforce, custom CRM/ERP
-- **Advanced AI features**:
-  - OCR (text extraction)
-  - Auto signature detection (ML-based)
-  - Forgery detection (experimental)
-- **SLA**: 99.9% uptime guarantee
-- **Dedicated support** - Slack channel, phone, video calls
-- **Custom feature development** - Negotiate feature prioritization
-- **HIPAA/SOC 2 compliance** - Signed BAA, security audits
-- **Perfect for**: Hospitals, banks, insurance companies, government agencies
+**Estimated pricing (future reference):**
+- Team: ~$30/user/month (min 3 users)
+- Enterprise: Custom ($500+/month)
 
 ---
 
@@ -338,12 +323,17 @@ A: Yes, 30-day money-back guarantee for all purchases.
 
 ## Summary
 
-**Recommended Strategy**:
+**Recommended Strategy (Solo Dev Focus)**:
 
-✅ **Remove "Free Forever" tier**  
-✅ **Start with 14-day trial** (50 extractions limit)  
-✅ **Offer Lifetime Desktop at $49** (captures anti-subscription buyers)  
-✅ **Launch Pro at $12/mo** (for cloud + advanced features)  
-✅ **Add Team/Enterprise later** (once product-market fit proven)
+✅ **Remove "Free Forever" tier** - No ads, no freemium trap  
+✅ **7-day trial with 10 extractions** - Enough to evaluate, not enough to abuse  
+✅ **Lifetime Desktop at $49** - Main revenue driver for solo dev  
+✅ **Pro at $12/mo** (Phase 2) - Add cloud features later when backend scales  
+❌ **Skip Team/Enterprise** - Too complex for solo dev, add only after PMF + team
 
-This creates urgency, qualifies serious users, and provides two clear value propositions: "Own it" (Lifetime) vs "Rent it with extras" (Pro).
+**Solo Dev Priorities:**
+1. **Launch with Lifetime only** (simplest, immediate cash)
+2. **Add Pro in 3-6 months** (once you have 100+ Lifetime customers)
+3. **Consider Team in Year 2** (once you have help or funding)
+
+This creates urgency, qualifies serious users, and keeps complexity LOW for solo development.
