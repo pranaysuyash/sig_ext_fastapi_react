@@ -21,9 +21,15 @@ Desktop-first signature extraction tool with server/cloud expansion path. Core v
 
 ### In Progress
 
-- [ ] **Selection vs Pan mode toggle** — "Mode: Select" / "Mode: Pan" button to avoid conflict when zoomed
-- [ ] **EXIF orientation handling** — Auto-rotate images based on metadata so source view matches camera orientation
+- [x] **Selection vs Pan mode toggle** — "Mode: Select" / "Mode: Pan" button to avoid conflict when zoomed ✅ **COMPLETED**
+- [x] **EXIF orientation handling** — Auto-rotate images based on metadata so source view matches camera orientation ✅ **COMPLETED**
 - [ ] **Icons and visual polish** — Use QIcon for buttons; app icon; subtle color theme
+
+### Recently Completed (Oct 2025)
+
+- [x] **Status bar with session ID** — Permanent display in footer with tooltips
+- [x] **Professional export dialog** — Format options (PNG-24/PNG-8/JPEG), background choices, trim to content, quality control
+- [x] **Save to Library quick-save** — Auto-generated timestamp filenames with PNG default
 
 ---
 
@@ -423,16 +429,18 @@ Desktop-first signature extraction tool with server/cloud expansion path. Core v
 
 ## Next Immediate Actions (This Sprint)
 
-1. **Fix selection vs pan conflict** ✅ (Mode toggle button added)
-2. **EXIF orientation handling** ✅ (Auto-rotate on load)
-3. **Hide preview/result until selection** ✅ (Panes now hidden initially)
-4. **White background for result view** ✅ (Improved visibility)
-5. **Add app icon** → Use `QApplication.setWindowIcon()` with a custom icon
-6. **Add button icons** → Use `QPushButton.setIcon()` with QIcon from resources or emoji
-7. **Test rotate buttons** → Implement `Rotate CW/CCW` with PIL rotate + re-upload
-8. **Export metadata dialog** → Add "Export Metadata" button that saves JSON
-9. **Document REST API** → Create `docs/API.md` with endpoint specs for extension developers
-10. **Create landing page mockup** → Sketch in Figma or use HTML template
+1. **Fix selection vs pan conflict** ✅ **COMPLETED** (Mode toggle button added)
+2. **EXIF orientation handling** ✅ **COMPLETED** (Auto-rotate on load)
+3. **Hide preview/result until selection** ✅ **COMPLETED** (Panes now hidden initially)
+4. **White background for result view** ✅ **COMPLETED** (Improved visibility)
+5. **Status bar with session ID** ✅ **COMPLETED** (Footer display with tooltips)
+6. **Professional export dialog** ✅ **COMPLETED** (Format/background/trim options)
+7. **Add app icon** → Use `QApplication.setWindowIcon()` with a custom icon
+8. **Add button icons** → Use `QPushButton.setIcon()` with QIcon from resources
+9. **Test rotate buttons** → Implement `Rotate CW/CCW` with PIL rotate + re-upload
+10. **Export metadata dialog** → Add "Export Metadata" button that saves JSON
+11. **Document REST API** → Create `docs/API.md` with endpoint specs for extension developers
+12. **Create landing page mockup** → Sketch in Figma or use HTML template
 
 ---
 

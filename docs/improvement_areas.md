@@ -1,14 +1,14 @@
 # Improvement Opportunities
 
 ## Critical Fixes
-- Implement `MainWindow.on_save_to_library` so the “Save to Library” button stops raising an `AttributeError` when clicked.
-- Add an `on_library_item_clicked` slot (or remove the signal hookup) to prevent crashes when the signature list is used.
+- ~~Implement `MainWindow.on_save_to_library` so the "Save to Library" button stops raising an `AttributeError` when clicked.~~ ✅ **COMPLETED** (Oct 2025)
+- ~~Add an `on_library_item_clicked` slot (or remove the signal hookup) to prevent crashes when the signature list is used.~~ ✅ **COMPLETED** (Oct 2025)
 - Unify the upload directory configuration so files written by `extraction.upload_image_endpoint` are actually served by the `/uploads/images/*` StaticFiles mount.
 
 ## Desktop App UX & Features
-- Finish the signature library experience: persist saved results, show thumbnails/metadata, and allow reloading into the preview pane.
+- Finish the signature library experience: persist saved results, show thumbnails/metadata, and allow reloading into the preview pane. *(IN PROGRESS)*
 - Add rotate ↶/↷ controls that re-upload the rotated bitmap and keep selection state in sync.
-- Provide inline progress/status cues for long uploads or processing calls (spinner, disabled buttons, status bar text).
+- ~~Provide inline progress/status cues for long uploads or processing calls (spinner, disabled buttons, status bar text).~~ ✅ **COMPLETED** - Status bar with messages (Oct 2025)
 - Restore an optional login flow (auto-open on HTTP 401) or remove the placeholder UI to keep behavior consistent.
 - Offer quick actions such as copy-to-clipboard, preset threshold/color combos, and recent color swatches.
 - Add accessibility refinements: keyboard shortcuts for zoom/pan/toggle, larger hit targets, and a help/onboarding pane.
@@ -32,7 +32,7 @@
 - Add GUI smoke tests (e.g., pytest-qt) to exercise the main PySide6 flows in CI.
 
 ## Documentation & Developer Experience
-- Reconcile conflicting port defaults (README mentions 8001, desktop config defaults to 8001, desktop README cites 8000) and publish a single source of truth.
+- ~~Reconcile conflicting port defaults (README mentions 8001, desktop config defaults to 8001, desktop README cites 8000) and publish a single source of truth.~~ ✅ **COMPLETED** - Standardized on 8001 (Oct 2025)
 - Document mandatory environment variables (JWT secret, database URL) and provide a ready-to-use `.env.example`.
 - Publish an API reference (`docs/API.md`) with curl examples so integrators know how to talk to the backend.
 - Update contributor docs with setup scripts, lint/test commands, and troubleshooting tips (DB migrations, PySide installation).
