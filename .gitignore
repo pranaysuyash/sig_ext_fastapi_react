@@ -76,10 +76,3 @@ uploads/**/*
 # App logs
 app.log
 mcp-shell.log
-
-# Generated analysis/improvement docs (keep structured docs only)
-ANALYSIS.md
-APP_ANALYSIS.md
-FEATURE_PROPOSAL.md
-IMPROVEMENTS.md
-improvement_areas.md
