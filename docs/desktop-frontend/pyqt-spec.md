@@ -1,160 +1,290 @@
 # Desktop Frontend (PyQt/PySide6) Specification
 
-This document proposes a desktop GUI replacement for the current React frontend using PySide6 (Qt for Python). The backend FastAPI service and PostgreSQL database remain unchanged.
+**Status**: ✅ **IMPLEMENTED** (Oct 2025)
+
+This document describes the desktop GUI application built with PySide6 (Qt for Python). The React frontend has been completely removed. The backend FastAPI service remains unchanged.
 
 ## Overview
 
-- Keep FastAPI backend as-is (auth + extraction) and build a cross-platform desktop client.
-- Two run modes:
-  1. Client-server (recommended): Desktop app talks to running FastAPI over HTTP.
-  2. Bundled: Optional second phase where the desktop app can start FastAPI in a background process for an all-in-one experience.
+- **FastAPI backend** runs on port **8001** (standardized from initial 8000)
+- **Client-server mode**: Desktop app talks to running FastAPI over HTTP at `http://127.0.0.1:8001`
+- **Current status**: Fully functional with all core features implemented
+- **React frontend**: Completely removed (Oct 2025) - this is now a desktop-only application
 
-## User flows
+## User Workflows (Implemented)
 
-### 1) Login
+### 1) Login (✅ Implemented)
 
-- Inputs: email, password.
-- Call POST /auth/login with OAuth2PasswordRequestForm fields: username, password.
-- Store JWT in memory (optionally OS keyring); attach as Bearer to subsequent calls.
-- Store JWT in memory (optionally OS keyring); attach as Bearer to subsequent calls.
+- Login dialog on startup with email/password inputs
+- Call `POST /auth/login` with OAuth2PasswordRequestForm
+- JWT stored in `SessionState` (in-memory)
+- Token attached as Bearer to subsequent API calls
 
-### 2) Upload image
+### 2) Upload Image (✅ Implemented)
 
-- Open file dialog, select PNG/JPG.
-- Call POST /extraction/upload as multipart/form-data with field `file`.
-- Response JSON: { id: string (UUID), filename: string, file_path: "/uploads/images/{id}.png" }.
-- Save `id` as session_id for future processing.
-- Save `id` as session_id for future processing.
+- File picker dialog (PNG/JPG/JPEG)
+- **EXIF auto-rotation**: Automatically corrects image orientation based on EXIF data
+- Call `POST /extraction/upload` as multipart/form-data with `file` field
+- Response: `{ id (UUID), filename, file_path }`
+- Session ID saved in `SessionState` and **displayed in status bar footer** with tooltip
 
-### 3) Select region and preview
+### 3) Select Region (✅ Implemented)
 
-- Display image preview; user draws rectangle (x1,y1,x2,y2) using QRubberBand over QGraphicsView.
-- Controls: Threshold slider (0–255), Color picker (hex, e.g. #000000 for black).
-- Call POST /extraction/process_image/ with fields: session_id, x1, y1, x2, y2, color, threshold.
-- Receives PNG stream (image/png). Render in preview panel.
-- Receives PNG stream (image/png). Render in preview panel.
+- **QGraphicsView** with zoom/pan/selection modes
+- **Mode toggle**: "Selection Mode" button switches between selection and pan/zoom
+- **QRubberBand**: Draw rectangle selection (x1, y1, x2, y2)
+- **Zoom**: Mouse wheel to zoom in/out
+- **Pan**: Click-and-drag in pan mode
+- Controls shown: Threshold slider (0-255), Color picker (hex)
 
-### 4) Save result
+### 4) Preview Extraction (✅ Implemented)
 
-- Save previewed result as PNG with alpha via QFileDialog.
-- Optional: Copy to clipboard.
+- Click "Preview" button after making selection
+- Call `POST /extraction/process_image/` with params: session_id, x1, y1, x2, y2, color, threshold
+- Receives PNG stream (image/png)
+- Displays in right panel with **white background** for visibility
+- **Status bar feedback**: "Processing..." → "Preview ready!" messages
 
-## API contracts (backend already implemented)
+### 5) Export/Save Result (✅ Implemented)
 
-- POST /auth/login
+Three save options:
 
-  - Content-Type: application/x-www-form-urlencoded
-  - Body: username, password
-  - Response: { access_token, token_type }
+**a) Export (Professional Dialog)**:
+- Opens `ExportDialog` with advanced options:
+  - **Format**: PNG-24 (default), PNG-8 (smaller), JPEG (no transparency)
+  - **Background**: Transparent, White, Black, or Custom color
+  - **Trim to content**: Removes transparent borders with configurable padding (0-100px)
+  - **JPEG quality**: Slider (1-100%) for compression control
+- Uses PIL for image processing (alpha compositing, format conversion, trimming)
+- Save location via QFileDialog
 
-- POST /extraction/upload
+**b) Save to Library** (Quick Save):
+- Auto-generated filename: `signature_YYYYMMDD_HHMMSS.png`
+- Saves to `~/.signature_extractor/signatures/` (prepared, needs persistence logic)
+- Status bar feedback: "Saved to library!"
 
-  - Content-Type: multipart/form-data (field `file`)
-  - Response: { id, filename, file_path }
+**c) Copy to Clipboard** (Future):
+- Not yet implemented
 
-- POST /extraction/process_image/
-  - Params/Form fields: session_id: str (UUID), x1: int, y1: int, x2: int, y2: int, color: str ("#RRGGBB"), threshold: int (0–255)
-  - Response: image/png stream
+## API Contracts (Backend on Port 8001)
 
-Notes
+All API calls go to `http://127.0.0.1:8001`
 
-- Color string must start with `#`; backend slices indexes 1,3,5 to parse hex.
-- Coordinates should be clamped to the actual image size (backend performs guard checks as well).
+**POST /auth/login**
+- Content-Type: `application/x-www-form-urlencoded`
+- Body: `username`, `password`
+- Response: `{ access_token, token_type }`
 
-## Project layout (proposed)
+**POST /extraction/upload**
+- Content-Type: `multipart/form-data` (field `file`)
+- Response: `{ id (UUID), filename, file_path }`
+
+**POST /extraction/process_image/**
+- Params/Form fields: `session_id` (UUID), `x1`, `y1`, `x2`, `y2`, `color` ("#RRGGBB"), `threshold` (0-255)
+- Response: `image/png` stream
+
+**GET /health**
+- Response: `{ status: "ok" }` (used for smoke tests)
+
+**Notes**:
+- Color string **must start with `#`** - backend parses hex at indexes 1, 3, 5
+- Coordinates clamped to actual image size (backend + frontend validation)
+- Backend mounts static uploads at `/uploads/images`
+
+## Project Layout (Current Implementation)
 
 ```text
 desktop_app/
-  main.py                   # Entry point (QtApplication)
-  config.py                 # API base URL, env loading
+  main.py                   # ✅ Entry point (QApplication + main window)
   api/
-    client.py               # Tiny HTTP wrapper (requests) with JWT handling
+    client.py               # ✅ HTTP wrapper (requests) with JWT, upload, process_image
+    __init__.py
   views/
-    login_dialog.py         # QDialog for login
-    main_window.py          # QMainWindow; left: controls, right: image views
+    login_dialog.py         # ✅ QDialog for login (email/password)
+    main_window.py          # ✅ QMainWindow with controls + image views + status bar
+    export_dialog.py        # ✅ Professional export dialog (formats, backgrounds, trim)
+    __init__.py
   widgets/
-    image_view.py           # QGraphicsView + QRubberBand for cropping
-    color_picker.py         # QColorDialog wrapper + hex sync
+    image_view.py           # ✅ QGraphicsView with zoom/pan/selection, QRubberBand
+    __init__.py
   state/
-    session.py              # Holds access_token, session_id, last request params
-  resources/                # icons, qss
-  requirements.txt          # PySide6, requests, python-dotenv, pillow
+    session.py              # ✅ Holds access_token, session_id, last_upload_response
+    __init__.py
+  resources/                # 🔄 Planned: icons, stylesheets (currently using emoji)
 ```
 
-## Key components
+**Dependencies** (see repo root for virtual env):
+- PySide6 (Qt6 for Python)
+- requests (HTTP client)
+- python-dotenv (environment variables)
+- Pillow/PIL (image processing for export)
+- opencv-python (backend image processing)
+- numpy (backend array operations)
 
-- api/client.py
+## Key Components (Implementation Details)
 
-  - Methods: login(username, password) -> token; upload_image(path) -> {id, filename, file_path};
-    process_image(params) -> bytes (PNG)
-  - Adds Authorization: Bearer {token} header when token present
+### api/client.py (✅ Complete)
+- **ApiClient class**:
+  - `login(email, password)` → stores JWT token
+  - `upload_image(file_path)` → returns `{id, filename, file_path}`
+  - `process_image(session_id, x1, y1, x2, y2, color, threshold)` → returns PNG bytes
+- **Authorization**: Adds `Authorization: Bearer {token}` header when token present
+- **Base URL**: `http://127.0.0.1:8001` (configurable via environment)
 
-- widgets/image_view.py
+### widgets/image_view.py (✅ Complete)
+- **ImageView (QGraphicsView)**:
+  - Displays QPixmap from local file or uploaded image
+  - **Zoom**: Mouse wheel zoom in/out, reset zoom button
+  - **Pan**: Click-and-drag in pan mode (when selection disabled)
+  - **Selection**: QRubberBand rectangle with mode toggle
+  - **EXIF handling**: Auto-rotates images based on EXIF orientation tag
+- **Signals**: Emits `selectionChanged(x1, y1, x2, y2)` when user completes selection
 
-  - Loads QImage from file_path URL (optionally via GET, or from local selection)
-  - Supports zoom/pan and rectangle selection; emits selectionChanged(x1,y1,x2,y2)
+### views/main_window.py (✅ Complete)
+- **QMainWindow** with:
+  - **Menu bar**: File (Open, Exit), Help (About)
+  - **Left panel**: Controls (Open File, Mode Toggle, Threshold, Color, Preview, Export, Save to Library)
+  - **Right panel**: Two ImageView widgets (Original + Result) in splitter
+  - **Status bar**: Session ID (permanent, truncated with tooltip) + transient status messages
+- **Progressive UI**: Controls enable/disable based on state (no upload → no preview, etc.)
+- **Button tooltips**: Clear explanations for each action
+- **Status feedback**: Replaces popup messages with status bar messages
 
-- views/main_window.py
-  - Controls: file picker, threshold slider, color picker, preview button, save button
-  - Binds to client methods; displays returned PNG in a QLabel/QGraphicsView
+### views/export_dialog.py (✅ Complete)
+- **ExportDialog (QDialog)**:
+  - **Format selector**: PNG-24 (default), PNG-8 (smaller), JPEG (no transparency)
+  - **Background options**: Radio buttons (Transparent, White, Black, Custom)
+  - **Custom color picker**: QColorDialog for custom background
+  - **Trim to content**: Checkbox with padding spinbox (0-100px)
+  - **JPEG quality**: Slider (1-100%) for compression
+- **Export logic**: PIL-based processing (alpha_composite, quantize, convert)
+- **File dialog**: QFileDialog for save location
+
+### state/session.py (✅ Complete)
+- **SessionState class** (singleton pattern):
+  - `access_token` - JWT from login
+  - `session_id` - UUID from upload
+  - `last_upload_response` - Full upload response
+  - `original_file_path` - Local file path
+  - Methods: `set_token()`, `clear_token()`, `set_session()`
 
 ## Configuration
 
-- API base URL from environment: VITE_API_URL equivalent
-  - `.env` (root): API_BASE_URL=`http://127.0.0.1:8000`
-  - Fallback: `http://127.0.0.1:8000`
+- **API base URL**: Hardcoded to `http://127.0.0.1:8001` in `api/client.py`
+  - Future: Move to environment variable or config file
+  - `.env` (root): `JWT_SECRET`, `DATABASE_URL`, etc. (backend only)
+- **Backend config**: `backend/app/config.py` uses `pydantic_settings`
+- **Local library path**: `~/.signature_extractor/signatures/` (prepared, needs implementation)
 
-## Error handling
+## Error Handling (✅ Implemented)
 
-- Map common HTTP status to user messages:
-  - 401: clear token and show Login dialog
-  - 403: show "Permission denied"
-  - 404: show "File not found" for session/image
-  - 413/415: show file too large/unsupported type
-  - 422: show validation errors
-  - 500: show generic server error with details
+**HTTP status mapping**:
+- **401**: Clear token and show Login dialog
+- **403**: "Permission denied" message
+- **404**: "File not found" for session/image
+- **413/415**: "File too large/unsupported type"
+- **422**: Show validation errors from backend
+- **500**: Generic server error with details
 
-## Logging & diagnostics
+**User feedback**:
+- **Status bar messages**: Transient messages for operations (upload, process, export)
+- **QMessageBox**: For errors, warnings, and confirmations
+- **Try-catch blocks**: All API calls wrapped with exception handling
 
-- Console logging by default; optional rotating file handler in `desktop_app/logs/app.log`.
-- Add a Help > Diagnostics menu to open logs and test `/health`.
+## Logging & Diagnostics
 
-## Build & run (macOS zsh examples)
+**Current**: Console logging (stdout/stderr)
+
+**Future**:
+- Rotating file handler in `desktop_app/logs/app.log`
+- Help > Diagnostics menu to open logs
+- Test `/health` endpoint from Help menu
+
+## Build & Run (macOS zsh)
+
+### Development Setup
 
 ```zsh
 # Create venv and install deps
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-pip install PySide6 requests python-dotenv pillow
+pip install PySide6 requests python-dotenv pillow opencv-python numpy
 
-# Run desktop app (assuming desktop_app/main.py exists)
-python desktop_app/main.py
+# Install backend deps (if not already done)
+pip install sqlalchemy psycopg2-binary python-multipart 'python-jose[cryptography]' 'passlib[bcrypt]' pydantic-settings
 ```
 
-Packaging (optional)
+### Run Backend (Terminal 1)
+
+```zsh
+source .venv/bin/activate
+uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8001
+```
+
+### Run Desktop App (Terminal 2)
+
+```zsh
+source .venv/bin/activate
+python -m desktop_app.main
+```
+
+### Packaging (Future)
 
 ```zsh
 pip install pyinstaller
 pyinstaller --noconfirm --windowed --name "Signature Extractor" desktop_app/main.py
+# Or use PyInstaller with spec file for better control
 ```
 
-## Migration plan
+## Completed Features (Oct 2025)
 
-Phase 1 (parallel):
+### Core Functionality ✅
+- [x] Login dialog with JWT authentication
+- [x] File upload with EXIF auto-rotation
+- [x] Image display with zoom/pan/selection modes
+- [x] Selection mode toggle (vs pan mode)
+- [x] Threshold slider (0-255)
+- [x] Color picker (hex)
+- [x] Preview extraction
+- [x] Professional export dialog (PNG-24/PNG-8/JPEG, backgrounds, trim, quality)
+- [x] Save to library (auto-generated filenames)
+- [x] Status bar with session ID and transient messages
+- [x] Progressive UI (enable/disable controls based on state)
+- [x] Button tooltips
+- [x] White background for result visibility
 
-- Implement `desktop_app` skeleton and minimal login + upload + preview flow.
-- Keep React frontend working for continuity.
-- Dogfood desktop app; gather feedback.
+### React Frontend
+- [x] **Completely removed** (Oct 2025) - Desktop-only application
 
-Phase 2 (consolidation):
+## Pending Features
 
-- Reach UI parity (crop, threshold, color, save) with web UI.
-- Optional: add in-app backend launcher for single-binary distribution.
-- Deprecate or archive React UI if desired.
+### High Priority 🔴
+- [ ] **Keyboard shortcuts** (Ctrl+O, Ctrl+S, Delete, Ctrl+Z)
+- [ ] **Proper QIcon icons** (replace emoji)
+- [ ] **Local library infrastructure** (persistence, sidebar list, double-click load)
+- [ ] **Dark theme toggle**
 
-## Acceptance criteria
+### Medium Priority 🟡
+- [ ] **Rotate with re-upload** (CW/CCW buttons)
+- [ ] **Export metadata JSON** (bbox, timestamp, settings)
+- [ ] **Copy to clipboard** (result image)
+- [ ] **Batch processing** (multiple files)
+- [ ] **Presets** (save/load threshold+color combos)
 
-- Can login, upload, crop-select, preview, and save PNG result using existing FastAPI.
-- Handles large files gracefully with progress and errors surfaced to user.
-- Minimal footprint and simple packaging for macOS (works on Apple Silicon).
+### Low Priority 🟢
+- [ ] **Auto-detection** (OCR + signature detection)
+- [ ] **In-app backend launcher** (bundled mode)
+- [ ] **Help > Diagnostics** menu (logs, health check)
+- [ ] **File logging** (rotating handler)
+- [ ] **Application icon** (dock/taskbar)
+- [ ] **Installer** (DMG for macOS, MSI for Windows)
+
+## Technical Debt
+- [ ] Move API base URL to config file/environment variable
+- [ ] Add comprehensive error handling for network failures
+- [ ] Implement retry logic for API calls
+- [ ] Add loading spinners for long operations
+- [ ] Unit tests for image processing logic
+- [ ] Integration tests for API client
+- [ ] UI tests for critical workflows

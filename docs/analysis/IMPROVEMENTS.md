@@ -57,3 +57,51 @@ The project's `ROADMAP.md` already outlines an excellent set of features. Here a
 *   **API Documentation:** As mentioned in the backend improvements, the API documentation should be more detailed and comprehensive.
 *   **User Guide:** A more detailed user guide with screenshots and tutorials would be helpful for new users.
 *   **Developer Documentation:** For developers who want to contribute to the project, more detailed documentation on the architecture, codebase, and development setup would be beneficial.
+
+## Implementation Suggestions
+
+### UI Polish: Adding Icons to Buttons
+
+As a concrete example of a UI polish improvement, here is a suggestion for adding icons to the main control buttons in the `desktop_app/views/main_window.py` file.
+
+**File to Modify:** `desktop_app/views/main_window.py`
+
+**Goal:** Replace the text-only buttons with buttons that include descriptive emojis to make the UI more intuitive and visually appealing.
+
+**Specific Changes:**
+
+**Before:**
+
+```python
+self.open_btn = QPushButton("📂 Open & Upload Image")
+# ...
+self.zoom_in_btn = QPushButton("🔍+")
+self.zoom_out_btn = QPushButton("🔍−")
+self.fit_btn = QPushButton("⊡ Fit")
+self.reset_view_btn = QPushButton("⊙ 100%")
+self.toggle_mode_btn = QPushButton("🎯 Mode: Select")
+self.clear_sel_btn = QPushButton("✖ Clear Selection")
+```
+
+**After:**
+
+```python
+self.open_btn = QPushButton("📂 Open Image")
+# ...
+self.zoom_in_btn = QPushButton("➕ Zoom In")
+self.zoom_out_btn = QPushButton("➖ Zoom Out")
+self.fit_btn = QPushButton("⛶ Fit to Window")
+self.reset_view_btn = QPushButton("💯 Reset Zoom")
+self.toggle_mode_btn = QPushButton("🎯 Mode: Select")
+self.clear_sel_btn = QPushButton("❌ Clear Selection")
+```
+
+**Justification:**
+
+*   **Clarity:** The emojis provide a quick visual cue to the button's function, making the UI easier to scan and understand.
+*   **Aesthetics:** The icons add a touch of visual polish to the application, making it feel more modern and user-friendly.
+*   **Cross-Platform Compatibility:** Using emojis as icons is a simple and effective way to ensure that the icons work across all platforms without the need for separate icon files.
+
+**Next Steps:**
+
+After making these changes, the next step would be to add tooltips to the buttons to provide additional information about their function. This would further improve the usability of the application, especially for new users.
