@@ -12,9 +12,11 @@
 ## Pricing Tiers
 
 ### 🆓 **Free (Desktop Only)**
+
 **Price**: $0
 
 **Includes**:
+
 - Full desktop app (macOS, Windows, Linux)
 - Unlimited signature extractions (local processing)
 - Basic controls (threshold, color, zoom, pan)
@@ -24,6 +26,7 @@
 - Community support (GitHub Discussions)
 
 **Limits**:
+
 - No cloud sync/backup
 - No API access
 - No browser extension
@@ -34,9 +37,11 @@
 ---
 
 ### 💼 **Pro (Desktop + Cloud)**
+
 **Price**: $12/month or $120/year (save 17%)
 
 **Everything in Free, plus**:
+
 - **Cloud sync**: Backup sessions and extracted signatures
 - **Browser extension**: Chrome, Firefox, Edge — extract from any webpage
 - **Batch processing**: Drag-and-drop multiple files
@@ -54,9 +59,11 @@
 ---
 
 ### 🏢 **Team (Multi-User)**
+
 **Price**: $30/month per user (min 3 users) or $300/year per user
 
 **Everything in Pro, plus**:
+
 - **Team workspace**: Shared library of extracted signatures
 - **Role-based access**: Admin, Editor, Viewer roles
 - **Audit logs**: Who extracted what, when (compliance-friendly)
@@ -73,9 +80,11 @@
 ---
 
 ### 🚀 **Enterprise (Custom)**
+
 **Price**: Custom (starts at $500/month)
 
 **Everything in Team, plus**:
+
 - **Unlimited users**
 - **On-premise deployment**: Deploy backend on your own infrastructure (Docker, Kubernetes)
 - **Custom integrations**: DocuSign, Salesforce, custom CRM/ERP
@@ -97,6 +106,7 @@
 ## Add-Ons (All Tiers)
 
 ### 🤖 **OCR & Auto-Detection**
+
 **Price**: +$5/month (Pro), included in Team/Enterprise
 
 - Tesseract OCR for text extraction
@@ -104,24 +114,28 @@
 - ML model (optional 40MB download)
 
 ### 📦 **Extra Cloud Storage**
+
 **Price**: $0.10/GB/month (beyond 5GB included in Pro/Team)
 
 - Store original images and extracted signatures
 - Encrypted at rest (AES-256)
 
 ### 🔌 **API Overage**
+
 **Price**: $0.001 per request (beyond tier limit)
 
 - Applies to Team and Enterprise tiers
 - Billed monthly based on actual usage
 
 ### 🎓 **Education Discount**
+
 **Price**: 50% off Pro/Team tiers
 
 - Verify with .edu email or student ID
 - Annual verification required
 
 ### 💚 **Non-Profit Discount**
+
 **Price**: 40% off Team tier, free Pro tier (1 user)
 
 - Verify with 501(c)(3) status or equivalent
@@ -130,16 +144,16 @@
 
 ## Competitive Comparison
 
-| Feature | Signature Extractor (Pro) | DocuSign | Adobe Sign | HelloSign |
-|---------|--------------------------|----------|------------|-----------|
-| **Price** | $12/mo | $25/mo | $30/mo | $20/mo |
-| **Extraction Control** | ✅ Full (threshold, color, morphology) | ❌ Auto-only | ❌ Auto-only | ❌ Auto-only |
-| **Local Processing** | ✅ Desktop app | ❌ Cloud-only | ❌ Cloud-only | ❌ Cloud-only |
-| **API Access** | ✅ (Team tier) | ✅ ($40/mo) | ✅ (Enterprise) | ✅ ($75/mo) |
-| **Browser Extension** | ✅ | ❌ | ❌ | ❌ |
-| **Batch Processing** | ✅ | ✅ | ✅ | ❌ |
-| **Privacy** | ✅ Local-first | ❌ Must upload | ❌ Must upload | ❌ Must upload |
-| **E-Sign Platform** | ❌ (extraction only) | ✅ | ✅ | ✅ |
+| Feature                | Signature Extractor (Pro)              | DocuSign       | Adobe Sign      | HelloSign      |
+| ---------------------- | -------------------------------------- | -------------- | --------------- | -------------- |
+| **Price**              | $12/mo                                 | $25/mo         | $30/mo          | $20/mo         |
+| **Extraction Control** | ✅ Full (threshold, color, morphology) | ❌ Auto-only   | ❌ Auto-only    | ❌ Auto-only   |
+| **Local Processing**   | ✅ Desktop app                         | ❌ Cloud-only  | ❌ Cloud-only   | ❌ Cloud-only  |
+| **API Access**         | ✅ (Team tier)                         | ✅ ($40/mo)    | ✅ (Enterprise) | ✅ ($75/mo)    |
+| **Browser Extension**  | ✅                                     | ❌             | ❌              | ❌             |
+| **Batch Processing**   | ✅                                     | ✅             | ✅              | ❌             |
+| **Privacy**            | ✅ Local-first                         | ❌ Must upload | ❌ Must upload  | ❌ Must upload |
+| **E-Sign Platform**    | ❌ (extraction only)                   | ✅             | ✅              | ✅             |
 
 **Positioning**: Signature Extractor complements e-sign platforms (extract → upload to DocuSign), rather than competing directly. Focus on **precision control** and **privacy**.
 
@@ -148,6 +162,7 @@
 ## Revenue Projections (Year 1)
 
 ### Conservative Scenario
+
 - 500 Free users (no revenue)
 - 50 Pro users × $12 = $600/mo
 - 2 Team accounts (5 users each) × $150 = $300/mo
@@ -155,6 +170,7 @@
 - **Annual Revenue**: ~$10,800
 
 ### Moderate Scenario
+
 - 2,000 Free users
 - 200 Pro users × $12 = $2,400/mo
 - 10 Team accounts (avg 5 users) × $150 = $1,500/mo
@@ -163,6 +179,7 @@
 - **Annual Revenue**: ~$52,800
 
 ### Optimistic Scenario
+
 - 5,000 Free users
 - 500 Pro users × $12 = $6,000/mo
 - 30 Team accounts (avg 6 users) × $180 = $5,400/mo
@@ -175,16 +192,19 @@
 ## Pricing Psychology
 
 ### Why $12/month for Pro?
+
 - **Below competition**: DocuSign ($25), Adobe Sign ($30) → Signature Extractor feels like a steal
 - **Impulse-friendly**: Under $15 triggers "low-friction" purchase decision
 - **Annual incentive**: $120/year = $10/mo → 17% discount encourages commitment
 
 ### Why $30/user for Team?
+
 - **Volume discount**: 3+ users = $90/mo total (cheaper than 3 Pro users at $36/mo if they didn't have team features)
 - **B2B expectation**: Teams expect to pay $20-50/user/mo for SaaS tools
 - **Margin for sales**: Room for 20-30% discounts for larger teams
 
 ### Why Custom for Enterprise?
+
 - **Value-based pricing**: Large orgs have bigger budgets and need custom features
 - **Negotiation leverage**: "Starts at $500" anchors the conversation high
 - **Relationship-building**: Custom contracts allow for long-term partnerships and upsells
@@ -204,12 +224,14 @@
 ## Free Trial Strategy
 
 ### Pro Tier: 14-Day Free Trial
+
 - No credit card required
 - Full access to all Pro features
 - Email reminders at Day 7, Day 13, Day 14
 - Post-trial: Convert to Free tier (no data loss) or upgrade to Pro
 
 ### Team/Enterprise: Custom Demo
+
 - Schedule 30-min call with sales
 - Live demo with sample documents
 - 30-day pilot program for larger teams (negotiable)
@@ -252,12 +274,12 @@
 
 ### Adjust for PPP (Purchasing Power Parity)
 
-| Region | Pro Price | Discount |
-|--------|-----------|----------|
-| **US, Canada, Western Europe** | $12/mo | 0% |
-| **Eastern Europe, Latin America** | $8/mo | 33% |
-| **India, Southeast Asia** | $5/mo | 58% |
-| **Africa** | $4/mo | 67% |
+| Region                            | Pro Price | Discount |
+| --------------------------------- | --------- | -------- |
+| **US, Canada, Western Europe**    | $12/mo    | 0%       |
+| **Eastern Europe, Latin America** | $8/mo     | 33%      |
+| **India, Southeast Asia**         | $5/mo     | 58%      |
+| **Africa**                        | $4/mo     | 67%      |
 
 **Implementation**: Detect user location via IP; show adjusted pricing on landing page. Verify with payment card country.
 
@@ -266,16 +288,19 @@
 ## Open-Source vs. Commercial
 
 ### Hybrid Model (Consider)
+
 - **Desktop app**: Open-source (MIT License) → builds community trust
 - **Cloud backend**: Proprietary → monetize API access and integrations
 - **Enterprise features**: Proprietary (SSO, compliance, custom integrations)
 
 **Benefits**:
+
 - Attracts developers who want to self-host
 - Contributions improve core product
 - Still monetize via hosted service and premium features
 
 **Risks**:
+
 - Competitors could fork and undercut on price
 - Harder to enforce licensing for enterprise features
 

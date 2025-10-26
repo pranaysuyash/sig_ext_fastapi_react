@@ -21,6 +21,9 @@ class MainWindow(QMainWindow):
         self.session = session_state
 
         self.setWindowTitle("Signature Extractor (Desktop)")
+        
+        # Apply color theme
+        self._apply_theme()
 
         # Central UI
         central = QWidget(self)
@@ -29,7 +32,7 @@ class MainWindow(QMainWindow):
 
         # Left controls
         controls = QVBoxLayout()
-        self.open_btn = QPushButton("Open & Upload Image")
+        self.open_btn = QPushButton("📂 Open & Upload Image")
         self.open_btn.clicked.connect(self.on_open)
         controls.addWidget(self.open_btn)
 
@@ -40,19 +43,19 @@ class MainWindow(QMainWindow):
         controls.addWidget(self.threshold)
 
         self.color_label = QLabel("Color: #000000")
-        self.pick_color_btn = QPushButton("Pick Color")
+        self.pick_color_btn = QPushButton("🎨 Pick Color")
         self.pick_color_btn.clicked.connect(self.on_pick_color)
         controls.addWidget(self.color_label)
         controls.addWidget(self.pick_color_btn)
 
         # Zoom & reset controls
         zoom_row = QHBoxLayout()
-        self.zoom_in_btn = QPushButton("+")
-        self.zoom_out_btn = QPushButton("-")
-        self.fit_btn = QPushButton("Fit")
-        self.reset_view_btn = QPushButton("100%")
-        self.toggle_mode_btn = QPushButton("Mode: Select")
-        self.clear_sel_btn = QPushButton("Clear Selection")
+        self.zoom_in_btn = QPushButton("🔍+")
+        self.zoom_out_btn = QPushButton("🔍−")
+        self.fit_btn = QPushButton("⊡ Fit")
+        self.reset_view_btn = QPushButton("⊙ 100%")
+        self.toggle_mode_btn = QPushButton("🎯 Mode: Select")
+        self.clear_sel_btn = QPushButton("✖ Clear Selection")
         self.zoom_in_btn.clicked.connect(lambda: self.src_view.zoom_in())
         self.zoom_out_btn.clicked.connect(lambda: self.src_view.zoom_out())
         self.fit_btn.clicked.connect(lambda: self.src_view.fit())
@@ -69,9 +72,9 @@ class MainWindow(QMainWindow):
         self.sel_info = QLabel("Selection: –")
         controls.addWidget(self.sel_info)
 
-        self.preview_btn = QPushButton("Preview")
+        self.preview_btn = QPushButton("👁 Preview")
         self.preview_btn.clicked.connect(self.on_preview)
-        self.save_btn = QPushButton("Save Result")
+        self.save_btn = QPushButton("💾 Save Result")
         self.save_btn.clicked.connect(self.on_save)
         self.save_btn.setEnabled(False)
         controls.addWidget(self.preview_btn)
@@ -292,9 +295,9 @@ class MainWindow(QMainWindow):
         new_mode = not current_mode
         self.src_view.toggle_selection_mode(new_mode)
         if new_mode:
-            self.toggle_mode_btn.setText("Mode: Select")
+              self.toggle_mode_btn.setText("🎯 Mode: Select")
         else:
-            self.toggle_mode_btn.setText("Mode: Pan")
+              self.toggle_mode_btn.setText("✋ Mode: Pan")
 
     def on_save(self):
         if not self._last_result_png:
@@ -308,3 +311,47 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "Saved", f"Saved to {out_path}")
         except Exception as e:
             QMessageBox.critical(self, "Save failed", str(e))
+    
+        def _apply_theme(self):
+            """Apply subtle blue accent color theme for personality."""
+            # Accent color: #007AFF (iOS blue)
+            style = """
+                QPushButton {
+                    background-color: #f0f0f0;
+                    border: 1px solid #d0d0d0;
+                    border-radius: 4px;
+                    padding: 6px 12px;
+                    font-size: 13px;
+                }
+                QPushButton:hover {
+                    background-color: #e0e0e0;
+                    border-color: #007AFF;
+                }
+                QPushButton:pressed {
+                    background-color: #d0d0d0;
+                }
+                QPushButton:disabled {
+                    background-color: #f8f8f8;
+                    color: #a0a0a0;
+                }
+                QLabel {
+                    font-size: 13px;
+                }
+                QSlider::groove:horizontal {
+                    border: 1px solid #d0d0d0;
+                    height: 6px;
+                    background: #f0f0f0;
+                    border-radius: 3px;
+                }
+                QSlider::handle:horizontal {
+                    background: #007AFF;
+                    border: 1px solid #0051d5;
+                    width: 16px;
+                    margin: -6px 0;
+                    border-radius: 8px;
+                }
+                QSlider::handle:horizontal:hover {
+                    background: #0051d5;
+                }
+            """
+            self.setStyleSheet(style)
