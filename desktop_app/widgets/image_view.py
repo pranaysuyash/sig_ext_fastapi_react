@@ -23,6 +23,7 @@ class ImageView(QGraphicsView):
         self.setDragMode(QGraphicsView.NoDrag)  # Disable hand drag by default
         self._zoom = 1.0
         self._selection_mode = True  # True = select, False = pan
+        self._rotation = 0.0  # Track view rotation for contextual controls
 
     def load_image_bytes(self, data: bytes) -> None:
         image = QImage.fromData(data)
@@ -37,8 +38,21 @@ class ImageView(QGraphicsView):
         self.fit()
         self._last_rect = QRect()
 
+    def clear_image(self) -> None:
+        """Clear the current image and remove scene items."""
+        self.scene().clear()
+        self._image = None
+        self._pixmap_item = None
+        self._last_rect = QRect()
+        self.setTransform(QTransform())
+        self._zoom = 1.0
+        self._rotation = 0.0
+
     def image(self) -> QImage | None:
         return self._image
+
+    def has_image(self) -> bool:
+        return self._image is not None
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton and self._selection_mode:
@@ -83,14 +97,25 @@ class ImageView(QGraphicsView):
         # Map from view coords to scene coords, then to image pixel coords
         top_left = self.mapToScene(self._last_rect.topLeft())
         bottom_right = self.mapToScene(self._last_rect.bottomRight())
+        
+        # DEBUG: Log coordinate transformation
+        print(f"[ImageView] View rect: {self._last_rect}")
+        print(f"[ImageView] Scene top_left: ({top_left.x()}, {top_left.y()})")
+        print(f"[ImageView] Scene bottom_right: ({bottom_right.x()}, {bottom_right.y()})")
+        
         x1, y1 = int(top_left.x()), int(top_left.y())
         x2, y2 = int(bottom_right.x()), int(bottom_right.y())
+        
         # Clamp to image bounds
         rect = self._pixmap_item.pixmap().rect()
+        print(f"[ImageView] Image bounds: {rect.width()} x {rect.height()}")
+        
         x1 = max(0, min(x1, rect.width()))
         x2 = max(0, min(x2, rect.width()))
         y1 = max(0, min(y1, rect.height()))
         y2 = max(0, min(y2, rect.height()))
+        
+        print(f"[ImageView] Final coords: ({x1}, {y1}) -> ({x2}, {y2})")
         return (x1, y1, x2, y2)
 
     def selected_rect(self) -> QRect:
@@ -137,12 +162,26 @@ class ImageView(QGraphicsView):
         # Reset any transforms then fit
         self.setTransform(QTransform())
         self._zoom = 1.0
+        self._rotation = 0.0
 
     def fit(self):
         if not self.scene() or self.sceneRect().isNull():
             return
         self.reset_zoom()
-        self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
+        try:
+            if self._pixmap_item is not None:
+                self.fitInView(self._pixmap_item, Qt.KeepAspectRatio)
+            else:
+                self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
+        except Exception:
+            self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
+
+    def rotate_view(self, degrees: float):
+        """Rotate the view around its center without altering the image data."""
+        if not self._pixmap_item:
+            return
+        self.rotate(degrees)
+        self._rotation = (self._rotation + degrees) % 360
 
     def toggle_selection_mode(self, enable: bool):
         """Toggle between selection mode and pan mode."""

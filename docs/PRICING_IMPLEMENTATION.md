@@ -1,61 +1,59 @@
-# Pricing Implementation Plan — Signature Extractor
+# Pricing Implementation Plan — Signature Extractor (No Trial)
 
-This complements docs/PRICING.md by describing how to implement trial, licensing, payments, and upgrades.
+This complements docs/PRICING.md by describing how to implement licensing, payments, and upgrade flows with no free trial.
 
 ## Offers (from PRICING.md)
-- Free Trial: 7 days + 10 extractions
-- Lifetime Desktop: $49 one-time
-- Pro: $12/month or $99/year
+- Lifetime Desktop: $29 one-time (initial); consider testing $39 and $49 later
+- Pro (future): $12/month or $99/year
 - Team/Enterprise: Deferred
 
 ## Payment & Licensing Options
-- Paddle or Lemon Squeezy: Handles VAT, invoicing, license keys, and trials (recommended for indie desktop)
-- Stripe + self-rolled licensing: Requires more infra (webhooks, license store)
+- Paddle or Lemon Squeezy: VAT/compliance, license keys, refunds (recommended to ship fast)
+- Stripe + self-rolled licensing: Webhooks + license store; more control, more work
 
-Recommendation: Start with Paddle/Lemon Squeezy to ship faster, then revisit if needs change.
+Recommendation: Start with Paddle/Lemon Squeezy for checkout + license issuance. Add Stripe later if needed.
 
 ## License Model
-- Lifetime: Per-user license key, no time limits
-- Pro: Subscription license tied to email; license checks on renewal
-- Offline-friendly: License file cached locally; periodic background validation when online
+- Lifetime: Per-user license key; no expiry
+- Pro: Subscription tied to email; license checks on renewal (when launched)
+- Offline-friendly: Write license file to user config dir; validate offline, refresh in background when online
 
-## Trial Enforcement
-- Local counters: Start date + extraction count stored in user config dir
-- Messaging: Status bar and dialogs (“3 days, 5 extractions remaining”)
-- Expiry behavior: View-only mode (no exports) after limit
-- Optional server-side check: When online, verify eligibility to reduce abuse
+## Evaluation Mode (No Trial)
+- Pre-purchase behavior: Unlimited preview (selection, threshold/color) but export/save disabled
+- Optional: Watermark overlay in preview to signal evaluation mode
+- Entry points: “Buy Lifetime ($29)” visible in export dialog and status bar
 
 ## Upgrade Flows
-- In-app “Upgrade” entry points: status bar banner, export dialog notice, About menu
-- Redemption: Paste license key → stored locally; unlocks features immediately
-- License sync: On each app start (if online), refresh entitlements
+- In-app “Buy” dialog: Price, benefits, 30‑day refund note, license key field
+- Redemption: Paste license key → stored locally → unlocks export immediately
+- Sync: On app start (if online), validate license; continue offline if cached
 
 ## Refunds & Transitions
-- Refund within 14 days for Lifetime; revoke license via provider webhook
-- Pro cancellation: End of billing period; app downgrades to Lifetime or Trial as applicable
+- 30‑day money‑back on Lifetime; provider webhook revokes license
+- Pro cancellation (future): Downgrade to Lifetime if present; otherwise lock exports
 
 ## Price Localization & Coupons
-- Use provider geo-pricing; create regional price lists
-- Coupon codes for launch/partners; limited-time discounts
+- Use payment provider geo‑pricing
+- Launch coupon (e.g., LAUNCH20) valid for first 14 days
 
 ## Data Model (Local)
 - `~/.signature_extractor/config.json`
-  - `trial_started_at`, `trial_extractions_used`
   - `license_key`, `license_type` (lifetime/pro)
-  - `last_validation_at`
+  - `license_issued_at`, `last_validation_at`
+  - `first_run_at`, `install_id`
 
 ## UI Touchpoints
-- Trial banners: Status bar + About dialog
-- Upgrade modal: Clear benefits, price, “Enter License Key” field
-- Post-purchase: Success toast + “Thanks for supporting!”
+- Export dialog: “Export is locked — Buy Lifetime to unlock (30‑day refund)”
+- Status bar: “Evaluation mode — Export locked” with “Buy” button
+- About/License dialog: Enter key, manage license, refund link
 
 ## Metrics
-- Trial start → conversion rate
-- Time to first value (TTFV): First successful export latency
-- Churn (Pro): Cancellation reasons (survey link)
+- Website → purchase rate
+- First run → purchase rate
+- Refund rate (Lifetime)
+- (Future) Churn for Pro
 
 ## Roadmap Hooks
-- Add “Manage License” menu
-- Background worker to validate license weekly (when online)
-- Grace periods and friendly error states
-
+- “Manage License” menu entry
+- Background validator (weekly) with back‑off and privacy‑respectful logs
+- Graceful error states and clear messaging if license invalid

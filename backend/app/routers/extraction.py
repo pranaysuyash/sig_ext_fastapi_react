@@ -764,11 +764,20 @@ async def process_image_endpoint(
     try:
         # Correctly reference the saved image file based on session_id
         file_path = os.path.join(UPLOADS_DIR, f"{session_id}.png")
+        
+        logger.info(f"[BACKEND] process_image_endpoint called")
+        logger.info(f"[BACKEND] Session ID: {session_id}")
+        logger.info(f"[BACKEND] File path: {file_path}")
+        logger.info(f"[BACKEND] File exists: {os.path.exists(file_path)}")
+        logger.info(f"[BACKEND] Coords: ({x1}, {y1}) → ({x2}, {y2})")
+        logger.info(f"[BACKEND] Color: {color}, Threshold: {threshold}")
+        
         if not os.path.exists(file_path):
             raise HTTPException(status_code=404, detail="Image file not found.")
 
         # Process the image
         image = cv2.imread(file_path)
+        logger.info(f"[BACKEND] Image shape: {image.shape}")
 
         # Ensure coordinates are within image bounds
         height, width = image.shape[:2]
@@ -776,16 +785,25 @@ async def process_image_endpoint(
         x2 = max(0, min(x2, width))
         y1 = max(0, min(y1, height))
         y2 = max(0, min(y2, height))
+        
+        logger.info(f"[BACKEND] Clamped coords: ({x1}, {y1}) → ({x2}, {y2})")
+        logger.info(f"[BACKEND] Crop size: {x2-x1} x {y2-y1}")
 
         cropped_image = image[y1:y2, x1:x2]
         gray = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
         _, mask = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY_INV)
 
-        # Convert color hex string to RGB tuple
-        color_rgb = tuple(int(color[i:i+2], 16) for i in (1, 3, 5))
+        # Convert color hex string (#RRGGBB) to BGR tuple for OpenCV
+        hex_color = color.lstrip("#")
+        if len(hex_color) != 6:
+            raise HTTPException(status_code=400, detail="Invalid color format; expected #RRGGBB")
+        r = int(hex_color[0:2], 16)
+        g = int(hex_color[2:4], 16)
+        b = int(hex_color[4:6], 16)
+        color_bgr = (b, g, r)
 
         color_image = np.zeros_like(cropped_image, dtype=np.uint8)
-        color_image[:, :] = color_rgb
+        color_image[:, :] = color_bgr
         result_image = cv2.bitwise_and(color_image, color_image, mask=mask)
 
         b, g, r = cv2.split(result_image)
@@ -796,6 +814,8 @@ async def process_image_endpoint(
         final_image_io = BytesIO()
         final_image_pil.save(final_image_io, format="PNG")
         final_image_io.seek(0)
+        
+        logger.info(f"[BACKEND] Returning PNG, {final_image_io.getbuffer().nbytes} bytes")
 
         return StreamingResponse(final_image_io, media_type="image/png")
     except Exception as e:

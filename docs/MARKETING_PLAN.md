@@ -38,15 +38,16 @@
 - Press kit: logo, icon, 3–5 annotated screenshots, one-pager PDF
 - Social: 5–7 short GIFs (selection, rotate, export, library)
 
-## Pricing Page Tests
-- A/B: Lifetime $39 vs $49; annual $89 vs $99
-- CTA language: “Own it forever” vs “Buy once”
-- Trial banner: top vs status bar only
+## Pricing Page Tests (No Trial)
+- Price tests: Lifetime $29 vs $39 vs $49 (primary CTA)
+- CTA language: “Own it forever” vs “Buy once, use forever”
+- Guarantee copy: “30‑day money‑back” vs “Love it or money back”
 
 ## Conversion & KPIs
-- Website → download CTR; download → first run; first run → first export
-- Trial → paid conversion; refund rate; churn (Pro)
-- Content: organic traffic, SERP positions for target keywords
+- Website → purchase rate; website → download (if applicable)
+- First run → purchase rate (if download-before-buy flow retained)
+- Refund rate (Lifetime); (future) churn for Pro
+- Content: organic traffic, rankings for “extract signature” keywords
 
 ## Community & Support
 - Public roadmap (docs/ROADMAP.md), rapid “What we shipped” updates (docs/RECENT_UPDATES.md)
@@ -56,4 +57,3 @@
 - Browser extension for top-of-funnel (Pro feature)
 - Affiliate program (10–20% lifetime) for creators
 - Templates marketplace (signatures, stamps) and preset packs
-

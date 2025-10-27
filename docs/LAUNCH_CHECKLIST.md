@@ -9,7 +9,7 @@
 
 ## Product
 - [ ] Pricing page live; purchase/upgrade flow verified
-- [ ] Trial counters behave correctly (days/extractions)
+- [ ] Evaluation mode behaves correctly (export locked pre‑purchase)
 - [ ] Landing page updated with accurate screenshots and copy
 - [ ] Docs: Quick Start, Export Options, Use Cases, Pricing, Roadmap
 
@@ -29,4 +29,3 @@
 - [ ] Monitor conversion funnel + crash logs
 - [ ] Ship “What we shipped in week 1” post
 - [ ] Gather testimonials, iterate pricing tests
-

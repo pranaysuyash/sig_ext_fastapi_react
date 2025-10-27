@@ -5,8 +5,8 @@ Use this as source text for the website, app dialogs, emails, and social posts.
 ## Website Copy
 - Hero Headline: “Extract clean signatures in seconds.”
 - Subhead: “Desktop-first, privacy-by-default. Precise selection, instant export.”
-- CTA Primary: “Download for macOS / Windows”
-- Secondary: “Try free for 7 days”
+- CTA Primary: “Buy Lifetime ($29)”
+- Secondary: “Download” (optional if you keep download-before-buy flow)
 
 ### Features Section
 - Precision selection with zoom/pan
@@ -22,48 +22,48 @@ Use this as source text for the website, app dialogs, emails, and social posts.
 
 ### FAQ
 - “Is my data private?” Yes — processing is local by default.
-- “Do I need an account?” No — trial and lifetime work locally.
+- “Do I need an account?” No — purchase and usage work locally.
 - “Can I buy once?” Yes — Lifetime license is available.
+- “Is there a trial?” No — you can preview results in-app. We offer a 30‑day money‑back guarantee instead.
 
 ## In‑App Copy
 - Status (idle): “Ready — open an image to begin.”
 - Upload success: “Image uploaded. Session: {abc123…}.”
 - Selection hint: “Drag to select a region; adjust threshold and color.”
+- Export locked: “Export is locked in evaluation mode — Buy Lifetime to unlock (30‑day refund).”
 - Export success: “Exported successfully.”
-- Trial banner: “7 days / 10 extractions left — Upgrade for unlimited.”
 
 ## Upgrade Modal
 - Title: “Own it forever.”
-- Body: “Go Lifetime for unlimited local extractions and future updates.”
-- CTA: “Buy Lifetime ($49)”
-- Secondary: “Start Pro trial”
+- Body: “Buy Lifetime for unlimited local exports and future updates.”
+- CTA: “Buy Lifetime ($29)”
+- Secondary: “Continue previewing”
 
 ## Emails
-### Trial Start (Day 0)
+### Welcome (Download/Install)
 Subject: Welcome — make your first clean signature in 60 seconds
 Body:
 Hi {FirstName},
 
-Thanks for trying Signature Extractor! Here’s a 60‑second workflow:
+Here’s a 60‑second workflow to preview your results:
 1) Open your scan or photo
 2) Drag to select your signature
-3) Adjust threshold/color, click Export
+3) Adjust threshold/color — preview updates live
 
-Tip: Phone photos often need EXIF rotation — we do it automatically.
+When you’re ready to export, unlock Lifetime (30‑day refund).
 
-Happy extracting,
 — {YourName}
 
-### Trial Nudge (Day 3)
+### Nudge (Day 3)
 Subject: Quick tip to get perfect cutouts
 Body:
 If edges look jagged, try PNG‑8 or trim to content in Export.
-You can also zoom/pan for pixel‑perfect selections.
+Zoom/pan for pixel‑perfect selections.
 
-### Trial Expiring (Day 6)
-Subject: 24 hours left — keep your clean signature flow
+### Offer (Day 7)
+Subject: Own it forever — $29 launch pricing
 Body:
-Upgrade to Lifetime (one‑time $49) and own it forever.
+Buy Lifetime once, use it forever. 30‑day refund.
 
 ### Post‑Purchase (Lifetime)
 Subject: 🎉 You own Signature Extractor
@@ -78,4 +78,3 @@ Thanks for your support! Your license key:
 
 ## Press One‑Liner
 - “Signature Extractor is a desktop app that turns messy scans into clean, reusable signatures — privately, in seconds.”
-

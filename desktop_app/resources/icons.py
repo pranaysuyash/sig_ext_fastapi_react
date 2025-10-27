@@ -136,17 +136,19 @@ def set_button_icon(button, icon_type: str, text: str = None, use_emoji: bool = 
     """
     # Set QIcon
     icon = get_icon(icon_type)
-    if not icon.isNull():
+    icon_available = not icon.isNull()
+    if icon_available:
         button.setIcon(icon)
     
     # Set text (with or without emoji)
     if text:
-        if use_emoji:
+        # Avoid double icons: if we set a real icon, skip emoji prefix
+        if use_emoji and not icon_available:
             emoji = get_icon_text(icon_type)
             button.setText(f"{emoji} {text}" if emoji else text)
         else:
             button.setText(text)
-    elif use_emoji:
+    elif use_emoji and not icon_available:
         # No text, just emoji
         emoji = get_icon_text(icon_type)
         if emoji:
