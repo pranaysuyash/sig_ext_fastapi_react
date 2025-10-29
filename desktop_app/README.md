@@ -29,17 +29,17 @@ pip install PySide6 requests python-dotenv pillow
 Create a `.env` file in the project root (optional):
 
 ```env
-API_BASE_URL=http://127.0.0.1:8000
+API_BASE_URL=http://127.0.0.1:8001
 ```
 
-Default: `http://127.0.0.1:8000`
+Default: `http://127.0.0.1:8001`
 
 ## Running the App
 
 Ensure the backend is running first:
 
 ```zsh
-uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
+uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8001
 ```
 
 Then launch the desktop app:
@@ -50,11 +50,15 @@ python -m desktop_app.main
 
 ## Usage
 
-1. Click "Open & Upload Image" to select and upload an image
-2. Drag on the source image to select the signature region
-3. Adjust threshold slider (0-255) and pick a color
-4. Click "Preview" to process the selection
-5. Click "Save Result" to save the extracted signature as PNG
+1. Open & Upload Image
+2. Select region (Selection mode) or Pan (Pan mode)
+3. Adjust Threshold (0–255) and Color
+4. Preview to process the selection
+5. Export/Copy/Save to Library
+
+Viewport controls
+- Zoom In/Out, editable Zoom % (supports Fit), Reset Viewport, Rotate
+- Clean Viewport clears all panes and the session; Clear Selection only removes the rubber‑band
 
 ## Project Structure
 

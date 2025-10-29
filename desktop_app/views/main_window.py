@@ -7,7 +7,9 @@ from typing import Optional
 import logging
 
 import numpy as np
-from PySide6.QtCore import Qt, QTimer, QPoint, QBuffer
+from pathlib import Path
+
+from PySide6.QtCore import Qt, QTimer, QPoint, QBuffer, QUrl
 from PySide6.QtGui import QAction, QImage, QColor, QPixmap, QTransform, QDesktopServices, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog,
@@ -156,6 +158,8 @@ class MainWindow(QMainWindow):
 
         # Export & Save (grouped clearly)
         controls.addWidget(QLabel("Export & Save"))
+        
+        # Row 1: Export and Copy
         self.export_btn = QPushButton("Export...")
         self.export_btn.setToolTip("Export with advanced options (background, trim, format) - Ctrl/Cmd E")
         self.export_btn.clicked.connect(self.on_export)
@@ -166,23 +170,26 @@ class MainWindow(QMainWindow):
         self.copy_btn.clicked.connect(self.on_copy)
         self.copy_btn.setEnabled(False)
 
+        export_row_1 = QHBoxLayout()
+        export_row_1.addWidget(self.export_btn)
+        export_row_1.addWidget(self.copy_btn)
+        controls.addLayout(export_row_1)
+
+        # Row 2: Save to Library and Export JSON
         self.save_to_library_btn = QPushButton("Save to Library")
         self.save_to_library_btn.setToolTip("Quick save as PNG to local library")
         self.save_to_library_btn.clicked.connect(self.on_save_to_library)
         self.save_to_library_btn.setEnabled(False)
 
-        # Export JSON metadata
         self.export_json_btn = QPushButton("Export JSON")
         self.export_json_btn.setToolTip("Save selection, threshold, color, and session info to JSON")
         self.export_json_btn.clicked.connect(self.on_export_json)
         self.export_json_btn.setEnabled(False)
 
-        export_row = QHBoxLayout()
-        export_row.addWidget(self.export_btn)
-        export_row.addWidget(self.copy_btn)
-        export_row.addWidget(self.save_to_library_btn)
-        export_row.addWidget(self.export_json_btn)
-        controls.addLayout(export_row)
+        export_row_2 = QHBoxLayout()
+        export_row_2.addWidget(self.save_to_library_btn)
+        export_row_2.addWidget(self.export_json_btn)
+        controls.addLayout(export_row_2)
 
         # Library list
         controls.addWidget(QLabel("My Signatures"))
@@ -328,8 +335,10 @@ class MainWindow(QMainWindow):
         self.res_view.viewChanged.connect(self._update_coordinate_display)
         self.threshold.valueChanged.connect(self.on_adjustment_changed)
 
+        menu_bar = self.menuBar()
+
         # Menu bar: License actions
-        license_menu = self.menuBar().addMenu("License")
+        license_menu = menu_bar.addMenu("License")
         self.enter_license_action = QAction("Enter License…", self)
         self.enter_license_action.triggered.connect(self.on_enter_license)
         license_menu.addAction(self.enter_license_action)
@@ -337,6 +346,22 @@ class MainWindow(QMainWindow):
         self.buy_license_action = QAction("Buy License…", self)
         self.buy_license_action.triggered.connect(self.on_buy_license)
         license_menu.addAction(self.buy_license_action)
+
+        # Help menu
+        help_menu = menu_bar.addMenu("Help")
+        self.open_help_action = QAction("Help & Troubleshooting", self)
+        self.open_help_action.triggered.connect(lambda: self._open_document("docs/HELP.md"))
+        help_menu.addAction(self.open_help_action)
+
+        self.open_shortcuts_action = QAction("Keyboard Shortcuts", self)
+        self.open_shortcuts_action.triggered.connect(lambda: self._open_document("docs/SHORTCUTS.md"))
+        help_menu.addAction(self.open_shortcuts_action)
+
+        help_menu.addSeparator()
+
+        self.check_health_action = QAction("Open Backend Health", self)
+        self.check_health_action.triggered.connect(lambda: self._open_url("http://127.0.0.1:8001/health"))
+        help_menu.addAction(self.check_health_action)
 
         # Initialize action states and library
         self._update_action_states()
@@ -464,7 +489,9 @@ class MainWindow(QMainWindow):
             return QImage(file_path)
 
     def on_pick_color(self):
-        color = QColorDialog.getColor(QColor("black"), self, "Pick color")
+        # Initialize color picker with current color
+        current_color = QColor(self._color_hex)
+        color = QColorDialog.getColor(current_color, self, "Pick color")
         if color.isValid():
             self._color_hex = color.name()  # #RRGGBB
             self._update_color_ui()
@@ -1052,6 +1079,22 @@ class MainWindow(QMainWindow):
         QDesktopServices.openUrl(url)
 
     # No activation prompt; purchase is optional and handled via menu link.
+
+    def _open_document(self, relative_path: str) -> None:
+        try:
+            project_root = Path(__file__).resolve().parents[2]
+            doc_path = project_root / relative_path
+            if not doc_path.exists():
+                raise FileNotFoundError(f"Document not found: {doc_path}")
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(doc_path)))
+        except Exception as exc:
+            QMessageBox.warning(self, "Unable to open document", str(exc))
+
+    def _open_url(self, url: str) -> None:
+        try:
+            QDesktopServices.openUrl(QUrl(url))
+        except Exception as exc:
+            QMessageBox.warning(self, "Unable to open URL", str(exc))
 
     # -------- Click-to-focus pane system --------
     def _wrap_mouse_press(self, view, pane_name):

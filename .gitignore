@@ -1,78 +1,131 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+ENV/
+*.egg
+*.egg-info/
+dist/
+build/
+*.so
+.pytest_cache/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+app.log
+mcp-shell.log
 
-# Node modules and build directories
-node_modules/
-dist/
-dist-ssr/
-build/
-out/
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+alembic.db
+backend/data/*.db
 
-# Environment and secrets
-.env
-.env.*
+# Backend uploads and temporary files
+backend/uploads/**/*
+!backend/uploads/.gitkeep
+backend/uploads/images/
+backend/uploads/original_images/
 
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-venv/
-.venv/
+# Desktop app uploads and library
+uploads/**/*
+!uploads/.gitkeep
+desktop_app/library/**/*
+!desktop_app/library/.gitkeep
+
+# Generated/processed images
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+!docs/**/*.png
+!docs/**/*.jpg
+!docs/**/*.jpeg
+!.github/**/*.png
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+*.ipynb
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 .idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Linux
+*~
 
 # Coverage reports
 coverage/
 *.coverage
 *.cover
+.coverage.*
+htmlcov/
+.tox/
+.nox/
 
-# Temporary files and directories
+# PyInstaller
+*.spec
+dist/
+build/
+
+# Temporary files
 tmp/
 temp/
 *.tmp
+*.bak
+*.swp
 
-# System files
-Thumbs.db
-desktop.ini
+# Node (legacy, may be removed if fully migrated to desktop)
+node_modules/
+dist-ssr/
+out/
+package-lock.json
+yarn.lock
 
-# Alembic migrations and configuration (adjust as needed)
+# Alembic
 alembic/versions/*.pyc
-alembic.db
 alembic/*.log
 alembic/*.tmp
-alembic.ini
 
-# Ignore all files in backend/uploads
-backend/uploads/**/*
-!backend/uploads/.gitkeep
-
-# Desktop app generated files
-uploads/**/*
-!uploads/.gitkeep
-*.png
-*.jpg
-*.jpeg
-!docs/**/*.png
-!docs/**/*.jpg
-
-# App logs
-app.log
-mcp-shell.log
+# Trash directory
+.trash/

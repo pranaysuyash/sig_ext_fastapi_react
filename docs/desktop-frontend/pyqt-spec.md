@@ -36,6 +36,25 @@ This document describes the desktop GUI application built with PySide6 (Qt for P
 - **Zoom**: Mouse wheel to zoom in/out
 - **Pan**: Click-and-drag in pan mode
 - Controls shown: Threshold slider (0-255), Color picker (hex)
+- Rotation-aware selection: selection coordinates are mapped from the scene using all 4 corners, so coordinates remain correct after rotating the view or fitting/resizing.
+
+### Viewport Controls (✅ Implemented)
+
+- Zoom buttons: Zoom In / Zoom Out
+- Zoom percent: editable combo supporting manual values (e.g., 125%) and a Fit option
+- Fit: scale image to active pane while preserving aspect ratio
+- Reset Viewport: reset zoom, pan, and rotation to defaults for the active pane
+- Rotate: per-pane rotation buttons (↺/↻). Source rotation triggers a re-upload with the rotated image; preview/result rotations are view-only.
+
+### Session/Desktop Actions (✅ Implemented)
+
+- Clean Viewport: clears source/preview/result panes, removes the current session id, and disables dependent actions until a new upload
+- Clear Selection: removes current rubber-band selection and hides preview/result panes
+
+### Status Bar (✅ Implemented)
+
+- Viewport WxH, Image WxH, Visible bounds (x1,y1→x2,y2 [WxH]), Zoom %, Rotation °, Selection (x1,y1→x2,y2 [WxH])
+- Session id preview with tooltip showing the full id
 
 ### 4) Preview Extraction (✅ Implemented)
 
@@ -288,3 +307,7 @@ pyinstaller --noconfirm --windowed --name "Signature Extractor" desktop_app/main
 - [ ] Unit tests for image processing logic
 - [ ] Integration tests for API client
 - [ ] UI tests for critical workflows
+- Help menu (✅ Implemented)
+  - Help & Troubleshooting (opens docs/HELP.md)
+  - Keyboard Shortcuts (opens docs/SHORTCUTS.md)
+  - Backend health check (opens http://127.0.0.1:8001/health)

@@ -3,6 +3,7 @@
 ## [Unreleased] - 2025-10-29
 
 ### Changed
+
 - **Enhanced Coordinate Display**: "Visible" now shows both viewport position and image portion
   - Format: `@(vx1,vy1)→(vx2,vy2) shows (ix1,iy1)→(ix2,iy2)`
   - First part `@(...)→(...)`: Where image is painted in viewport (viewport pixel coordinates)
@@ -12,52 +13,55 @@
     - You can see the entire image from pixel (0,0) to (2268,4032)
   - Helps understand image positioning, especially with letterboxing/pillarboxing at different zoom levels
 
+### Added
+
+- Help menu with links to Help & Troubleshooting, Keyboard Shortcuts, and a quick backend health opener (`http://127.0.0.1:8001/health`)
+
 ### Technical Details
 
 **Why Two Coordinate Systems?**
 
 When you zoom or fit an image, Qt's QGraphicsView creates a transform between:
+
 1. **Viewport coordinates**: Physical pixels on your screen (widget size)
 2. **Scene/Image coordinates**: Logical pixels in the image data
 
 At 13.6% zoom with 2268×4032 image in 842×551 viewport:
+
 - Image scales to 308×548 displayed pixels
 - Viewport is larger, so image is centered with margins
 - Image appears at viewport pixels (267,1)→(575,549)
 - But shows the full image area (0,0)→(2268,4032)
 
 At 171.7% zoom with 512×184 image in 899×551 viewport:
+
 - Image scales to 879×316 displayed pixels
 - Image fills width but has vertical margins
 - Image appears at viewport pixels (~10,118)→(~889,434)
 - Shows the full image area (0,0)→(512,184)
 
-**Crop Coordinate Mapping**
+**Crop Coordinate Mapping (Rotation-aware)**
 
 The selection/crop uses `selected_rect_image_coords()` which:
-1. User drags rubber band in viewport coordinates
-2. `mapToScene()` transforms to image coordinates
-3. Backend crops using image coordinates
-4. This is independent of the "Visible" display
-5. Works correctly at any zoom level (verified by tests)
+
+1. Captures the 4 selection corners in scene coordinates on mouse release
+2. Builds a normalized scene-space bounding box that persists through zoom/pan/fit/resize/rotation
+3. Maps directly to image pixels (scene == image space), then clamps to pixmap bounds
+4. Backend crops using those integer pixel coordinates
+5. Verified across zoom levels and after 90°/180° rotations (tests included)
 
 ---
 
 ## [Unreleased] - 2025-10-28
 
-### Fixed
+### Changed
 
-- **Selection Cropping Accuracy**: Fixed coordinate mapping issue where crop previews were getting cut off or offset when using Fit, 100%, or Zoom view modes
-  - Simplified coordinate transformation from four-corner to two-corner approach
-  - Since the application clears selections on source rotation, we only need to handle zoom/pan/fit transformations
-  - Maps view coordinates directly to scene coordinates (which are image pixel coordinates)
-  - Uses `math.floor()` for minimum coordinates and `math.ceil()` for maximum to create precise integer bounding boxes
-  - All 20 automated tests passing with accurate coordinate mapping across all view states
+- Coordinate mapping now uses rotation-aware scene bounds from all four selection corners and persists across view changes.
 
 ### Added
 
-### Added
 - **Real-time Coordinate Display**: Status bar footer now shows live coordinate information
+
   - **Viewport**: `W×H` - Viewport widget size in pixels (changes on window resize)
   - **Image**: `W×H` - Actual image resolution in pixels
   - **Visible**: `@(x1,y1)→(x2,y2) shows (ix1,iy1)→(ix2,iy2)` - Where image appears in viewport @ what portion of image is shown
@@ -111,9 +115,7 @@ x2, y2 = math.ceil(bottom_right_scene.x()), math.ceil(bottom_right_scene.y())
 - The pixmap item is positioned at (0,0) in the scene
 - Scene rect is set to image dimensions via `setSceneRect(pix.rect())`
 - Therefore, scene coordinates ARE image pixel coordinates
-- No need for `mapFromScene` on the pixmap item
-- Simpler logic = fewer floating-point errors
-- Application logic clears selections on source rotation, so rotation handling is unnecessary
+- Using all four corners provides robustness when the view is rotated
 
 #### Coordinate Display Implementation (`desktop_app/views/main_window.py`)
 

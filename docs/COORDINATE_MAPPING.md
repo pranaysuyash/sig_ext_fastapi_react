@@ -53,63 +53,36 @@ The pixmap item is positioned at scene coordinate (0,0), and the scene rect is s
 
 Located in: `desktop_app/widgets/image_view.py`
 
-#### Current Implementation (Fixed - 2025-10-28)
+#### Current Implementation (Rotation‑aware — Oct 2025)
 
 ```python
 def selected_rect_image_coords(self) -> tuple[int, int, int, int]:
-    """Return selection in image coordinates (x1,y1,x2,y2)."""
-    if not self._pixmap_item or self._last_rect.isNull():
+    if not self._pixmap_item or self._last_rect_scene_bounds.isNull():
         return (0, 0, 0, 0)
 
-    # Map the corners from view widget coordinates to scene coordinates
-    top_left_view = self._last_rect.topLeft()
-    bottom_right_view = self._last_rect.bottomRight()
+    bounds = self._last_rect_scene_bounds  # scene-space bbox from all 4 corners
+    x1 = math.floor(bounds.left())
+    y1 = math.floor(bounds.top())
+    x2 = math.ceil(bounds.right())
+    y2 = math.ceil(bounds.bottom())
 
-    top_left_scene = self.mapToScene(top_left_view)
-    bottom_right_scene = self.mapToScene(bottom_right_view)
+    # Clamp to image bounds (scene == image space)
+    img = self._pixmap_item.pixmap().rect()
+    x1 = max(0, x1); y1 = max(0, y1)
+    x2 = min(img.width(), x2); y2 = min(img.height(), y2)
 
-    # Since pixmap is at (0,0) and scene rect = image dimensions,
-    # scene coordinates ARE image pixel coordinates
-    x1 = math.floor(top_left_scene.x())
-    y1 = math.floor(top_left_scene.y())
-    x2 = math.ceil(bottom_right_scene.x())
-    y2 = math.ceil(bottom_right_scene.y())
-
-    # Clamp to image bounds
-    img_rect = self._pixmap_item.pixmap().rect()
-    x1 = max(0, x1)
-    y1 = max(0, y1)
-    x2 = min(img_rect.width(), x2)
-    y2 = min(img_rect.height(), y2)
-
-    # Validate
     if x2 <= x1 or y2 <= y1:
         return (0, 0, 0, 0)
-
     return (x1, y1, x2, y2)
 ```
 
-#### Why This Works
+Selection persistence:
+- On mouse release we capture the 4 selection corners in scene coordinates, build a normalized bounding box, and store it. This survives zoom, pan, fit, resize, and rotation.
 
-**Two-corner mapping is sufficient because:**
-
-1. **No rotation during selection**: The application clears selections whenever the source image is rotated
-
-   - See `on_rotate()` in `main_window.py`: calls `src_view.clear_selection()`
-   - This ensures the view transform is always axis-aligned during selection
-
-2. **Simple transformations**: Only need to handle:
-
-   - Scaling (zoom in/out)
-   - Translation (pan)
-   - Fit to window (uniform scale)
-
-3. **Direct scene→image mapping**: Since the scene rect matches image dimensions, no additional item transformation is needed
-
-4. **Precision with floor/ceil**:
-   - `floor()` for top-left ensures we include the first pixel
-   - `ceil()` for bottom-right ensures we include the last pixel
-   - Creates an inclusive bounding box that fully contains the selection
+Why it’s accurate:
+- Scene is aligned to image pixels, so scene→image is 1:1.
+- Bounding the 4 rotated corners covers off‑axis selection rectangles.
+- Floor/ceil create an inclusive integer region matching the visual selection.
 
 ### Previous Implementation (Broken - Before 2025-10-28)
 
