@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import math
 import os
 from typing import Optional
 import logging
@@ -11,7 +12,7 @@ from PySide6.QtGui import QAction, QImage, QColor, QPixmap, QTransform, QDesktop
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog,
     QLabel, QSlider, QColorDialog, QMessageBox, QListWidget, QListWidgetItem, QStatusBar,
-    QMenu, QSizePolicy, QApplication, QCheckBox
+    QMenu, QSizePolicy, QApplication, QCheckBox, QComboBox
 )
 from PIL import Image as PILImage
 from PIL.ExifTags import TAGS
@@ -58,24 +59,29 @@ class MainWindow(QMainWindow):
         controls.addWidget(self.open_btn)
 
         controls.addWidget(QLabel("Threshold"))
+        threshold_row = QHBoxLayout()
         self.threshold = QSlider(Qt.Horizontal)
         self.threshold.setRange(0, 255)
         self.threshold.setValue(200)
-        controls.addWidget(self.threshold)
-
-        # Color swatch + label
-        self.color_label = QLabel("Color: #000000")
-        self.pick_color_btn = QPushButton()
-        set_button_icon(self.pick_color_btn, 'color', 'Pick Color')
-        self.pick_color_btn.clicked.connect(self.on_pick_color)
-        controls.addWidget(self.color_label)
-        controls.addWidget(self.pick_color_btn)
-
-        self.auto_threshold_cb = QCheckBox("Auto threshold")
+        self.threshold.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        threshold_row.addWidget(self.threshold, 1)
+        self.auto_threshold_cb = QCheckBox("Auto")
         self.auto_threshold_cb.setToolTip("Let the backend compute an optimal threshold based on the selection")
         self.auto_threshold_cb.setChecked(False)
         self.auto_threshold_cb.stateChanged.connect(self._on_auto_threshold_toggled)
-        controls.addWidget(self.auto_threshold_cb)
+        threshold_row.addWidget(self.auto_threshold_cb, 0)
+        controls.addLayout(threshold_row)
+
+        # Color swatch + label
+        self.color_label = QLabel("Color: #000000")
+        self.color_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.pick_color_btn = QPushButton()
+        set_button_icon(self.pick_color_btn, 'color', 'Pick Color')
+        self.pick_color_btn.clicked.connect(self.on_pick_color)
+        color_row = QHBoxLayout()
+        color_row.addWidget(self.color_label, 1)
+        color_row.addWidget(self.pick_color_btn, 0)
+        controls.addLayout(color_row)
 
         # View Controls (grouped clearly)
         controls.addWidget(QLabel("View"))
@@ -84,15 +90,26 @@ class MainWindow(QMainWindow):
         self.zoom_in_btn.setToolTip("Zoom In (Ctrl/Cmd +) - applies to active pane")
         self.zoom_out_btn = QPushButton("Zoom Out")
         self.zoom_out_btn.setToolTip("Zoom Out (Ctrl/Cmd -) - applies to active pane")
+        self.zoom_combo = QComboBox()
+        self.zoom_combo.setEditable(True)
+        self.zoom_combo.setInsertPolicy(QComboBox.NoInsert)
+        self.zoom_combo.addItems(["25%", "50%", "75%", "100%", "125%", "150%", "200%", "Fit"])
+        self.zoom_combo.setCurrentText("100%")
+        self.zoom_combo.setToolTip("Set zoom for the active pane. Enter a percentage or choose Fit.")
+        self.zoom_combo.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.zoom_combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        if self.zoom_combo.lineEdit():
+            self.zoom_combo.lineEdit().setPlaceholderText("Zoom")
         view_row1.addWidget(self.zoom_in_btn)
         view_row1.addWidget(self.zoom_out_btn)
+        view_row1.addWidget(self.zoom_combo)
         controls.addLayout(view_row1)
         
         view_row2 = QHBoxLayout()
         self.fit_btn = QPushButton("Fit")
-        self.fit_btn.setToolTip("Fit to View (Ctrl/Cmd 1) - applies to active pane")
-        self.reset_view_btn = QPushButton("100%")
-        self.reset_view_btn.setToolTip("Reset to 100% (Ctrl/Cmd 0) - applies to active pane")
+        self.fit_btn.setToolTip("Fit image to active pane (Ctrl/Cmd 1)")
+        self.reset_view_btn = QPushButton("Reset Viewport")
+        self.reset_view_btn.setToolTip("Reset zoom, pan, and rotation (Ctrl/Cmd 0)")
         view_row2.addWidget(self.fit_btn)
         view_row2.addWidget(self.reset_view_btn)
         controls.addLayout(view_row2)
@@ -114,17 +131,24 @@ class MainWindow(QMainWindow):
         self.toggle_mode_btn.setToolTip("Toggle between Select and Pan modes")
         self.clear_sel_btn = QPushButton("Clear Selection")
         self.clear_sel_btn.setToolTip("Clear current selection")
+        self.clean_session_btn = QPushButton("Clean Viewport")
+        self.clean_session_btn.setToolTip("Clear the current upload and reset all panes")
         controls.addWidget(self.toggle_mode_btn)
         controls.addWidget(self.clear_sel_btn)
-        
+        controls.addWidget(self.clean_session_btn)
+
         self.zoom_in_btn.clicked.connect(self._on_zoom_in)
         self.zoom_out_btn.clicked.connect(self._on_zoom_out)
         self.fit_btn.clicked.connect(self._on_fit)
         self.reset_view_btn.clicked.connect(self._on_reset_zoom)
         self.toggle_mode_btn.clicked.connect(self.on_toggle_mode)
         self.clear_sel_btn.clicked.connect(self.on_clear_selection)
+        self.clean_session_btn.clicked.connect(self.on_clean_session)
         self.rotate_cw_btn.clicked.connect(lambda: self.on_rotate(90))
         self.rotate_ccw_btn.clicked.connect(lambda: self.on_rotate(-90))
+        self.zoom_combo.activated.connect(self._on_zoom_combo_activated)
+        if self.zoom_combo.lineEdit():
+            self.zoom_combo.lineEdit().editingFinished.connect(self._on_zoom_combo_edit_finished)
 
         self.sel_info = QLabel("Selection: –")
         self.sel_info.setStyleSheet("font-size: 11px; color: #666; padding: 4px;")
@@ -153,10 +177,12 @@ class MainWindow(QMainWindow):
         self.export_json_btn.clicked.connect(self.on_export_json)
         self.export_json_btn.setEnabled(False)
 
-        controls.addWidget(self.export_btn)
-        controls.addWidget(self.copy_btn)
-        controls.addWidget(self.save_to_library_btn)
-        controls.addWidget(self.export_json_btn)
+        export_row = QHBoxLayout()
+        export_row.addWidget(self.export_btn)
+        export_row.addWidget(self.copy_btn)
+        export_row.addWidget(self.save_to_library_btn)
+        export_row.addWidget(self.export_json_btn)
+        controls.addLayout(export_row)
 
         # Library list
         controls.addWidget(QLabel("My Signatures"))
@@ -238,6 +264,40 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.status_bar)
         self.status_bar.showMessage("Ready")
         
+        # Coordinate info labels (permanent widgets)
+        mono_style = (
+            "color: #666; padding: 2px 8px; font-family: 'Menlo', 'Roboto Mono', 'Fira Code', 'Courier New', monospace; font-size: 11px;"
+        )
+        self.viewport_size_label = QLabel("Viewport: –")
+        self.viewport_size_label.setStyleSheet(mono_style)
+        self.viewport_size_label.setToolTip("Viewport widget size (can change on window resize)")
+        self.status_bar.addPermanentWidget(self.viewport_size_label)
+
+        self.image_size_label = QLabel("Image: –")
+        self.image_size_label.setStyleSheet(mono_style)
+        self.image_size_label.setToolTip("Image resolution for the active pane")
+        self.status_bar.addPermanentWidget(self.image_size_label)
+
+        self.view_coords_label = QLabel("Visible: –")
+        self.view_coords_label.setStyleSheet(mono_style)
+        self.view_coords_label.setToolTip("Visible image coordinates in pixel space")
+        self.status_bar.addPermanentWidget(self.view_coords_label)
+
+        self.selection_coords_label = QLabel("Selection: –")
+        self.selection_coords_label.setStyleSheet(mono_style)
+        self.selection_coords_label.setToolTip("Selected area coordinates in image pixel space")
+        self.status_bar.addPermanentWidget(self.selection_coords_label)
+
+        self.zoom_label = QLabel("Zoom: –")
+        self.zoom_label.setStyleSheet(mono_style)
+        self.zoom_label.setToolTip("Current zoom level of active pane")
+        self.status_bar.addPermanentWidget(self.zoom_label)
+
+        self.rotation_label = QLabel("Rotation: –")
+        self.rotation_label.setStyleSheet(mono_style)
+        self.rotation_label.setToolTip("Rotation applied to the active pane view")
+        self.status_bar.addPermanentWidget(self.rotation_label)
+        
         # Session ID label (permanent widget on right side of status bar)
         self.session_id_label = QLabel("No session")
         self.session_id_label.setStyleSheet("color: #666; padding: 2px 8px;")
@@ -251,6 +311,7 @@ class MainWindow(QMainWindow):
         self._licensed = is_licensed()
         self._active_pane = "source"  # Track which pane user clicked: "source", "preview", "result"
         self._auto_threshold_enabled = False
+        self._updating_zoom_combo = False
 
         # Live preview timer
         self._preview_timer = QTimer(self)
@@ -259,6 +320,12 @@ class MainWindow(QMainWindow):
 
         # React to selection and slider changes
         self.src_view.selectionChanged.connect(self.on_selection_changed)
+        self.src_view.zoomChanged.connect(self._update_coordinate_display)
+        self.src_view.viewChanged.connect(self._update_coordinate_display)
+        self.preview_view.zoomChanged.connect(self._update_coordinate_display)
+        self.preview_view.viewChanged.connect(self._update_coordinate_display)
+        self.res_view.zoomChanged.connect(self._update_coordinate_display)
+        self.res_view.viewChanged.connect(self._update_coordinate_display)
         self.threshold.valueChanged.connect(self.on_adjustment_changed)
 
         # Menu bar: License actions
@@ -355,6 +422,7 @@ class MainWindow(QMainWindow):
             # Show a small crop preview when selection exists; processing is auto-triggered on selection
             self._update_action_states()
             self._update_view_actions_enabled()
+            self._update_coordinate_display()
         except KeyboardInterrupt:
             # User cancelled dialog or operation
             self.status_bar.showMessage("Upload cancelled", 2000)
@@ -460,6 +528,30 @@ class MainWindow(QMainWindow):
         self.result_label.setVisible(False)
         self.res_view.setVisible(False)
         self._update_view_actions_enabled()
+        self._update_coordinate_display()
+
+    def on_clean_session(self):
+        if not (self.src_view.has_image() or self.preview_view.has_image() or self.res_view.has_image() or self.session.session_id):
+            return
+        self.src_view.clear_image()
+        self.preview_view.clear_image()
+        self.res_view.clear_image()
+        self.preview_label.setVisible(False)
+        self.preview_view.setVisible(False)
+        self.preview_container.setVisible(False)
+        self.result_label.setVisible(False)
+        self.res_view.setVisible(False)
+        self.sel_info.setText("Selection: –")
+        self.session.session_id = ""
+        self.session_id_label.setText("No session")
+        self.session_id_label.setToolTip("")
+        self._last_result_png = None
+        self._current_image_data = None
+        self._last_local_path = None
+        self.status_bar.showMessage("Viewport cleaned", 3000)
+        self._update_action_states()
+        self._update_view_actions_enabled()
+        self._update_coordinate_display()
 
     def on_selection_changed(self, _rect):
         # Update selection info and crop preview
@@ -473,9 +565,17 @@ class MainWindow(QMainWindow):
             self.preview_container.setVisible(True)
             self.result_label.setVisible(True)
             self.res_view.setVisible(True)
-            
+
+            # Reset preview and result view rotations when making a new selection
+            # This ensures the crop preview is shown in the correct orientation
+            self.preview_view.setTransform(QTransform())
+            self.preview_view._rotation = 0.0
+            self.res_view.setTransform(QTransform())
+            self.res_view._rotation = 0.0
+
             cropped = self.src_view.crop_selection()
             if cropped and not cropped.isNull():
+                print(f"[DEBUG] Crop preview size: {cropped.width()}×{cropped.height()}")
                 self.preview_view.set_image(cropped)
                 self.preview_view.fit()
             else:
@@ -498,6 +598,7 @@ class MainWindow(QMainWindow):
             self.result_label.setVisible(False)
             self.res_view.setVisible(False)
         self._update_view_actions_enabled()
+        self._update_coordinate_display()
 
     def on_adjustment_changed(self, _value: int):
         # Debounce live preview when threshold changes
@@ -910,6 +1011,7 @@ class MainWindow(QMainWindow):
 
         for btn in (self.zoom_in_btn, self.zoom_out_btn, self.fit_btn, self.reset_view_btn):
             btn.setEnabled(active_has_image)
+        self.zoom_combo.setEnabled(active_has_image)
 
         rotate_enabled = False
         if self._active_pane == "source":
@@ -921,6 +1023,8 @@ class MainWindow(QMainWindow):
 
         self.rotate_cw_btn.setEnabled(rotate_enabled)
         self.rotate_ccw_btn.setEnabled(rotate_enabled)
+        has_any = has_source or has_preview or has_result or bool(self.session.session_id)
+        self.clean_session_btn.setEnabled(has_any)
 
     def on_copy(self):
         if not self._last_result_png:
@@ -957,16 +1061,123 @@ class MainWindow(QMainWindow):
             self._on_pane_clicked(pane_name)
             original_handler(event)
         return wrapped
-    
+
+    def _get_active_view(self):
+        return {
+            "source": self.src_view,
+            "preview": self.preview_view,
+            "result": self.res_view,
+        }.get(self._active_pane)
+
     def _on_pane_clicked(self, pane: str):
         """User clicked a pane - make it active."""
         if self._active_pane != pane:
             self._active_pane = pane
             self._update_pane_borders()
             self._update_view_actions_enabled()
+            self._update_coordinate_display()
             self.status_bar.showMessage(f"Active pane: {pane.capitalize()}", 2000)
             print(f"[UI] Active pane changed to: {pane}")
     
+    def _update_coordinate_display(self):
+        """Update status bar with current view and selection coordinates."""
+        active_view = self._get_active_view()
+        
+        if not active_view or not active_view.has_image():
+            self.viewport_size_label.setText("Viewport: –")
+            self.image_size_label.setText("Image: –")
+            self.view_coords_label.setText("Visible: –")
+            self.zoom_label.setText("Zoom: –")
+            self.rotation_label.setText("Rotation: –")
+            self._set_zoom_combo_display("—")
+            if self._active_pane != "source" or not self.src_view.has_image():
+                self.selection_coords_label.setText("Selection: –")
+            return
+
+        # Get viewport widget dimensions (changes on window resize)
+        viewport_rect = active_view.viewport().rect()
+        viewport_w = viewport_rect.width()
+        viewport_h = viewport_rect.height()
+        self.viewport_size_label.setText(f"Viewport: {viewport_w}×{viewport_h}")
+
+        # Image resolution
+        if active_view._pixmap_item:
+            pix = active_view._pixmap_item.pixmap()
+            self.image_size_label.setText(f"Image: {pix.width()}×{pix.height()}")
+        else:
+            self.image_size_label.setText("Image: –")
+
+        # Get visible image bounds in scene (image pixel) coordinates
+        tl_scene = active_view.mapToScene(viewport_rect.topLeft())
+        br_scene = active_view.mapToScene(viewport_rect.bottomRight())
+
+        # Clamp to actual image bounds and show where image appears in viewport
+        if active_view._pixmap_item:
+            img_rect = active_view._pixmap_item.pixmap().rect()
+            
+            # Where the image appears in viewport coordinates
+            img_tl_viewport = active_view.mapFromScene(0, 0)
+            img_br_viewport = active_view.mapFromScene(img_rect.width(), img_rect.height())
+            
+            # What portion of image is visible (in image coordinates)
+            view_x1 = max(0, min(int(tl_scene.x()), img_rect.width()))
+            view_y1 = max(0, min(int(tl_scene.y()), img_rect.height()))
+            view_x2 = max(0, min(int(br_scene.x()), img_rect.width()))
+            view_y2 = max(0, min(int(br_scene.y()), img_rect.height()))
+            visible_w = max(0, view_x2 - view_x1)
+            visible_h = max(0, view_y2 - view_y1)
+            
+            # Show both: where image is painted in viewport @ what portion is visible
+            self.view_coords_label.setText(
+                f"Visible: @({int(img_tl_viewport.x())},{int(img_tl_viewport.y())})→"
+                f"({int(img_br_viewport.x())},{int(img_br_viewport.y())}) "
+                f"shows ({view_x1},{view_y1})→({view_x2},{view_y2})"
+            )
+        else:
+            self.view_coords_label.setText("Visible: –")
+        
+        # Zoom level
+        zoom_value = active_view._zoom * 100.0
+        if math.isclose(zoom_value, round(zoom_value), abs_tol=0.1):
+            zoom_text = f"{int(round(zoom_value))}%"
+        else:
+            zoom_text = f"{zoom_value:.1f}%"
+        self.zoom_label.setText(f"Zoom: {zoom_text}")
+        self._set_zoom_combo_display(zoom_text)
+
+        # Rotation
+        rotation_deg = getattr(active_view, "_rotation", 0.0)
+        self.rotation_label.setText(f"Rotation: {rotation_deg:.1f}°")
+
+        # Selection coordinates (only for source pane)
+        if self._active_pane == "source":
+            x1, y1, x2, y2 = self.src_view.selected_rect_image_coords()
+            if x1 == 0 and y1 == 0 and x2 == 0 and y2 == 0:
+                self.selection_coords_label.setText("Selection: –")
+            else:
+                w, h = x2 - x1, y2 - y1
+                self.selection_coords_label.setText(f"Selection: ({x1},{y1})→({x2},{y2}) [{w}×{h}]")
+        else:
+            # Show selection even when preview/result is active
+            if self.src_view.has_image():
+                x1, y1, x2, y2 = self.src_view.selected_rect_image_coords()
+                if not (x1 == 0 and y1 == 0 and x2 == 0 and y2 == 0):
+                    w, h = x2 - x1, y2 - y1
+                    self.selection_coords_label.setText(f"Selection: ({x1},{y1})→({x2},{y2}) [{w}×{h}]")
+                else:
+                    self.selection_coords_label.setText("Selection: –")
+            else:
+                self.selection_coords_label.setText("Selection: –")
+
+    def _set_zoom_combo_display(self, text: str):
+        if not hasattr(self, "zoom_combo"):
+            return
+        self._updating_zoom_combo = True
+        try:
+            self.zoom_combo.setEditText(text)
+        finally:
+            self._updating_zoom_combo = False
+
     def _update_pane_borders(self):
         """Update visual borders to show which pane is active."""
         # Source pane
@@ -995,37 +1206,70 @@ class MainWindow(QMainWindow):
     
     def _on_zoom_in(self):
         """Zoom in on active pane."""
-        if self._active_pane == "source":
-            self.src_view.zoom_in()
-        elif self._active_pane == "preview":
-            self.preview_view.zoom_in()
-        elif self._active_pane == "result":
-            self.res_view.zoom_in()
+        active_view = self._get_active_view()
+        if active_view and active_view.has_image():
+            active_view.zoom_in()
+        self._update_coordinate_display()
     
     def _on_zoom_out(self):
         """Zoom out on active pane."""
-        if self._active_pane == "source":
-            self.src_view.zoom_out()
-        elif self._active_pane == "preview":
-            self.preview_view.zoom_out()
-        elif self._active_pane == "result":
-            self.res_view.zoom_out()
+        active_view = self._get_active_view()
+        if active_view and active_view.has_image():
+            active_view.zoom_out()
+        self._update_coordinate_display()
     
     def _on_reset_zoom(self):
         """Reset zoom to 100% on active pane."""
-        if self._active_pane == "source":
-            self.src_view.reset_zoom()
-        elif self._active_pane == "preview":
-            self.preview_view.reset_zoom()
-        elif self._active_pane == "result":
-            self.res_view.reset_zoom()
-    
+        active_view = self._get_active_view()
+        if active_view and active_view.has_image():
+            active_view.reset_zoom()
+            active_view.centerOn(active_view.sceneRect().center())
+        self._update_coordinate_display()
+
     def _on_fit(self):
         """Fit to window on active pane."""
-        if self._active_pane == "source":
-            self.src_view.fit()
-        elif self._active_pane == "preview":
-            self.preview_view.fit()
-        elif self._active_pane == "result":
-            self.res_view.fit()
+        active_view = self._get_active_view()
+        if active_view and active_view.has_image():
+            active_view.fit()
+        self._update_coordinate_display()
 
+    def _on_zoom_combo_activated(self, index: int):
+        if self._updating_zoom_combo:
+            return
+        text = self.zoom_combo.itemText(index)
+        self._apply_zoom_text(text)
+
+    def _on_zoom_combo_edit_finished(self):
+        if self._updating_zoom_combo:
+            return
+        text = self.zoom_combo.currentText()
+        self._apply_zoom_text(text)
+
+    def _apply_zoom_text(self, text: str):
+        text = (text or "").strip()
+        if not text:
+            return
+        if text.lower() == "fit":
+            self._on_fit()
+            return
+        if text.endswith("%"):
+            text = text[:-1]
+        try:
+            value = float(text)
+        except ValueError:
+            self._update_coordinate_display()
+            return
+        if value <= 0:
+            self._update_coordinate_display()
+            return
+        active_view = self._get_active_view()
+        if not active_view or not active_view.has_image():
+            self._update_coordinate_display()
+            return
+        active_view.set_zoom_percent(value)
+        self._update_coordinate_display()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        # Defer update to ensure layouts settle before querying viewport sizes
+        QTimer.singleShot(0, self._update_coordinate_display)

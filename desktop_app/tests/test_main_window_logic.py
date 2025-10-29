@@ -3,7 +3,7 @@ import io
 import tempfile
 
 import pytest
-from PySide6.QtCore import QPointF, QRect, Qt
+from PySide6.QtCore import QPointF, QRect, QRectF, Qt
 from PySide6.QtGui import QImage, QColor
 from PySide6.QtWidgets import QApplication, QListWidgetItem, QMessageBox
 
@@ -38,6 +38,25 @@ class DummyApiClient:
 def main_window(qapp):
     window = MainWindow(DummyApiClient(), SessionState())
     return window
+
+
+def _set_source_selection(window: MainWindow, tl_scene: QPointF, br_scene: QPointF) -> QRect:
+    """Helper to seed source view selection state for tests."""
+    rect_scene = QRectF(tl_scene, br_scene).normalized()
+    tl_view = window.src_view.mapFromScene(rect_scene.topLeft())
+    br_view = window.src_view.mapFromScene(rect_scene.bottomRight())
+    rect_view = QRect(tl_view, br_view).normalized()
+    window.src_view._last_rect = rect_view
+    scene_points = [
+        rect_scene.topLeft(),
+        rect_scene.topRight(),
+        rect_scene.bottomLeft(),
+        rect_scene.bottomRight(),
+    ]
+    xs = [pt.x() for pt in scene_points]
+    ys = [pt.y() for pt in scene_points]
+    window.src_view._last_rect_scene_bounds = QRectF(QPointF(min(xs), min(ys)), QPointF(max(xs), max(ys)))
+    return rect_view
 
 
 def _make_image(width=100, height=100, color="#ffffff"):
@@ -88,18 +107,16 @@ def test_selection_crop_updates_preview(main_window):
     main_window.src_view.set_image(source_image)
 
     # Simulate a selection by mapping scene coordinates to view coordinates
-    tl = main_window.src_view.mapFromScene(QPointF(10, 10))
-    br = main_window.src_view.mapFromScene(QPointF(40, 35))
-    rect = QRect(tl, br).normalized()
-    main_window.src_view._last_rect = rect
+    rect = _set_source_selection(main_window, QPointF(10, 10), QPointF(40, 35))
 
     # Act
     main_window.on_selection_changed(rect)
 
     preview_image = main_window.preview_view.image()
     assert preview_image is not None
-    assert preview_image.width() == 30
-    assert preview_image.height() == 26
+    x1, y1, x2, y2 = main_window.src_view.selected_rect_image_coords()
+    assert preview_image.width() == x2 - x1
+    assert preview_image.height() == y2 - y1
 
     # Ensure coordinates returned to backend align with preview dimensions
     x1, y1, x2, y2 = main_window.src_view.selected_rect_image_coords()
@@ -119,9 +136,7 @@ def test_source_rotation_reuploads_and_clears_selection(main_window):
     main_window.src_view.set_image(QImage.fromData(png_bytes))
     main_window.session.session_id = "original-session"
 
-    tl = main_window.src_view.mapFromScene(QPointF(2, 2))
-    br = main_window.src_view.mapFromScene(QPointF(8, 8))
-    main_window.src_view._last_rect = QRect(tl, br).normalized()
+    _set_source_selection(main_window, QPointF(2, 2), QPointF(8, 8))
 
     main_window._on_pane_clicked("source")
     main_window._update_view_actions_enabled()
@@ -169,6 +184,28 @@ def test_clear_selection_hides_preview(main_window):
 
     assert not main_window.preview_container.isVisible()
     assert not main_window.res_view.isVisible()
+
+
+def test_clean_session_resets_views(main_window):
+    main_window.session.session_id = "active-session"
+    main_window._last_result_png = b"pngbytes"
+    main_window.src_view.set_image(_make_image())
+    main_window.preview_view.set_image(_make_image(40, 30))
+    main_window.preview_label.setVisible(True)
+    main_window.preview_view.setVisible(True)
+    main_window.preview_container.setVisible(True)
+    main_window.res_view.set_image(_make_image(20, 20))
+    main_window.res_view.setVisible(True)
+    main_window.result_label.setVisible(True)
+
+    main_window.on_clean_session()
+
+    assert main_window.session.session_id == ""
+    assert not main_window.src_view.has_image()
+    assert not main_window.preview_view.has_image()
+    assert not main_window.res_view.has_image()
+    assert main_window._last_result_png is None
+    assert main_window.clean_session_btn.isEnabled() is False
 
 
 def test_save_to_library_uses_storage(monkeypatch, main_window):
@@ -257,9 +294,7 @@ def test_auto_threshold_toggle(main_window):
     img_bytes = buffer.getvalue()
 
     main_window.src_view.set_image(QImage.fromData(img_bytes))
-    tl = main_window.src_view.mapFromScene(QPointF(0, 0))
-    br = main_window.src_view.mapFromScene(QPointF(40, 20))
-    main_window.src_view._last_rect = QRect(tl, br).normalized()
+    _set_source_selection(main_window, QPointF(0, 0), QPointF(40, 20))
 
     main_window.threshold.setValue(5)
     main_window.auto_threshold_cb.setChecked(True)

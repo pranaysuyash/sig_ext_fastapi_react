@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QRect, QPoint, QSize, Signal
+import math
+
+from PySide6.QtCore import Qt, QRect, QRectF, QPoint, QPointF, QSize, Signal
 from PySide6.QtGui import QImage, QPixmap, QWheelEvent, QTransform
 from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QRubberBand
 
@@ -10,6 +12,10 @@ class ImageView(QGraphicsView):
 
     # Emitted when a selection rectangle is finalized (mouse release)
     selectionChanged = Signal(QRect)
+    # Emitted when zoom level changes
+    zoomChanged = Signal()
+    # Emitted when the viewport geometry or visible scene region changes
+    viewChanged = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -19,6 +25,8 @@ class ImageView(QGraphicsView):
         self._rubber = QRubberBand(QRubberBand.Rectangle, self)
         self._origin = QPoint()
         self._last_rect = QRect()
+        self._last_rect_scene_bounds = QRectF()
+        self._last_reported_coords = (0, 0, 0, 0)
         self.setMouseTracking(True)
         self.setDragMode(QGraphicsView.NoDrag)  # Disable hand drag by default
         self._zoom = 1.0
@@ -35,8 +43,10 @@ class ImageView(QGraphicsView):
         pix = QPixmap.fromImage(image)
         self._pixmap_item = self.scene().addPixmap(pix)
         self.setSceneRect(pix.rect())
-        self.fit()
         self._last_rect = QRect()
+        self._last_rect_scene_bounds = QRectF()
+        self._last_reported_coords = (0, 0, 0, 0)
+        self.fit()
 
     def clear_image(self) -> None:
         """Clear the current image and remove scene items."""
@@ -44,9 +54,11 @@ class ImageView(QGraphicsView):
         self._image = None
         self._pixmap_item = None
         self._last_rect = QRect()
+        self._last_rect_scene_bounds = QRectF()
         self.setTransform(QTransform())
         self._zoom = 1.0
         self._rotation = 0.0
+        self.viewChanged.emit()
 
     def image(self) -> QImage | None:
         return self._image
@@ -80,6 +92,22 @@ class ImageView(QGraphicsView):
         if event.button() == Qt.LeftButton and self._rubber.isVisible() and self._selection_mode:
             self._last_rect = self._rubber.geometry()
             self._rubber.hide()
+            if not self._last_rect.isNull():
+                # Persist selection bounds in scene coordinates so zoom/fit/rotation stay consistent
+                scene_points = [
+                    self.mapToScene(self._last_rect.topLeft()),
+                    self.mapToScene(self._last_rect.topRight()),
+                    self.mapToScene(self._last_rect.bottomLeft()),
+                    self.mapToScene(self._last_rect.bottomRight()),
+                ]
+                xs = [pt.x() for pt in scene_points]
+                ys = [pt.y() for pt in scene_points]
+                min_point = QPointF(min(xs), min(ys))
+                max_point = QPointF(max(xs), max(ys))
+                self._last_rect_scene_bounds = QRectF(min_point, max_point).normalized()
+            else:
+                self._last_rect_scene_bounds = QRectF()
+                self._last_reported_coords = (0, 0, 0, 0)
             self.selectionChanged.emit(self._last_rect)
             event.accept()
         elif event.button() == Qt.MiddleButton or (event.button() == Qt.LeftButton and not self._selection_mode):
@@ -91,31 +119,34 @@ class ImageView(QGraphicsView):
 
     def selected_rect_image_coords(self) -> tuple[int, int, int, int]:
         """Return selection in image coordinates (x1,y1,x2,y2)."""
-        if not self._pixmap_item or self._last_rect.isNull():
+        if not self._pixmap_item or self._last_rect_scene_bounds.isNull():
             return (0, 0, 0, 0)
 
-        # Map from view coords to scene coords, then to image pixel coords
-        top_left = self.mapToScene(self._last_rect.topLeft())
-        bottom_right = self.mapToScene(self._last_rect.bottomRight())
-        
-        # DEBUG: Log coordinate transformation
-        print(f"[ImageView] View rect: {self._last_rect}")
-        print(f"[ImageView] Scene top_left: ({top_left.x()}, {top_left.y()})")
-        print(f"[ImageView] Scene bottom_right: ({bottom_right.x()}, {bottom_right.y()})")
-        
-        x1, y1 = int(top_left.x()), int(top_left.y())
-        x2, y2 = int(bottom_right.x()), int(bottom_right.y())
-        
-        # Clamp to image bounds
-        rect = self._pixmap_item.pixmap().rect()
-        print(f"[ImageView] Image bounds: {rect.width()} x {rect.height()}")
-        
-        x1 = max(0, min(x1, rect.width()))
-        x2 = max(0, min(x2, rect.width()))
-        y1 = max(0, min(y1, rect.height()))
-        y2 = max(0, min(y2, rect.height()))
-        
-        print(f"[ImageView] Final coords: ({x1}, {y1}) -> ({x2}, {y2})")
+        bounds = self._last_rect_scene_bounds
+
+        # The stored bounds reflect image-space coordinates; map directly to ints.
+        x1 = math.floor(bounds.left())
+        y1 = math.floor(bounds.top())
+        x2 = math.ceil(bounds.right())
+        y2 = math.ceil(bounds.bottom())
+
+        # Clamp coordinates to the image's actual boundaries to prevent errors.
+        img_rect = self._pixmap_item.pixmap().rect()
+
+        x1 = max(0, x1)
+        y1 = max(0, y1)
+        x2 = min(img_rect.width(), x2)
+        y2 = min(img_rect.height(), y2)
+
+        # Ensure the resulting rectangle has valid dimensions.
+        if x2 <= x1 or y2 <= y1:
+            self._last_reported_coords = (0, 0, 0, 0)
+            return (0, 0, 0, 0)
+
+        coords = (x1, y1, x2, y2)
+        if coords != self._last_reported_coords:
+            print(f"[ImageView] Selection -> ({x1},{y1})→({x2},{y2}) [{x2 - x1}×{y2 - y1}]")
+            self._last_reported_coords = coords
         return (x1, y1, x2, y2)
 
     def selected_rect(self) -> QRect:
@@ -123,18 +154,22 @@ class ImageView(QGraphicsView):
 
     def clear_selection(self) -> None:
         self._last_rect = QRect()
+        self._last_rect_scene_bounds = QRectF()
+        self._last_reported_coords = (0, 0, 0, 0)
         self._rubber.hide()
         self.selectionChanged.emit(QRect())
 
     def crop_selection(self) -> QImage | None:
         """Return a QImage cropped to the selected rect (no processing)."""
-        if not self._image or self._last_rect.isNull():
+        if not self._image or self._last_rect_scene_bounds.isNull():
             return None
         # Map to image coordinates
         x1, y1, x2, y2 = self.selected_rect_image_coords()
         if x2 <= x1 or y2 <= y1:
             return None
-        return self._image.copy(QRect(x1, y1, x2 - x1, y2 - y1))
+        width = max(1, x2 - x1)
+        height = max(1, y2 - y1)
+        return self._image.copy(QRect(x1, y1, width, height))
 
     # Zoom/pan helpers
     def wheelEvent(self, event: QWheelEvent) -> None:
@@ -157,12 +192,16 @@ class ImageView(QGraphicsView):
     def _apply_zoom(self, factor: float):
         self._zoom *= factor
         self.scale(factor, factor)
+        self.zoomChanged.emit()
+        self.viewChanged.emit()
 
     def reset_zoom(self):
         # Reset any transforms then fit
         self.setTransform(QTransform())
         self._zoom = 1.0
         self._rotation = 0.0
+        self.zoomChanged.emit()
+        self.viewChanged.emit()
 
     def fit(self):
         if not self.scene() or self.sceneRect().isNull():
@@ -175,6 +214,11 @@ class ImageView(QGraphicsView):
                 self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
         except Exception:
             self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
+        # Update zoom level after fit
+        transform = self.transform()
+        self._zoom = transform.m11()  # Get actual scale factor
+        self.zoomChanged.emit()
+        self.viewChanged.emit()
 
     def rotate_view(self, degrees: float):
         """Rotate the view around its center without altering the image data."""
@@ -182,6 +226,7 @@ class ImageView(QGraphicsView):
             return
         self.rotate(degrees)
         self._rotation = (self._rotation + degrees) % 360
+        self.viewChanged.emit()
 
     def toggle_selection_mode(self, enable: bool):
         """Toggle between selection mode and pan mode."""
@@ -190,3 +235,21 @@ class ImageView(QGraphicsView):
             # Hide rubber band if switching to pan mode
             self._rubber.hide()
 
+    def scrollContentsBy(self, dx: int, dy: int) -> None:
+        super().scrollContentsBy(dx, dy)
+        self.viewChanged.emit()
+
+    def resizeEvent(self, event) -> None:
+        super().resizeEvent(event)
+        self.viewChanged.emit()
+
+    def set_zoom_percent(self, percent: float):
+        """Set zoom to an explicit percentage relative to image pixel size."""
+        if not self._pixmap_item:
+            return
+        target_scale = max(0.01, percent / 100.0)
+        if math.isclose(self._zoom, target_scale, rel_tol=1e-4, abs_tol=1e-4):
+            return
+        current_scale = self._zoom if self._zoom > 0 else 1.0
+        factor = target_scale / current_scale
+        self._apply_zoom(factor)
