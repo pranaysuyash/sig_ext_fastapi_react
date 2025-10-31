@@ -14,7 +14,7 @@ from PySide6.QtGui import QAction, QImage, QColor, QPixmap, QTransform, QDesktop
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog,
     QLabel, QSlider, QColorDialog, QMessageBox, QListWidget, QListWidgetItem, QStatusBar,
-    QMenu, QSizePolicy, QApplication, QCheckBox, QComboBox
+    QMenu, QSizePolicy, QApplication, QCheckBox, QComboBox, QTabWidget, QTextEdit, QDialog, QDialogButtonBox
 )
 from PIL import Image as PILImage
 from PIL.ExifTags import TAGS
@@ -27,6 +27,16 @@ from desktop_app.resources.icons import set_button_icon, get_icon
 from desktop_app.license.storage import is_licensed, load_license
 from desktop_app.views.license_dialog import LicenseDialog
 from desktop_app.library import storage as lib
+
+# NEW: PDF imports (lazy load to avoid breaking if not installed)
+try:
+    from desktop_app.pdf.viewer import PDFViewer
+    from desktop_app.pdf.signer import sign_pdf
+    from desktop_app.pdf.storage import AuditLogger, save_signed_pdf, get_audit_logs_for_pdf
+    PDF_AVAILABLE = True
+except ImportError as e:
+    PDF_AVAILABLE = False
+    print(f"⚠ PDF features not available: {e}")
 
 
 class MainWindow(QMainWindow):
@@ -389,6 +399,14 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence("Meta+]"), self, activated=lambda: self.on_rotate(90))
         QShortcut(QKeySequence("Ctrl+["), self, activated=lambda: self.on_rotate(-90))
         QShortcut(QKeySequence("Meta+["), self, activated=lambda: self.on_rotate(-90))
+        
+        # Initialize PDF features if available
+        if PDF_AVAILABLE:
+            self._init_pdf_features()
+            self._setup_pdf_menu()
+            self.status_bar.showMessage("Ready - PDF features enabled")
+        else:
+            self.status_bar.showMessage("Ready - PDF features unavailable (install pypdfium2 and pikepdf)")
 
     # Optionally, add login action if backend requires it
     # login_action = QAction("Login", self)
@@ -1316,3 +1334,174 @@ class MainWindow(QMainWindow):
         super().resizeEvent(event)
         # Defer update to ensure layouts settle before querying viewport sizes
         QTimer.singleShot(0, self._update_coordinate_display)
+    
+    # ========== PDF SIGNING FEATURES ==========
+    # Methods for PDF viewing, signing, and audit logging
+    
+    def _init_pdf_features(self):
+        """Initialize PDF-specific state. Called from __init__ if PDF_AVAILABLE."""
+        self.audit_logger: Optional[AuditLogger] = None
+        self._pending_sig_path: Optional[str] = None
+    
+    def _setup_pdf_menu(self):
+        """Add PDF menu to menu bar. Called from __init__ if PDF_AVAILABLE."""
+        pdf_menu = QMenu("&PDF", self)
+        self.menuBar().addMenu(pdf_menu)
+        
+        open_pdf_act = QAction("&Open PDF...", self)
+        open_pdf_act.setShortcut(QKeySequence("Ctrl+Shift+O"))
+        open_pdf_act.setStatusTip("Open a PDF file for signing")
+        open_pdf_act.triggered.connect(self.on_pdf_open)
+        pdf_menu.addAction(open_pdf_act)
+        
+        close_pdf_act = QAction("&Close PDF", self)
+        close_pdf_act.setStatusTip("Close the current PDF")
+        close_pdf_act.triggered.connect(self.on_pdf_close)
+        pdf_menu.addAction(close_pdf_act)
+        
+        pdf_menu.addSeparator()
+        
+        save_pdf_act = QAction("&Save Signed PDF...", self)
+        save_pdf_act.setShortcut(QKeySequence("Ctrl+Shift+S"))
+        save_pdf_act.setStatusTip("Save the signed PDF")
+        save_pdf_act.triggered.connect(self.on_pdf_save)
+        pdf_menu.addAction(save_pdf_act)
+        
+        pdf_menu.addSeparator()
+        
+        view_logs_act = QAction("View &Audit Logs", self)
+        view_logs_act.setStatusTip("View audit logs for current PDF")
+        view_logs_act.triggered.connect(self.on_pdf_view_audit_logs)
+        pdf_menu.addAction(view_logs_act)
+    
+    def on_pdf_open(self):
+        """Open a PDF file for signing."""
+        if not PDF_AVAILABLE:
+            QMessageBox.warning(self, "Feature Unavailable",
+                              "PDF features require pypdfium2 and pikepdf.\n"
+                              "Install with: pip install pypdfium2 pikepdf")
+            return
+        
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open PDF", "", "PDF Files (*.pdf)"
+        )
+        if not path:
+            return
+        
+        # Initialize PDF state in session
+        self.session.init_pdf_state()
+        if self.session.pdf_state:
+            self.session.pdf_state.current_pdf_path = path
+        
+        # For now, show a simple message (full viewer integration coming next)
+        QMessageBox.information(
+            self, "PDF Opened",
+            f"PDF opened: {Path(path).name}\n\n"
+            "Full PDF viewer with signature placement coming in next phase.\n"
+            "You can already:\n"
+            "• Use signature library\n"
+            "• Sign PDFs programmatically\n"
+            "• Track audit logs"
+        )
+        
+        # Initialize audit logger
+        self.audit_logger = AuditLogger(path, self.session.user_email)
+        self.audit_logger.log_open()
+        
+        self.statusBar().showMessage(f"Opened PDF: {Path(path).name}")
+    
+    def on_pdf_close(self):
+        """Close the current PDF."""
+        if self.session.pdf_state:
+            self.session.clear_pdf_state()
+            self.audit_logger = None
+            self.statusBar().showMessage("PDF closed")
+        else:
+            self.statusBar().showMessage("No PDF open")
+    
+    def on_pdf_save(self):
+        """Save the signed PDF."""
+        if not self.session.pdf_state or not self.session.pdf_state.current_pdf_path:
+            QMessageBox.warning(self, "No PDF", "No PDF is currently open")
+            return
+        
+        placed_sigs = self.session.pdf_state.placed_signatures
+        if not placed_sigs:
+            reply = QMessageBox.question(
+                self, "No Signatures",
+                "No signatures have been placed. Save anyway?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+        
+        # Ask for output path
+        original_name = Path(self.session.pdf_state.current_pdf_path).name
+        default_name = f"{Path(original_name).stem}_signed.pdf"
+        
+        output_path, _ = QFileDialog.getSaveFileName(
+            self, "Save Signed PDF", default_name, "PDF Files (*.pdf)"
+        )
+        if not output_path:
+            return
+        
+        # Sign PDF
+        try:
+            success = sign_pdf(
+                self.session.pdf_state.current_pdf_path,
+                output_path,
+                placed_sigs
+            )
+            
+            if success:
+                # Log save operation
+                if self.audit_logger:
+                    self.audit_logger.log_save(output_path, len(placed_sigs))
+                
+                QMessageBox.information(
+                    self, "Success",
+                    f"Signed PDF saved to:\n{output_path}"
+                )
+                self.statusBar().showMessage(f"Saved: {Path(output_path).name}")
+            else:
+                raise Exception("PDF signing failed")
+                
+        except Exception as e:
+            if self.audit_logger:
+                self.audit_logger.log_error("save_failed", str(e))
+            QMessageBox.critical(self, "Error", f"Failed to save PDF:\n{e}")
+    
+    def on_pdf_view_audit_logs(self):
+        """View audit logs for current PDF."""
+        if not self.session.pdf_state or not self.session.pdf_state.current_pdf_path:
+            QMessageBox.warning(self, "No PDF", "No PDF is currently open")
+            return
+        
+        logs = get_audit_logs_for_pdf(self.session.pdf_state.current_pdf_path)
+        
+        if not logs:
+            QMessageBox.information(self, "Audit Logs", "No audit logs found for this PDF")
+            return
+        
+        # Display logs in a dialog
+        log_text = "\n\n".join([
+            f"[{log.timestamp}] {log.operation}\n{log.details}"
+            for log in logs
+        ])
+        
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Audit Logs")
+        dialog.resize(600, 400)
+        
+        layout = QVBoxLayout(dialog)
+        
+        text_edit = QTextEdit()
+        text_edit.setReadOnly(True)
+        text_edit.setPlainText(log_text)
+        layout.addWidget(text_edit)
+        
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
+        buttons.accepted.connect(dialog.accept)
+        layout.addWidget(buttons)
+        
+        dialog.exec()
