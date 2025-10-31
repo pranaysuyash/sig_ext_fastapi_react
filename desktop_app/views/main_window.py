@@ -23,6 +23,7 @@ from desktop_app.api.client import ApiClient
 from desktop_app.state.session import SessionState
 from desktop_app.widgets.image_view import ImageView
 from desktop_app.views.export_dialog import ExportDialog
+from desktop_app.views.help_dialog import HelpDialog
 from desktop_app.resources.icons import set_button_icon, get_icon
 from desktop_app.license.storage import is_licensed, load_license
 from desktop_app.views.license_dialog import LicenseDialog
@@ -60,6 +61,14 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central)
         root = QHBoxLayout(central)
 
+        # Create tab widget for main content
+        self.tab_widget = QTabWidget()
+        self.tab_widget.setTabPosition(QTabWidget.TabPosition.North)
+        
+        # ===== TAB 1: Signature Extraction =====
+        extraction_tab = QWidget()
+        extraction_layout = QHBoxLayout(extraction_tab)
+        
         # Left panel with fixed width to avoid taking half the window
         left_panel = QWidget(self)
         left_panel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
@@ -273,8 +282,17 @@ class MainWindow(QMainWindow):
         result_layout.addWidget(self.res_view)
         images.addWidget(result_container, 1)
 
-        root.addWidget(left_panel, 0)
-        root.addLayout(images, 1)
+        extraction_layout.addWidget(left_panel, 0)
+        extraction_layout.addLayout(images, 1)
+        
+        # Add extraction tab
+        self.tab_widget.addTab(extraction_tab, "📝 Signature Extraction")
+        
+        # ===== TAB 2: PDF Signing =====
+        self._create_pdf_tab()
+        
+        # Add tab widget to main layout
+        root.addWidget(self.tab_widget)
 
         # Status bar at bottom
         self.status_bar = QStatusBar()
@@ -1099,12 +1117,10 @@ class MainWindow(QMainWindow):
     # No activation prompt; purchase is optional and handled via menu link.
 
     def _open_document(self, relative_path: str) -> None:
+        """Open a markdown document in a nice dialog with rendered HTML."""
         try:
-            project_root = Path(__file__).resolve().parents[2]
-            doc_path = project_root / relative_path
-            if not doc_path.exists():
-                raise FileNotFoundError(f"Document not found: {doc_path}")
-            QDesktopServices.openUrl(QUrl.fromLocalFile(str(doc_path)))
+            dialog = HelpDialog(relative_path, self)
+            dialog.exec()
         except Exception as exc:
             QMessageBox.warning(self, "Unable to open document", str(exc))
 
@@ -1338,10 +1354,98 @@ class MainWindow(QMainWindow):
     # ========== PDF SIGNING FEATURES ==========
     # Methods for PDF viewing, signing, and audit logging
     
+    def _create_pdf_tab(self):
+        """Create the PDF signing tab with viewer and controls."""
+        if not PDF_AVAILABLE:
+            # Show placeholder if PDF libraries not installed
+            placeholder = QWidget()
+            layout = QVBoxLayout(placeholder)
+            layout.addStretch()
+            
+            message = QLabel(
+                "📄 PDF Signing Features Not Available\n\n"
+                "Install PDF libraries to enable this feature:\n\n"
+                "pip install pypdfium2 pikepdf"
+            )
+            message.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            message.setStyleSheet("font-size: 14px; color: #666;")
+            layout.addWidget(message)
+            layout.addStretch()
+            
+            self.tab_widget.addTab(placeholder, "📄 PDF Signing")
+            return
+        
+        # Create PDF tab widget
+        pdf_tab = QWidget()
+        pdf_layout = QHBoxLayout(pdf_tab)
+        
+        # Left panel: PDF controls and signature library
+        pdf_left_panel = QWidget()
+        pdf_left_panel.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
+        pdf_left_panel.setFixedWidth(300)
+        pdf_controls = QVBoxLayout(pdf_left_panel)
+        
+        # PDF file controls
+        pdf_controls.addWidget(QLabel("<b>PDF Document</b>"))
+        
+        open_pdf_btn = QPushButton("📂 Open PDF...")
+        open_pdf_btn.clicked.connect(self._on_pdf_tab_open)
+        pdf_controls.addWidget(open_pdf_btn)
+        
+        close_pdf_btn = QPushButton("✕ Close PDF")
+        close_pdf_btn.clicked.connect(self._on_pdf_tab_close)
+        pdf_controls.addWidget(close_pdf_btn)
+        
+        save_pdf_btn = QPushButton("💾 Save Signed PDF...")
+        save_pdf_btn.clicked.connect(self._on_pdf_tab_save)
+        pdf_controls.addWidget(save_pdf_btn)
+        
+        pdf_controls.addSpacing(20)
+        
+        # Signature library
+        pdf_controls.addWidget(QLabel("<b>Signature Library</b>"))
+        pdf_controls.addWidget(QLabel("Click a signature, then click on PDF to place:"))
+        
+        self.pdf_sig_list = QListWidget()
+        self.pdf_sig_list.setMaximumHeight(300)
+        self.pdf_sig_list.itemClicked.connect(self._on_pdf_signature_selected)
+        pdf_controls.addWidget(self.pdf_sig_list)
+        
+        refresh_sig_btn = QPushButton("🔄 Refresh Library")
+        refresh_sig_btn.clicked.connect(self._refresh_pdf_signature_library)
+        pdf_controls.addWidget(refresh_sig_btn)
+        
+        pdf_controls.addSpacing(20)
+        
+        # Instructions
+        instructions = QLabel(
+            "<b>How to sign:</b><br>"
+            "1. Open a PDF document<br>"
+            "2. Click a signature from library<br>"
+            "3. Click on PDF to place signature<br>"
+            "4. Navigate pages as needed<br>"
+            "5. Save signed PDF when done"
+        )
+        instructions.setWordWrap(True)
+        instructions.setStyleSheet("padding: 10px; background-color: #f0f0f0; border-radius: 5px;")
+        pdf_controls.addWidget(instructions)
+        
+        pdf_controls.addStretch()
+        
+        # Right side: PDF viewer
+        self.pdf_viewer = PDFViewer()
+        self.pdf_viewer.signature_placed.connect(self._on_pdf_signature_placed)
+        
+        pdf_layout.addWidget(pdf_left_panel)
+        pdf_layout.addWidget(self.pdf_viewer, 1)
+        
+        self.tab_widget.addTab(pdf_tab, "📄 PDF Signing")
+    
     def _init_pdf_features(self):
         """Initialize PDF-specific state. Called from __init__ if PDF_AVAILABLE."""
         self.audit_logger: Optional[AuditLogger] = None
         self._pending_sig_path: Optional[str] = None
+        self._current_pdf_path: Optional[str] = None
     
     def _setup_pdf_menu(self):
         """Add PDF menu to menu bar. Called from __init__ if PDF_AVAILABLE."""
@@ -1505,3 +1609,168 @@ class MainWindow(QMainWindow):
         layout.addWidget(buttons)
         
         dialog.exec()
+    
+    # ========== PDF TAB EVENT HANDLERS ==========
+    
+    def _on_pdf_tab_open(self):
+        """Open PDF in the PDF tab viewer."""
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open PDF", "", "PDF Files (*.pdf)"
+        )
+        if not path:
+            return
+        
+        # Open in viewer
+        success = self.pdf_viewer.open_pdf(path)
+        if not success:
+            return
+        
+        # Initialize state
+        self.session.init_pdf_state()
+        if self.session.pdf_state:
+            self.session.pdf_state.current_pdf_path = path
+        self._current_pdf_path = path
+        
+        # Initialize audit logger
+        self.audit_logger = AuditLogger(path, self.session.user_email)
+        self.audit_logger.log_open()
+        
+        # Refresh signature library
+        self._refresh_pdf_signature_library()
+        
+        self.statusBar().showMessage(f"📄 Opened: {Path(path).name}")
+    
+    def _on_pdf_tab_close(self):
+        """Close PDF in the PDF tab."""
+        self.pdf_viewer.close_pdf()
+        if self.session.pdf_state:
+            self.session.clear_pdf_state()
+        self._current_pdf_path = None
+        self.audit_logger = None
+        self.statusBar().showMessage("PDF closed")
+    
+    def _on_pdf_tab_save(self):
+        """Save signed PDF from the PDF tab."""
+        if not self._current_pdf_path:
+            QMessageBox.warning(self, "No PDF", "No PDF is currently open")
+            return
+        
+        # Get all placed signatures from viewer
+        placed_sigs = self.pdf_viewer.get_placed_signatures()
+        
+        if not placed_sigs:
+            reply = QMessageBox.question(
+                self, "No Signatures",
+                "No signatures have been placed. Save anyway?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+        
+        # Ask for output path
+        original_name = Path(self._current_pdf_path).name
+        default_name = f"{Path(original_name).stem}_signed.pdf"
+        
+        output_path, _ = QFileDialog.getSaveFileName(
+            self, "Save Signed PDF", default_name, "PDF Files (*.pdf)"
+        )
+        if not output_path:
+            return
+        
+        # Prepare signatures for signing (add signature image paths)
+        signatures_with_images = []
+        for sig in placed_sigs:
+            sig_copy = sig.copy()
+            # Use the pending signature path (stored when signature was placed)
+            sig_copy["sig_path"] = self._pending_sig_path or ""
+            signatures_with_images.append(sig_copy)
+        
+        # Sign PDF
+        try:
+            success = sign_pdf(
+                self._current_pdf_path,
+                output_path,
+                signatures_with_images
+            )
+            
+            if success:
+                # Log save operation
+                if self.audit_logger:
+                    self.audit_logger.log_save(output_path, len(placed_sigs))
+                
+                QMessageBox.information(
+                    self, "Success",
+                    f"✅ Signed PDF saved to:\n{output_path}\n\n"
+                    f"Signatures placed: {len(placed_sigs)}"
+                )
+                self.statusBar().showMessage(f"💾 Saved: {Path(output_path).name}")
+            else:
+                QMessageBox.warning(self, "Error", "Failed to save signed PDF")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error saving PDF:\n{e}")
+            if self.audit_logger:
+                self.audit_logger.log_error("save_failed", str(e))
+    
+    def _on_pdf_signature_selected(self, item):
+        """Handle signature selection from library."""
+        sig_path = item.data(Qt.ItemDataRole.UserRole)
+        if not sig_path or not Path(sig_path).exists():
+            return
+        
+        # Load signature image
+        pixmap = QPixmap(sig_path)
+        if pixmap.isNull():
+            QMessageBox.warning(self, "Error", "Failed to load signature image")
+            return
+        
+        # Store path for later use when saving
+        self._pending_sig_path = sig_path
+        
+        # Set signature for placement in viewer
+        self.pdf_viewer.set_signature_for_placement(pixmap)
+        
+        self.statusBar().showMessage(f"✏️ Click on PDF to place signature: {Path(sig_path).name}")
+    
+    def _on_pdf_signature_placed(self, page, x, y, width, height):
+        """Handle signature placement on PDF."""
+        if self.audit_logger and self._pending_sig_path:
+            self.audit_logger.log_place_signature(
+                page, self._pending_sig_path, x, y, width, height
+            )
+        
+        self.statusBar().showMessage(f"✅ Signature placed on page {page + 1}")
+    
+    def _refresh_pdf_signature_library(self):
+        """Refresh the signature library list in PDF tab."""
+        self.pdf_sig_list.clear()
+        
+        # Get signatures from library
+        signatures = lib.list_signatures()
+        
+        if not signatures:
+            item = QListWidgetItem("📝 No signatures in library")
+            item.setFlags(Qt.ItemFlag.NoItemFlags)
+            self.pdf_sig_list.addItem(item)
+            return
+        
+        for sig_path in signatures:
+            if not Path(sig_path).exists():
+                continue
+            
+            # Create list item with preview
+            item = QListWidgetItem(Path(sig_path).name)
+            
+            # Load and scale thumbnail
+            pixmap = QPixmap(sig_path)
+            if not pixmap.isNull():
+                thumbnail = pixmap.scaled(
+                    80, 40,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+                from PySide6.QtGui import QIcon
+                item.setIcon(QIcon(thumbnail))
+            
+            item.setData(Qt.ItemDataRole.UserRole, sig_path)
+            item.setToolTip(f"Click to use: {Path(sig_path).name}")
+            self.pdf_sig_list.addItem(item)

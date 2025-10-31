@@ -3,6 +3,7 @@
 **Desktop-first signature extraction tool** with precision control for extracting signatures from documents.
 
 ✨ **Features**:
+
 - 🎯 Precision selection with zoom/pan controls
 - 🎨 Color customization & threshold adjustment
 - 🔄 EXIF auto-rotation for mobile photos
@@ -30,7 +31,7 @@
 - **[Desktop UI Spec](docs/desktop-frontend/pyqt-spec.md)** — Controls (Zoom %, Fit, Reset/Clean, Rotate) and status bar fields
 - **[Coordinate Mapping](docs/COORDINATE_MAPPING.md)** — Rotation-aware scene→image mapping details
 - **[Shortcuts](docs/SHORTCUTS.md)** — Keyboard shortcuts for common actions
- - **[Help & Troubleshooting](docs/HELP.md)** — Quick fixes and FAQs
+- **[Help & Troubleshooting](docs/HELP.md)** — Quick fixes and FAQs
 
 ## Quick Start
 
@@ -82,6 +83,7 @@ python -m desktop_app.main
 ```
 
 **PDF Features** (optional):
+
 - If pypdfium2/pikepdf are installed, PDF menu appears with signing capabilities
 - Without them, signature extraction still works normally
 - See **[PDF Quick Start](docs/PDF_QUICK_START.md)** for detailed PDF workflow
@@ -89,6 +91,7 @@ python -m desktop_app.main
 ## Recent Updates (Oct 2025)
 
 ✅ **NEW: PDF Signing** (Oct 31, 2025):
+
 - 📝 Place extracted signatures into PDF documents
 - 🔍 Interactive PDF viewer with zoom and navigation
 - 💾 Save signed PDFs with embedded signatures
@@ -96,21 +99,24 @@ python -m desktop_app.main
 - ⚡ Powered by pypdfium2 (Chrome's PDFium) and pikepdf (QPDF)
 
 ✅ **Fixed & Enhanced UX**:
+
 - Selection vs pan conflict (added mode toggle)
 - EXIF orientation handling (auto-rotate mobile photos)
 - Result visibility (white background for transparency)
 - Progressive disclosure (hide panes until selection made)
- - Rotation-aware selection mapping that persists through zoom/pan/fit/resize/rotation
- - New View controls: Zoom In/Out, editable Zoom % combo (with Fit), Reset Viewport, Rotate
- - Clean Viewport action to clear all panes and session; Clear Selection kept separate
- - Status bar shows Viewport, Image, Visible bounds, Zoom, Rotation, Selection
+- Rotation-aware selection mapping that persists through zoom/pan/fit/resize/rotation
+- New View controls: Zoom In/Out, editable Zoom % combo (with Fit), Reset Viewport, Rotate
+- Clean Viewport action to clear all panes and session; Clear Selection kept separate
+- Status bar shows Viewport, Image, Visible bounds, Zoom, Rotation, Selection
 
 ✅ **Documentation**:
+
 - Comprehensive use cases (20+ scenarios)
 - Pricing strategy (4 tiers, revenue projections)
 - Product roadmap (auto-recognition, integrations, deployment)
 
 ✅ **Cleanup**:
+
 - Removed React frontend (simplified to desktop-only)
 - SQLite as default DB (no Postgres required)
 - Updated all docs and specs
@@ -118,6 +124,7 @@ python -m desktop_app.main
 ## Use Cases
 
 ### Core Applications
+
 1. **Contract Management & E-Signing** — Extract signatures for DocuSign/Adobe Sign
 2. **Document Digitization** — Archive paper documents with signature preservation
 3. **Identity Verification (KYC)** — Banks, fintech signature consistency checks
@@ -125,6 +132,7 @@ python -m desktop_app.main
 5. **Medical Forms** — Patient consent form signatures for EMR integration
 
 ### Advanced Use Cases
+
 - Legal document comparison & forensic analysis
 - Real estate transaction processing
 - API integration for SaaS platforms
@@ -184,6 +192,7 @@ See **[full roadmap](docs/ROADMAP.md)** for 8-phase development plan.
 ## Contributing
 
 Contributions welcome! Focus areas:
+
 - Desktop UX improvements (icons, themes, shortcuts)
 - Image processing enhancements (morphology, edge detection)
 - Integration plugins (DocuSign, Zapier, etc.)
