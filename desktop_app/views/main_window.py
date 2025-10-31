@@ -1745,7 +1745,7 @@ class MainWindow(QMainWindow):
         self.pdf_sig_list.clear()
         
         # Get signatures from library
-        signatures = lib.list_signatures()
+        signatures = [item.path for item in lib.list_items()]
         
         if not signatures:
             item = QListWidgetItem("📝 No signatures in library")
