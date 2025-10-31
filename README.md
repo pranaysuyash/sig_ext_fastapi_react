@@ -7,7 +7,8 @@
 - 🎨 Color customization & threshold adjustment
 - 🔄 EXIF auto-rotation for mobile photos
 - 💾 Export as transparent PNG with metadata
-- 🔒 Privacy-focused: all processing happens locally by default
+- � **PDF signing** with extracted signatures and audit logging
+- �🔒 Privacy-focused: all processing happens locally by default
 - 🖥️ Desktop app (PyQt/PySide6) with FastAPI backend
 
 ## Architecture
@@ -20,6 +21,8 @@
 ## Documentation
 
 - **[Use Cases](docs/USE_CASES.md)** — 20+ real-world applications (legal, healthcare, design, e-signing)
+- **[PDF Quick Start](docs/PDF_QUICK_START.md)** — PDF signing workflow and audit logging
+- **[PDF Implementation](docs/PDF_FEATURE_IMPLEMENTATION.md)** — Technical details for developers
 - **[Pricing Strategy](docs/PRICING.md)** — Freemium model with Pro/Team/Enterprise tiers
 - **[Product Roadmap](docs/ROADMAP.md)** — 8-phase development plan (auto-recognition, integrations, deployment)
 - **[Recent Updates](docs/RECENT_UPDATES.md)** — Latest UX fixes and improvements
@@ -67,6 +70,9 @@ Install dependencies:
 
 ```zsh
 pip install PySide6 requests python-dotenv pillow opencv-python numpy
+
+# Optional: For PDF signing features
+pip install pypdfium2 pikepdf
 ```
 
 Run app:
@@ -75,7 +81,19 @@ Run app:
 python -m desktop_app.main
 ```
 
+**PDF Features** (optional):
+- If pypdfium2/pikepdf are installed, PDF menu appears with signing capabilities
+- Without them, signature extraction still works normally
+- See **[PDF Quick Start](docs/PDF_QUICK_START.md)** for detailed PDF workflow
+
 ## Recent Updates (Oct 2025)
+
+✅ **NEW: PDF Signing** (Oct 31, 2025):
+- 📝 Place extracted signatures into PDF documents
+- 🔍 Interactive PDF viewer with zoom and navigation
+- 💾 Save signed PDFs with embedded signatures
+- 📊 Comprehensive audit logging for compliance (JSONL format)
+- ⚡ Powered by pypdfium2 (Chrome's PDFium) and pikepdf (QPDF)
 
 ✅ **Fixed & Enhanced UX**:
 - Selection vs pan conflict (added mode toggle)

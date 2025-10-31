@@ -2,6 +2,35 @@
 
 This guide covers common questions and quick fixes for the desktop app.
 
+## PDF Signing Features (NEW)
+
+**Q: How do I sign a PDF with my extracted signature?**
+
+1. Extract and save signatures to your library (existing workflow)
+2. Go to **PDF → Open PDF** (Ctrl+Shift+O) to load a PDF document
+3. Currently uses programmatic API - full UI coming soon
+4. Signatures are embedded using pikepdf (QPDF library)
+5. All operations are logged for audit compliance
+
+**Q: Where are audit logs stored?**
+
+- Location: `~/.signature_extractor/audit_logs/`
+- Format: JSONL (one JSON object per line)
+- View logs: **PDF → View Audit Logs**
+- Each log entry includes: timestamp, operation, user, details
+
+**Q: PDF menu doesn't appear**
+
+- PDF features require `pypdfium2` and `pikepdf` libraries
+- Install: `pip install pypdfium2 pikepdf`
+- App gracefully degrades without them (signature extraction still works)
+
+**Q: Can I verify signed PDFs?**
+
+- Yes! Open signed PDFs in any standard PDF viewer (Preview, Adobe, etc.)
+- Signatures are embedded as images in the PDF structure
+- Audit logs provide compliance trail with timestamps
+
 ## Quick Answers
 
 - Clean Viewport vs Clear Selection
@@ -45,8 +74,15 @@ This guide covers common questions and quick fixes for the desktop app.
 
 See docs/SHORTCUTS.md for a full list: Open, Copy, Export, Zoom In/Out, Reset, Fit, Rotate CW/CCW.
 
+**PDF Shortcuts**:
+- `Ctrl+Shift+O` — Open PDF
+- `Ctrl+Shift+S` — Save signed PDF
+- `Ctrl+Shift+W` — Close PDF
+
 ## Deep Dives
 
+- **PDF Features**: docs/PDF_QUICK_START.md (workflow guide)
+- **PDF Implementation**: docs/PDF_FEATURE_IMPLEMENTATION.md (technical details)
 - Desktop UI Spec: docs/desktop-frontend/pyqt-spec.md
 - Coordinate Mapping: docs/COORDINATE_MAPPING.md
 - Export Options: docs/EXPORT_OPTIONS.md
