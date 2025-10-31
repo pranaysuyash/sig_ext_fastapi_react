@@ -12,6 +12,11 @@ from desktop_app.views.main_window import MainWindow
 
 def main():
     app = QApplication(sys.argv)
+    # Set macOS menubar app name and metadata
+    QApplication.setApplicationName("Signature Extractor")
+    QApplication.setApplicationDisplayName("Signature Extractor")
+    QApplication.setOrganizationName("Signature Tools")
+    QApplication.setOrganizationDomain("signature-tools.local")
 
     cfg = load_config()
     session = SessionState()

@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+pytest.importorskip("PySide6")
+
 # Initialize Qt Application for tests that need GUI
 from PySide6.QtWidgets import QApplication
 if not QApplication.instance():

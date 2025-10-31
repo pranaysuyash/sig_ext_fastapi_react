@@ -3,10 +3,11 @@
 Use this as source text for the website, app dialogs, emails, and social posts.
 
 ## Website Copy
-- Hero Headline: “Extract clean signatures in seconds.”
-- Subhead: “Desktop-first, privacy-by-default. Precise selection, instant export.”
-- CTA Primary: “Buy Lifetime ($29)”
-- Secondary: “Download” (optional if you keep download-before-buy flow)
+- Hero Headline: “Extract and sign — all on your desktop.”
+- Subhead: “Clean signatures in seconds, then place them on PDFs. Private by default.”
+- CTA Primary: “Buy Lifetime ($39)”  
+  - Badge: “$29 launch pricing”
+- Secondary: “Watch 45s demo” (or Download, if keeping download-before-buy)
 
 ### Features Section
 - Precision selection with zoom/pan
@@ -15,6 +16,7 @@ Use this as source text for the website, app dialogs, emails, and social posts.
 - Export as transparent PNG, JPEG, or PNG‑8
 - Professional options: background, trim to content, quality
 - Local library for quick reuse (save + browse)
+ - New: PDF viewer + signature placement; save signed PDFs
 
 ### Social Proof (placeholders)
 - “Saved me hours every week” — Real Estate Agent
@@ -25,6 +27,8 @@ Use this as source text for the website, app dialogs, emails, and social posts.
 - “Do I need an account?” No — purchase and usage work locally.
 - “Can I buy once?” Yes — Lifetime license is available.
 - “Is there a trial?” No — you can preview results in-app. We offer a 30‑day money‑back guarantee instead.
+ - “Do I get updates?” Yes — Lifetime covers all offline app updates.
+ - “How is this different from Adobe/DocuSign?” See comparison on the page.
 
 ## In‑App Copy
 - Status (idle): “Ready — open an image to begin.”
@@ -36,7 +40,7 @@ Use this as source text for the website, app dialogs, emails, and social posts.
 ## Upgrade Modal
 - Title: “Own it forever.”
 - Body: “Buy Lifetime for unlimited local exports and future updates.”
-- CTA: “Buy Lifetime ($29)”
+- CTA: “Buy Lifetime ($39)”
 - Secondary: “Continue previewing”
 
 ## Emails
@@ -72,7 +76,8 @@ Thanks for your support! Your license key:
 {LICENSE_KEY}
 
 ## Social Posts
-- “New: Pro‑grade export options (PNG‑24/PNG‑8/JPEG + trim).”
+- “New: PDF placement — drag from library, drop on PDF, save.”
+- “Pro‑grade export options (PNG‑24/PNG‑8/JPEG + trim).”
 - “Privacy‑first desktop app for instant signature extraction.”
 - “Lifetime license — buy once, use forever.”
 

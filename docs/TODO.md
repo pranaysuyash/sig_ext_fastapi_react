@@ -54,7 +54,7 @@ Full backlog (34 items): see TODO_FULL.md
 - [ ] PyInstaller spec for macOS bundle
 - [ ] Unsigned DMG for early adopters; add Gatekeeper bypass notes
 - [ ] Code signing + notarization (post-early access)
-- [ ] Basic auto-update check (manual notice) (later)
+- [ ] Manual update check in-app (“Check for Updates…”) using static updates.json
 
 ## Commerce (Gumroad first)
 
@@ -69,7 +69,14 @@ Full backlog (34 items): see TODO_FULL.md
 - [ ] Update README with desktop-only instructions
 - [ ] Add quickstart with screenshots
 - [ ] Record short demo video (open → select → preview → export → library)
-- [ ] Simple landing page (static) linking to Gumroad
+- [ ] Simple landing page per `docs/LANDING_PAGE_PLAN.md` (hero, features, comparison, pricing, FAQ)
+- [ ] Publish `updates.json` and stable downloads; add legal links (Privacy, Terms/EULA, Refund)
+
+## Licensing & Evaluation
+
+- [ ] Export gating: show Upgrade dialog if unlicensed (soft gate first)
+- [ ] Status bar note when unlicensed: “Evaluation mode — Export locked”
+- [ ] Optional watermark overlay in evaluation mode (off by default)
 
 ---
 

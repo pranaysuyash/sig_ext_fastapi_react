@@ -1,15 +1,23 @@
 """Help dialog with rendered Markdown content."""
 
 from pathlib import Path
+from types import ModuleType
+from typing import Optional, TYPE_CHECKING
+
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QTextBrowser, QPushButton, QHBoxLayout
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QFont
 
+if TYPE_CHECKING:  # pragma: no cover - type checking only
+    import markdown as _markdown_module
+
 try:
-    import markdown
-    MARKDOWN_AVAILABLE = True
+    import markdown as _markdown_runtime
 except ImportError:
-    MARKDOWN_AVAILABLE = False
+    _markdown_runtime = None
+
+MARKDOWN_AVAILABLE = _markdown_runtime is not None
+markdown: Optional[ModuleType] = _markdown_runtime
 
 
 class HelpDialog(QDialog):
@@ -73,7 +81,7 @@ class HelpDialog(QDialog):
                 md_content = f.read()
             
             # Convert to HTML
-            if MARKDOWN_AVAILABLE:
+            if MARKDOWN_AVAILABLE and markdown is not None:
                 html_content = markdown.markdown(
                     md_content,
                     extensions=['fenced_code', 'tables', 'nl2br']

@@ -4,7 +4,7 @@ import math
 
 from PySide6.QtCore import Qt, QRect, QRectF, QPoint, QPointF, QSize, Signal
 from PySide6.QtGui import QImage, QPixmap, QWheelEvent, QTransform
-from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QRubberBand
+from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QRubberBand, QToolTip
 
 
 class ImageView(QGraphicsView):
@@ -32,6 +32,10 @@ class ImageView(QGraphicsView):
         self._zoom = 1.0
         self._selection_mode = True  # True = select, False = pan
         self._rotation = 0.0  # Track view rotation for contextual controls
+        # Coordinate tooltip state
+        self._coord_tooltips_enabled = True
+        self._last_hover_coords = (-1, -1)
+        self._last_tooltip_text = ""
 
     def load_image_bytes(self, data: bytes) -> None:
         image = QImage.fromData(data)
@@ -84,8 +88,12 @@ class ImageView(QGraphicsView):
         if self._rubber.isVisible() and self._selection_mode:
             rect = QRect(self._origin, event.pos()).normalized()
             self._rubber.setGeometry(rect)
+            # Update live coordinate tooltip while dragging a selection
+            self._maybe_show_coord_tooltip(event, dragging=True)
             event.accept()
         else:
+            # Update live coordinate tooltip on hover
+            self._maybe_show_coord_tooltip(event, dragging=False)
             super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
@@ -158,6 +166,41 @@ class ImageView(QGraphicsView):
         self._last_reported_coords = (0, 0, 0, 0)
         self._rubber.hide()
         self.selectionChanged.emit(QRect())
+
+    # -------- Coordinate tooltip helpers --------
+    def enable_coordinate_tooltips(self, enabled: bool) -> None:
+        self._coord_tooltips_enabled = bool(enabled)
+
+    def _maybe_show_coord_tooltip(self, event, dragging: bool) -> None:
+        if not self._coord_tooltips_enabled or not self._pixmap_item:
+            return
+        # Map cursor to scene/image coordinates
+        scene_pt = self.mapToScene(event.pos())
+        img_rect = self._pixmap_item.pixmap().rect()
+        x = max(0, min(img_rect.width(), int(math.floor(scene_pt.x()))))
+        y = max(0, min(img_rect.height(), int(math.floor(scene_pt.y()))))
+
+        # Build tooltip text
+        text = f"{x}, {y}"
+        if dragging and self._selection_mode:
+            origin_scene = self.mapToScene(self._origin)
+            x1 = max(0, min(img_rect.width(), int(math.floor(min(origin_scene.x(), scene_pt.x())))))
+            y1 = max(0, min(img_rect.height(), int(math.floor(min(origin_scene.y(), scene_pt.y())))))
+            x2 = max(0, min(img_rect.width(), int(math.ceil(max(origin_scene.x(), scene_pt.x())))))
+            y2 = max(0, min(img_rect.height(), int(math.ceil(max(origin_scene.y(), scene_pt.y())))))
+            w = max(0, x2 - x1)
+            h = max(0, y2 - y1)
+            text = f"{x}, {y}  •  Sel: ({x1}, {y1}) → ({x2}, {y2})  [{w}×{h}]"
+
+        # Avoid spamming identical tooltips
+        if text == self._last_tooltip_text and (x, y) == self._last_hover_coords:
+            return
+        self._last_tooltip_text = text
+        self._last_hover_coords = (x, y)
+
+        # Show tooltip near the cursor
+        global_pos = self.mapToGlobal(event.pos())
+        QToolTip.showText(global_pos, text, self)
 
     def crop_selection(self) -> QImage | None:
         """Return a QImage cropped to the selected rect (no processing)."""

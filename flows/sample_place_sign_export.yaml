@@ -1,0 +1,25 @@
+# Example flow for the demo runner.
+# Adjust objectNames to match your MainWindow widgets.
+
+steps:
+  - wait: 500
+  # Create a demo image (no dialogs/backend)
+  - invoke:
+      method: demo_create_sample_image
+      args: [400, 300, "#ffffff"]
+  - wait: 600
+  # Make a selection (x1, y1, x2, y2) in image pixel coordinates
+  - invoke:
+      method: demo_select_rect
+      args: [40, 40, 220, 140]
+  - wait: 600
+  # Generate a local result PNG without backend
+  - invoke:
+      method: demo_generate_local_result
+      args: []
+  - wait: 800
+  # Save to library (quick save, no dialog)
+  - invoke:
+      method: on_save_to_library
+      args: []
+  - wait: 800

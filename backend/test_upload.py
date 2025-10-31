@@ -3,6 +3,7 @@ import json
 import logging
 import os
 from pathlib import Path
+from typing import Optional
 
 import pytest
 import requests
@@ -22,7 +23,7 @@ def _ensure_test_image(image_path: Path) -> Path:
         logger.info("Created test image: %s", image_path)
     return image_path
 
-def _load_token(token_path: Path) -> str | None:
+def _load_token(token_path: Path) -> Optional[str]:
     try:
         with token_path.open("r", encoding="utf-8") as token_file:
             token_data = json.load(token_file)

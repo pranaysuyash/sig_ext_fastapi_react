@@ -4,6 +4,9 @@ Test coordinate mapping in ImageView under various transformations.
 import io
 import math
 import pytest
+
+pytest.importorskip("PySide6")
+
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QRect, QRectF, QPoint, QPointF
 from PySide6.QtGui import QImage

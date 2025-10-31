@@ -54,26 +54,67 @@ class PDFSigner:
         # Load signature image
         sig_image = PILImage.open(sig_image_path)
         
-        # Convert to RGB if necessary
-        if sig_image.mode not in ('RGB', 'L'):
-            sig_image = sig_image.convert('RGB')
+        # Preserve RGBA for transparency, convert others to RGB
+        if sig_image.mode == 'RGBA':
+            # Keep RGBA for transparency support
+            pass
+        elif sig_image.mode in ('RGB', 'L'):
+            # Already supported formats
+            pass
+        else:
+            # Convert unsupported modes to RGBA to preserve any transparency
+            sig_image = sig_image.convert('RGBA')
         
         # Save to bytes for pikepdf
         image_bytes = io.BytesIO()
         sig_image.save(image_bytes, format='PNG')
         image_bytes.seek(0)
         
-        # Create PDF image object
+        # Create PDF image object with proper color space
         raw_image = pikepdf.Stream(self.pdf, image_bytes.read())
-        raw_image.stream_dict = pikepdf.Dictionary(
-            Type=pikepdf.Name('/XObject'),
-            Subtype=pikepdf.Name('/Image'),
-            Width=sig_image.width,
-            Height=sig_image.height,
-            ColorSpace=pikepdf.Name('/DeviceRGB') if sig_image.mode == 'RGB' else pikepdf.Name('/DeviceGray'),
-            BitsPerComponent=8,
-            Filter=pikepdf.Name('/FlateDecode')
-        )
+        
+        # Set color space based on image mode
+        if sig_image.mode == 'RGBA':
+            # For RGBA, we need a mask for transparency
+            color_space = pikepdf.Name('/DeviceRGB')
+            # Extract alpha channel as SMask
+            alpha = sig_image.split()[3]
+            alpha_bytes = io.BytesIO()
+            alpha.save(alpha_bytes, format='PNG')
+            alpha_bytes.seek(0)
+            
+            smask = pikepdf.Stream(self.pdf, alpha_bytes.read())
+            smask.stream_dict = pikepdf.Dictionary(
+                Type=pikepdf.Name('/XObject'),
+                Subtype=pikepdf.Name('/Image'),
+                Width=alpha.width,
+                Height=alpha.height,
+                ColorSpace=pikepdf.Name('/DeviceGray'),
+                BitsPerComponent=8,
+                Filter=pikepdf.Name('/FlateDecode')
+            )
+            
+            raw_image.stream_dict = pikepdf.Dictionary(
+                Type=pikepdf.Name('/XObject'),
+                Subtype=pikepdf.Name('/Image'),
+                Width=sig_image.width,
+                Height=sig_image.height,
+                ColorSpace=color_space,
+                BitsPerComponent=8,
+                Filter=pikepdf.Name('/FlateDecode'),
+                SMask=smask
+            )
+        else:
+            raw_image.stream_dict = pikepdf.Dictionary(
+                Type=pikepdf.Name('/XObject'),
+                Subtype=pikepdf.Name('/Image'),
+                Width=sig_image.width,
+                Height=sig_image.height,
+                ColorSpace=pikepdf.Name('/DeviceRGB') if sig_image.mode == 'RGB' else pikepdf.Name('/DeviceGray'),
+                BitsPerComponent=8,
+                Filter=pikepdf.Name('/FlateDecode')
+            )
+        
         pdf_image = raw_image
         
         # Get page dimensions for coordinate conversion

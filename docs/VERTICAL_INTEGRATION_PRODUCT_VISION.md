@@ -218,6 +218,28 @@ Phase 1: Prep & Local Signing (Weeks 2–6, overlaps allowed)
 - Signature library picker with variants; precise placement; flatten to PDF.
 - Export “Signed with Signature Extractor” receipt with digest and audit metadata.
 
+---
+
+## 12) Add‑Ons and Local Understanding (Text PDFs Only)
+
+Position RAG as an optional add‑on to keep the core simple and private. Initial scope supports text‑based PDFs (no OCR).
+
+Feature ideas aligned to vertical integration:
+- Understand Sidebar (local): TL;DR, Q&A with page citations, basic key terms.
+- Clause Library (local): save/compare common clauses; highlight deviations from playbooks.
+- Auto‑Placement Helpers: detect signature/initial/date boxes heuristically; suggest placements.
+- Field Mapping Templates: map roles to common documents (NDA, SOW) to place fields faster.
+- Version Compare: per‑paragraph diff between two PDFs with side‑by‑side view.
+- Redline as PDF: generate a simple visual diff layer and export.
+- Stamps & Seals: date/time/company stamp builder; consistent look across documents.
+- Batch Initials: auto‑place initials on each page edge per template.
+
+Packaging:
+- Add‑on for Lifetime; included in Pro. Clear copy: “Runs locally. Text PDFs only (for now).”
+
+Guardrails:
+- Disclaimers (“not legal advice”), citations by page, cancelable jobs; explicit unsupported notice for scans.
+
 Phase 2: Cloud Envelopes (Weeks 5–10)
 - Backend: envelopes, recipients, fields, send, status; email delivery; web signing UI.
 - Webhooks and audit logs; dashboard to track envelopes.

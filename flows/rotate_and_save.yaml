@@ -1,0 +1,15 @@
+steps:
+  - wait: 400
+  - invoke: {method: demo_create_sample_image, args: [500, 300, "#ffffff"]}
+  - wait: 400
+  - invoke: {method: demo_select_rect, args: [60, 40, 300, 180]}
+  - wait: 400
+  - click: rotateCWButton
+  - wait: 300
+  - click: rotateCCWButton
+  - wait: 300
+  - invoke: {method: demo_generate_local_result, args: []}
+  - wait: 300
+  - invoke: {method: on_save_to_library, args: []}
+  - wait: 600
+

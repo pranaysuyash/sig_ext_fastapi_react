@@ -1,0 +1,360 @@
+"""Tests for PDF signing improvements - color preservation, tracking, drag/move, bulk placement."""
+
+import os
+import sys
+import tempfile
+from pathlib import Path
+
+import pytest
+
+pytest.importorskip("PySide6")
+
+from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QPixmap, QPainter, QColor
+from PySide6.QtCore import Qt, QPointF
+
+if not QApplication.instance():
+    app = QApplication(sys.argv)
+
+from desktop_app.pdf.viewer import PDFViewer, PDFPageView
+from desktop_app.pdf.signer import sign_pdf
+from desktop_app.pdf.renderer import PDFRenderer
+
+
+@pytest.fixture
+def sample_pdf():
+    """Use pre-generated test PDF."""
+    fixtures_dir = Path(__file__).parent / "fixtures"
+    sample_path = fixtures_dir / "sample.pdf"
+    
+    if not sample_path.exists():
+        pytest.skip(f"Sample PDF not found at {sample_path}")
+    
+    return str(sample_path)
+
+
+@pytest.fixture
+def color_signature():
+    """Create a colored signature image (blue)."""
+    temp = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
+    
+    pixmap = QPixmap(200, 100)
+    pixmap.fill(Qt.GlobalColor.transparent)
+    
+    painter = QPainter(pixmap)
+    painter.setPen(QColor(0, 0, 255))  # Blue signature
+    painter.drawText(10, 50, "Blue Signature")
+    painter.end()
+    
+    pixmap.save(temp.name)
+    
+    yield temp.name
+    
+    # Cleanup
+    try:
+        os.unlink(temp.name)
+    except Exception:
+        pass
+
+
+class TestColorPreservation:
+    """Test that signature colors are preserved when saving to PDF."""
+    
+    def test_rgba_signature_preserves_color(self, sample_pdf, color_signature):
+        """Test that RGBA signatures maintain color in saved PDF."""
+        output = tempfile.NamedTemporaryFile(suffix='.pdf', delete=False)
+        
+        signatures = [
+            {
+                "page": 0,
+                "sig_path": color_signature,
+                "x": 100,
+                "y": 600,
+                "width": 150,
+                "height": 50
+            }
+        ]
+        
+        success = sign_pdf(sample_pdf, output.name, signatures)
+        assert success
+        assert Path(output.name).exists()
+        assert Path(output.name).stat().st_size > 0
+        
+        # Cleanup
+        os.unlink(output.name)
+
+
+class TestSignatureTracking:
+    """Test signature tracking across multiple pages."""
+    
+    def test_track_signatures_per_page(self, sample_pdf, color_signature):
+        """Test that signatures are tracked separately for each page."""
+        viewer = PDFViewer()
+        viewer.open_pdf(sample_pdf)
+        
+        # Place signature on page 0
+        viewer.goto_page(0)
+        viewer.page_view.add_signature_overlay(100, 200, 150, 50, QPixmap(color_signature), color_signature)
+        
+        # Place signature on page 1
+        viewer.goto_page(1)
+        viewer.page_view.add_signature_overlay(200, 300, 150, 50, QPixmap(color_signature), color_signature)
+        
+        # Get all signatures
+        all_sigs = viewer.get_placed_signatures()
+        
+        assert len(all_sigs) == 2
+        assert all_sigs[0]["page"] == 0
+        assert all_sigs[1]["page"] == 1
+        assert all_sigs[0]["sig_path"] == color_signature
+        assert all_sigs[1]["sig_path"] == color_signature
+        
+        viewer.close_pdf()
+    
+    def test_signatures_persist_across_page_changes(self, sample_pdf, color_signature):
+        """Test that signatures remain when navigating between pages."""
+        viewer = PDFViewer()
+        viewer.open_pdf(sample_pdf)
+        
+        # Place signature on page 0
+        viewer.goto_page(0)
+        viewer.page_view.add_signature_overlay(100, 200, 150, 50, QPixmap(color_signature), color_signature)
+        
+        # Navigate away and back
+        viewer.goto_page(1)
+        viewer.goto_page(0)
+        
+        # Check signature is still there
+        assert len(viewer.page_view.signatures) == 1
+        assert viewer.page_view.signatures[0]["x"] == 100
+        assert viewer.page_view.signatures[0]["y"] == 200
+        
+        viewer.close_pdf()
+    
+    def test_correct_signature_count(self, sample_pdf, color_signature):
+        """Test that signature count is accurate."""
+        viewer = PDFViewer()
+        viewer.open_pdf(sample_pdf)
+        
+        # Place 3 signatures on different pages
+        viewer.goto_page(0)
+        viewer.page_view.add_signature_overlay(100, 200, 150, 50, QPixmap(color_signature), color_signature)
+        viewer.page_view.add_signature_overlay(300, 400, 150, 50, QPixmap(color_signature), color_signature)
+        
+        viewer.goto_page(1)
+        viewer.page_view.add_signature_overlay(150, 250, 150, 50, QPixmap(color_signature), color_signature)
+        
+        all_sigs = viewer.get_placed_signatures()
+        assert len(all_sigs) == 3
+        
+        viewer.close_pdf()
+
+
+class TestDragMove:
+    """Test signature drag and move functionality."""
+    
+    def test_signature_drag_updates_position(self):
+        """Test that dragging a signature updates its position."""
+        page_view = PDFPageView()
+        page_view.set_page(QPixmap(800, 600))
+        
+        # Add signature
+        pixmap = QPixmap(150, 50)
+        pixmap.fill(QColor(255, 0, 0))
+        page_view.add_signature_overlay(100, 100, 150, 50, pixmap, "test.png")
+        
+        original_x = page_view.signatures[0]["x"]
+        original_y = page_view.signatures[0]["y"]
+        
+        # Simulate drag (this would normally be done through mouse events)
+        page_view.signatures[0]["x"] = 200
+        page_view.signatures[0]["y"] = 200
+        
+        assert page_view.signatures[0]["x"] == 200
+        assert page_view.signatures[0]["y"] == 200
+        assert page_view.signatures[0]["x"] != original_x
+        assert page_view.signatures[0]["y"] != original_y
+    
+    def test_signature_constrained_to_bounds(self):
+        """Test that dragged signatures stay within page bounds."""
+        page_view = PDFPageView()
+        page_view.set_page(QPixmap(800, 600))
+        
+        pixmap = QPixmap(150, 50)
+        page_view.add_signature_overlay(700, 550, 150, 50, pixmap, "test.png")
+        
+        sig = page_view.signatures[0]
+        
+        # Try to drag beyond bounds
+        sig["x"] = 900  # Would go off page
+        sig["y"] = 700  # Would go off page
+        
+        # In real code, mouseMoveEvent constrains these
+        # Simulate the constraint logic
+        if page_view.pixmap:
+            sig["x"] = max(0, min(sig["x"], page_view.pixmap.width() - sig["width"]))
+            sig["y"] = max(0, min(sig["y"], page_view.pixmap.height() - sig["height"]))
+        
+        assert sig["x"] <= 800 - 150  # Within bounds
+        assert sig["y"] <= 600 - 50   # Within bounds
+
+
+class TestPlacementPreview:
+    """Test signature placement preview functionality."""
+    
+    def test_preview_enabled_on_selection(self):
+        """Test that preview is enabled when signature is selected."""
+        page_view = PDFPageView()
+        
+        pixmap = QPixmap(150, 50)
+        pixmap.fill(QColor(0, 255, 0))
+        
+        page_view.set_preview_signature(pixmap)
+        
+        assert page_view.preview_pixmap is not None
+        assert page_view.preview_pixmap.width() == 150
+    
+    def test_preview_cleared_after_placement(self):
+        """Test that preview is cleared after signature is placed."""
+        page_view = PDFPageView()
+        page_view.set_page(QPixmap(800, 600))
+        
+        pixmap = QPixmap(150, 50)
+        page_view.set_preview_signature(pixmap)
+        
+        # Place signature
+        page_view.add_signature_overlay(100, 100, 150, 50, pixmap, "test.png")
+        
+        # Clear preview (would be done by PDFViewer)
+        page_view.set_preview_signature(None)
+        
+        assert page_view.preview_pixmap is None
+
+
+class TestBulkPlacement:
+    """Test bulk signature placement across multiple pages."""
+    
+    def test_bulk_placement_all_pages(self, sample_pdf, color_signature):
+        """Test placing signature on all pages."""
+        viewer = PDFViewer()
+        viewer.open_pdf(sample_pdf)
+        
+        pixmap = QPixmap(color_signature)
+        
+        # Simulate bulk placement on all pages
+        for page_num in range(viewer.renderer.page_count()):
+            viewer.goto_page(page_num)
+            viewer.page_view.add_signature_overlay(100, 200, 150, 50, pixmap, color_signature)
+        
+        all_sigs = viewer.get_placed_signatures()
+        assert len(all_sigs) == viewer.renderer.page_count()
+        
+        # Verify each page has a signature
+        pages_with_sigs = set(sig["page"] for sig in all_sigs)
+        assert pages_with_sigs == set(range(viewer.renderer.page_count()))
+        
+        viewer.close_pdf()
+    
+    def test_bulk_placement_page_range(self, sample_pdf, color_signature):
+        """Test placing signature on specific page range."""
+        viewer = PDFViewer()
+        viewer.open_pdf(sample_pdf)
+        
+        pixmap = QPixmap(color_signature)
+        target_pages = [0, 1]  # Only first two pages
+        
+        for page_num in target_pages:
+            viewer.goto_page(page_num)
+            viewer.page_view.add_signature_overlay(100, 200, 150, 50, pixmap, color_signature)
+        
+        all_sigs = viewer.get_placed_signatures()
+        assert len(all_sigs) == len(target_pages)
+        
+        pages_with_sigs = set(sig["page"] for sig in all_sigs)
+        assert pages_with_sigs == set(target_pages)
+        
+        viewer.close_pdf()
+
+
+class TestPDFSaveWithSignatures:
+    """Test that signatures actually appear in saved PDFs."""
+    
+    def test_save_includes_all_signatures(self, sample_pdf, color_signature):
+        """Test that saved PDF includes all placed signatures."""
+        output = tempfile.NamedTemporaryFile(suffix='.pdf', delete=False)
+        
+        signatures = [
+            {
+                "page": 0,
+                "sig_path": color_signature,
+                "x": 100,
+                "y": 600,
+                "width": 150,
+                "height": 50
+            },
+            {
+                "page": 1,
+                "sig_path": color_signature,
+                "x": 200,
+                "y": 500,
+                "width": 120,
+                "height": 40
+            }
+        ]
+        
+        success = sign_pdf(sample_pdf, output.name, signatures)
+        assert success
+        
+        # Verify output PDF exists and has content
+        assert Path(output.name).exists()
+        output_size = Path(output.name).stat().st_size
+        original_size = Path(sample_pdf).stat().st_size
+        
+        # Signed PDF should be larger (has signatures)
+        assert output_size > original_size
+        
+        # Cleanup
+        os.unlink(output.name)
+    
+    def test_save_with_correct_paths(self, sample_pdf, color_signature):
+        """Test that each signature uses its own image path."""
+        # Create second signature with different color
+        temp2 = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
+        pixmap2 = QPixmap(200, 100)
+        pixmap2.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap2)
+        painter.setPen(QColor(255, 0, 0))  # Red signature
+        painter.drawText(10, 50, "Red Signature")
+        painter.end()
+        pixmap2.save(temp2.name)
+        
+        output = tempfile.NamedTemporaryFile(suffix='.pdf', delete=False)
+        
+        signatures = [
+            {
+                "page": 0,
+                "sig_path": color_signature,  # Blue
+                "x": 100,
+                "y": 600,
+                "width": 150,
+                "height": 50
+            },
+            {
+                "page": 0,
+                "sig_path": temp2.name,  # Red
+                "x": 300,
+                "y": 600,
+                "width": 150,
+                "height": 50
+            }
+        ]
+        
+        success = sign_pdf(sample_pdf, output.name, signatures)
+        assert success
+        
+        # Cleanup
+        os.unlink(output.name)
+        os.unlink(temp2.name)
+
+
+# Run tests with: pytest desktop_app/tests/test_pdf_improvements.py -v

@@ -12,10 +12,21 @@ Use this list to track app-side tasks only (no web or backend infra beyond what�
 - [ ] Improve error toasts: backend offline, 404/415, 500, disk full, large image guidance (friendly, actionable messages)
 - [ ] Optional advanced processing: Otsu/Adaptive thresholds, erode/dilate, edge smoothing (post-launch)
 
+## Local RAG & Summaries (In-App)
+- [ ] Right sidebar: “Understand” with tabs (Summary, Q&A)
+- [ ] First-run model download flow (small pack; show size and path)
+- [ ] Indexing progress + cancel; per-PDF cache
+- [ ] Explain selection (context menu) → short paraphrase
+- [ ] Citations by page in answers
+
 ## Licensing/Checkout (In‑App Surfaces)
 - [x] Wire Buy link (env‑configurable) and “Enter License” dialog to store key locally
 - [ ] Finalize Evaluation Mode strategy: either enforce hard gate (disable export/save until licensed) or intentionally ship soft gate with clear CTA copy
 - [ ] Surface 30‑day refund link in Help/About
+- [ ] Export gating in `on_export` and `on_save_to_library`: show Upgrade dialog when unlicensed
+- [ ] Status bar message when unlicensed: “Evaluation mode — Export locked”
+- [ ] Add “Check for Updates…” menu; implement static `updates.json` check
+- [ ] Optional watermark overlay on preview in evaluation mode
 
 ## Platform Polish
 - [x] Consistent icons (system icons via resources/icons; emoji only as fallback)

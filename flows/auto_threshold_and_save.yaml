@@ -1,0 +1,13 @@
+steps:
+  - wait: 400
+  - invoke: {method: demo_create_sample_image, args: [400, 240, "#ffffff"]}
+  - wait: 300
+  - invoke: {method: demo_select_rect, args: [20, 20, 200, 120]}
+  - wait: 300
+  - click: autoThresholdCheck
+  - wait: 600
+  - invoke: {method: demo_generate_local_result, args: []}
+  - wait: 300
+  - invoke: {method: on_save_to_library, args: []}
+  - wait: 600
+

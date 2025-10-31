@@ -670,15 +670,19 @@ router = APIRouter(
 async def register(user: UserCreate, db: Session = Depends(get_db)):
     try:
         db_user = create_user(db, user)
-        if not db_user:
-            raise HTTPException(status_code=400, detail="Email already registered")
-        return db_user
-    except Exception as e:
-        logger.error(f"Registration error: {str(e)}")
+    except HTTPException:
+        # Propagate explicit HTTP errors (e.g. unique constraint failures surfaced by crud layer)
+        raise
+    except Exception as exc:
+        logger.error("Registration error: %s", exc, exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error during registration"
-        )
+            detail="Internal server error during registration",
+        ) from exc
+
+    if not db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    return db_user
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -699,9 +703,12 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
         
         logger.info(f"User {user.email} successfully logged in")
         return {"access_token": access_token, "token_type": "bearer"}
-    except Exception as e:
-        logger.error(f"Login error: {str(e)}")
+    except HTTPException:
+        # Preserve intentional HTTP responses (401, etc.)
+        raise
+    except Exception as exc:
+        logger.error("Login error: %s", exc, exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error during login"
-        )
+            detail="Internal server error during login",
+        ) from exc

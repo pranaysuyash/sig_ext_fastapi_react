@@ -3,6 +3,9 @@ import io
 import tempfile
 
 import pytest
+
+pytest.importorskip("PySide6")
+
 from PySide6.QtCore import QPointF, QRect, QRectF, Qt
 from PySide6.QtGui import QImage, QColor
 from PySide6.QtWidgets import QApplication, QListWidgetItem, QMessageBox
@@ -232,7 +235,7 @@ def test_save_to_library_uses_storage(monkeypatch, main_window):
 def test_library_delete_button_enables_with_selection(main_window):
     # Simulate library items
     item = QListWidgetItem("sig")
-    item.setData(Qt.UserRole, "/tmp/sig.png")
+    item.setData(Qt.ItemDataRole.UserRole, "/tmp/sig.png")
     main_window.library_list.addItem(item)
     main_window._update_library_controls()
     assert not main_window.delete_from_library_btn.isEnabled()
@@ -253,7 +256,7 @@ def test_on_delete_selected_library(monkeypatch, main_window):
     monkeypatch.setattr(QMessageBox, "question", lambda *args, **kwargs: QMessageBox.Yes)
 
     item = QListWidgetItem("sig")
-    item.setData(Qt.UserRole, "/tmp/sig.png")
+    item.setData(Qt.ItemDataRole.UserRole, "/tmp/sig.png")
     main_window.library_list.addItem(item)
     item.setSelected(True)
 
@@ -274,7 +277,7 @@ def test_library_open_sets_source_active(main_window):
         temp_file.close()
 
         item = QListWidgetItem("sig")
-        item.setData(Qt.UserRole, temp_file.name)
+        item.setData(Qt.ItemDataRole.UserRole, temp_file.name)
 
         main_window.on_library_item_open(item)
 

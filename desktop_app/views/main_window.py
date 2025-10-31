@@ -9,7 +9,7 @@ import logging
 import numpy as np
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QTimer, QPoint, QBuffer, QUrl
+from PySide6.QtCore import Qt, QTimer, QPoint, QBuffer, QUrl, QIODevice
 from PySide6.QtGui import QAction, QImage, QColor, QPixmap, QTransform, QDesktopServices, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog,
@@ -24,6 +24,7 @@ from desktop_app.state.session import SessionState
 from desktop_app.widgets.image_view import ImageView
 from desktop_app.views.export_dialog import ExportDialog
 from desktop_app.views.help_dialog import HelpDialog
+from desktop_app.views.bulk_sign_dialog import BulkSignDialog
 from desktop_app.resources.icons import set_button_icon, get_icon
 from desktop_app.license.storage import is_licensed, load_license
 from desktop_app.views.license_dialog import LicenseDialog
@@ -33,7 +34,7 @@ from desktop_app.library import storage as lib
 try:
     from desktop_app.pdf.viewer import PDFViewer
     from desktop_app.pdf.signer import sign_pdf
-    from desktop_app.pdf.storage import AuditLogger, save_signed_pdf, get_audit_logs_for_pdf
+    from desktop_app.pdf.db_audit import DatabaseAuditLogger as AuditLogger, get_audit_logs_for_pdf
     PDF_AVAILABLE = True
 except ImportError as e:
     PDF_AVAILABLE = False
@@ -64,6 +65,7 @@ class MainWindow(QMainWindow):
         # Create tab widget for main content
         self.tab_widget = QTabWidget()
         self.tab_widget.setTabPosition(QTabWidget.TabPosition.North)
+        self.tab_widget.currentChanged.connect(self._on_tab_changed)
         
         # ===== TAB 1: Signature Extraction =====
         extraction_tab = QWidget()
@@ -76,17 +78,20 @@ class MainWindow(QMainWindow):
         controls = QVBoxLayout(left_panel)
         self.open_btn = QPushButton()
         set_button_icon(self.open_btn, 'open', 'Open & Upload Image')
+        self.open_btn.setObjectName("openFileButton")
         self.open_btn.clicked.connect(self.on_open)
         controls.addWidget(self.open_btn)
 
         controls.addWidget(QLabel("Threshold"))
         threshold_row = QHBoxLayout()
         self.threshold = QSlider(Qt.Horizontal)
+        self.threshold.setObjectName("thresholdSlider")
         self.threshold.setRange(0, 255)
         self.threshold.setValue(200)
         self.threshold.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         threshold_row.addWidget(self.threshold, 1)
         self.auto_threshold_cb = QCheckBox("Auto")
+        self.auto_threshold_cb.setObjectName("autoThresholdCheck")
         self.auto_threshold_cb.setToolTip("Let the backend compute an optimal threshold based on the selection")
         self.auto_threshold_cb.setChecked(False)
         self.auto_threshold_cb.stateChanged.connect(self._on_auto_threshold_toggled)
@@ -98,6 +103,7 @@ class MainWindow(QMainWindow):
         self.color_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.pick_color_btn = QPushButton()
         set_button_icon(self.pick_color_btn, 'color', 'Pick Color')
+        self.pick_color_btn.setObjectName("pickColorButton")
         self.pick_color_btn.clicked.connect(self.on_pick_color)
         color_row = QHBoxLayout()
         color_row.addWidget(self.color_label, 1)
@@ -108,10 +114,13 @@ class MainWindow(QMainWindow):
         controls.addWidget(QLabel("View"))
         view_row1 = QHBoxLayout()
         self.zoom_in_btn = QPushButton("Zoom In")
+        self.zoom_in_btn.setObjectName("zoomInButton")
         self.zoom_in_btn.setToolTip("Zoom In (Ctrl/Cmd +) - applies to active pane")
         self.zoom_out_btn = QPushButton("Zoom Out")
+        self.zoom_out_btn.setObjectName("zoomOutButton")
         self.zoom_out_btn.setToolTip("Zoom Out (Ctrl/Cmd -) - applies to active pane")
         self.zoom_combo = QComboBox()
+        self.zoom_combo.setObjectName("zoomCombo")
         self.zoom_combo.setEditable(True)
         self.zoom_combo.setInsertPolicy(QComboBox.NoInsert)
         self.zoom_combo.addItems(["25%", "50%", "75%", "100%", "125%", "150%", "200%", "Fit"])
@@ -128,8 +137,10 @@ class MainWindow(QMainWindow):
         
         view_row2 = QHBoxLayout()
         self.fit_btn = QPushButton("Fit")
+        self.fit_btn.setObjectName("fitButton")
         self.fit_btn.setToolTip("Fit image to active pane (Ctrl/Cmd 1)")
         self.reset_view_btn = QPushButton("Reset Viewport")
+        self.reset_view_btn.setObjectName("resetViewButton")
         self.reset_view_btn.setToolTip("Reset zoom, pan, and rotation (Ctrl/Cmd 0)")
         view_row2.addWidget(self.fit_btn)
         view_row2.addWidget(self.reset_view_btn)
@@ -139,8 +150,10 @@ class MainWindow(QMainWindow):
         controls.addWidget(QLabel("Image"))
         rotate_row = QHBoxLayout()
         self.rotate_ccw_btn = QPushButton("↺ CCW")
+        self.rotate_ccw_btn.setObjectName("rotateCCWButton")
         self.rotate_ccw_btn.setToolTip("Rotate Counter-Clockwise 90° (Ctrl/Cmd [)")
         self.rotate_cw_btn = QPushButton("↻ CW")
+        self.rotate_cw_btn.setObjectName("rotateCWButton")
         self.rotate_cw_btn.setToolTip("Rotate Clockwise 90° (Ctrl/Cmd ])")
         rotate_row.addWidget(self.rotate_ccw_btn)
         rotate_row.addWidget(self.rotate_cw_btn)
@@ -149,10 +162,13 @@ class MainWindow(QMainWindow):
         # Selection Controls (grouped clearly)
         controls.addWidget(QLabel("Selection"))
         self.toggle_mode_btn = QPushButton("🎯 Mode: Select")
+        self.toggle_mode_btn.setObjectName("toggleModeButton")
         self.toggle_mode_btn.setToolTip("Toggle between Select and Pan modes")
         self.clear_sel_btn = QPushButton("Clear Selection")
+        self.clear_sel_btn.setObjectName("clearSelectionButton")
         self.clear_sel_btn.setToolTip("Clear current selection")
         self.clean_session_btn = QPushButton("Clean Viewport")
+        self.clean_session_btn.setObjectName("cleanViewportButton")
         self.clean_session_btn.setToolTip("Clear the current upload and reset all panes")
         controls.addWidget(self.toggle_mode_btn)
         controls.addWidget(self.clear_sel_btn)
@@ -174,17 +190,26 @@ class MainWindow(QMainWindow):
         self.sel_info = QLabel("Selection: –")
         self.sel_info.setStyleSheet("font-size: 11px; color: #666; padding: 4px;")
         controls.addWidget(self.sel_info)
+        
+        # Coordinate tooltips toggle
+        self.source_coord_tooltips_cb = QCheckBox("Show coordinate tooltips")
+        self.source_coord_tooltips_cb.setToolTip("Display image pixel coordinates while hovering or selecting")
+        self.source_coord_tooltips_cb.setChecked(True)  # On by default in Source
+        self.source_coord_tooltips_cb.stateChanged.connect(self._on_source_coord_tooltips_toggled)
+        controls.addWidget(self.source_coord_tooltips_cb)
 
         # Export & Save (grouped clearly)
         controls.addWidget(QLabel("Export & Save"))
         
         # Row 1: Export and Copy
         self.export_btn = QPushButton("Export...")
+        self.export_btn.setObjectName("exportButton")
         self.export_btn.setToolTip("Export with advanced options (background, trim, format) - Ctrl/Cmd E")
         self.export_btn.clicked.connect(self.on_export)
         self.export_btn.setEnabled(False)
 
         self.copy_btn = QPushButton("Copy")
+        self.copy_btn.setObjectName("copyButton")
         self.copy_btn.setToolTip("Copy result to clipboard (preserves transparency) - Ctrl/Cmd C")
         self.copy_btn.clicked.connect(self.on_copy)
         self.copy_btn.setEnabled(False)
@@ -196,11 +221,13 @@ class MainWindow(QMainWindow):
 
         # Row 2: Save to Library and Export JSON
         self.save_to_library_btn = QPushButton("Save to Library")
+        self.save_to_library_btn.setObjectName("saveToLibraryButton")
         self.save_to_library_btn.setToolTip("Quick save as PNG to local library")
         self.save_to_library_btn.clicked.connect(self.on_save_to_library)
         self.save_to_library_btn.setEnabled(False)
 
         self.export_json_btn = QPushButton("Export JSON")
+        self.export_json_btn.setObjectName("exportJsonButton")
         self.export_json_btn.setToolTip("Save selection, threshold, color, and session info to JSON")
         self.export_json_btn.clicked.connect(self.on_export_json)
         self.export_json_btn.setEnabled(False)
@@ -213,6 +240,7 @@ class MainWindow(QMainWindow):
         # Library list
         controls.addWidget(QLabel("My Signatures"))
         self.library_list = QListWidget()
+        self.library_list.setObjectName("libraryList")
         self.library_list.itemDoubleClicked.connect(self.on_library_item_open)
         self.library_list.setContextMenuPolicy(Qt.CustomContextMenu)
         self.library_list.customContextMenuRequested.connect(self.on_library_context_menu)
@@ -221,6 +249,7 @@ class MainWindow(QMainWindow):
         controls.addWidget(self.library_list)
 
         self.delete_from_library_btn = QPushButton("Delete Selected")
+        self.delete_from_library_btn.setObjectName("deleteLibraryButton")
         self.delete_from_library_btn.setToolTip("Remove the selected signature from My Signatures")
         self.delete_from_library_btn.clicked.connect(self.on_delete_selected_library)
         self.delete_from_library_btn.setEnabled(False)
@@ -238,6 +267,7 @@ class MainWindow(QMainWindow):
         self.source_label.setStyleSheet("font-weight: bold; color: #007AFF; padding: 4px;")
         src_layout.addWidget(self.source_label)
         self.src_view = ImageView(self)
+        self.src_view.setObjectName("sourceImageView")
         self.src_view.setStyleSheet("border: 2px solid #007AFF;")  # Active by default
         self.src_view.mousePressEvent = self._wrap_mouse_press(self.src_view, "source")
         src_layout.addWidget(self.src_view)
@@ -252,6 +282,7 @@ class MainWindow(QMainWindow):
         self.preview_label.setStyleSheet("font-weight: normal; color: #666; padding: 4px;")
         preview_layout.addWidget(self.preview_label)
         self.preview_view = ImageView(self)
+        self.preview_view.setObjectName("previewImageView")
         self.preview_view.setMinimumHeight(100)
         self.preview_view.setMaximumHeight(150)
         self.preview_view.toggle_selection_mode(False)  # Preview is view-only
@@ -273,6 +304,7 @@ class MainWindow(QMainWindow):
         self.result_label.setStyleSheet("font-weight: normal; color: #666; padding: 4px;")
         result_layout.addWidget(self.result_label)
         self.res_view = ImageView(self)
+        self.res_view.setObjectName("resultImageView")
         self.res_view.setMinimumHeight(100)
         self.res_view.setMaximumHeight(200)
         self.res_view.mousePressEvent = self._wrap_mouse_press(self.res_view, "result")
@@ -297,7 +329,14 @@ class MainWindow(QMainWindow):
         # Status bar at bottom
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
-        self.status_bar.showMessage("Ready")
+        # Short message so it doesn't cover the left status area permanently
+        self.status_bar.showMessage("Ready", 2000)
+
+        # Backend status indicator
+        self.backend_status_label = QLabel("Backend: checking…")
+        self.backend_status_label.setStyleSheet("color: #a37f00; padding: 2px 8px;")
+        # Add as a permanent widget so it's not obscured by transient messages
+        self.status_bar.addPermanentWidget(self.backend_status_label)
         
         # Coordinate info labels (permanent widgets)
         mono_style = (
@@ -422,9 +461,17 @@ class MainWindow(QMainWindow):
         if PDF_AVAILABLE:
             self._init_pdf_features()
             self._setup_pdf_menu()
-            self.status_bar.showMessage("Ready - PDF features enabled")
+            self.status_bar.showMessage("Ready - PDF features enabled", 2000)
         else:
-            self.status_bar.showMessage("Ready - PDF features unavailable (install pypdfium2 and pikepdf)")
+            self.status_bar.showMessage("Ready - PDF features unavailable (install pypdfium2 and pikepdf)", 4000)
+
+        # Initial backend health check (non-blocking)
+        try:
+            self._backend_online = False
+            QTimer.singleShot(10, self._check_backend_health)
+        except Exception:
+            # If anything unexpected happens, keep UI usable
+            pass
 
     # Optionally, add login action if backend requires it
     # login_action = QAction("Login", self)
@@ -489,10 +536,71 @@ class MainWindow(QMainWindow):
             self.status_bar.showMessage("Upload cancelled", 2000)
             return
         except Exception as e:
-            import traceback
-            error_details = f"{str(e)}\n\nTraceback:\n{traceback.format_exc()}"
-            QMessageBox.critical(self, "Upload failed", error_details)
+            self._handle_backend_exception(e, context="Upload failed")
             self.status_bar.showMessage("Upload failed", 3000)
+
+    # Demo helpers for automated flows (no dialogs/backends)
+    def demo_load_image(self, file_path: str) -> None:
+        """Load an image into the Source pane without opening dialogs or calling backend.
+
+        Assigns a deterministic session id suitable for offline demo flows.
+        """
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(file_path)
+        with open(file_path, "rb") as f:
+            self._current_image_data = f.read()
+        image = self._load_image_with_exif(file_path)
+        if image.isNull():
+            raise RuntimeError("Could not load image")
+        self.src_view.set_image(image)
+        self._on_pane_clicked("source")
+        self.session.session_id = "demo-session"
+        self.status_bar.showMessage("Demo image loaded", 1500)
+
+    def demo_create_sample_image(self, width: int = 400, height: int = 300, color: str = "#ffffff") -> None:
+        """Create a simple in-memory image and load it into Source."""
+        from PySide6.QtGui import QImage, QColor
+        img = QImage(width, height, QImage.Format_RGB32)
+        img.fill(QColor(color))
+        self._current_image_data = None
+        self.src_view.set_image(img)
+        self._on_pane_clicked("source")
+        self.session.session_id = "demo-session"
+        self.status_bar.showMessage("Demo image created", 1200)
+
+    def demo_select_rect(self, x1: int, y1: int, x2: int, y2: int) -> None:
+        """Programmatically set a selection rectangle in image/scene coordinates."""
+        from PySide6.QtCore import QRectF, QPointF, QRect
+        rect_scene = QRectF(QPointF(x1, y1), QPointF(x2, y2)).normalized()
+        tl_view = self.src_view.mapFromScene(rect_scene.topLeft())
+        br_view = self.src_view.mapFromScene(rect_scene.bottomRight())
+        self.src_view._last_rect = QRect(tl_view, br_view).normalized()
+        xs = [rect_scene.left(), rect_scene.right()]
+        ys = [rect_scene.top(), rect_scene.bottom()]
+        self.src_view._last_rect_scene_bounds = QRectF(QPointF(min(xs), min(ys)), QPointF(max(xs), max(ys)))
+        # Trigger downstream preview/update like a user selection
+        self.on_selection_changed(self.src_view._last_rect)
+
+    def demo_generate_local_result(self) -> None:
+        """Generate a PNG result locally from the current selection (no backend)."""
+        from PySide6.QtCore import QBuffer, QIODevice
+        if not self.src_view.has_image():
+            raise RuntimeError("No source image")
+        x1, y1, x2, y2 = self.src_view.selected_rect_image_coords()
+        if x1 == x2 or y1 == y2:
+            raise RuntimeError("No selection")
+        cropped = self.src_view.crop_selection()
+        if not cropped or cropped.isNull():
+            raise RuntimeError("Invalid crop")
+        buf = QBuffer()
+        if not buf.open(QIODevice.OpenModeFlag.WriteOnly):
+            raise RuntimeError("Buffer open failed")
+        cropped.save(buf, "PNG")
+        self._last_result_png = bytes(buf.data())
+        buf.close()
+        self.res_view.load_image_bytes(self._last_result_png)
+        self._update_action_states(preview_ready=True)
+        self.status_bar.showMessage("Local result generated", 1500)
 
     def _load_image_with_exif(self, file_path: str) -> QImage:
         """Load image and apply EXIF orientation correction."""
@@ -573,9 +681,7 @@ class MainWindow(QMainWindow):
             self.status_bar.showMessage("Preview ready", 2000)
         except Exception as e:
             print(f"[ERROR] Processing failed: {e}")
-            import traceback
-            traceback.print_exc()
-            QMessageBox.critical(self, "Process failed", str(e))
+            self._handle_backend_exception(e, context="Process failed")
             self.status_bar.showMessage("Processing failed", 3000)
 
     def on_clear_selection(self):
@@ -592,6 +698,58 @@ class MainWindow(QMainWindow):
         self.res_view.setVisible(False)
         self._update_view_actions_enabled()
         self._update_coordinate_display()
+
+    def _check_backend_health(self) -> None:
+        """Check backend availability and update UI state. Does not raise."""
+        ok = False
+        try:
+            if hasattr(self.api_client, "health_check"):
+                ok, payload = self.api_client.health_check(timeout=2.5)
+            else:
+                # If client does not implement health_check (tests), assume online
+                ok, payload = True, {"status": "assumed-healthy"}
+        except Exception as e:
+            ok, payload = False, {"error": str(e)}
+
+        self._backend_online = bool(ok)
+        if ok:
+            self.backend_status_label.setText("Backend: Online")
+            self.backend_status_label.setStyleSheet("color: #2a7b2e; padding: 2px 8px;")
+            # Enable actions that depend on backend
+            self.open_btn.setEnabled(True)
+        else:
+            self.backend_status_label.setText("Backend: Offline")
+            self.backend_status_label.setStyleSheet("color: #cc0000; padding: 2px 8px;")
+            # Disable upload action when offline
+            self.open_btn.setEnabled(False)
+
+    def _handle_backend_exception(self, e: Exception, *, context: str = "Error") -> None:
+        """Show user-friendly errors for backend/network issues."""
+        # Default detail
+        detail = str(e)
+        title = context
+
+        # Map common request exceptions to helpful messages
+        cls = e.__class__
+        mod = getattr(cls, "__module__", "")
+        name = getattr(cls, "__name__", "")
+        if mod.startswith("requests") and name in {"ConnectionError", "Timeout"}:
+            base_url = getattr(self.api_client, "base_url", "http://127.0.0.1:8001")
+            detail = (
+                f"The backend at {base_url} is unreachable.\n\n"
+                "Make sure the server is running.\n"
+                "Tip: In the app menu, open Help → Open Backend Health to verify."
+            )
+        elif isinstance(e, FileNotFoundError):
+            # Surface simple messages as-is
+            detail = str(e)
+
+        QMessageBox.critical(self, title, detail)
+        # Update backend status indicator after errors
+        try:
+            self._check_backend_health()
+        except Exception:
+            pass
 
     def on_clean_session(self):
         if not (self.src_view.has_image() or self.preview_view.has_image() or self.res_view.has_image() or self.session.session_id):
@@ -711,7 +869,7 @@ class MainWindow(QMainWindow):
         if not cropped or cropped.isNull():
             return None
         buffer = QBuffer()
-        if not buffer.open(QBuffer.WriteOnly):
+        if not buffer.open(QIODevice.OpenModeFlag.WriteOnly):
             return None
         cropped.save(buffer, "PNG")
         data = bytes(buffer.data())
@@ -801,12 +959,27 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Export JSON Failed", str(e))
     
     def on_save_to_library(self):
-        """Quick save to library with default PNG format."""
+        """Quick save to library with default PNG format and metadata."""
         if not self._last_result_png:
             return
         self.status_bar.showMessage("Saving to library...", 0)
         try:
-            saved_path = lib.save_png_to_library(self._last_result_png)
+            # Collect metadata from current extraction
+            metadata = None
+            try:
+                x1, y1, x2, y2 = self.src_view.selected_rect_image_coords()
+                img = self.src_view.image()
+                metadata = {
+                    "session_id": self.session.session_id or "",
+                    "selection": {"x1": x1, "y1": y1, "x2": x2, "y2": y2},
+                    "threshold": int(self.threshold.value()),
+                    "color": self._color_hex,
+                    "image_size": {"width": int(img.width()) if img else 0, "height": int(img.height()) if img else 0}
+                }
+            except Exception:
+                pass  # Save without metadata if extraction fails
+            
+            saved_path = lib.save_png_to_library(self._last_result_png, metadata)
             self.status_bar.showMessage(f"Saved: {saved_path}", 4000)
             self._refresh_library_list()
         except Exception as e:
@@ -814,12 +987,28 @@ class MainWindow(QMainWindow):
             self.status_bar.showMessage("Save failed", 3000)
     
     def _refresh_library_list(self):
+        """Refresh library list in Extraction tab with coordinate tooltips."""
         self.library_list.clear()
-        for it in lib.list_items(limit=50):
-            text = f"{it.display_name}  ·  {it.pretty_time}"
-            item = QListWidgetItem(text)
-            item.setData(Qt.UserRole, it.path)
-            self.library_list.addItem(item)
+        items = list(lib.list_items(limit=50))
+        if not items:
+            # Show friendly empty state with guidance
+            empty1 = QListWidgetItem("📝 No signatures in your library yet")
+            empty1.setFlags(Qt.ItemFlag.NoItemFlags)
+            empty1.setForeground(Qt.GlobalColor.gray)
+            empty1.setToolTip("After extracting a signature preview, click 'Save to Library' to add it here.")
+            self.library_list.addItem(empty1)
+
+            empty2 = QListWidgetItem("Tip: Hover saved items to see coordinates & metadata")
+            empty2.setFlags(Qt.ItemFlag.NoItemFlags)
+            empty2.setForeground(Qt.GlobalColor.gray)
+            self.library_list.addItem(empty2)
+        else:
+            for it in items:
+                text = f"{it.display_name}  ·  {it.pretty_time}"
+                item = QListWidgetItem(text)
+                item.setData(Qt.ItemDataRole.UserRole, it.path)
+                item.setToolTip(it.tooltip_text)  # Add coordinate tooltip
+                self.library_list.addItem(item)
         self._update_library_controls()
 
     def _update_library_controls(self):
@@ -827,7 +1016,7 @@ class MainWindow(QMainWindow):
         self.delete_from_library_btn.setEnabled(has_selection)
 
     def on_library_item_open(self, item: QListWidgetItem):
-        path = item.data(Qt.UserRole)
+        path = item.data(Qt.ItemDataRole.UserRole)
         if not path:
             return
         try:
@@ -868,15 +1057,13 @@ class MainWindow(QMainWindow):
             self._update_library_controls()
             self.status_bar.showMessage(f"Loaded into Source from library", 3000)
         except Exception as e:
-            QMessageBox.critical(self, "Open failed", str(e))
-            import traceback
-            traceback.print_exc()
+            self._handle_backend_exception(e, context="Open failed")
 
     def on_library_context_menu(self, pos: QPoint):
         item = self.library_list.itemAt(pos)
         if not item:
             return
-        path = item.data(Qt.UserRole)
+        path = item.data(Qt.ItemDataRole.UserRole)
         menu = QMenu(self)
         open_act = menu.addAction("Open")
         del_act = menu.addAction("Delete")
@@ -907,7 +1094,7 @@ class MainWindow(QMainWindow):
 
         failed = []
         for item in items:
-            path = item.data(Qt.UserRole)
+            path = item.data(Qt.ItemDataRole.UserRole)
             if not path:
                 continue
             if not lib.delete_item(path):
@@ -988,9 +1175,7 @@ class MainWindow(QMainWindow):
                 self._update_action_states()
                 self.status_bar.showMessage("Rotated - please make a new selection", 3000)
             except Exception as e:
-                QMessageBox.critical(self, "Rotate failed", str(e))
-                import traceback
-                traceback.print_exc()
+                self._handle_backend_exception(e, context="Rotate failed")
                 self.status_bar.showMessage("Rotate failed", 3000)
             finally:
                 self._update_view_actions_enabled()
@@ -1411,9 +1596,24 @@ class MainWindow(QMainWindow):
         self.pdf_sig_list.itemClicked.connect(self._on_pdf_signature_selected)
         pdf_controls.addWidget(self.pdf_sig_list)
         
-        refresh_sig_btn = QPushButton("🔄 Refresh Library")
+        # Library action buttons
+        lib_buttons = QHBoxLayout()
+        refresh_sig_btn = QPushButton("🔄 Refresh")
         refresh_sig_btn.clicked.connect(self._refresh_pdf_signature_library)
-        pdf_controls.addWidget(refresh_sig_btn)
+        lib_buttons.addWidget(refresh_sig_btn)
+        
+        paste_sig_btn = QPushButton("📋 Paste")
+        paste_sig_btn.setToolTip("Paste signature from clipboard (Ctrl/Cmd+V)")
+        paste_sig_btn.clicked.connect(self._on_pdf_paste_signature)
+        lib_buttons.addWidget(paste_sig_btn)
+        
+        pdf_controls.addLayout(lib_buttons)
+        
+        # Bulk placement button
+        bulk_sign_btn = QPushButton("📄 Apply to Multiple Pages...")
+        bulk_sign_btn.setToolTip("Apply signature to multiple pages at once")
+        bulk_sign_btn.clicked.connect(self._on_bulk_sign_clicked)
+        pdf_controls.addWidget(bulk_sign_btn)
         
         pdf_controls.addSpacing(20)
         
@@ -1421,14 +1621,31 @@ class MainWindow(QMainWindow):
         instructions = QLabel(
             "<b>How to sign:</b><br>"
             "1. Open a PDF document<br>"
-            "2. Click a signature from library<br>"
+            "2. Select a signature:<br>"
+            "   • Click from library, or<br>"
+            "   • Paste from clipboard (Ctrl+Shift+V)<br>"
             "3. Click on PDF to place signature<br>"
             "4. Navigate pages as needed<br>"
             "5. Save signed PDF when done"
         )
         instructions.setWordWrap(True)
-        instructions.setStyleSheet("padding: 10px; background-color: #f0f0f0; border-radius: 5px;")
+        instructions.setStyleSheet(
+            "padding: 10px; "
+            "background-color: #ffffff; "
+            "color: #333333; "
+            "border: 1px solid #cccccc; "
+            "border-radius: 5px;"
+        )
         pdf_controls.addWidget(instructions)
+        
+        pdf_controls.addSpacing(10)
+        
+        # Coordinate tooltips toggle
+        self.pdf_coord_tooltips_cb = QCheckBox("Show coordinate tooltips")
+        self.pdf_coord_tooltips_cb.setToolTip("Display PDF page coordinates while hovering/moving/resizing signatures")
+        self.pdf_coord_tooltips_cb.setChecked(False)
+        self.pdf_coord_tooltips_cb.stateChanged.connect(self._on_pdf_coord_tooltips_toggled)
+        pdf_controls.addWidget(self.pdf_coord_tooltips_cb)
         
         pdf_controls.addStretch()
         
@@ -1446,6 +1663,11 @@ class MainWindow(QMainWindow):
         self.audit_logger: Optional[AuditLogger] = None
         self._pending_sig_path: Optional[str] = None
         self._current_pdf_path: Optional[str] = None
+        # Bulk placement state
+        self._bulk_pages: list = []
+        self._bulk_sig_path: str = ""
+        self._bulk_pixmap: Optional[QPixmap] = None
+        self._bulk_use_same_pos: bool = False
     
     def _setup_pdf_menu(self):
         """Add PDF menu to menu bar. Called from __init__ if PDF_AVAILABLE."""
@@ -1462,6 +1684,14 @@ class MainWindow(QMainWindow):
         close_pdf_act.setStatusTip("Close the current PDF")
         close_pdf_act.triggered.connect(self.on_pdf_close)
         pdf_menu.addAction(close_pdf_act)
+        
+        pdf_menu.addSeparator()
+        
+        paste_sig_act = QAction("&Paste Signature from Clipboard", self)
+        paste_sig_act.setShortcut(QKeySequence("Ctrl+Shift+V"))
+        paste_sig_act.setStatusTip("Paste signature from clipboard for placement")
+        paste_sig_act.triggered.connect(self._on_pdf_paste_signature)
+        pdf_menu.addAction(paste_sig_act)
         
         pdf_menu.addSeparator()
         
@@ -1640,6 +1870,27 @@ class MainWindow(QMainWindow):
         
         self.statusBar().showMessage(f"📄 Opened: {Path(path).name}")
     
+    def _on_tab_changed(self, index: int):
+        """Handle tab change - refresh PDF signature library when switching to PDF tab."""
+        if index == 1 and PDF_AVAILABLE:  # PDF tab
+            self._refresh_pdf_signature_library()
+    
+    def _on_pdf_coord_tooltips_toggled(self, state):
+        """Toggle coordinate tooltips in PDF viewer."""
+        enabled = bool(state)
+        if self.pdf_viewer:
+            self.pdf_viewer.enable_coordinate_tooltips(enabled)
+    
+    def _on_source_coord_tooltips_toggled(self, state):
+        """Toggle coordinate tooltips in Source, Preview, and Result image views."""
+        enabled = bool(state)
+        if self.src_view:
+            self.src_view.enable_coordinate_tooltips(enabled)
+        if self.preview_view:
+            self.preview_view.enable_coordinate_tooltips(enabled)
+        if self.res_view:
+            self.res_view.enable_coordinate_tooltips(enabled)
+    
     def _on_pdf_tab_close(self):
         """Close PDF in the PDF tab."""
         self.pdf_viewer.close_pdf()
@@ -1655,7 +1906,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "No PDF", "No PDF is currently open")
             return
         
-        # Get all placed signatures from viewer
+        # Get all placed signatures from viewer (already includes sig_path)
         placed_sigs = self.pdf_viewer.get_placed_signatures()
         
         if not placed_sigs:
@@ -1677,20 +1928,12 @@ class MainWindow(QMainWindow):
         if not output_path:
             return
         
-        # Prepare signatures for signing (add signature image paths)
-        signatures_with_images = []
-        for sig in placed_sigs:
-            sig_copy = sig.copy()
-            # Use the pending signature path (stored when signature was placed)
-            sig_copy["sig_path"] = self._pending_sig_path or ""
-            signatures_with_images.append(sig_copy)
-        
-        # Sign PDF
+        # Sign PDF (placed_sigs already contains sig_path for each signature)
         try:
             success = sign_pdf(
                 self._current_pdf_path,
                 output_path,
-                signatures_with_images
+                placed_sigs
             )
             
             if success:
@@ -1717,6 +1960,14 @@ class MainWindow(QMainWindow):
         if not sig_path or not Path(sig_path).exists():
             return
         
+        # Check if PDF is open
+        if not self.pdf_viewer or not self.pdf_viewer.renderer:
+            QMessageBox.information(
+                self, "No PDF Open",
+                "Please open a PDF document first before selecting a signature."
+            )
+            return
+        
         # Load signature image
         pixmap = QPixmap(sig_path)
         if pixmap.isNull():
@@ -1726,42 +1977,130 @@ class MainWindow(QMainWindow):
         # Store path for later use when saving
         self._pending_sig_path = sig_path
         
-        # Set signature for placement in viewer
-        self.pdf_viewer.set_signature_for_placement(pixmap)
+        # Set signature for placement in viewer (with path)
+        self.pdf_viewer.set_signature_for_placement(pixmap, sig_path)
         
         self.statusBar().showMessage(f"✏️ Click on PDF to place signature: {Path(sig_path).name}")
     
     def _on_pdf_signature_placed(self, page, x, y, width, height):
         """Handle signature placement on PDF."""
-        if self.audit_logger and self._pending_sig_path:
-            self.audit_logger.log_place_signature(
-                page, self._pending_sig_path, x, y, width, height
+        # Check if this is bulk placement
+        if self._bulk_pages and self._bulk_pixmap:
+            # Apply to all selected pages at same position
+            current_page = self.pdf_viewer.current_page
+            
+            for target_page in self._bulk_pages:
+                if target_page == current_page:
+                    # Already placed on current page by user click
+                    continue
+                
+                # Navigate to target page and place signature
+                self.pdf_viewer.goto_page(target_page)
+                self.pdf_viewer.page_view.add_signature_overlay(
+                    x, y, width, height,
+                    self._bulk_pixmap,
+                    self._bulk_sig_path
+                )
+                
+                if self.audit_logger:
+                    self.audit_logger.log_place_signature(
+                        target_page, self._bulk_sig_path, x, y, width, height
+                    )
+            
+            # Return to original page
+            self.pdf_viewer.goto_page(current_page)
+            
+            self.statusBar().showMessage(
+                f"✅ Signature placed on {len(self._bulk_pages)} page(s)"
             )
-        
-        self.statusBar().showMessage(f"✅ Signature placed on page {page + 1}")
+            
+            # Clear bulk state
+            self._bulk_pages = []
+            self._bulk_sig_path = ""
+            self._bulk_pixmap = None
+            self._bulk_use_same_pos = False
+        else:
+            # Single placement
+            if self.audit_logger and self._pending_sig_path:
+                self.audit_logger.log_place_signature(
+                    page, self._pending_sig_path, x, y, width, height
+                )
+            
+            self.statusBar().showMessage(f"✅ Signature placed on page {page + 1}")
     
-    def _refresh_pdf_signature_library(self):
-        """Refresh the signature library list in PDF tab."""
-        self.pdf_sig_list.clear()
+    def _on_pdf_paste_signature(self):
+        """Paste signature from clipboard for placement."""
+        import tempfile
+        import uuid
         
-        # Get signatures from library
-        signatures = [item.path for item in lib.list_items()]
-        
-        if not signatures:
-            item = QListWidgetItem("📝 No signatures in library")
-            item.setFlags(Qt.ItemFlag.NoItemFlags)
-            self.pdf_sig_list.addItem(item)
+        # Check if PDF is open
+        if not self.pdf_viewer or not self.pdf_viewer.renderer:
+            QMessageBox.information(
+                self, "No PDF Open",
+                "Please open a PDF document first before pasting a signature."
+            )
             return
         
-        for sig_path in signatures:
-            if not Path(sig_path).exists():
+        clipboard = QApplication.clipboard()
+        pixmap = clipboard.pixmap()
+        
+        if pixmap.isNull():
+            QMessageBox.information(
+                self, "No Image in Clipboard",
+                "No image found in clipboard.\n\n"
+                "Copy a signature from the Extraction tab first."
+            )
+            return
+        
+        # Save clipboard image to temp location for tracking
+        temp_dir = tempfile.gettempdir()
+        temp_path = os.path.join(temp_dir, f"clipboard_sig_{uuid.uuid4().hex[:8]}.png")
+        
+        # Save pixmap to temp file
+        if not pixmap.save(temp_path, "PNG"):
+            QMessageBox.warning(self, "Error", "Failed to process clipboard image")
+            return
+        
+        self._pending_sig_path = temp_path
+        
+        # Set signature for placement in viewer (with path)
+        self.pdf_viewer.set_signature_for_placement(pixmap, temp_path)
+        
+        self.statusBar().showMessage("📋 Click on PDF to place clipboard signature")
+    
+    def _refresh_pdf_signature_library(self):
+        """Refresh the signature library list in PDF tab with coordinate tooltips."""
+        self.pdf_sig_list.clear()
+        
+        # Get signatures from library with metadata
+        items = lib.list_items()
+        
+        if not items:
+            item = QListWidgetItem("📝 No signatures saved yet")
+            item.setFlags(Qt.ItemFlag.NoItemFlags)
+            item.setForeground(Qt.GlobalColor.gray)
+            self.pdf_sig_list.addItem(item)
+            
+            item2 = QListWidgetItem("💡 Extract & save signatures")
+            item2.setFlags(Qt.ItemFlag.NoItemFlags)
+            item2.setForeground(Qt.GlobalColor.gray)
+            self.pdf_sig_list.addItem(item2)
+            
+            item3 = QListWidgetItem("   in the Extraction tab first")
+            item3.setFlags(Qt.ItemFlag.NoItemFlags)
+            item3.setForeground(Qt.GlobalColor.gray)
+            self.pdf_sig_list.addItem(item3)
+            return
+        
+        for lib_item in items:
+            if not Path(lib_item.path).exists():
                 continue
             
             # Create list item with preview
-            item = QListWidgetItem(Path(sig_path).name)
+            item = QListWidgetItem(Path(lib_item.path).name)
             
             # Load and scale thumbnail
-            pixmap = QPixmap(sig_path)
+            pixmap = QPixmap(lib_item.path)
             if not pixmap.isNull():
                 thumbnail = pixmap.scaled(
                     80, 40,
@@ -1771,6 +2110,74 @@ class MainWindow(QMainWindow):
                 from PySide6.QtGui import QIcon
                 item.setIcon(QIcon(thumbnail))
             
-            item.setData(Qt.ItemDataRole.UserRole, sig_path)
-            item.setToolTip(f"Click to use: {Path(sig_path).name}")
+            item.setData(Qt.ItemDataRole.UserRole, lib_item.path)
+            item.setToolTip(lib_item.tooltip_text)  # Show coordinates in tooltip
             self.pdf_sig_list.addItem(item)
+    
+    def _on_bulk_sign_clicked(self):
+        """Handle bulk signature placement across multiple pages."""
+        if not self.pdf_viewer or not self.pdf_viewer.renderer:
+            QMessageBox.information(
+                self, "No PDF Open",
+                "Please open a PDF document first."
+            )
+            return
+        
+        # Get selected signature from library
+        selected_items = self.pdf_sig_list.selectedItems()
+        if not selected_items:
+            QMessageBox.information(
+                self, "No Signature Selected",
+                "Please select a signature from the library first."
+            )
+            return
+        
+        sig_path = selected_items[0].data(Qt.ItemDataRole.UserRole)
+        if not sig_path or not Path(sig_path).exists():
+            QMessageBox.warning(self, "Error", "Signature file not found")
+            return
+        
+        # Load signature
+        pixmap = QPixmap(sig_path)
+        if pixmap.isNull():
+            QMessageBox.warning(self, "Error", "Failed to load signature image")
+            return
+        
+        # Show bulk placement dialog
+        dialog = BulkSignDialog(
+            self.pdf_viewer.renderer.page_count(),
+            self.pdf_viewer.current_page,
+            self
+        )
+        
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        
+        selected_pages = dialog.get_selected_pages()
+        use_same_pos = dialog.use_same_position()
+        
+        if not selected_pages:
+            return
+        
+        # Ask user to click where to place signature
+        reply = QMessageBox.information(
+            self, "Place Signature",
+            f"Click on the PDF to choose where to place the signature.\n\n"
+            f"It will be applied to {len(selected_pages)} page(s): {', '.join(str(p+1) for p in selected_pages[:5])}"
+            f"{'...' if len(selected_pages) > 5 else ''}",
+            QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel
+        )
+        
+        if reply != QMessageBox.StandardButton.Ok:
+            return
+        
+        # Store bulk placement info and set signature for placement
+        self._bulk_pages = selected_pages
+        self._bulk_sig_path = sig_path
+        self._bulk_pixmap = pixmap
+        self._bulk_use_same_pos = use_same_pos
+        
+        self.pdf_viewer.set_signature_for_placement(pixmap, sig_path)
+        self.statusBar().showMessage(
+            f"📄 Click to place signature on {len(selected_pages)} page(s)"
+        )

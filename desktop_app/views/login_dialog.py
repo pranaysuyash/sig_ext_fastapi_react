@@ -35,4 +35,15 @@ class LoginDialog(QDialog):
             self.api_client.login(username, pwd)
             self.accept()
         except Exception as e:
-            QMessageBox.critical(self, "Login failed", str(e))
+            cls = e.__class__
+            mod = getattr(cls, "__module__", "")
+            name = getattr(cls, "__name__", "")
+            if mod.startswith("requests") and name in {"ConnectionError", "Timeout"}:
+                base_url = getattr(self.api_client, "base_url", "http://127.0.0.1:8001")
+                msg = (
+                    f"The backend at {base_url} is unreachable.\n\n"
+                    "Please start the server and try again."
+                )
+                QMessageBox.critical(self, "Login failed", msg)
+            else:
+                QMessageBox.critical(self, "Login failed", str(e))

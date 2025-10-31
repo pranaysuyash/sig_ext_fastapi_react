@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Tuple
 import requests
 
 from desktop_app.state.session import SessionState
@@ -64,3 +64,22 @@ class ApiClient:
             raise FileNotFoundError("Image file not found on server for session_id")
         resp.raise_for_status()
         return resp.content  # PNG bytes
+
+    def health_check(self, timeout: float = 3.0) -> Tuple[bool, Dict[str, Any]]:
+        """Ping backend /health. Returns (ok, payload_or_error).
+
+        - ok=True and payload dict when reachable and healthy
+        - ok=False and payload containing {"error": str} when unreachable or unhealthy
+        """
+        url = f"{self.base_url}/health"
+        try:
+            resp = requests.get(url, headers={"Accept": "application/json"}, timeout=timeout)
+            resp.raise_for_status()
+            payload = resp.json()
+            # Consider presence of status=="healthy" as OK when provided
+            ok = True
+            if isinstance(payload, dict) and payload.get("status"):
+                ok = str(payload.get("status")).lower() in {"ok", "healthy", "up"}
+            return ok, payload if isinstance(payload, dict) else {"raw": payload}
+        except requests.exceptions.RequestException as e:
+            return False, {"error": str(e)}

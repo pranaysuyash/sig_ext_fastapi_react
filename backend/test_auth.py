@@ -1,10 +1,19 @@
-import requests
-import logging
 import json
-from app.utils.auth import get_password_hash
-from app.config import settings
+import logging
+
+import pytest
+
+pytestmark = pytest.mark.skip(reason="Requires running API service and database instance.")
+
+pytest.importorskip("requests")
+pytest.importorskip("psycopg2")
+
+import requests
 import psycopg2
 from psycopg2.extras import RealDictCursor
+
+from app.utils.auth import get_password_hash
+from app.config import settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
