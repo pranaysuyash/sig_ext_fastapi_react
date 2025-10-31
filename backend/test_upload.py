@@ -1,88 +1,66 @@
-import requests
-import logging
-import json
-import os
-from PIL import Image
 import io
+import json
+import logging
+import os
+from pathlib import Path
+
+import pytest
+import requests
+from PIL import Image
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:8001")
 
-def create_test_image():
-    """Create a test image if none exists."""
-    if not os.path.exists("test_image.jpg"):
-        # Create a simple test image
-        img = Image.new('RGB', (100, 100), color='red')
-        img.save("test_image.jpg")
-        logger.info("Created test image: test_image.jpg")
 
-def test_upload(image_path="test_image.jpg"):
+def _ensure_test_image(image_path: Path) -> Path:
+    """Create a simple image so uploads have deterministic content."""
+    if not image_path.exists():
+        img = Image.new("RGB", (100, 100), color="red")
+        img.save(image_path)
+        logger.info("Created test image: %s", image_path)
+    return image_path
+
+def _load_token(token_path: Path) -> str | None:
     try:
-        # Create test image if needed
-        create_test_image()
-        
-        # Load token
-        try:
-            with open("test_token.txt", "r") as f:
-                token_data = json.load(f)
-                token = token_data.get("access_token")
-        except FileNotFoundError:
-            logger.error("No token found. Please run test_auth.py first")
-            return False
+        with token_path.open("r", encoding="utf-8") as token_file:
+            token_data = json.load(token_file)
+            return token_data.get("access_token")
+    except FileNotFoundError:
+        return None
+    except json.JSONDecodeError as exc:
+        pytest.fail(f"Malformed token file {token_path}: {exc}")
 
-        # Check if image exists
-        if not os.path.exists(image_path):
-            logger.error(f"Image file not found: {image_path}")
-            return False
 
-        # Prepare request
-        headers = {
-            "Authorization": f"Bearer {token}"
-        }
-        
-        files = {
-            'file': (
-                'test_image.jpg',
-                open(image_path, 'rb'),
-                'image/jpeg'
+def test_upload():
+    """Exercise the upload endpoint end-to-end when prerequisites are available."""
+    token_path = Path("test_token.txt")
+    token = _load_token(token_path)
+    if not token:
+        pytest.skip("No token found. Run backend/test_auth.py to generate test_token.txt.")
+
+    image_path = _ensure_test_image(Path("test_image.jpg"))
+    headers = {"Authorization": f"Bearer {token}"}
+
+    logger.info("Sending upload request to %s/extraction/upload", BASE_URL)
+    try:
+        with image_path.open("rb") as image_handle:
+            response = requests.post(
+                f"{BASE_URL}/extraction/upload",
+                headers=headers,
+                files={"file": ("test_image.jpg", image_handle, "image/jpeg")},
+                timeout=10,
             )
-        }
+    except requests.exceptions.RequestException as exc:
+        pytest.skip(f"Upload endpoint unavailable: {exc}")
 
-        # Log request details
-        logger.info("Sending upload request...")
-        logger.info(f"URL: {BASE_URL}/extraction/upload")
-        logger.info(f"File: {image_path}")
-        logger.info("Headers:")
-        logger.info(json.dumps({k: v for k, v in headers.items() if k != 'Authorization'}, indent=2))
+    logger.info("Upload response code: %s", response.status_code)
+    logger.debug("Upload response headers: %s", response.headers)
+    logger.debug("Upload response body: %s", response.text)
 
-        # Make request
-        response = requests.post(
-            f"{BASE_URL}/extraction/upload",
-            headers=headers,
-            files=files
-        )
+    assert response.status_code == 200, f"Upload failed: {response.status_code} {response.text}"
 
-        # Log response
-        logger.info(f"\nStatus Code: {response.status_code}")
-        logger.info("Response Headers:")
-        logger.info(json.dumps(dict(response.headers), indent=2))
-        logger.info("\nResponse Body:")
-        try:
-            logger.info(json.dumps(response.json(), indent=2))
-        except:
-            logger.info(response.text)
-
-        return response.status_code == 200
-
-    except Exception as e:
-        logger.error(f"Error during upload test: {str(e)}")
-        return False
-    finally:
-        # Clean up
-        if 'files' in locals():
-            files['file'][1].close()
 
 if __name__ == "__main__":
     test_upload()
