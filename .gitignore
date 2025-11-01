@@ -66,19 +66,28 @@ desktop_app/library/**/*
 .ipynb_checkpoints/
 *.ipynb
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-.idea/
-*.swp
-*.swo
-*~
-.project
-.pydevproject
-.settings/
-*.sublime-project
-*.sublime-workspace
+# Development artifacts
+.vscode/settings.json
+.vscode/launch.json
+*.code-workspace
+
+# MyPy cache
+.mypy_cache/
+.dmypy.json
+
+# Ruff cache
+.ruff_cache/
+
+# Pre-commit hooks
+.pre-commit-config.yaml.backup
+
+# Local development databases (additional patterns)
+local.db
+local.sqlite
+dev.db
+dev.sqlite
+development.db
+development.sqlite
 
 # macOS
 .DS_Store
@@ -94,14 +103,35 @@ ehthumbs.db
 # Linux
 *~
 
-# Coverage reports
-coverage/
-*.coverage
-*.cover
-.coverage.*
+# Test files and artifacts
+.pytest_cache/
+.coverage
+coverage.xml
 htmlcov/
 .tox/
 .nox/
+test-results/
+test_output/
+test_screenshots/
+test_*.log
+*.test
+*_test.db
+*_test.sqlite
+*_test.sqlite3
+
+# Backend test artifacts
+backend/test_*.db
+backend/test_*.sqlite
+backend/test_*.sqlite3
+backend/test_output/
+backend/test_logs/
+
+# Desktop app test artifacts
+desktop_app/test_output/
+desktop_app/test_logs/
+desktop_app/test_screenshots/
+desktop_app/tests/__pycache__/
+desktop_app/tests/*.pyc
 
 # PyInstaller
 *.spec
@@ -114,6 +144,25 @@ temp/
 *.tmp
 *.bak
 *.swp
+*.swo
+*~
+.cache/
+*.cache
+
+# Debug files
+debug.log
+debug_*.log
+*.debug
+*.dump
+
+# Profile files
+*.prof
+*.lprof
+profile_*.txt
+
+# Session files
+.session
+*.session
 
 # Node (legacy, may be removed if fully migrated to desktop)
 node_modules/
