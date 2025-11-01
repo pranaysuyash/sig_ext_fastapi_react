@@ -101,5 +101,4 @@ See **Help → Keyboard Shortcuts** for the complete list, including:
 ## Need More Help?
 
 - Check the **Keyboard Shortcuts** in the Help menu
-- For technical implementation details, see `docs/TECHNICAL_DETAILS.md`
 - Report issues with screenshots of the footer information

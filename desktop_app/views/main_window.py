@@ -9,12 +9,14 @@ import logging
 import numpy as np
 from pathlib import Path
 
+from functools import partial
+
 from PySide6.QtCore import Qt, QTimer, QPoint, QBuffer, QUrl, QIODevice
 from PySide6.QtGui import QAction, QImage, QColor, QPixmap, QTransform, QDesktopServices, QKeySequence, QShortcut, QPalette
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog,
     QLabel, QSlider, QColorDialog, QMessageBox, QListWidget, QListWidgetItem, QStatusBar,
-    QMenu, QSizePolicy, QApplication, QCheckBox, QComboBox, QTabWidget, QTextEdit, QDialog, QDialogButtonBox
+    QMenu, QSizePolicy, QApplication, QCheckBox, QComboBox, QTabWidget, QTextEdit, QDialog, QDialogButtonBox, QToolButton
 )
 from PIL import Image as PILImage
 from PIL.ExifTags import TAGS
@@ -22,6 +24,7 @@ from PIL.ExifTags import TAGS
 from desktop_app.api.client import ApiClient
 from desktop_app.state.session import SessionState
 from desktop_app.widgets.image_view import ImageView
+from desktop_app.widgets.glass_panel import GlassPanel
 from desktop_app.views.export_dialog import ExportDialog
 from desktop_app.views.help_dialog import HelpDialog
 from desktop_app.views.bulk_sign_dialog import BulkSignDialog
@@ -109,6 +112,22 @@ class MainWindow(QMainWindow):
         color_row.addWidget(self.color_label, 1)
         color_row.addWidget(self.pick_color_btn, 0)
         controls.addLayout(color_row)
+
+        # Colour history and presets row
+        swatch_row = QHBoxLayout()
+        swatch_row.setSpacing(8)
+        swatch_row.addWidget(QLabel("History"))
+        self.color_history_layout = QHBoxLayout()
+        self.color_history_layout.setSpacing(6)
+        swatch_row.addLayout(self.color_history_layout)
+
+        presets_label = QLabel("Presets")
+        swatch_row.addWidget(presets_label)
+        self.color_presets_layout = QHBoxLayout()
+        self.color_presets_layout.setSpacing(6)
+        swatch_row.addLayout(self.color_presets_layout)
+        swatch_row.addStretch(1)
+        controls.addLayout(swatch_row)
 
         # View Controls (grouped clearly)
         controls.addWidget(QLabel("View"))
@@ -418,6 +437,11 @@ class MainWindow(QMainWindow):
         # State
         self._color_hex = "#000000"
         self._update_color_ui()
+        self._color_history: list[str] = []
+        self._color_presets = ["#000000", "#007AFF", "#FF7A59", "#FFFFFF"]
+        self._refresh_color_history()
+        self._populate_color_presets()
+        self._remember_color(self._color_hex, suppress_preview=True)
         self._last_result_png = None
         self._last_local_path = None
         self._current_image_data = None  # Store raw image data for rotate ops
@@ -710,6 +734,7 @@ class MainWindow(QMainWindow):
             self.res_view.clear_image()
             self._update_action_states(preview_ready=False)
             self.schedule_preview()
+            self._remember_color(self._color_hex)
 
     def on_preview(self):
         """Process the selected region and show the result."""
@@ -1337,6 +1362,75 @@ class MainWindow(QMainWindow):
         except Exception:
             text_color = '#000000'
         self.color_label.setStyleSheet(f"background-color: {hexc}; color: {text_color}; border: 1px solid #ccc; padding: 4px 8px; border-radius: 4px;")
+
+    def _remember_color(self, color: str, suppress_preview: bool = False) -> None:
+        qcolor = QColor(color)
+        if not qcolor.isValid():
+            return
+        normalized = qcolor.name().upper()
+        if normalized in self._color_history:
+            self._color_history.remove(normalized)
+        self._color_history.insert(0, normalized)
+        self._color_history = self._color_history[:6]
+        self._refresh_color_history()
+
+    def _refresh_color_history(self) -> None:
+        self._clear_layout(self.color_history_layout)
+        if not self._color_history:
+            return
+        for color in self._color_history:
+            btn = self._make_color_button(color)
+            btn.setToolTip(f"Recent: {color}")
+            btn.clicked.connect(partial(self._apply_color_from_button, color))
+            self.color_history_layout.addWidget(btn)
+
+    def _populate_color_presets(self) -> None:
+        self._clear_layout(self.color_presets_layout)
+        for color in self._color_presets:
+            btn = self._make_color_button(color)
+            btn.setToolTip(f"Preset: {color}")
+            btn.clicked.connect(partial(self._apply_color_from_button, color))
+            self.color_presets_layout.addWidget(btn)
+
+    def _apply_color_from_button(self, color: str) -> None:
+        qcolor = QColor(color)
+        if not qcolor.isValid():
+            return
+        normalized = qcolor.name()
+        if normalized != self._color_hex:
+            self._color_hex = normalized
+            self._update_color_ui()
+        self._remember_color(normalized, suppress_preview=True)
+        self._last_result_png = None
+        self.res_view.clear_image()
+        self._update_action_states(preview_ready=False)
+        self.schedule_preview()
+
+    def _make_color_button(self, color: str) -> QToolButton:
+        btn = QToolButton(self)
+        btn.setAutoRaise(True)
+        btn.setFixedSize(22, 22)
+        btn.setStyleSheet(
+            "QToolButton {"
+            f"background-color: {color};"
+            "border: 1px solid rgba(0,0,0,0.25);"
+            "border-radius: 6px;"
+            "}"
+            "QToolButton:hover {"
+            "border-color: rgba(0,0,0,0.45);"
+            "}"
+        )
+        return btn
+
+    @staticmethod
+    def _clear_layout(layout) -> None:
+        while layout.count():
+            item = layout.takeAt(0)
+            widget = item.widget()
+            if widget:
+                widget.setParent(None)
+            elif item.layout():
+                MainWindow._clear_layout(item.layout())
 
     # -------- License/Evaluation helpers --------
     def _update_action_states(self, preview_ready: bool = False):

@@ -37,7 +37,8 @@ Legend:
 - [x] Drag-and-drop to open image into Source
 - [x] Add subtle drop shadow/vignette behind preview/result stack for depth
 - [x] Replace emoji-style mode toggle with icon + label toggle button
-- [ ] Provide mini colour history swatches beneath colour picker
+- [x] Provide mini colour history swatches beneath colour picker
+- [x] Add quick colour preset buttons (brand blue, black, etc.) near colour picker
 
 ## Library behavior (5)
 
