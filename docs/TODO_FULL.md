@@ -31,7 +31,13 @@ Legend:
 - [ ] Quick export presets (PNG transparent, JPG white background)
 - [x] JSON metadata export (bounds, threshold, color)
 - [ ] Better status messages + unobtrusive errors
-- [ ] Drag-and-drop to open image into Source
+- [ ] Animate result pane refresh (short fade) when preview regenerates
+- [ ] Replace modal notifications with inline banner component in sidebar
+- [ ] Collapsible control groups or first-run guided tour overlay
+- [x] Drag-and-drop to open image into Source
+- [x] Add subtle drop shadow/vignette behind preview/result stack for depth
+- [x] Replace emoji-style mode toggle with icon + label toggle button
+- [ ] Provide mini colour history swatches beneath colour picker
 
 ## Library behavior (5)
 

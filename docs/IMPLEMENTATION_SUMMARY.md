@@ -13,7 +13,7 @@ Successfully implemented comprehensive PDF signing capabilities for the Signatur
 
 - **`renderer.py`** (116 lines): PDF rendering using pypdfium2 (Chrome's PDFium engine)
 - **`viewer.py`** (320 lines): Interactive PDF viewer widget with zoom, navigation, signature overlays
-- **`signer.py`** (182 lines): PDF signing using pikepdf (QPDF wrapper) with coordinate conversion
+- **`signer.py`** (182 lines): PDF signing using PyMuPDF (robust image insertion); falls back to pikepdf
 - **`storage.py`** (190 lines): Audit logging system (JSONL format) and PDF storage utilities
 - **`__init__.py`**: Module exports
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 
 from PySide6.QtCore import Qt, QRect, QRectF, QPoint, QPointF, QSize, Signal
-from PySide6.QtGui import QImage, QPixmap, QWheelEvent, QTransform
+from PySide6.QtGui import QImage, QPixmap, QWheelEvent, QTransform, QDragEnterEvent, QDragMoveEvent, QDropEvent
 from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QRubberBand, QToolTip
 
 
@@ -16,6 +16,7 @@ class ImageView(QGraphicsView):
     zoomChanged = Signal()
     # Emitted when the viewport geometry or visible scene region changes
     viewChanged = Signal()
+    fileDropped = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -36,6 +37,7 @@ class ImageView(QGraphicsView):
         self._coord_tooltips_enabled = True
         self._last_hover_coords = (-1, -1)
         self._last_tooltip_text = ""
+        self.setAcceptDrops(True)
 
     def load_image_bytes(self, data: bytes) -> None:
         image = QImage.fromData(data)
@@ -125,6 +127,34 @@ class ImageView(QGraphicsView):
         else:
             super().mouseReleaseEvent(event)
 
+    # -------- Drag & drop helpers --------
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
+        if event.mimeData().hasUrls():
+            for url in event.mimeData().urls():
+                if url.isLocalFile():
+                    event.acceptProposedAction()
+                    return
+        event.ignore()
+
+    def dragMoveEvent(self, event: QDragMoveEvent) -> None:
+        if event.mimeData().hasUrls():
+            for url in event.mimeData().urls():
+                if url.isLocalFile():
+                    event.acceptProposedAction()
+                    return
+        event.ignore()
+
+    def dropEvent(self, event: QDropEvent) -> None:
+        if event.mimeData().hasUrls():
+            for url in event.mimeData().urls():
+                if url.isLocalFile():
+                    path = url.toLocalFile()
+                    if path:
+                        self.fileDropped.emit(path)
+                        event.acceptProposedAction()
+                        return
+        event.ignore()
+
     def selected_rect_image_coords(self) -> tuple[int, int, int, int]:
         """Return selection in image coordinates (x1,y1,x2,y2)."""
         if not self._pixmap_item or self._last_rect_scene_bounds.isNull():
@@ -180,8 +210,8 @@ class ImageView(QGraphicsView):
         x = max(0, min(img_rect.width(), int(math.floor(scene_pt.x()))))
         y = max(0, min(img_rect.height(), int(math.floor(scene_pt.y()))))
 
-        # Build tooltip text
-        text = f"{x}, {y}"
+        # Build tooltip text with HTML for guaranteed visibility
+        coords = f"{x}, {y}"
         if dragging and self._selection_mode:
             origin_scene = self.mapToScene(self._origin)
             x1 = max(0, min(img_rect.width(), int(math.floor(min(origin_scene.x(), scene_pt.x())))))
@@ -190,7 +220,10 @@ class ImageView(QGraphicsView):
             y2 = max(0, min(img_rect.height(), int(math.ceil(max(origin_scene.y(), scene_pt.y())))))
             w = max(0, x2 - x1)
             h = max(0, y2 - y1)
-            text = f"{x}, {y}  •  Sel: ({x1}, {y1}) → ({x2}, {y2})  [{w}×{h}]"
+            coords = f"{x}, {y}  •  Sel: ({x1}, {y1}) → ({x2}, {y2})  [{w}×{h}]"
+
+        # Use HTML with explicit black text on yellow background
+        text = f'<span style="background-color: #ffffcc; color: #000000; padding: 4px; border: 1px solid #888;">{coords}</span>'
 
         # Avoid spamming identical tooltips
         if text == self._last_tooltip_text and (x, y) == self._last_hover_coords:
@@ -217,7 +250,7 @@ class ImageView(QGraphicsView):
     # Zoom/pan helpers
     def wheelEvent(self, event: QWheelEvent) -> None:
         # Ctrl+wheel or trackpad gesture to zoom
-        if event.modifiers() & Qt.ControlModifier:
+        if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             delta = event.angleDelta().y()
             if delta > 0:
                 self.zoom_in()

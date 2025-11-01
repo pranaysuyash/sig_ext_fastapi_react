@@ -1,10 +1,16 @@
-"""
-Icon manager for the desktop app.
-Uses Qt's standard icons (cross-platform, theme-aware) and provides fallback to emoji.
+"""Icon helper utilities.
+
+Prefers platform-native icons (Qt standard pixmaps) and falls back to emoji/text when
+necessary. On macOS we disable emoji prefixes to keep controls looking native.
 """
 
+from __future__ import annotations
+
+import sys
+from typing import Optional
+
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QStyle, QApplication
+from PySide6.QtWidgets import QStyle, QApplication, QPushButton
 
 
 class IconManager:
@@ -33,7 +39,10 @@ class IconManager:
             'export': QStyle.StandardPixmap.SP_DialogSaveButton,
             'folder': QStyle.StandardPixmap.SP_DirIcon,
             'file': QStyle.StandardPixmap.SP_FileIcon,
-            
+            'copy': QStyle.StandardPixmap.SP_DialogApplyButton,
+            'mode_select': QStyle.StandardPixmap.SP_ArrowCross,
+            'mode_pan': QStyle.StandardPixmap.SP_ArrowHand,
+
             # Navigation
             'refresh': QStyle.StandardPixmap.SP_BrowserReload,
             'home': QStyle.StandardPixmap.SP_DirHomeIcon,
@@ -57,9 +66,11 @@ class IconManager:
             'reset': QStyle.StandardPixmap.SP_DialogResetButton,
             
             # View controls
-            'zoom_in': QStyle.StandardPixmap.SP_ArrowUp,  # Placeholder
-            'zoom_out': QStyle.StandardPixmap.SP_ArrowDown,  # Placeholder
+            'zoom_in': QStyle.StandardPixmap.SP_ArrowUp,
+            'zoom_out': QStyle.StandardPixmap.SP_ArrowDown,
             'fit': QStyle.StandardPixmap.SP_TitleBarMaxButton,
+            'rotate_cw': QStyle.StandardPixmap.SP_BrowserReload,
+            'rotate_ccw': QStyle.StandardPixmap.SP_BrowserReload,
             
             # Media
             'play': QStyle.StandardPixmap.SP_MediaPlay,
@@ -124,7 +135,7 @@ def get_icon_text(icon_type: str) -> str:
     return IconManager.get_icon_text(icon_type)
 
 
-def set_button_icon(button, icon_type: str, text: str = None, use_emoji: bool = True):
+def set_button_icon(button: QPushButton, icon_type: str, text: Optional[str] = None, use_emoji: bool = True):
     """
     Set icon and text for a QPushButton.
     
@@ -134,6 +145,9 @@ def set_button_icon(button, icon_type: str, text: str = None, use_emoji: bool = 
         text: Button text (if None, only icon/emoji is used)
         use_emoji: If True, prepend emoji to text
     """
+    if sys.platform == "darwin":
+        use_emoji = False
+
     # Set QIcon
     icon = get_icon(icon_type)
     icon_available = not icon.isNull()

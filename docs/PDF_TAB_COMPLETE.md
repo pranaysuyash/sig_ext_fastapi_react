@@ -63,7 +63,8 @@ MainWindow
 ### 4. Backend
 
 - **pypdfium2**: PDF rendering (Chrome's PDFium)
-- **pikepdf**: Signature embedding (QPDF wrapper)
+- **PyMuPDF**: Signature embedding (primary)
+- **pikepdf**: Signature embedding (fallback)
 - **Audit logging**: JSONL format in `~/.signature_extractor/audit_logs/`
 
 ## Technical Architecture
@@ -88,7 +89,7 @@ MainWindow
 
 - `desktop_app/pdf/viewer.py` (PDFViewer widget - already implemented)
 - `desktop_app/pdf/renderer.py` (PDFRenderer - pypdfium2)
-- `desktop_app/pdf/signer.py` (PDFSigner - pikepdf)
+- `desktop_app/pdf/signer.py` (PDFSigner - PyMuPDF primary, pikepdf fallback)
 - `desktop_app/pdf/storage.py` (AuditLogger)
 
 ## Bug Fixes

@@ -1,5 +1,51 @@
 # Changelog
 
+## [Unreleased] - 2025-11-01
+
+### Fixed
+
+- **PDF Signing Reliability**: Replaced brittle pikepdf stream injection with PyMuPDF's robust `Page.insert_image()` API
+  - Fixes Acrobat "There was a problem reading this document" errors
+  - Ensures signatures appear correctly in saved PDFs
+  - Added automatic pixel-to-point coordinate conversion from viewer outputs
+  - Maintains backward compatibility with existing point-based coordinates
+  - Uses deflate compression to keep PDF sizes reasonable (PyMuPDF path)
+  - Falls back to legacy pikepdf if PyMuPDF unavailable
+
+### Changed
+
+- Updated `desktop_app/requirements.txt` with pinned versions from current environment:
+  - PySide6==6.10.0
+  - requests==2.32.5
+  - python-dotenv==1.1.1
+  - pillow==12.0.0
+  - pypdfium2==5.0.0
+  - pikepdf==10.0.0
+  - numpy==2.2.6
+  - opencv-python==4.12.0.88
+  - PyMuPDF==1.26.5
+
+### Technical Details
+
+#### PDF Signing Fix
+
+**Problem**: Saved PDFs showed Acrobat "There was a problem reading this document" errors and missing signatures due to low-level pikepdf image stream embedding being unsupported for new images.
+
+**Solution**:
+
+- Primary: PyMuPDF `page.insert_image(rect, filename=..., keep_proportion=True, overlay=True)`
+- Coordinates: Viewer exports pixel coords + metadata; signer converts to points using `72 / (dpi * scale)`
+- Compression: `deflate=True` on save to minimize size increase
+- Fallback: Legacy pikepdf path preserved for compatibility
+
+**Files Changed**:
+
+- `desktop_app/pdf/signer.py`: PyMuPDF integration, coordinate conversion
+- `desktop_app/pdf/viewer.py`: Added units/dpi/scale metadata to signatures
+- `desktop_app/requirements.txt`: Updated versions, added PyMuPDF
+
+---
+
 ## [Unreleased] - 2025-10-29
 
 ### Changed

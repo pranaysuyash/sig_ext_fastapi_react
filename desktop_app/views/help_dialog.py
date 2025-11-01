@@ -2,17 +2,15 @@
 
 from pathlib import Path
 from types import ModuleType
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Any
 
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QTextBrowser, QPushButton, QHBoxLayout
 from PySide6.QtCore import Qt, QUrl
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QPalette
 
-if TYPE_CHECKING:  # pragma: no cover - type checking only
-    import markdown as _markdown_module
-
+_markdown_runtime: Optional[ModuleType]
 try:
-    import markdown as _markdown_runtime
+    import markdown as _markdown_runtime  # type: ignore[import-untyped]
 except ImportError:
     _markdown_runtime = None
 
@@ -68,6 +66,32 @@ class HelpDialog(QDialog):
     def _load_markdown(self, relative_path: str):
         """Load and render markdown file."""
         try:
+            # Get current palette for theme-aware colors
+            palette = self.palette()
+            is_dark = palette.color(QPalette.ColorRole.Window).lightness() < 128
+            
+            # Theme-aware colors
+            if is_dark:
+                text_color = "#e0e0e0"
+                heading_color = "#ffffff"
+                border_color = "#555555"
+                code_bg = "#2d2d2d"
+                pre_bg = "#1e1e1e"
+                table_header_bg = "#3a3a3a"
+                link_color = "#4da6ff"
+                blockquote_border = "#666666"
+                hr_color = "#555555"
+            else:
+                text_color = "#333333"
+                heading_color = "#2c3e50"
+                border_color = "#3498db"
+                code_bg = "#f4f4f4"
+                pre_bg = "#f8f8f8"
+                table_header_bg = "#f2f2f2"
+                link_color = "#3498db"
+                blockquote_border = "#3498db"
+                hr_color = "#dddddd"
+            
             # Find project root (2 levels up from this file)
             project_root = Path(__file__).resolve().parents[2]
             doc_path = project_root / relative_path
@@ -87,7 +111,7 @@ class HelpDialog(QDialog):
                     extensions=['fenced_code', 'tables', 'nl2br']
                 )
                 
-                # Add CSS styling
+                # Add CSS styling with theme-aware colors
                 styled_html = f"""
                 <html>
                 <head>
@@ -95,28 +119,28 @@ class HelpDialog(QDialog):
                         body {{
                             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
                             line-height: 1.6;
-                            color: #333;
+                            color: {text_color};
                             padding: 20px;
                             max-width: 100%;
                         }}
                         h1 {{
-                            color: #2c3e50;
-                            border-bottom: 2px solid #3498db;
+                            color: {heading_color};
+                            border-bottom: 2px solid {border_color};
                             padding-bottom: 10px;
                             margin-top: 24px;
                         }}
                         h2 {{
-                            color: #34495e;
+                            color: {heading_color};
                             border-bottom: 1px solid #bdc3c7;
                             padding-bottom: 6px;
                             margin-top: 20px;
                         }}
                         h3 {{
-                            color: #34495e;
+                            color: {heading_color};
                             margin-top: 16px;
                         }}
                         code {{
-                            background-color: #f4f4f4;
+                            background-color: {code_bg};
                             padding: 2px 6px;
                             border-radius: 3px;
                             font-family: "Courier New", Courier, monospace;
@@ -124,7 +148,7 @@ class HelpDialog(QDialog):
                             color: #e74c3c;
                         }}
                         pre {{
-                            background-color: #f8f8f8;
+                            background-color: {pre_bg};
                             border: 1px solid #ddd;
                             border-radius: 4px;
                             padding: 12px;
@@ -133,7 +157,7 @@ class HelpDialog(QDialog):
                         pre code {{
                             background-color: transparent;
                             padding: 0;
-                            color: #333;
+                            color: {text_color};
                         }}
                         ul, ol {{
                             margin-left: 20px;
@@ -142,13 +166,13 @@ class HelpDialog(QDialog):
                             margin: 4px 0;
                         }}
                         blockquote {{
-                            border-left: 4px solid #3498db;
+                            border-left: 4px solid {blockquote_border};
                             margin: 16px 0;
                             padding-left: 16px;
-                            color: #555;
+                            color: {text_color};
                         }}
                         a {{
-                            color: #3498db;
+                            color: {link_color};
                             text-decoration: none;
                         }}
                         a:hover {{
@@ -165,15 +189,15 @@ class HelpDialog(QDialog):
                             text-align: left;
                         }}
                         th {{
-                            background-color: #f2f2f2;
+                            background-color: {table_header_bg};
                             font-weight: bold;
                         }}
                         strong {{
-                            color: #2c3e50;
+                            color: {heading_color};
                         }}
                         hr {{
                             border: none;
-                            border-top: 1px solid #ddd;
+                            border-top: 1px solid {hr_color};
                             margin: 24px 0;
                         }}
                     </style>

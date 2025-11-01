@@ -42,7 +42,8 @@ This plan adds PDF signing capability to your signature extractor app **without 
 ```bash
 # Add to desktop_app/requirements.txt
 echo "pypdfium2>=4.26.0" >> desktop_app/requirements.txt
-echo "pikepdf>=8.10.0" >> desktop_app/requirements.txt
+echo "PyMuPDF>=1.23.0" >> desktop_app/requirements.txt
+echo "pikepdf>=8.10.0" >> desktop_app/requirements.txt  # fallback
 
 # Install
 pip install -r desktop_app/requirements.txt
@@ -233,11 +234,11 @@ Created/Updated:
 
 1. **Review**: Read full plan in `docs/PDF_FEATURE_IMPLEMENTATION.md`
 2. **Install**: Run `pip install pypdfium2 pikepdf`
-3. **Test**: Verify PDF libraries work: `python -c "import pypdfium2; import pikepdf; print('✓ Ready')"`
+3. **Test**: Verify PDF libraries work: `python -c "import pypdfium2; import fitz; import pikepdf; print('✓ Ready')"`
 4. **Code**: Start with Phase 1 (Foundation)
 
 ---
 
 **Questions?** Check the full implementation guide or ask!
 
-**Next Command**: `pip install pypdfium2 pikepdf` 🚀
+**Next Command**: `pip install pypdfium2 PyMuPDF pikepdf` 🚀

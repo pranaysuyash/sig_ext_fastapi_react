@@ -1,193 +1,245 @@
-"""PDF signing utilities using pikepdf."""
+"""PDF signing utilities.
+
+Primary implementation uses PyMuPDF for robust, standards-compliant image
+insertion. Falls back to legacy pikepdf stream editing if PyMuPDF is not
+available (not recommended).
+"""
 
 import io
-from typing import List, Dict, Any
+from typing import List, Dict, Any, cast
 from pathlib import Path
 
 import pikepdf
 from PIL import Image as PILImage
 
+# Optional, preferred implementation
+try:
+    import fitz  # type: ignore  # PyMuPDF
+    HAS_PYMUPDF = True
+except Exception:
+    HAS_PYMUPDF = False
+    # Provide a dummy name to satisfy static analyzers when PyMuPDF is not installed
+    fitz = cast(Any, None)  # type: ignore
 
 class PDFSigner:
-    """Embed signature images into PDF documents."""
-    
+    """Embed signature images into PDF documents.
+
+    Behavior:
+    - When PyMuPDF is available, it is used to insert images via Page.insert_image,
+      which is reliable and supported by PDF viewers (including Acrobat).
+    - If PyMuPDF is unavailable, a legacy pikepdf-based stream approach is used
+      as a fallback.
+    """
+
     def __init__(self, input_pdf_path: str):
         """
         Initialize signer with input PDF.
-        
+
         Args:
             input_pdf_path: Path to original PDF file
-        
+
         Raises:
             FileNotFoundError: If PDF doesn't exist
             ValueError: If PDF cannot be opened
         """
         if not Path(input_pdf_path).exists():
             raise FileNotFoundError(f"PDF not found: {input_pdf_path}")
-        
-        try:
-            self.pdf = pikepdf.open(input_pdf_path)
-        except Exception as e:
-            raise ValueError(f"Failed to open PDF: {e}")
-        
+
         self.input_path = input_pdf_path
-    
-    def add_signature(self, page_num: int, sig_image_path: str, 
-                     x: float, y: float, width: float, height: float) -> None:
+        # Prefer PyMuPDF document handle if available
+        if HAS_PYMUPDF:
+            try:
+                self._doc = fitz.open(input_pdf_path)
+            except Exception as e:
+                raise ValueError(f"Failed to open PDF (PyMuPDF): {e}")
+            self._pdf = None
+        else:
+            try:
+                self._pdf = pikepdf.open(input_pdf_path)
+            except Exception as e:
+                raise ValueError(f"Failed to open PDF (pikepdf): {e}")
+            self._doc = None
+
+    def add_signature(
+        self, page_num: int, sig_image_path: str, x: float, y: float, width: float, height: float
+    ) -> None:
         """
         Add a signature image to a specific page.
-        
+
         Args:
             page_num: Page number (0-indexed)
             sig_image_path: Path to signature image file
-            x, y: Position in PDF coordinates (bottom-left origin)
-            width, height: Signature dimensions in PDF points
-        
-        Note: PDF coordinate system has origin at bottom-left,
-              while Qt has origin at top-left. Caller must convert.
+            x, y: Position on page.
+            width, height: Signature dimensions.
+
+        Coordinates origin and units:
+        - PyMuPDF path (preferred): expects top-left origin in PDF page space
+          as used by PyMuPDF's Page.insert_image(). Units are PDF points.
+        - Legacy pikepdf path: expects top-left origin as provided by the UI;
+          the implementation converts to bottom-left internally. Units are PDF
+          points.
         """
-        if page_num < 0 or page_num >= len(self.pdf.pages):
+        # Preferred implementation: PyMuPDF
+        if HAS_PYMUPDF and self._doc is not None:
+            if page_num < 0 or page_num >= self._doc.page_count:
+                raise ValueError(f"Invalid page number: {page_num}")
+
+            page = self._doc[page_num]
+
+            # PyMuPDF expects top-left origin in page space; units are points
+            rect = fitz.Rect(float(x), float(y), float(x + width), float(y + height))
+
+            # Insert image; preserve aspect ratio similar to viewer overlay
+            # (image is scaled to fit into rect while maintaining aspect)
+            try:
+                page.insert_image(rect, filename=sig_image_path, keep_proportion=True, overlay=True)
+            except Exception as e:
+                raise ValueError(f"Failed to insert image: {e}")
+            return
+
+        # Fallback: legacy pikepdf stream editing
+        if self._pdf is None:
+            raise RuntimeError("No PDF backend available for signing")
+
+        if page_num < 0 or page_num >= len(self._pdf.pages):
             raise ValueError(f"Invalid page number: {page_num}")
-        
-        page = self.pdf.pages[page_num]
-        
-        # Load signature image
-        sig_image = PILImage.open(sig_image_path)
-        
+
+        page = self._pdf.pages[page_num]
+
+        # Load signature image; cast to concrete Image type for type checkers
+        sig_image = cast(PILImage.Image, PILImage.open(sig_image_path))
+
         # Preserve RGBA for transparency, convert others to RGB
-        if sig_image.mode == 'RGBA':
-            # Keep RGBA for transparency support
-            pass
-        elif sig_image.mode in ('RGB', 'L'):
-            # Already supported formats
-            pass
-        else:
-            # Convert unsupported modes to RGBA to preserve any transparency
-            sig_image = sig_image.convert('RGBA')
-        
-        # Save to bytes for pikepdf
+        if sig_image.mode not in ("RGBA", "RGB", "L"):
+            sig_image = sig_image.convert("RGBA")
+
         image_bytes = io.BytesIO()
-        sig_image.save(image_bytes, format='PNG')
+        sig_image.save(image_bytes, format="PNG")
         image_bytes.seek(0)
-        
-        # Create PDF image object with proper color space
-        raw_image = pikepdf.Stream(self.pdf, image_bytes.read())
-        
-        # Set color space based on image mode
-        if sig_image.mode == 'RGBA':
-            # For RGBA, we need a mask for transparency
-            color_space = pikepdf.Name('/DeviceRGB')
-            # Extract alpha channel as SMask
+
+        raw_image = pikepdf.Stream(self._pdf, image_bytes.read())
+
+        if sig_image.mode == "RGBA":
+            color_space = pikepdf.Name("/DeviceRGB")
             alpha = sig_image.split()[3]
             alpha_bytes = io.BytesIO()
-            alpha.save(alpha_bytes, format='PNG')
+            alpha.save(alpha_bytes, format="PNG")
             alpha_bytes.seek(0)
-            
-            smask = pikepdf.Stream(self.pdf, alpha_bytes.read())
+
+            smask = pikepdf.Stream(self._pdf, alpha_bytes.read())
             smask.stream_dict = pikepdf.Dictionary(
-                Type=pikepdf.Name('/XObject'),
-                Subtype=pikepdf.Name('/Image'),
+                Type=pikepdf.Name("/XObject"),
+                Subtype=pikepdf.Name("/Image"),
                 Width=alpha.width,
                 Height=alpha.height,
-                ColorSpace=pikepdf.Name('/DeviceGray'),
+                ColorSpace=pikepdf.Name("/DeviceGray"),
                 BitsPerComponent=8,
-                Filter=pikepdf.Name('/FlateDecode')
+                Filter=pikepdf.Name("/FlateDecode"),
             )
-            
+
             raw_image.stream_dict = pikepdf.Dictionary(
-                Type=pikepdf.Name('/XObject'),
-                Subtype=pikepdf.Name('/Image'),
+                Type=pikepdf.Name("/XObject"),
+                Subtype=pikepdf.Name("/Image"),
                 Width=sig_image.width,
                 Height=sig_image.height,
                 ColorSpace=color_space,
                 BitsPerComponent=8,
-                Filter=pikepdf.Name('/FlateDecode'),
-                SMask=smask
+                Filter=pikepdf.Name("/FlateDecode"),
+                SMask=smask,
             )
         else:
             raw_image.stream_dict = pikepdf.Dictionary(
-                Type=pikepdf.Name('/XObject'),
-                Subtype=pikepdf.Name('/Image'),
+                Type=pikepdf.Name("/XObject"),
+                Subtype=pikepdf.Name("/Image"),
                 Width=sig_image.width,
                 Height=sig_image.height,
-                ColorSpace=pikepdf.Name('/DeviceRGB') if sig_image.mode == 'RGB' else pikepdf.Name('/DeviceGray'),
+                ColorSpace=pikepdf.Name("/DeviceRGB") if sig_image.mode == "RGB" else pikepdf.Name("/DeviceGray"),
                 BitsPerComponent=8,
-                Filter=pikepdf.Name('/FlateDecode')
+                Filter=pikepdf.Name("/FlateDecode"),
             )
-        
+
         pdf_image = raw_image
-        
-        # Get page dimensions for coordinate conversion
+
         mediabox = page.MediaBox
-        page_height = float(mediabox[3] - mediabox[1])
-        
-        # Convert Qt coordinates (top-left origin) to PDF coordinates (bottom-left origin)
+        page_height = float(mediabox[3]) - float(mediabox[1])
+        # Convert from top-left origin to bottom-left for PDF content stream
         y_pdf = page_height - y - height
-        
-        # Generate unique name for signature image
-        if '/Resources' not in page:
+
+        if "/Resources" not in page:
             page.Resources = pikepdf.Dictionary()
-        if '/XObject' not in page.Resources:
+        if "/XObject" not in page.Resources:
             page.Resources.XObject = pikepdf.Dictionary()
-        
+
         sig_name = f"/Sig{len(page.Resources.XObject)}"
         page.Resources.XObject[sig_name] = pdf_image
-        
-        # Create drawing commands to place signature
+
         drawing_commands = f"""
 q
 {width} 0 0 {height} {x} {y_pdf} cm
 {sig_name} Do
 Q
 """
-        
-        # Append to existing content stream
-        if '/Contents' in page:
-            # Get existing content
+
+        if "/Contents" in page:
             if isinstance(page.Contents, pikepdf.Array):
-                # Multiple content streams - append to last one
-                existing_content = b''
-                for stream in page.Contents:
+                existing_content = b""
+                contents_array_any = cast(Any, page.Contents)
+                for stream in contents_array_any:
                     existing_content += pikepdf.Stream(stream).read_bytes()
-                new_content = existing_content + drawing_commands.encode('latin-1')
-                page.Contents = pikepdf.Stream(self.pdf, new_content)
+                new_content = existing_content + drawing_commands.encode("latin-1")
+                page.Contents = pikepdf.Stream(self._pdf, new_content)
             else:
-                # Single content stream
                 existing_content = page.Contents.read_bytes()
-                new_content = existing_content + drawing_commands.encode('latin-1')
-                page.Contents = pikepdf.Stream(self.pdf, new_content)
+                new_content = existing_content + drawing_commands.encode("latin-1")
+                page.Contents = pikepdf.Stream(self._pdf, new_content)
         else:
-            # No existing content, create new stream
-            page.Contents = pikepdf.Stream(self.pdf, drawing_commands.encode('latin-1'))
-    
+            page.Contents = pikepdf.Stream(self._pdf, drawing_commands.encode("latin-1"))
+
     def save(self, output_path: str) -> None:
         """
         Save the signed PDF to a new file.
-        
+
         Args:
             output_path: Path to save signed PDF
         """
-        self.pdf.save(output_path)
-    
+        if HAS_PYMUPDF and self._doc is not None:
+            # Use deflate to keep sizes reasonable if images are uncompressed
+            self._doc.save(output_path, deflate=True)
+        elif self._pdf is not None:
+            self._pdf.save(output_path)
+        else:
+            raise RuntimeError("No PDF backend available for saving")
+
     def save_to_bytes(self) -> bytes:
         """
         Save the signed PDF to bytes.
-        
+
         Returns:
             PDF file bytes
         """
         buffer = io.BytesIO()
-        self.pdf.save(buffer)
-        return buffer.getvalue()
-    
+        if HAS_PYMUPDF and self._doc is not None:
+            self._doc.save(buffer, deflate=True)
+            return buffer.getvalue()
+        elif self._pdf is not None:
+            self._pdf.save(buffer)
+            return buffer.getvalue()
+        else:
+            raise RuntimeError("No PDF backend available for saving")
+
     def close(self) -> None:
         """Close the PDF."""
-        if hasattr(self, 'pdf'):
-            try:
-                self.pdf.close()
-            except Exception:
-                pass
-    
+        try:
+            if HAS_PYMUPDF and getattr(self, "_doc", None) is not None:
+                self._doc.close()  # type: ignore[union-attr]
+        except Exception:
+            pass
+        try:
+            if getattr(self, "_pdf", None) is not None:
+                self._pdf.close()  # type: ignore[union-attr]
+        except Exception:
+            pass
+
     def __del__(self):
         self.close()
 
@@ -213,13 +265,34 @@ def sign_pdf(input_pdf_path: str, output_pdf_path: str,
         signer = PDFSigner(input_pdf_path)
         
         for sig in signatures:
+            # Support both point-based coordinates (legacy) and pixel-based
+            # viewer coordinates (with dpi / scale metadata). If 'dpi' or
+            # 'units' == 'px' is present, convert from pixels to PDF points.
+            x = float(sig["x"])
+            y = float(sig["y"])
+            width = float(sig["width"])
+            height = float(sig["height"])
+
+            if sig.get("units") == "px" or ("dpi" in sig or "scale" in sig):
+                dpi = float(sig.get("dpi", 150))
+                scale = float(sig.get("scale", 1.0))
+                if dpi <= 0:
+                    dpi = 150.0
+                if scale <= 0:
+                    scale = 1.0
+                px_to_pt = 72.0 / (dpi * scale)
+                x *= px_to_pt
+                y *= px_to_pt
+                width *= px_to_pt
+                height *= px_to_pt
+
             signer.add_signature(
-                page_num=sig["page"],
-                sig_image_path=sig["sig_path"],
-                x=sig["x"],
-                y=sig["y"],
-                width=sig["width"],
-                height=sig["height"]
+                page_num=int(sig["page"]),
+                sig_image_path=str(sig["sig_path"]),
+                x=x,
+                y=y,
+                width=width,
+                height=height,
             )
         
         signer.save(output_pdf_path)

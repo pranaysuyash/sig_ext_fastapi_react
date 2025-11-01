@@ -594,18 +594,33 @@ from backend.app.database import Base, engine
 import os
 import logging
 import sys
+import time
 
 # Create the database tables
 Base.metadata.create_all(bind=engine)
 
-# Set up logging
+# Set up logging with local timezone timestamps
+
+class LocalTimeFormatter(logging.Formatter):
+    """Formatter that renders asctime in the user's local timezone."""
+
+    converter = time.localtime
+
+
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
+
+_formatter = LocalTimeFormatter(LOG_FORMAT, DATE_FORMAT)
+
+_stream_handler = logging.StreamHandler(sys.stdout)
+_stream_handler.setFormatter(_formatter)
+
+_file_handler = logging.FileHandler("app.log")
+_file_handler.setFormatter(_formatter)
+
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('app.log')
-    ]
+    handlers=[_stream_handler, _file_handler],
 )
 
 logger = logging.getLogger(__name__)

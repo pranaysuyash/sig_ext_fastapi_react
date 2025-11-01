@@ -1,99 +1,105 @@
-# Help & Troubleshooting
+# Help & FAQ
 
-This guide covers common questions and quick fixes for the desktop app.
+Frequently asked questions and quick answers for the Signature Extractor desktop app.
 
-## PDF Signing Features (NEW)
+## Getting Started
+
+**Q: How do I extract a signature from an image?**
+
+1. Click **"Open & Upload Image"** or press `Ctrl+O`
+2. Select the image file containing your signature
+3. Use the selection tool (🎯) to draw a box around the signature
+4. Adjust the threshold slider if needed (or use Auto)
+5. Click **"Export"** or **"Copy"** to get your signature
+
+**Q: What image formats are supported?**
+
+PNG, JPG, and JPEG files are supported. The app automatically handles EXIF orientation correction for photos taken with mobile devices.
+
+**Q: How do I save signatures for later use?**
+
+After extracting a signature, click **"Save to Library"** to store it in your personal signature collection. You can access saved signatures from the "My Signatures" list.
+
+## PDF Signing (NEW)
 
 **Q: How do I sign a PDF with my extracted signature?**
 
-1. Extract and save signatures to your library (existing workflow)
-2. Go to **PDF → Open PDF** (Ctrl+Shift+O) to load a PDF document
-3. Currently uses programmatic API - full UI coming soon
-4. Signatures are embedded using pikepdf (QPDF library)
-5. All operations are logged for audit compliance
+1. First extract and save signatures to your library (see above)
+2. Go to the **PDF Signing** tab
+3. Click **"Open PDF"** to load your document
+4. Select a signature from the library
+5. Click on the PDF where you want to place the signature
+6. Click **"Save Signed PDF"** when done
 
-**Q: Where are audit logs stored?**
+**Q: Can I sign multiple pages at once?**
 
-- Location: `~/.signature_extractor/audit_logs/`
-- Format: JSONL (one JSON object per line)
-- View logs: **PDF → View Audit Logs**
-- Each log entry includes: timestamp, operation, user, details
+Yes! Click **"Apply to Multiple Pages"** to place the same signature on several pages simultaneously.
 
-**Q: PDF menu doesn't appear**
+**Q: Where can I find my signed PDFs?**
 
-- PDF features require `pypdfium2` and `pikepdf` libraries
-- Install: `pip install pypdfium2 pikepdf`
-- App gracefully degrades without them (signature extraction still works)
-
-**Q: Can I verify signed PDFs?**
-
-- Yes! Open signed PDFs in any standard PDF viewer (Preview, Adobe, etc.)
-- Signatures are embedded as images in the PDF structure
-- Audit logs provide compliance trail with timestamps
-
-## Quick Answers
-
-- Clean Viewport vs Clear Selection
-
-  - Clear Selection: removes the current rubber‑band and hides preview/result panes.
-  - Clean Viewport: clears source/preview/result panes, resets session id, and disables dependent actions until a new upload.
-
-- Source Rotate vs Preview/Result Rotate
-
-  - Source rotate re‑uploads a rotated image (new session) and clears selection because coordinates change.
-  - Preview/Result rotate is view‑only for display; it does not change underlying pixels.
-
-- Rotation‑Aware Selection
-
-  - Selections survive zoom/pan/fit/resize/rotation. The app stores the 4 selection corners in scene space and maps a normalized bounding box back to image pixels.
-  - See Coordinate Mapping for details.
-
-- Zoom % and Fit
-
-  - Use the editable Zoom % combo (e.g., 125%, 50%) or choose Fit to scale the image to the active pane.
-  - Reset Viewport returns the active pane to default zoom, pan, and rotation.
-
-- Footer vs Console Logs
-  - Footer shows: Viewport size, Image size, Visible bounds, Zoom %, Rotation °, Selection box.
-  - After this update, the numbers match because mapping uses scene‑space bounds (rotation‑aware) and clamping.
+Signed PDFs are saved wherever you choose in the file dialog. The app will suggest a name like `document_signed.pdf`.
 
 ## Common Issues
 
-- My photo is rotated; should I rotate before selecting?
+### The selection doesn't look right
 
-  - Yes. Rotate the source if the image is mis‑oriented, then make your selection. Source rotation re‑uploads a corrected image and resets the selection.
+- Make sure you're using **Selection mode** (🎯 button)
+- Try adjusting the threshold slider
+- Use the **Auto** threshold option for automatic optimization
+- Zoom in for more precise selection
 
-- I don’t see the preview/result panes
+### I don't see the preview/result panes
 
-  - They only appear after a valid selection (non‑zero area). Use Selection mode (🎯) to draw a box.
+The preview and result panes only appear after you make a valid selection. Draw a selection box on the source image first.
 
-- Zooming makes coordinates look off
+### My image is rotated incorrectly
 
-  - Coordinates are always reported in image pixels. Zoom or Fit only affects display scale. If you suspect a mismatch, try Reset Viewport and confirm Visible bounds updates as expected.
+- Use the **Rotate** buttons to correct orientation
+- Source rotation will re-upload the corrected image
+- Preview/result rotation is for display only
 
-- Threshold Auto/Manual
+### The app says "Backend: Offline"
 
-  - Toggling Auto disables the slider and computes a selection‑specific threshold. Switch back to manual to fine‑tune.
+- Make sure the backend server is running on port 8001
+- Check the health endpoint: `http://127.0.0.1:8001/health`
+- Restart the application if needed
 
-- Backend isn’t responding
-  - Ensure FastAPI is running on 127.0.0.1:8001. Health check: http://127.0.0.1:8001/health
+### PDF features don't work
+
+- PDF signing requires additional libraries
+- Install with: `pip install pypdfium2 PyMuPDF pikepdf`
+- The app works without PDF features for signature extraction
+
+## Tips & Tricks
+
+**Q: How do I get better extraction results?**
+
+- Use high-contrast signatures on plain backgrounds
+- Avoid shadows or complex backgrounds
+- Try different threshold values
+- Use the Auto threshold for automatic optimization
+
+**Q: Can I reuse signatures across documents?**
+
+Yes! Save signatures to your library and reuse them anytime. Each saved signature includes metadata about how it was extracted.
+
+**Q: How do I clear everything and start over?**
+
+Click **"Clean Viewport"** to reset the entire workspace, or **"Clear Selection"** to just remove the current selection.
 
 ## Keyboard Shortcuts
 
-See docs/SHORTCUTS.md for a full list: Open, Copy, Export, Zoom In/Out, Reset, Fit, Rotate CW/CCW.
+See **Help → Keyboard Shortcuts** for the complete list, including:
 
-**PDF Shortcuts**:
+- `Ctrl+O` — Open image
+- `Ctrl+C` — Copy result
+- `Ctrl+E` — Export
+- `Ctrl+0` — Reset viewport
+- `Ctrl+1` — Fit to view
+- `Ctrl+[` / `Ctrl+]` — Rotate
 
-- `Ctrl+Shift+O` — Open PDF
-- `Ctrl+Shift+S` — Save signed PDF
-- `Ctrl+Shift+W` — Close PDF
+## Need More Help?
 
-## Deep Dives
-
-- **PDF Features**: docs/PDF_QUICK_START.md (workflow guide)
-- **PDF Implementation**: docs/PDF_FEATURE_IMPLEMENTATION.md (technical details)
-- Desktop UI Spec: docs/desktop-frontend/pyqt-spec.md
-- Coordinate Mapping: docs/COORDINATE_MAPPING.md
-- Export Options: docs/EXPORT_OPTIONS.md
-
-If you still have issues, capture a screenshot of the footer metrics and your console output and include your OS + steps to reproduce.
+- Check the **Keyboard Shortcuts** in the Help menu
+- For technical implementation details, see `docs/TECHNICAL_DETAILS.md`
+- Report issues with screenshots of the footer information

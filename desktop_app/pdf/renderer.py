@@ -3,7 +3,7 @@
 from typing import Optional, Tuple
 from pathlib import Path
 
-import pypdfium2 as pdfium
+import pypdfium2 as pdfium  # type: ignore[import-untyped]
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import Qt
 

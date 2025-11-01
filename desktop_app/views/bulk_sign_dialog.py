@@ -128,9 +128,9 @@ class BulkSignDialog(QDialog):
                     part = part.strip()
                     if '-' in part:
                         # Range like "5-7"
-                        start, end = part.split('-')
-                        start = int(start.strip())
-                        end = int(end.strip())
+                        start_str, end_str = part.split('-')
+                        start = int(start_str.strip())
+                        end = int(end_str.strip())
                         for p in range(start, end + 1):
                             if 1 <= p <= self.total_pages:
                                 pages.add(p - 1)  # Convert to 0-indexed

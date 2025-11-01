@@ -3,14 +3,14 @@ from __future__ import annotations
 import io
 import math
 import os
-from typing import Optional
+from typing import Optional, cast
 import logging
 
 import numpy as np
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QTimer, QPoint, QBuffer, QUrl, QIODevice
-from PySide6.QtGui import QAction, QImage, QColor, QPixmap, QTransform, QDesktopServices, QKeySequence, QShortcut
+from PySide6.QtGui import QAction, QImage, QColor, QPixmap, QTransform, QDesktopServices, QKeySequence, QShortcut, QPalette
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog,
     QLabel, QSlider, QColorDialog, QMessageBox, QListWidget, QListWidgetItem, QStatusBar,
@@ -77,7 +77,7 @@ class MainWindow(QMainWindow):
         left_panel.setFixedWidth(320)
         controls = QVBoxLayout(left_panel)
         self.open_btn = QPushButton()
-        set_button_icon(self.open_btn, 'open', 'Open & Upload Image')
+        set_button_icon(self.open_btn, 'open', 'Open & Upload Image', use_emoji=False)
         self.open_btn.setObjectName("openFileButton")
         self.open_btn.clicked.connect(self.on_open)
         controls.addWidget(self.open_btn)
@@ -102,7 +102,7 @@ class MainWindow(QMainWindow):
         self.color_label = QLabel("Color: #000000")
         self.color_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.pick_color_btn = QPushButton()
-        set_button_icon(self.pick_color_btn, 'color', 'Pick Color')
+        set_button_icon(self.pick_color_btn, 'color', 'Pick Color', use_emoji=False)
         self.pick_color_btn.setObjectName("pickColorButton")
         self.pick_color_btn.clicked.connect(self.on_pick_color)
         color_row = QHBoxLayout()
@@ -115,9 +115,15 @@ class MainWindow(QMainWindow):
         view_row1 = QHBoxLayout()
         self.zoom_in_btn = QPushButton("Zoom In")
         self.zoom_in_btn.setObjectName("zoomInButton")
+        zoom_in_icon = get_icon('zoom_in')
+        if not zoom_in_icon.isNull():
+            self.zoom_in_btn.setIcon(zoom_in_icon)
         self.zoom_in_btn.setToolTip("Zoom In (Ctrl/Cmd +) - applies to active pane")
         self.zoom_out_btn = QPushButton("Zoom Out")
         self.zoom_out_btn.setObjectName("zoomOutButton")
+        zoom_out_icon = get_icon('zoom_out')
+        if not zoom_out_icon.isNull():
+            self.zoom_out_btn.setIcon(zoom_out_icon)
         self.zoom_out_btn.setToolTip("Zoom Out (Ctrl/Cmd -) - applies to active pane")
         self.zoom_combo = QComboBox()
         self.zoom_combo.setObjectName("zoomCombo")
@@ -138,9 +144,15 @@ class MainWindow(QMainWindow):
         view_row2 = QHBoxLayout()
         self.fit_btn = QPushButton("Fit")
         self.fit_btn.setObjectName("fitButton")
+        fit_icon = get_icon('fit')
+        if not fit_icon.isNull():
+            self.fit_btn.setIcon(fit_icon)
         self.fit_btn.setToolTip("Fit image to active pane (Ctrl/Cmd 1)")
         self.reset_view_btn = QPushButton("Reset Viewport")
         self.reset_view_btn.setObjectName("resetViewButton")
+        reset_icon = get_icon('reset')
+        if not reset_icon.isNull():
+            self.reset_view_btn.setIcon(reset_icon)
         self.reset_view_btn.setToolTip("Reset zoom, pan, and rotation (Ctrl/Cmd 0)")
         view_row2.addWidget(self.fit_btn)
         view_row2.addWidget(self.reset_view_btn)
@@ -149,11 +161,17 @@ class MainWindow(QMainWindow):
         # Image Controls (grouped clearly)
         controls.addWidget(QLabel("Image"))
         rotate_row = QHBoxLayout()
-        self.rotate_ccw_btn = QPushButton("↺ CCW")
+        self.rotate_ccw_btn = QPushButton("Rotate CCW")
         self.rotate_ccw_btn.setObjectName("rotateCCWButton")
+        rotate_ccw_icon = get_icon('rotate_ccw')
+        if not rotate_ccw_icon.isNull():
+            self.rotate_ccw_btn.setIcon(rotate_ccw_icon)
         self.rotate_ccw_btn.setToolTip("Rotate Counter-Clockwise 90° (Ctrl/Cmd [)")
-        self.rotate_cw_btn = QPushButton("↻ CW")
+        self.rotate_cw_btn = QPushButton("Rotate CW")
         self.rotate_cw_btn.setObjectName("rotateCWButton")
+        rotate_cw_icon = get_icon('rotate_cw')
+        if not rotate_cw_icon.isNull():
+            self.rotate_cw_btn.setIcon(rotate_cw_icon)
         self.rotate_cw_btn.setToolTip("Rotate Clockwise 90° (Ctrl/Cmd ])")
         rotate_row.addWidget(self.rotate_ccw_btn)
         rotate_row.addWidget(self.rotate_cw_btn)
@@ -161,9 +179,12 @@ class MainWindow(QMainWindow):
         
         # Selection Controls (grouped clearly)
         controls.addWidget(QLabel("Selection"))
-        self.toggle_mode_btn = QPushButton("🎯 Mode: Select")
+        self.toggle_mode_btn = QPushButton()
         self.toggle_mode_btn.setObjectName("toggleModeButton")
         self.toggle_mode_btn.setToolTip("Toggle between Select and Pan modes")
+        self.toggle_mode_btn.setCheckable(True)
+        self.toggle_mode_btn.setChecked(True)
+        set_button_icon(self.toggle_mode_btn, 'mode_select', "Selection Mode: Select", use_emoji=False)
         self.clear_sel_btn = QPushButton("Clear Selection")
         self.clear_sel_btn.setObjectName("clearSelectionButton")
         self.clear_sel_btn.setToolTip("Clear current selection")
@@ -204,12 +225,18 @@ class MainWindow(QMainWindow):
         # Row 1: Export and Copy
         self.export_btn = QPushButton("Export...")
         self.export_btn.setObjectName("exportButton")
+        export_icon = get_icon('export')
+        if not export_icon.isNull():
+            self.export_btn.setIcon(export_icon)
         self.export_btn.setToolTip("Export with advanced options (background, trim, format) - Ctrl/Cmd E")
         self.export_btn.clicked.connect(self.on_export)
         self.export_btn.setEnabled(False)
 
         self.copy_btn = QPushButton("Copy")
         self.copy_btn.setObjectName("copyButton")
+        copy_icon = get_icon('copy')
+        if not copy_icon.isNull():
+            self.copy_btn.setIcon(copy_icon)
         self.copy_btn.setToolTip("Copy result to clipboard (preserves transparency) - Ctrl/Cmd C")
         self.copy_btn.clicked.connect(self.on_copy)
         self.copy_btn.setEnabled(False)
@@ -222,12 +249,18 @@ class MainWindow(QMainWindow):
         # Row 2: Save to Library and Export JSON
         self.save_to_library_btn = QPushButton("Save to Library")
         self.save_to_library_btn.setObjectName("saveToLibraryButton")
+        save_icon = get_icon('save')
+        if not save_icon.isNull():
+            self.save_to_library_btn.setIcon(save_icon)
         self.save_to_library_btn.setToolTip("Quick save as PNG to local library")
         self.save_to_library_btn.clicked.connect(self.on_save_to_library)
         self.save_to_library_btn.setEnabled(False)
 
         self.export_json_btn = QPushButton("Export JSON")
         self.export_json_btn.setObjectName("exportJsonButton")
+        export_json_icon = get_icon('export')
+        if not export_json_icon.isNull():
+            self.export_json_btn.setIcon(export_json_icon)
         self.export_json_btn.setToolTip("Save selection, threshold, color, and session info to JSON")
         self.export_json_btn.clicked.connect(self.on_export_json)
         self.export_json_btn.setEnabled(False)
@@ -250,6 +283,9 @@ class MainWindow(QMainWindow):
 
         self.delete_from_library_btn = QPushButton("Delete Selected")
         self.delete_from_library_btn.setObjectName("deleteLibraryButton")
+        delete_icon = get_icon('delete')
+        if not delete_icon.isNull():
+            self.delete_from_library_btn.setIcon(delete_icon)
         self.delete_from_library_btn.setToolTip("Remove the selected signature from My Signatures")
         self.delete_from_library_btn.clicked.connect(self.on_delete_selected_library)
         self.delete_from_library_btn.setEnabled(False)
@@ -264,12 +300,12 @@ class MainWindow(QMainWindow):
         src_layout = QVBoxLayout(src_container)
         src_layout.setContentsMargins(0, 0, 0, 0)
         self.source_label = QLabel("Source")
-        self.source_label.setStyleSheet("font-weight: bold; color: #007AFF; padding: 4px;")
+        self.source_label.setObjectName("sourcePaneLabel")
         src_layout.addWidget(self.source_label)
         self.src_view = ImageView(self)
         self.src_view.setObjectName("sourceImageView")
-        self.src_view.setStyleSheet("border: 2px solid #007AFF;")  # Active by default
         self.src_view.mousePressEvent = self._wrap_mouse_press(self.src_view, "source")
+        self.src_view.fileDropped.connect(self._on_source_file_dropped)
         src_layout.addWidget(self.src_view)
         images.addWidget(src_container, 3)  # Give source view more space
         
@@ -279,21 +315,19 @@ class MainWindow(QMainWindow):
         preview_layout.setContentsMargins(0, 0, 0, 0)
         self.preview_label = QLabel("Crop preview")
         self.preview_label.setVisible(False)
-        self.preview_label.setStyleSheet("font-weight: normal; color: #666; padding: 4px;")
+        self.preview_label.setObjectName("previewPaneLabel")
         preview_layout.addWidget(self.preview_label)
         self.preview_view = ImageView(self)
         self.preview_view.setObjectName("previewImageView")
         self.preview_view.setMinimumHeight(100)
         self.preview_view.setMaximumHeight(150)
         self.preview_view.toggle_selection_mode(False)  # Preview is view-only
-        self.preview_view.setStyleSheet("background-color: white; border: 1px solid #ccc;")
         self.preview_view.setVisible(False)
         self.preview_view.mousePressEvent = self._wrap_mouse_press(self.preview_view, "preview")
         # Allow clicking empty space in container to activate pane
         self.preview_container.mousePressEvent = self._wrap_mouse_press(self.preview_container, "preview")
         preview_layout.addWidget(self.preview_view)
         self.preview_container.setVisible(False)
-        images.addWidget(self.preview_container, 1)
 
         # Result pane with label
         result_container = QWidget()
@@ -301,18 +335,23 @@ class MainWindow(QMainWindow):
         result_layout.setContentsMargins(0, 0, 0, 0)
         self.result_label = QLabel("Result")
         self.result_label.setVisible(False)
-        self.result_label.setStyleSheet("font-weight: normal; color: #666; padding: 4px;")
+        self.result_label.setObjectName("resultPaneLabel")
         result_layout.addWidget(self.result_label)
         self.res_view = ImageView(self)
         self.res_view.setObjectName("resultImageView")
         self.res_view.setMinimumHeight(100)
         self.res_view.setMaximumHeight(200)
         self.res_view.mousePressEvent = self._wrap_mouse_press(self.res_view, "result")
-        # Set white background for result view for better visibility
-        self.res_view.setStyleSheet("background-color: white; border: 1px solid #ccc;")
         self.res_view.setVisible(False)
         result_layout.addWidget(self.res_view)
-        images.addWidget(result_container, 1)
+
+        preview_result_panel = GlassPanel(self)
+        stack_layout = QVBoxLayout(preview_result_panel)
+        stack_layout.setContentsMargins(16, 16, 16, 16)
+        stack_layout.setSpacing(12)
+        stack_layout.addWidget(self.preview_container, 1)
+        stack_layout.addWidget(result_container, 1)
+        images.addWidget(preview_result_panel, 2)
 
         extraction_layout.addWidget(left_panel, 0)
         extraction_layout.addLayout(images, 1)
@@ -435,6 +474,7 @@ class MainWindow(QMainWindow):
         self._refresh_library_list()
         self._update_library_controls()
         self._update_pane_borders()  # Set initial active pane border
+        self._setup_dark_mode_support()
 
         # -------- Shortcuts --------
         # Standard keys map to Cmd on macOS and Ctrl on others
@@ -451,11 +491,14 @@ class MainWindow(QMainWindow):
         # Export
         QShortcut(QKeySequence("Ctrl+E"), self, activated=self.on_export)
         QShortcut(QKeySequence("Meta+E"), self, activated=self.on_export)
-        # Rotate
-        QShortcut(QKeySequence("Ctrl+]"), self, activated=lambda: self.on_rotate(90))
-        QShortcut(QKeySequence("Meta+]"), self, activated=lambda: self.on_rotate(90))
-        QShortcut(QKeySequence("Ctrl+["), self, activated=lambda: self.on_rotate(-90))
-        QShortcut(QKeySequence("Meta+["), self, activated=lambda: self.on_rotate(-90))
+        # Clear selection
+        QShortcut(QKeySequence("Ctrl+D"), self, activated=self.on_clear_selection)
+        # Clean session
+        QShortcut(QKeySequence("Ctrl+Shift+X"), self, activated=self.on_clean_session)
+        # Toggle mode
+        QShortcut(QKeySequence("Ctrl+T"), self, activated=self.on_toggle_mode)
+        # Save to library
+        QShortcut(QKeySequence("Ctrl+L"), self, activated=self.on_save_to_library)
         
         # Initialize PDF features if available
         if PDF_AVAILABLE:
@@ -493,50 +536,63 @@ class MainWindow(QMainWindow):
             file_path, _ = QFileDialog.getOpenFileName(self, "Select image", filter="Images (*.png *.jpg *.jpeg)")
             if not file_path:
                 return
-            self._last_local_path = file_path
-            
-            # Store raw image data for rotate operations
-            with open(file_path, "rb") as f:
-                self._current_image_data = f.read()
-            
-            self.status_bar.showMessage("Uploading image...", 0)
-            payload = self.api_client.upload_image(file_path)
-            
-            # Load image with EXIF orientation correction
-            image = self._load_image_with_exif(file_path)
-            if image.isNull():
-                raise RuntimeError("Could not load selected image into viewer")
-            self.src_view.set_image(image)
-            self._on_pane_clicked("source")
-            
-            # Update session ID in status bar (no popup)
-            session_id = payload.get('id')
-            self.session.session_id = session_id
-            self.session_id_label.setText(f"Session: {session_id[:8]}...")
-            self.session_id_label.setToolTip(f"Full session ID: {session_id}")
-            self.status_bar.showMessage("Image uploaded successfully", 3000)
-            
-            # Clear previous outputs
-            self.preview_view.clear_image()
-            self.res_view.scene().clear()
-            self.export_btn.setEnabled(False)
-            self.save_to_library_btn.setEnabled(False)
-            # Hide preview/result panes until selection is made
-            self.preview_label.setVisible(False)
-            self.preview_view.setVisible(False)
-            self.preview_container.setVisible(False)
-            self.result_label.setVisible(False)
-            self.res_view.setVisible(False)
-            # Show a small crop preview when selection exists; processing is auto-triggered on selection
-            self._update_action_states()
-            self._update_view_actions_enabled()
-            self._update_coordinate_display()
+            self._load_image_from_path(file_path)
         except KeyboardInterrupt:
             # User cancelled dialog or operation
             self.status_bar.showMessage("Upload cancelled", 2000)
             return
         except Exception as e:
             self._handle_backend_exception(e, context="Upload failed")
+            self.status_bar.showMessage("Upload failed", 3000)
+
+    def _load_image_from_path(self, file_path: str) -> None:
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(file_path)
+
+        self._last_local_path = file_path
+
+        with open(file_path, "rb") as f:
+            self._current_image_data = f.read()
+
+        self.status_bar.showMessage("Uploading image...", 0)
+        payload = self.api_client.upload_image(file_path)
+
+        image = self._load_image_with_exif(file_path)
+        if image.isNull():
+            raise RuntimeError("Could not load selected image into viewer")
+
+        self.src_view.set_image(image)
+        self._on_pane_clicked("source")
+
+        session_id = payload.get("id")
+        if not session_id:
+            raise RuntimeError("Upload succeeded but no session id returned")
+        self.session.session_id = session_id
+        self.session_id_label.setText(f"Session: {session_id[:8]}...")
+        self.session_id_label.setToolTip(f"Full session ID: {session_id}")
+        self.status_bar.showMessage("Image uploaded successfully", 3000)
+
+        self._last_result_png = None
+        self.preview_view.clear_image()
+        self.res_view.scene().clear()
+        self.export_btn.setEnabled(False)
+        self.save_to_library_btn.setEnabled(False)
+        self.preview_label.setVisible(False)
+        self.preview_view.setVisible(False)
+        self.preview_container.setVisible(False)
+        self.result_label.setVisible(False)
+        self.res_view.setVisible(False)
+
+        self._update_action_states()
+        self._update_view_actions_enabled()
+        self._update_coordinate_display()
+        self._update_pane_borders()
+
+    def _on_source_file_dropped(self, file_path: str) -> None:
+        try:
+            self._load_image_from_path(file_path)
+        except Exception as exc:
+            self._handle_backend_exception(exc, context="Upload via drag-and-drop failed")
             self.status_bar.showMessage("Upload failed", 3000)
 
     # Demo helpers for automated flows (no dialogs/backends)
@@ -556,17 +612,23 @@ class MainWindow(QMainWindow):
         self._on_pane_clicked("source")
         self.session.session_id = "demo-session"
         self.status_bar.showMessage("Demo image loaded", 1500)
+        self._update_action_states()
+        self._update_coordinate_display()
+        self._update_pane_borders()
 
     def demo_create_sample_image(self, width: int = 400, height: int = 300, color: str = "#ffffff") -> None:
         """Create a simple in-memory image and load it into Source."""
         from PySide6.QtGui import QImage, QColor
-        img = QImage(width, height, QImage.Format_RGB32)
+        img = QImage(width, height, QImage.Format.Format_RGB32)
         img.fill(QColor(color))
         self._current_image_data = None
         self.src_view.set_image(img)
         self._on_pane_clicked("source")
         self.session.session_id = "demo-session"
         self.status_bar.showMessage("Demo image created", 1200)
+        self._update_action_states()
+        self._update_coordinate_display()
+        self._update_pane_borders()
 
     def demo_select_rect(self, x1: int, y1: int, x2: int, y2: int) -> None:
         """Programmatically set a selection rectangle in image/scene coordinates."""
@@ -596,17 +658,21 @@ class MainWindow(QMainWindow):
         if not buf.open(QIODevice.OpenModeFlag.WriteOnly):
             raise RuntimeError("Buffer open failed")
         cropped.save(buf, "PNG")
-        self._last_result_png = bytes(buf.data())
+        # QBuffer.data() -> QByteArray; call .data() again to get Python bytes for mypy/runtime
+        self._last_result_png = buf.data().data()
         buf.close()
         self.res_view.load_image_bytes(self._last_result_png)
+        self._on_pane_clicked("result")
         self._update_action_states(preview_ready=True)
         self.status_bar.showMessage("Local result generated", 1500)
+        self._update_coordinate_display()
+        self._update_pane_borders()
 
     def _load_image_with_exif(self, file_path: str) -> QImage:
         """Load image and apply EXIF orientation correction."""
         try:
             # Use PIL to read EXIF and rotate if needed
-            pil_img = PILImage.open(file_path)
+            pil_img = cast(PILImage.Image, PILImage.open(file_path))
             
             # Check for EXIF orientation tag
             exif = pil_img.getexif()
@@ -624,7 +690,7 @@ class MainWindow(QMainWindow):
             # Convert PIL image to QImage
             pil_img = pil_img.convert("RGB")
             data = pil_img.tobytes("raw", "RGB")
-            qimage = QImage(data, pil_img.width, pil_img.height, QImage.Format_RGB888)
+            qimage = QImage(data, pil_img.width, pil_img.height, QImage.Format.Format_RGB888)
             return qimage.copy()  # Make a deep copy
         except Exception as e:
             # Fallback to basic QImage loading if EXIF fails
@@ -639,6 +705,10 @@ class MainWindow(QMainWindow):
         if color.isValid():
             self._color_hex = color.name()  # #RRGGBB
             self._update_color_ui()
+            # Reset existing result so the next preview is generated fresh
+            self._last_result_png = None
+            self.res_view.clear_image()
+            self._update_action_states(preview_ready=False)
             self.schedule_preview()
 
     def on_preview(self):
@@ -872,7 +942,8 @@ class MainWindow(QMainWindow):
         if not buffer.open(QIODevice.OpenModeFlag.WriteOnly):
             return None
         cropped.save(buffer, "PNG")
-        data = bytes(buffer.data())
+        # Convert QByteArray to Python bytes explicitly for type checkers
+        data = buffer.data().data()
         buffer.close()
         try:
             pil_img = PILImage.open(io.BytesIO(data))
@@ -919,9 +990,11 @@ class MainWindow(QMainWindow):
         new_mode = not current_mode
         self.src_view.toggle_selection_mode(new_mode)
         if new_mode:
-            self.toggle_mode_btn.setText("🎯 Mode: Select")
+            self.toggle_mode_btn.setChecked(True)
+            set_button_icon(self.toggle_mode_btn, 'mode_select', "Selection Mode: Select", use_emoji=False)
         else:
-            self.toggle_mode_btn.setText("✋ Mode: Pan")
+            self.toggle_mode_btn.setChecked(False)
+            set_button_icon(self.toggle_mode_btn, 'mode_pan', "Pan Mode", use_emoji=False)
 
     def on_export(self):
         """Open the export dialog with professional options."""
@@ -1202,13 +1275,21 @@ class MainWindow(QMainWindow):
             return
 
     def _apply_theme(self):
-        """Apply subtle blue accent color theme for personality."""
+        """Apply platform-aware styling."""
         import sys
         if sys.platform == 'darwin':
-            # Prefer native macOS look; keep styling minimal
-            self.setStyleSheet("")
+            # Let Qt pick native macOS styling; only style pane labels subtly.
+            self.setStyleSheet(
+                """
+                QLabel#sourcePaneLabel,
+                QLabel#previewPaneLabel,
+                QLabel#resultPaneLabel {
+                    padding: 4px;
+                }
+            """
+            )
+            self._setup_dark_mode_support()
         else:
-            # Accent color: #007AFF (iOS blue)
             style = """
                 QWidget { background-color: #f7f7f7; color: #222222; }
                 QPushButton { background-color: #ffffff; border: 1px solid #d0d0d0; border-radius: 4px; padding: 6px 12px; font-size: 13px; color: #222222; }
@@ -1221,6 +1302,28 @@ class MainWindow(QMainWindow):
                 QSlider::handle:horizontal:hover { background: #0051d5; }
             """
             self.setStyleSheet(style)
+
+    def _setup_dark_mode_support(self) -> None:
+        """Align the palette with the system appearance on macOS."""
+        import sys
+
+        if sys.platform != 'darwin':
+            return
+
+        app = QApplication.instance()
+        if not app:
+            return
+
+        app_typed = cast(QApplication, app)
+        palette = app_typed.palette()  # type: ignore[attr-defined]
+        self.setPalette(palette)
+
+        for attr in ("src_view", "preview_view", "res_view"):
+            view = getattr(self, attr, None)
+            if view is None:
+                continue
+            view.setPalette(palette)
+            view.viewport().setPalette(palette)
 
     def _update_color_ui(self):
         # Update color label text and swatch background
@@ -1442,29 +1545,41 @@ class MainWindow(QMainWindow):
 
     def _update_pane_borders(self):
         """Update visual borders to show which pane is active."""
-        # Source pane
-        if self._active_pane == "source":
-            self.src_view.setStyleSheet("border: 2px solid #007AFF;")
-            self.source_label.setStyleSheet("font-weight: bold; color: #007AFF; padding: 4px;")
-        else:
-            self.src_view.setStyleSheet("border: 1px solid #ccc;")
-            self.source_label.setStyleSheet("font-weight: normal; color: #666; padding: 4px;")
-        
-        # Preview pane
-        if self._active_pane == "preview":
-            self.preview_view.setStyleSheet("background-color: white; border: 2px solid #007AFF;")
-            self.preview_label.setStyleSheet("font-weight: bold; color: #007AFF; padding: 4px;")
-        else:
-            self.preview_view.setStyleSheet("background-color: white; border: 1px solid #ccc;")
-            self.preview_label.setStyleSheet("font-weight: normal; color: #666; padding: 4px;")
+        palette = self.palette()
+        accent = palette.color(QPalette.ColorRole.Highlight).name()
+        base_bg = palette.color(QPalette.ColorRole.Base).name()
+        border_muted = palette.color(QPalette.ColorRole.Mid).name()
+        inactive_text = palette.color(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText).name()
 
-        # Result pane
-        if self._active_pane == "result":
-            self.res_view.setStyleSheet("background-color: white; border: 2px solid #007AFF;")
-            self.result_label.setStyleSheet("font-weight: bold; color: #007AFF; padding: 4px;")
+        active_label_style = f"font-weight: 600; color: {accent}; padding: 4px;"
+        inactive_label_style = f"font-weight: normal; color: {inactive_text}; padding: 4px;"
+        active_view_style = f"background-color: {base_bg}; border: 2px solid {accent};"
+        inactive_view_style = f"background-color: {base_bg}; border: 1px solid {border_muted};"
+
+        if self._active_pane == "source":
+            self.src_view.setStyleSheet(active_view_style)
+            self.source_label.setStyleSheet(active_label_style)
         else:
-            self.res_view.setStyleSheet("background-color: white; border: 1px solid #ccc;")
-            self.result_label.setStyleSheet("font-weight: normal; color: #666; padding: 4px;")
+            self.src_view.setStyleSheet(inactive_view_style)
+            self.source_label.setStyleSheet(inactive_label_style)
+
+        if self._active_pane == "preview":
+            self.preview_view.setStyleSheet(active_view_style)
+            self.preview_label.setStyleSheet(active_label_style)
+        else:
+            self.preview_view.setStyleSheet(inactive_view_style)
+            self.preview_label.setStyleSheet(inactive_label_style)
+
+        result_base = "#ffffff"
+        res_active_style = f"background-color: {result_base}; border: 2px solid {accent};"
+        res_inactive_style = f"background-color: {result_base}; border: 1px solid {border_muted};"
+
+        if self._active_pane == "result":
+            self.res_view.setStyleSheet(res_active_style)
+            self.result_label.setStyleSheet(active_label_style)
+        else:
+            self.res_view.setStyleSheet(res_inactive_style)
+            self.result_label.setStyleSheet(inactive_label_style)
     
     def _on_zoom_in(self):
         """Zoom in on active pane."""

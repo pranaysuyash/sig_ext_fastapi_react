@@ -11,7 +11,19 @@ Applies to the desktop app (PySide6).
 - Fit to View: Ctrl/Cmd+1
 - Rotate CW (active pane): Ctrl/Cmd+]
 - Rotate CCW (active pane): Ctrl/Cmd+[
+- Clear Selection: Ctrl/Cmd+D
+- Clean Session: Ctrl+Shift+X
+- Toggle Mode: Ctrl/Cmd+T
+- Save to Library: Ctrl/Cmd+L
+
+**PDF Shortcuts**:
+
+- Open PDF: Ctrl+Shift+O
+- Save Signed PDF: Ctrl+Shift+S
+- Close PDF: Ctrl+Shift+W
+- Paste Signature: Ctrl+Shift+V
 
 Notes
+
 - Zoom % can also be set from the editable combo in the sidebar (enter e.g. 125% or choose “Fit”).
 - Rotate on source re-uploads a rotated image and clears the selection; rotate on preview/result is view-only.

@@ -73,7 +73,7 @@ Install dependencies:
 pip install PySide6 requests python-dotenv pillow opencv-python numpy
 
 # Optional: For PDF signing features
-pip install pypdfium2 pikepdf
+pip install pypdfium2 PyMuPDF pikepdf
 ```
 
 Run app:
@@ -84,7 +84,7 @@ python -m desktop_app.main
 
 **PDF Features** (optional):
 
-- If pypdfium2/pikepdf are installed, PDF menu appears with signing capabilities
+- If pypdfium2/PyMuPDF/pikepdf are installed, PDF menu appears with signing capabilities
 - Without them, signature extraction still works normally
 - See **[PDF Quick Start](docs/PDF_QUICK_START.md)** for detailed PDF workflow
 
@@ -96,7 +96,7 @@ python -m desktop_app.main
 - 🔍 Interactive PDF viewer with zoom and navigation
 - 💾 Save signed PDFs with embedded signatures
 - 📊 Comprehensive audit logging for compliance (JSONL format)
-- ⚡ Powered by pypdfium2 (Chrome's PDFium) and pikepdf (QPDF)
+- ⚡ Powered by pypdfium2 (Chrome's PDFium), PyMuPDF, and pikepdf (QPDF)
 
 ✅ **Fixed & Enhanced UX**:
 

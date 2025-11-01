@@ -285,26 +285,29 @@ class PDFPageView(QWidget):
         y = int(pos.y())
         
         # Build tooltip text with PDF page coordinates
-        text = f"PDF: {x}, {y}"
+        coords = f"PDF: {x}, {y}"
         
         # Add signature info if hovering over one
         for i, sig in enumerate(self.signatures):
             rect = QRectF(sig["x"], sig["y"], sig["width"], sig["height"])
             if rect.contains(pos.toPoint()):
-                text += f"  •  Sig#{i+1}: {sig['width']}×{sig['height']}"
+                coords += f"  •  Sig#{i+1}: {sig['width']}×{sig['height']}"
                 if i == self.selected_signature:
-                    text += " [selected]"
+                    coords += " [selected]"
                 break
         
         # Show during resize/drag operations
         if self.resizing_signature is not None:
             sig = self.signatures[self.resizing_signature]
-            text += f"  •  Resizing: {sig['width']}×{sig['height']}"
+            coords += f"  •  Resizing: {sig['width']}×{sig['height']}"
         elif self.dragging_signature is not None:
             sig = self.signatures[self.dragging_signature]
-            text += f"  •  Moving: ({sig['x']}, {sig['y']})"
+            coords += f"  •  Moving: ({sig['x']}, {sig['y']})"
         elif self.preview_pixmap:
-            text += f"  •  Preview: {self.preview_pixmap.width()}×{self.preview_pixmap.height()}"
+            coords += f"  •  Preview: {self.preview_pixmap.width()}×{self.preview_pixmap.height()}"
+        
+        # Use HTML with explicit black text on yellow background
+        text = f'<span style="background-color: #ffffcc; color: #000000; padding: 4px; border: 1px solid #888;">{coords}</span>'
         
         # Avoid spamming identical tooltips
         if text == self._last_tooltip_text:
@@ -768,7 +771,11 @@ class PDFViewer(QWidget):
                     "y": sig["y"],
                     "width": sig["width"],
                     "height": sig["height"],
-                    "sig_path": sig.get("sig_path", "")
+                    "sig_path": sig.get("sig_path", ""),
+                    # Provide metadata so signer can convert from pixels to points
+                    "units": "px",
+                    "dpi": self.base_dpi,
+                    "scale": self.zoom_level,
                 })
         
         return all_sigs
