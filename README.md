@@ -31,6 +31,8 @@
 - **[Desktop UI Spec](docs/desktop-frontend/pyqt-spec.md)** — Controls (Zoom %, Fit, Reset/Clean, Rotate) and status bar fields
 - **[Coordinate Mapping](docs/COORDINATE_MAPPING.md)** — Rotation-aware scene→image mapping details
 - **[Shortcuts](docs/SHORTCUTS.md)** — Keyboard shortcuts for common actions
+
+For archived session notes moved from the repo root, see `docs/ROOT_DOCS_INDEX.md`.
 - **[Help & Troubleshooting](docs/HELP.md)** — Quick fixes and FAQs
 
 ## Quick Start

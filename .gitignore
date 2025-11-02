@@ -178,3 +178,7 @@ alembic/*.tmp
 
 # Trash directory
 .trash/
+# Session/one-off logs kept locally
+app.log
+mcp-shell.log
+screenshots_debug/

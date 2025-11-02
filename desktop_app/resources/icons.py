@@ -64,6 +64,8 @@ class IconManager:
             'cancel': QStyle.StandardPixmap.SP_DialogCancelButton,
             'apply': QStyle.StandardPixmap.SP_DialogApplyButton,
             'reset': QStyle.StandardPixmap.SP_DialogResetButton,
+            'undo': QStyle.StandardPixmap.SP_ArrowBack,
+            'redo': QStyle.StandardPixmap.SP_ArrowForward,
             
             # View controls
             'zoom_in': QStyle.StandardPixmap.SP_ArrowUp,

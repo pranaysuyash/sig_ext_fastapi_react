@@ -1,6 +1,27 @@
-# What Just Shipped — Immediate UX Fixes
+# Recent Updates
 
-## Problems Solved
+**Last Updated:** November 2, 2025
+
+## 📊 Latest: ChatGPT UX Review Analysis (November 2, 2025)
+
+**Status:** ✅ Analysis complete, ready for implementation
+
+Received comprehensive UI/UX review from ChatGPT. Analysis complete with implementation plan.
+
+**See:** [CHATGPT_UX_REVIEW_ANALYSIS_NOV_2_2025.md](./CHATGPT_UX_REVIEW_ANALYSIS_NOV_2_2025.md) and [IMPLEMENTATION_PLAN_CHATGPT_REVIEW_NOV_2_2025.md](./IMPLEMENTATION_PLAN_CHATGPT_REVIEW_NOV_2_2025.md)
+
+**Top Priorities:**
+1. ⚡ Async health check - Prevents UI freezes (2-3h)
+2. ✅ Persistent health indicator - Infrastructure exists, needs wiring (1-2h)
+3. 📦 Docs path fallback - Critical for distribution (1h)
+4. 🦮 Accessibility labels - Screen reader support (30min)
+5. ✅ Fix hardcoded URL - 5 minutes
+
+---
+
+## Previous Updates
+
+### Problems Solved
 
 ### 1. Selection vs Pan Conflict ✅
 
@@ -125,6 +146,8 @@ uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8001
 source .venv/bin/activate
 python -m desktop_app.main
 ```
+
+For archived, one-off notes that were previously in the repository root, see `docs/ROOT_DOCS_INDEX.md`.
 
 ---
 

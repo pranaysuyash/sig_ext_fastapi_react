@@ -15,7 +15,7 @@ class GlassPanel(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
 
         shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(24)
-        shadow.setOffset(0, 12)
-        shadow.setColor(QColor(0, 0, 0, 45))
+        shadow.setBlurRadius(32)
+        shadow.setOffset(0, 16)
+        shadow.setColor(QColor(0, 0, 0, 80))
         self.setGraphicsEffect(shadow)

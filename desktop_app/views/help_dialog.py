@@ -92,17 +92,66 @@ class HelpDialog(QDialog):
                 blockquote_border = "#3498db"
                 hr_color = "#dddddd"
             
-            # Find project root (2 levels up from this file)
-            project_root = Path(__file__).resolve().parents[2]
-            doc_path = project_root / relative_path
-            
-            if not doc_path.exists():
-                self.text_browser.setHtml(f"<h2>Error</h2><p>Document not found: {doc_path}</p>")
-                return
-            
-            # Read markdown content
-            with open(doc_path, 'r', encoding='utf-8') as f:
-                md_content = f.read()
+            # Try multiple paths for docs (dev, packaged, Qt resources, web fallback)
+            doc_path = None
+
+            # 1. Try Qt resources first (for packaged .qrc bundles)
+            resource_path = f":/{relative_path}"
+            if QUrl(resource_path).isValid():
+                try:
+                    from PySide6.QtCore import QFile, QIODevice
+                    file = QFile(resource_path)
+                    if file.exists() and file.open(QIODevice.OpenModeFlag.ReadOnly | QIODevice.OpenModeFlag.Text):
+                        md_content = bytes(file.readAll()).decode('utf-8')
+                        file.close()
+                        doc_path = "Qt resources"
+                except Exception:
+                    pass  # Fall through to next method
+
+            # 2. Try relative to project root (development)
+            if not doc_path:
+                project_root = Path(__file__).resolve().parents[2]
+                dev_path = project_root / relative_path
+                if dev_path.exists():
+                    doc_path = dev_path
+
+            # 3. Try relative to executable (packaged with PyInstaller)
+            if not doc_path and hasattr(__import__('sys'), 'frozen'):
+                import sys
+                if hasattr(sys, '_MEIPASS'):
+                    bundle_path = Path(sys._MEIPASS) / relative_path
+                    if bundle_path.exists():
+                        doc_path = bundle_path
+
+            # 4. Web fallback if all local paths fail
+            if not doc_path:
+                web_docs = {
+                    "docs/HELP.md": "https://docs.signature-extractor.com/help",
+                    "docs/SHORTCUTS.md": "https://docs.signature-extractor.com/shortcuts",
+                    "docs/TROUBLESHOOTING.md": "https://docs.signature-extractor.com/troubleshooting",
+                    "docs/PDF_SETUP.md": "https://docs.signature-extractor.com/pdf-setup",
+                }
+                web_url = web_docs.get(relative_path)
+                if web_url:
+                    self.text_browser.setHtml(
+                        f"<h2>Documentation Unavailable Locally</h2>"
+                        f"<p>Opening documentation online: <a href='{web_url}'>{web_url}</a></p>"
+                    )
+                    from PySide6.QtGui import QDesktopServices
+                    QDesktopServices.openUrl(QUrl(web_url))
+                    return
+                else:
+                    self.text_browser.setHtml(
+                        f"<h2>Error</h2>"
+                        f"<p>Document not found: {relative_path}</p>"
+                        f"<p>Tried: development path, packaged bundle, and online docs.</p>"
+                    )
+                    return
+
+            # Read markdown content if we found a local file (already read for Qt resources)
+            if doc_path != "Qt resources":
+                with open(doc_path, 'r', encoding='utf-8') as f:
+                    md_content = f.read()
             
             # Convert to HTML
             if MARKDOWN_AVAILABLE and markdown is not None:
