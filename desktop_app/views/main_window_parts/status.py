@@ -42,35 +42,27 @@ class PaneStatusMixin:
             "color: #666; padding: 2px 8px; font-family: 'Menlo', 'Roboto Mono',"
             " 'Fira Code', 'Courier New', monospace; font-size: 11px;"
         )
-        self.viewport_size_label = QLabel("Viewport: –")
-        self.viewport_size_label.setStyleSheet(mono_style)
-        self.viewport_size_label.setToolTip("Viewport widget size (can change on window resize)")
-        self.status_bar.addPermanentWidget(self.viewport_size_label)
+        # Combine viewport and image size into one label to save space
+        self.viewport_image_label = QLabel("VP: – | Img: –")
+        self.viewport_image_label.setStyleSheet(mono_style)
+        self.viewport_image_label.setToolTip("Viewport widget size | Image resolution")
+        self.status_bar.addPermanentWidget(self.viewport_image_label)
 
-        self.image_size_label = QLabel("Image: –")
-        self.image_size_label.setStyleSheet(mono_style)
-        self.image_size_label.setToolTip("Image resolution for the active pane")
-        self.status_bar.addPermanentWidget(self.image_size_label)
-
-        self.view_coords_label = QLabel("Visible: –")
+        self.view_coords_label = QLabel("Vis: –")
         self.view_coords_label.setStyleSheet(mono_style)
         self.view_coords_label.setToolTip("Visible image coordinates in pixel space")
         self.status_bar.addPermanentWidget(self.view_coords_label)
 
-        self.selection_coords_label = QLabel("Selection: –")
+        self.selection_coords_label = QLabel("Sel: –")
         self.selection_coords_label.setStyleSheet(mono_style)
         self.selection_coords_label.setToolTip("Selected area coordinates in image pixel space")
         self.status_bar.addPermanentWidget(self.selection_coords_label)
 
-        self.zoom_label = QLabel("Zoom: –")
-        self.zoom_label.setStyleSheet(mono_style)
-        self.zoom_label.setToolTip("Current zoom level of active pane")
-        self.status_bar.addPermanentWidget(self.zoom_label)
-
-        self.rotation_label = QLabel("Rotation: –")
-        self.rotation_label.setStyleSheet(mono_style)
-        self.rotation_label.setToolTip("Rotation applied to the active pane view")
-        self.status_bar.addPermanentWidget(self.rotation_label)
+        # Combine zoom and rotation into one label to save space
+        self.zoom_rotation_label = QLabel("Z: – | R: –")
+        self.zoom_rotation_label.setStyleSheet(mono_style)
+        self.zoom_rotation_label.setToolTip("Current zoom level | Rotation applied")
+        self.status_bar.addPermanentWidget(self.zoom_rotation_label)
 
         self.session_id_label = QLabel("No session")
         self.session_id_label.setStyleSheet("color: #666; padding: 2px 8px;")
@@ -105,26 +97,23 @@ class PaneStatusMixin:
         active_view = self._get_active_view()
 
         if not active_view or not active_view.has_image():
-            self.viewport_size_label.setText("Viewport: –")
-            self.image_size_label.setText("Image: –")
-            self.view_coords_label.setText("Visible: –")
-            self.zoom_label.setText("Zoom: –")
-            self.rotation_label.setText("Rotation: –")
+            self.viewport_image_label.setText("VP: – | Img: –")
+            self.view_coords_label.setText("Vis: –")
+            self.zoom_rotation_label.setText("Z: – | R: –")
             self._set_zoom_combo_display("—")
             if getattr(self, "_active_pane", "source") != "source" or not getattr(self, "src_view", None) or not self.src_view.has_image():
-                self.selection_coords_label.setText("Selection: –")
+                self.selection_coords_label.setText("Sel: –")
             return
 
         viewport_rect = active_view.viewport().rect()
         viewport_w = viewport_rect.width()
         viewport_h = viewport_rect.height()
-        self.viewport_size_label.setText(f"Viewport: {viewport_w}×{viewport_h}")
 
         if active_view._pixmap_item:
             pix = active_view._pixmap_item.pixmap()
-            self.image_size_label.setText(f"Image: {pix.width()}×{pix.height()}")
+            self.viewport_image_label.setText(f"VP: {viewport_w}×{viewport_h} | Img: {pix.width()}×{pix.height()}")
         else:
-            self.image_size_label.setText("Image: –")
+            self.viewport_image_label.setText(f"VP: {viewport_w}×{viewport_h} | Img: –")
 
         tl_scene = active_view.mapToScene(viewport_rect.topLeft())
         br_scene = active_view.mapToScene(viewport_rect.bottomRight())
@@ -139,21 +128,20 @@ class PaneStatusMixin:
             view_x2 = max(0, min(int(br_scene.x()), img_rect.width()))
             view_y2 = max(0, min(int(br_scene.y()), img_rect.height()))
 
+            # Shortened format: Vis: @(x,y)→(x,y) → (x,y)→(x,y)
             self.view_coords_label.setText(
-                f"Visible: @({int(img_tl_viewport.x())},{int(img_tl_viewport.y())})→"
+                f"Vis: @({int(img_tl_viewport.x())},{int(img_tl_viewport.y())})→"
                 f"({int(img_br_viewport.x())},{int(img_br_viewport.y())}) "
-                f"shows ({view_x1},{view_y1})→({view_x2},{view_y2})"
+                f"→ ({view_x1},{view_y1})→({view_x2},{view_y2})"
             )
         else:
-            self.view_coords_label.setText("Visible: –")
+            self.view_coords_label.setText("Vis: –")
 
         zoom_value = active_view._zoom * 100.0
         zoom_text = f"{int(round(zoom_value))}%" if math.isclose(zoom_value, round(zoom_value), abs_tol=0.1) else f"{zoom_value:.1f}%"
-        self.zoom_label.setText(f"Zoom: {zoom_text}")
-        self._set_zoom_combo_display(zoom_text)
-
         rotation_deg = getattr(active_view, "_rotation", 0.0)
-        self.rotation_label.setText(f"Rotation: {rotation_deg:.1f}°")
+        self.zoom_rotation_label.setText(f"Z: {zoom_text} | R: {rotation_deg:.1f}°")
+        self._set_zoom_combo_display(zoom_text)
 
         source_view = getattr(self, "src_view", None)
         if getattr(self, "_active_pane", "source") == "source":
@@ -162,18 +150,18 @@ class PaneStatusMixin:
             if source_view and source_view.has_image():
                 self._update_selection_label_from_source(source_view)
             else:
-                self.selection_coords_label.setText("Selection: –")
+                self.selection_coords_label.setText("Sel: –")
 
     def _update_selection_label_from_source(self, source_view) -> None:
         if not source_view:
-            self.selection_coords_label.setText("Selection: –")
+            self.selection_coords_label.setText("Sel: –")
             return
         x1, y1, x2, y2 = source_view.selected_rect_image_coords()
         if x1 == 0 and y1 == 0 and x2 == 0 and y2 == 0:
-            self.selection_coords_label.setText("Selection: –")
+            self.selection_coords_label.setText("Sel: –")
             return
         w, h = x2 - x1, y2 - y1
-        self.selection_coords_label.setText(f"Selection: ({x1},{y1})→({x2},{y2}) [{w}×{h}]")
+        self.selection_coords_label.setText(f"Sel: ({x1},{y1})→({x2},{y2}) [{w}×{h}]")
 
     def _set_zoom_combo_display(self, text: str) -> None:
         zoom_combo = getattr(self, "zoom_combo", None)

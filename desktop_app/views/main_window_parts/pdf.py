@@ -25,6 +25,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from desktop_app.resources.icons import get_icon, set_button_icon
+
+
+def _rgba(color: QColor) -> str:
+    """Return a Qt stylesheet-friendly RGBA string for the given QColor."""
+    return f"rgba({color.red()}, {color.green()}, {color.blue()}, {color.alpha()})"
+
 from desktop_app.library import storage as lib
 from desktop_app.views.bulk_sign_dialog import BulkSignDialog
 
@@ -44,11 +51,22 @@ else:
 class PdfTabMixin:
     """PDF signing tab, audit logging, and signature placement helpers."""
 
+    def _make_section_label(self, text: str, color_hex: Optional[str], *, top_margin: int = 12) -> QLabel:
+        label = QLabel(text.upper())
+        margin = max(top_margin, 0)
+        if color_hex is None:
+            # Use bright white for maximum contrast
+            color_hex = "#FFFFFF"
+        label.setStyleSheet(
+            "font-size: 10px; font-weight: 700; letter-spacing: 1.2px;"
+            f"margin-top: {margin}px; margin-bottom: 4px; color: {color_hex};"
+        )
+        return label
+
     def _setup_pdf_ui(self) -> None:
-        self._pdf_placeholder_tab = None
-        self._pdf_tab_index = -1
         if not PDF_AVAILABLE:
-            placeholder = QWidget()
+            self._pdf_placeholder_tab = QWidget()
+            placeholder = self._pdf_placeholder_tab
             layout = QVBoxLayout(placeholder)
             layout.addStretch()
 
@@ -101,7 +119,6 @@ class PdfTabMixin:
             layout.addLayout(help_layout)
 
             layout.addStretch()
-            self._pdf_placeholder_tab = placeholder
             self._pdf_tab_index = self.tab_widget.addTab(placeholder, "📄 PDF Signing")
 
             # Add tooltip to tab explaining why it's disabled
@@ -123,6 +140,127 @@ class PdfTabMixin:
         pdf_controls.setContentsMargins(16, 18, 16, 18)  # Match extraction tab
         pdf_controls.setSpacing(10)  # Match extraction tab
 
+        # >>> ADD: match Extraction tab panel styling on macOS for 1:1 visual parity
+        if sys.platform == "darwin":
+            from PySide6.QtGui import QPalette, QColor
+
+            pdf_left_panel.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+
+            # Pull the same palette logic Extraction tab uses
+            palette = self.palette()
+            group = palette.currentColorGroup()
+            text_color = palette.color(group, QPalette.ColorRole.WindowText)
+            base_color = palette.color(group, QPalette.ColorRole.Window)
+            is_dark_mode = base_color.lightness() < 120
+
+            border_color = palette.color(group, QPalette.ColorRole.Mid)
+
+            if is_dark_mode:
+                panel_color = QColor(28, 28, 32, 248)
+            else:
+                panel_color = QColor(251, 251, 253, 250)
+
+            button_bg = QColor(panel_color)
+            button_bg = button_bg.lighter(115 if is_dark_mode else 108)
+            button_bg.setAlpha(220 if is_dark_mode else 180)
+            button_bg_str = _rgba(button_bg)
+
+            button_hover = QColor(button_bg)
+            button_hover = button_hover.lighter(120 if is_dark_mode else 112)
+            button_hover.setAlpha(min(button_hover.alpha() + 30, 255))
+            button_hover_str = _rgba(button_hover)
+
+            button_border = QColor(border_color)
+            button_border = button_border.lighter(130 if is_dark_mode else 120)
+            button_border.setAlpha(100 if is_dark_mode else 80)
+            button_border_str = _rgba(button_border)
+
+            disabled_bg = QColor(panel_color)
+            disabled_bg.setAlpha(95)
+            disabled_bg_str = _rgba(disabled_bg)
+
+            disabled_text = QColor(text_color)
+            disabled_text.setAlpha(120 if is_dark_mode else 180)
+            disabled_text_str = _rgba(disabled_text)
+
+            field_bg = QColor(panel_color)
+            field_bg = field_bg.lighter(118)
+            field_bg.setAlpha(185)
+            field_bg_str = _rgba(field_bg)
+
+            subtle_line = QColor(border_color)
+            subtle_line.setAlpha(70)
+            subtle_line_str = _rgba(subtle_line)
+
+            pdf_left_panel.setStyleSheet(
+                "QWidget#pdfControlsPanel {"
+                f"  background-color: {_rgba(panel_color)};"
+                f"  border-right: 1px solid {subtle_line_str};"
+                f"  color: {text_color.name()};"
+                "  font-size: 12px;"
+                "}"
+                "#pdfControlsPanel QLabel,"
+                "#pdfControlsPanel QStatusBar,"
+                "#pdfControlsPanel QToolButton {"
+                "  background-color: transparent;"
+                "  border: none;"
+                f"  color: {text_color.name()};"
+                "}"
+                "#pdfControlsPanel QLineEdit,"
+                "#pdfControlsPanel QSpinBox,"
+                "#pdfControlsPanel QDoubleSpinBox,"
+                "#pdfControlsPanel QTextEdit,"
+                "#pdfControlsPanel QComboBox {"
+                f"  background-color: {field_bg_str};"
+                f"  border: 1px solid {subtle_line_str};"
+                "  border-radius: 8px;"
+                "  padding: 6px 8px;"
+                f"  color: {text_color.name()};"
+                "}"
+                "#pdfControlsPanel QLineEdit:focus,"
+                "#pdfControlsPanel QSpinBox:focus,"
+                "#pdfControlsPanel QDoubleSpinBox:focus,"
+                "#pdfControlsPanel QTextEdit:focus,"
+                "#pdfControlsPanel QComboBox:focus {"
+                f"  border: 2px solid {'#007AFF' if is_dark_mode else '#0051D5'};"
+                "  outline: none;"
+                "}"
+                "#pdfControlsPanel QComboBox::drop-down {"
+                "  width: 22px;"
+                "}"
+                "#pdfControlsPanel QListWidget {"
+                f"  background-color: {field_bg_str};"
+                f"  border: 1px solid {subtle_line_str};"
+                "  border-radius: 16px;"
+                "  padding: 6px;"
+                "}"
+                "#pdfControlsPanel QListWidget:focus {"
+                f"  border: 2px solid {'#007AFF' if is_dark_mode else '#0051D5'};"
+                "}"
+                "#pdfControlsPanel QListWidget::item:selected {"
+                f"  background-color: {button_hover_str};"
+                f"  color: {text_color.name()};"
+                "  border-radius: 16px;"
+                "}"
+                "#pdfControlsPanel QSlider::groove:horizontal {"
+                "  background: rgba(100, 100, 100, 180);"
+                "  height: 6px;"
+                "  border-radius: 3px;"
+                "  margin: 0;"
+                "}"
+                "#pdfControlsPanel QSlider::handle:horizontal {"
+                "  background: rgba(255, 255, 255, 230);"
+                "  border: 1px solid rgba(180, 180, 180, 200);"
+                "  width: 16px; height: 16px; margin: -6px 0; border-radius: 8px;"
+                "}"
+                f"QWidget#pdfControlsPanel QPushButton {{ padding: 7px 14px; border-radius: 8px; border: 1px solid {button_border_str};"
+                f"  background-color: {button_bg_str}; color: {text_color.name()}; font-weight: 500; }}"
+                f"QWidget#pdfControlsPanel QPushButton:hover {{ background-color: {button_hover_str}; }}"
+                f"QWidget#pdfControlsPanel QPushButton:focus {{ border: 2px solid {'#007AFF' if is_dark_mode else '#0051D5'}; outline: none; }}"
+                f"QWidget#pdfControlsPanel QPushButton:disabled {{ color: {disabled_text_str}; background-color: {disabled_bg_str}; border-color: {subtle_line_str}; }}"
+                f"QWidget#pdfControlsPanel QCheckBox {{ color: {text_color.name()}; spacing: 6px; }}"
+            )
+
         self._init_pdf_controls(pdf_controls)
 
         self.pdf_viewer = PDFViewer()
@@ -139,23 +277,43 @@ class PdfTabMixin:
         if not PDF_AVAILABLE:
             return
 
-        pdf_controls.addWidget(QLabel("<b>PDF Document</b>"))
+        # Compute section label colors for both macOS and non-macOS
+        palette = self.palette()
+        group = palette.currentColorGroup()
+        text_color = palette.color(group, QPalette.ColorRole.WindowText)
 
-        open_pdf_btn = QPushButton("📂 Open PDF...")
+        # Detect dark vs light mode
+        base_color = palette.color(group, QPalette.ColorRole.Window)
+        is_dark_mode = base_color.lightness() < 120
+
+        # Section labels: use translucent only in dark mode, opaque in light mode
+        section_color = QColor(text_color)
+        if is_dark_mode:
+            section_color.setAlpha(180)  # Subtle in dark mode
+        else:
+            section_color.setAlpha(235)  # Nearly opaque for readability in light mode
+        section_color_hex = _rgba(section_color)
+
+        pdf_controls.addWidget(self._make_section_label("PDF Document", section_color_hex, top_margin=0))
+
+        open_pdf_btn = QPushButton("Open PDF...")
+        set_button_icon(open_pdf_btn, "open", "Open PDF...", use_emoji=False)
         open_pdf_btn.clicked.connect(self._on_pdf_tab_open)
         pdf_controls.addWidget(open_pdf_btn)
 
-        close_pdf_btn = QPushButton("✕ Close PDF")
+        close_pdf_btn = QPushButton("Close PDF")
+        set_button_icon(close_pdf_btn, "close", "Close PDF", use_emoji=False)
         close_pdf_btn.clicked.connect(self._on_pdf_tab_close)
         pdf_controls.addWidget(close_pdf_btn)
 
-        save_pdf_btn = QPushButton("💾 Save Signed PDF...")
+        save_pdf_btn = QPushButton("Save Signed PDF...")
+        set_button_icon(save_pdf_btn, "save", "Save Signed PDF...", use_emoji=False)
         save_pdf_btn.clicked.connect(self._on_pdf_tab_save)
         pdf_controls.addWidget(save_pdf_btn)
 
         pdf_controls.addSpacing(20)
 
-        pdf_controls.addWidget(QLabel("<b>Signature Library</b>"))
+        pdf_controls.addWidget(self._make_section_label("Signature Library", section_color_hex))
         pdf_controls.addWidget(QLabel("Click a signature, then click on PDF to place:"))
 
         self.pdf_sig_list = QListWidget()
@@ -168,17 +326,20 @@ class PdfTabMixin:
         pdf_controls.addWidget(self.pdf_sig_list)
 
         lib_buttons = QHBoxLayout()
-        refresh_sig_btn = QPushButton("🔄 Refresh")
+        refresh_sig_btn = QPushButton("Refresh")
+        set_button_icon(refresh_sig_btn, "refresh", "Refresh", use_emoji=False)
         refresh_sig_btn.clicked.connect(self._refresh_pdf_signature_library)
         lib_buttons.addWidget(refresh_sig_btn)
 
-        paste_sig_btn = QPushButton("📋 Paste")
+        paste_sig_btn = QPushButton("Paste")
+        set_button_icon(paste_sig_btn, "paste", "Paste", use_emoji=False)
         paste_sig_btn.setToolTip("Paste signature from clipboard (Ctrl/Cmd+V)")
         paste_sig_btn.clicked.connect(self._on_pdf_paste_signature)
         lib_buttons.addWidget(paste_sig_btn)
         pdf_controls.addLayout(lib_buttons)
 
-        bulk_sign_btn = QPushButton("📄 Apply to Multiple Pages...")
+        bulk_sign_btn = QPushButton("Apply to Multiple Pages...")
+        set_button_icon(bulk_sign_btn, "bulk", "Apply to Multiple Pages...", use_emoji=False)
         bulk_sign_btn.setToolTip("Apply signature to multiple pages at once")
         bulk_sign_btn.clicked.connect(self._on_bulk_sign_clicked)
         pdf_controls.addWidget(bulk_sign_btn)

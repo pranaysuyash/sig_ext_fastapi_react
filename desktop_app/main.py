@@ -72,6 +72,10 @@ def main():
     win.setMinimumSize(1000, 700)
     win.resize(1200, 800)
     win.show()
+    
+    # Ensure all UI updates are processed before starting the event loop
+    app.processEvents()
+    
     sys.exit(app.exec())
 
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import sys
 from typing import Optional, cast
 
@@ -62,11 +63,18 @@ class MainWindow(
             self.tab_widget.setDocumentMode(True)
             self.tab_widget.setMovable(True)
 
+        # Initialize status bar FIRST, before any UI setup that might use it
+        self._init_status_bar()
+        
         self._setup_extraction_ui()
         self._setup_pdf_ui()
         root.addWidget(self.tab_widget)
-
-        self._init_status_bar()
+        
+        # Force session_id_label to be initialized before any upload
+        if hasattr(self, 'session_id_label'):
+            self.session_id_label.setText("No session")
+            self.session_id_label.setToolTip("")
+        
         self._setup_main_toolbar()
         if PDF_AVAILABLE:
             self.status_bar.showMessage("Ready - PDF features enabled", 2000)
@@ -273,10 +281,114 @@ class MainWindow(
 
         help_menu.addSeparator()
 
+        self.check_updates_action = QAction("Check for Updates…", self)
+        self.check_updates_action.triggered.connect(self.on_check_updates)
+        help_menu.addAction(self.check_updates_action)
+
         self.check_health_action = QAction("Open Backend Health", self)
         self.check_health_action.triggered.connect(lambda: self._open_url(f"{self.api_client.base_url}/health"))
         help_menu.addAction(self.check_health_action)
 
+    def on_check_updates(self):
+        """Check for application updates by fetching updates.json from CDN."""
+        from PySide6.QtWidgets import QMessageBox
+        import json
+        import re
+        try:
+            import requests
+        except ImportError:
+            QMessageBox.critical(
+                self,
+                "Update Check Failed",
+                "The 'requests' library is required for update checking but is not installed.\n"
+                "Please install it using: pip install requests"
+            )
+            return
+        
+        # Define the current app version (this should match the actual version)
+        # For now, using 1.0.0 as placeholder - this should be defined in a version file
+        current_version = "1.0.0"
+        
+        # Try to read version from a version file if it exists
+        try:
+            version_path = os.path.join(os.path.dirname(__file__), "..", "..", "VERSION")
+            if os.path.exists(version_path):
+                with open(version_path, 'r') as f:
+                    current_version = f.read().strip()
+        except:
+            pass  # Use default version if file doesn't exist or can't be read
+        
+        # Define the updates URL - this should be configured via environment or config
+        updates_url = os.getenv("UPDATES_URL", "https://cdn.signatureextractor.app/updates.json")
+        
+        try:
+            response = requests.get(updates_url, timeout=10)
+            response.raise_for_status()
+            update_data = response.json()
+            
+            latest_version = update_data.get("version", "")
+            download_url = update_data.get("download_url", "")
+            release_notes = update_data.get("release_notes", "")
+            
+            if not latest_version:
+                QMessageBox.information(
+                    self,
+                    "Update Check",
+                    "Could not determine latest version. Please try again later."
+                )
+                return
+            
+            # Compare versions using a simple approach
+            def parse_version(v):
+                # Convert version string to tuple of integers for comparison
+                # e.g. "1.2.3" -> (1, 2, 3)
+                return tuple(map(int, re.findall(r'\d+', v)))
+            
+            if parse_version(latest_version) > parse_version(current_version):
+                # New version available
+                message = f"New version available: {latest_version}\n\nCurrent version: {current_version}"
+                if release_notes:
+                    message += f"\n\nRelease notes:\n{release_notes}"
+                
+                reply = QMessageBox.question(
+                    self,
+                    "Update Available",
+                    message,
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.Yes
+                )
+                
+                if reply == QMessageBox.StandardButton.Yes and download_url:
+                    from PySide6.QtGui import QDesktopServices
+                    from PySide6.QtCore import QUrl
+                    QDesktopServices.openUrl(QUrl(download_url))
+            else:
+                # No updates available
+                QMessageBox.information(
+                    self,
+                    "Update Check",
+                    f"You are using the latest version ({current_version})."
+                )
+                
+        except requests.exceptions.RequestException as e:
+            QMessageBox.critical(
+                self,
+                "Update Check Failed",
+                f"Could not check for updates:\n{str(e)}\n\nPlease check your internet connection."
+            )
+        except json.JSONDecodeError:
+            QMessageBox.critical(
+                self,
+                "Update Check Failed",
+                "Invalid response from update server. Please try again later."
+            )
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Update Check Failed",
+                f"An error occurred while checking for updates:\n{str(e)}"
+            )
+    
     # ----- Qt overrides -----
     def resizeEvent(self, event) -> None:
         super().resizeEvent(event)

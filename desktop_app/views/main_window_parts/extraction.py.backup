@@ -299,7 +299,7 @@ class ExtractionTabMixin:
                 "#extractionControlsPanel QListWidget {"
                 f"  background-color: {field_bg_str};"
                 f"  border: 1px solid {subtle_line_str};"
-                "  border-radius: 10px;"
+                "  border-radius: 16px;"
                 "  padding: 6px;"
                 "}"
                 "#extractionControlsPanel QListWidget:focus {"
@@ -308,6 +308,7 @@ class ExtractionTabMixin:
                 "#extractionControlsPanel QListWidget::item:selected {"
                 f"  background-color: {button_hover_str};"
                 f"  color: {text_color.name()};"
+                "  border-radius: 16px;"
                 "}"
                 "#extractionControlsPanel QSlider::groove:horizontal {"
                 "  background: rgba(100, 100, 100, 180);"  # Visible gray groove
@@ -539,11 +540,11 @@ class ExtractionTabMixin:
                 "QListWidget#libraryList {"
                 "background-color: rgba(255, 255, 255, 20);"
                 "border: 1px solid rgba(255, 255, 255, 30);"
-                "border-radius: 8px;"
+                "border-radius: 16px;"
                 "padding: 6px;"
                 "}"
-                "QListWidget#libraryList::item { height: 24px; border-radius: 8px; }"
-                "QListWidget#libraryList::item:selected { background-color: rgba(255,255,255,46); }"
+                "QListWidget#libraryList::item { height: 24px; border-radius: 16px; }"
+                "QListWidget#libraryList::item:selected { background-color: rgba(255,255,255,46); border-radius: 16px; }"
             )
         controls.addWidget(self.library_list)
 
@@ -590,11 +591,11 @@ class ExtractionTabMixin:
             self.toggle_mode_btn.setStyleSheet(
                 "QPushButton#toggleModeButton {"
                 "padding: 6px 12px;"
-                "border-radius: 8px;"
+                "border-radius: 16px;"
                 f"border: 1px solid {btn_border};"
                 f"background-color: {btn_bg};"
                 "}"
-                f"QPushButton#toggleModeButton:checked {{ background-color: {accent}; color: white; }}"
+                f"QPushButton#toggleModeButton:checked {{ background-color: {accent}; color: white; border-radius: 16px; }}"
             )
             for btn in (
                 self.open_btn,
@@ -782,6 +783,10 @@ class ExtractionTabMixin:
         self._health_timer.start()
         # Initial health check
         self._check_backend_health()
+        
+        # Show evaluation status in status bar if not licensed
+        if not self._licensed:
+            self.status_bar.showMessage("Evaluation mode — Export features require a license", 5000)
 
         self.src_view.selectionChanged.connect(self.on_selection_changed)
         self.src_view.zoomChanged.connect(self._update_coordinate_display)
@@ -925,15 +930,13 @@ class ExtractionTabMixin:
         self.status_bar.showMessage("Uploading image...", 0)
         self.open_btn.setEnabled(False)  # Disable during upload
 
-        # IMPORTANT: Store runner as instance variable to prevent garbage collection
-        # before signals are emitted!
-        self._upload_runner = AsyncRunner(self.api_client.upload_image, file_path)
-        self._upload_runner.finished.connect(lambda result: self._on_upload_finished(file_path, result))
-        self._upload_runner.error.connect(lambda error: self._on_upload_error(file_path, error))
+        runner = AsyncRunner(self.api_client.upload_image, file_path)
+        runner.finished.connect(lambda result: self._on_upload_finished(file_path, result))
+        runner.error.connect(lambda error: self._on_upload_error(file_path, error))
 
         # Run in thread pool
         thread_pool = QThreadPool.globalInstance()
-        runnable = QRunnable.create(lambda: self._upload_runner.run())
+        runnable = QRunnable.create(lambda: runner.run())
         runnable.setAutoDelete(True)
         thread_pool.start(runnable)
 
@@ -941,35 +944,14 @@ class ExtractionTabMixin:
         """Handle completion of async upload."""
         self.open_btn.setEnabled(True)  # Re-enable
         try:
-            LOG.info(f"Upload finished. Payload type: {type(payload)}, Payload: {payload}")
-
-            # Try multiple possible keys for session/image ID
-            session_id = payload.get("id") or payload.get("session_id") or payload.get("image_id")
-
-            # If nested in 'data' key
-            if not session_id and "data" in payload:
-                session_id = payload["data"].get("id") or payload["data"].get("session_id") or payload["data"].get("image_id")
-
+            session_id = payload.get("id")
             if not session_id:
-                LOG.warning(f"No session id found in payload. Creating fallback local session. Payload was: {payload}")
-                # Fallback to local session ID so UI doesn't break
-                import time
-                session_id = f"local-{int(time.time())}"
+                raise RuntimeError("Upload succeeded but no session id returned")
 
-            LOG.info(f"Setting session_id to: {session_id}")
             self.session.session_id = session_id
-            LOG.info(f"Session ID set successfully: {self.session.session_id}")
-            
             if hasattr(self, "session_id_label"):
                 self.session_id_label.setText(f"Session: {session_id[:8]}...")
                 self.session_id_label.setToolTip(f"Full session ID: {session_id}")
-                LOG.info(f"Updated session_id_label to: Session: {session_id[:8]}...")
-            else:
-                LOG.warning("session_id_label not found - status bar not properly initialized")
-                
-            # Debug: check session state
-            LOG.info(f"After upload - session.session_id: '{self.session.session_id}' (type: {type(self.session.session_id)})")
-            
             self.status_bar.showMessage("Image uploaded successfully", 3000)
 
             self._last_result_png = None
@@ -1000,7 +982,6 @@ class ExtractionTabMixin:
 
     def _on_upload_error(self, file_path: str, error) -> None:
         """Handle error in async upload."""
-        LOG.error(f"Upload error for {file_path}: {error}")
         self.open_btn.setEnabled(True)  # Re-enable
         # Immediately flip health indicator to offline on upload failure
         if hasattr(self, "backend_status_label"):
@@ -1173,20 +1154,19 @@ class ExtractionTabMixin:
         import time
         start_time = time.time()
 
-        # IMPORTANT: Store runner as instance variable to prevent garbage collection
-        self._process_runner = AsyncRunner(
+        runner = AsyncRunner(
             self.api_client.process_image,
             session_id=self.session.session_id,
             x1=x1, y1=y1, x2=x2, y2=y2,
             color=self._color_hex,
             threshold=int(self.threshold.value())
         )
-        self._process_runner.finished.connect(lambda result: self._on_process_finished(result, start_time))
-        self._process_runner.error.connect(lambda error: self._on_process_error(error, start_time))
+        runner.finished.connect(lambda result: self._on_process_finished(result, start_time))
+        runner.error.connect(lambda error: self._on_process_error(error, start_time))
 
         # Run in thread pool
         thread_pool = QThreadPool.globalInstance()
-        runnable = QRunnable.create(lambda: self._process_runner.run())
+        runnable = QRunnable.create(lambda: runner.run())
         runnable.setAutoDelete(True)
         thread_pool.start(runnable)
 
@@ -1198,13 +1178,47 @@ class ExtractionTabMixin:
             LOG.debug("Received %d bytes from backend in %.2f seconds", len(png_bytes), elapsed)
 
             self._last_result_png = png_bytes
+
+            # Load the result image
+            LOG.debug("Loading %d bytes into result view", len(png_bytes))
             self.res_view.load_image_bytes(png_bytes)
-            # Show result view, hide empty overlay
+            LOG.debug("Result view has_image: %s", self.res_view.has_image())
+            LOG.debug("Result view isVisible: %s", self.res_view.isVisible())
+            LOG.debug("Result empty isVisible: %s", self.result_empty.isVisible())
+            LOG.debug("Result label isVisible: %s", self.result_label.isVisible())
+            LOG.debug("Preview result panel isVisible: %s", self.preview_result_panel.isVisible())
+
+            # Show result view and hide empty placeholder
+            # IMPORTANT: Do NOT call _set_preview_panel_visible here because it has
+            # conditional logic that will hide res_view if called at the wrong time
             self.result_empty.setVisible(False)
             self.res_view.setVisible(True)
-            # Enable actions now that a preview exists
+            self.result_label.setVisible(True)
+            self.preview_result_panel.setVisible(True)
+
+            LOG.debug("After setting visible - Result view isVisible: %s", self.res_view.isVisible())
+            LOG.debug("After setting visible - Result empty isVisible: %s", self.result_empty.isVisible())
+
+            # FORCE the result to be visible - trying every possible way
+            from PySide6.QtWidgets import QApplication
+            self.result_empty.hide()
+            self.res_view.show()
+            self.result_label.show()
+            self.preview_result_panel.show()
+            result_container = self.res_view.parent()
+            if result_container:
+                result_container.show()
+
+            # Process events to force UI update
+            QApplication.processEvents()
+
+            LOG.debug("FINAL CHECK - Result view isVisible: %s", self.res_view.isVisible())
+            LOG.debug("FINAL CHECK - Result view has_image: %s", self.res_view.has_image())
+            LOG.debug("FINAL CHECK - Result view parent isVisible: %s", result_container.isVisible() if result_container else "No parent")
+
+            # Enable actions now that a result exists
             self._update_action_states(preview_ready=True)
-            self.status_bar.showMessage("Preview ready", 2000)
+            self.status_bar.showMessage("Result ready - check terminal for debug output", 3000)
         except Exception as e:
             LOG.error("Processing failed: %s", e, exc_info=True)
             # Immediately flip health indicator to offline on processing failure
@@ -1228,6 +1242,7 @@ class ExtractionTabMixin:
         self.src_view.clear_selection()
         self.sel_info.setText("Selection: –")
         self.preview_view.clear_image()
+        self.res_view.clear_image()  # Clear the result image as well
         self.export_btn.setEnabled(False)
         self.save_to_library_btn.setEnabled(False)
         # Don't collapse panel - just show empty overlays
@@ -1245,7 +1260,7 @@ class ExtractionTabMixin:
             self._health_check_attempt = 0
 
         self._health_check_attempt += 1
-        max_attempts = 5
+        self._max_health_check_attempts = 5
 
         # Update UI to show checking state
         if hasattr(self, "backend_status_label"):
@@ -1263,14 +1278,13 @@ class ExtractionTabMixin:
             except Exception as e:
                 return False, {"error": str(e)}
 
-        # IMPORTANT: Store runner as instance variable to prevent garbage collection
-        self._health_check_runner = AsyncRunner(_do_health_check)
-        self._health_check_runner.finished.connect(self._on_health_check_finished)
-        self._health_check_runner.error.connect(self._on_health_check_error)
+        runner = AsyncRunner(_do_health_check)
+        runner.finished.connect(self._on_health_check_finished)
+        runner.error.connect(self._on_health_check_error)
 
         # Run in thread pool
         thread_pool = QThreadPool.globalInstance()
-        runnable = QRunnable.create(lambda: self._health_check_runner.run())
+        runnable = QRunnable.create(lambda: runner.run())
         runnable.setAutoDelete(True)
         thread_pool.start(runnable)
 
@@ -1301,13 +1315,13 @@ class ExtractionTabMixin:
                 self.open_btn.setEnabled(True)
             else:
                 # Failure - check if we should retry
-                if self._health_check_attempt < max_attempts:
+                if self._health_check_attempt < self._max_health_check_attempts:
                     # Exponential backoff: 100ms, 500ms, 1s, 2s, 5s
                     delays = [100, 500, 1000, 2000, 5000]
                     delay = delays[min(self._health_check_attempt - 1, len(delays) - 1)]
 
                     LOG.debug("Health check failed (attempt %d/%d), retrying in %dms",
-                             self._health_check_attempt, max_attempts, delay)
+                             self._health_check_attempt, self._max_health_check_attempts, delay)
 
                     # Schedule retry
                     QTimer.singleShot(delay, self._check_backend_health)
@@ -1448,19 +1462,15 @@ class ExtractionTabMixin:
 
     def schedule_preview(self):
         # Only schedule if we have a valid selection and an uploaded session
-        LOG.info(f"schedule_preview called - checking session_id: '{self.session.session_id}' (type: {type(self.session.session_id)}, bool: {bool(self.session.session_id)})")
         if not self.session.session_id:
-            LOG.warning(f"schedule_preview blocked: no session id - self.session.session_id is: {repr(self.session.session_id)}")
-            self.status_bar.showMessage("Preview not scheduled - no session", 1500)
+            self.status_bar.showMessage("Preview not scheduled - no session", 1000)
             return
         x1, y1, x2, y2 = self.src_view.selected_rect_image_coords()
         if x1 == x2 or y1 == y2:
-            LOG.warning(f"schedule_preview blocked: zero size selection ({x1},{y1})→({x2},{y2})")
-            self.status_bar.showMessage(f"Preview not scheduled - zero size selection ({x1},{y1})→({x2},{y2})", 1500)
+            self.status_bar.showMessage(f"Preview not scheduled - zero size selection ({x1},{y1})→({x2},{y2})", 1000)
             return
         # Debounce 200ms - stop any existing timer first to prevent restart issues
         self._preview_timer.stop()
-        LOG.info(f"Scheduling preview in 200ms for selection ({x1},{y1})→({x2},{y2})")
         self.status_bar.showMessage(f"Scheduling preview in 200ms for selection ({x1},{y1})→({x2},{y2})", 1000)
         self._preview_timer.start(200)
 
@@ -1589,6 +1599,31 @@ class ExtractionTabMixin:
         if not self._last_result_png:
             return
         
+        # Check if user has a valid license
+        if not self._licensed:
+            # Show upgrade dialog instead of export dialog
+            from PySide6.QtWidgets import QMessageBox
+            reply = QMessageBox.question(
+                cast(QWidget, self),
+                "Evaluation Mode",
+                "Export requires a license. Would you like to enter your license key?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes
+            )
+            if reply == QMessageBox.StandardButton.Yes:
+                self.on_enter_license()
+                # Re-check license after entering
+                if self._licensed:
+                    self.status_bar.showMessage("Opening export dialog...", 1000)
+                    dialog = ExportDialog(self._last_result_png, self)
+                    if dialog.exec():
+                        self.status_bar.showMessage(f"Exported successfully", 3000)
+                    else:
+                        self.status_bar.showMessage("Export cancelled", 2000)
+            else:
+                self.status_bar.showMessage("Export requires a license", 3000)
+            return
+        
         self.status_bar.showMessage("Opening export dialog...", 1000)
         dialog = ExportDialog(self._last_result_png, self)
         if dialog.exec():
@@ -1625,6 +1660,51 @@ class ExtractionTabMixin:
             return
         if not self._last_result_png:
             return
+            
+        # Check if user has a valid license
+        if not self._licensed:
+            # Show upgrade dialog instead of saving
+            from PySide6.QtWidgets import QMessageBox
+            reply = QMessageBox.question(
+                cast(QWidget, self),
+                "Evaluation Mode",
+                "Save to library requires a license. Would you like to enter your license key?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes
+            )
+            if reply == QMessageBox.StandardButton.Yes:
+                self.on_enter_license()
+                # Re-check license after entering
+                if self._licensed:
+                    self.status_bar.showMessage("Saving to library...", 0)
+                    try:
+                        # Collect metadata from current extraction
+                        metadata = None
+                        try:
+                            x1, y1, x2, y2 = self.src_view.selected_rect_image_coords()
+                            img = self.src_view.image()
+                            metadata = {
+                                "session_id": self.session.session_id or "",
+                                "selection": {"x1": x1, "y1": y1, "x2": x2, "y2": y2},
+                                "threshold": int(self.threshold.value()),
+                                "color": self._color_hex,
+                                "image_size": {"width": int(img.width()) if img else 0, "height": int(img.height()) if img else 0}
+                            }
+                        except Exception:
+                            pass  # Save without metadata if extraction fails
+                        
+                        saved_path = lib.save_png_to_library(self._last_result_png, metadata)
+                        self.status_bar.showMessage(f"Saved: {saved_path}", 4000)
+                        self._refresh_library_list()
+                        if hasattr(self, "_refresh_toolbar_action_states"):
+                            self._refresh_toolbar_action_states()
+                    except Exception as e:
+                        QMessageBox.critical(cast(QWidget, self), "Save failed", str(e))
+                        self.status_bar.showMessage("Save failed", 3000)
+            else:
+                self.status_bar.showMessage("Save to library requires a license", 3000)
+            return
+            
         self.status_bar.showMessage("Saving to library...", 0)
         try:
             # Collect metadata from current extraction
@@ -1685,9 +1765,19 @@ class ExtractionTabMixin:
         self.preview_result_panel.setVisible(visible)
         self.preview_container.setVisible(visible)
         self.preview_label.setVisible(visible)
-        self.preview_view.setVisible(visible)
+        self.preview_view.setVisible(visible and self.preview_view.has_image())
         self.result_label.setVisible(visible)
-        self.res_view.setVisible(visible)
+        # Control result view visibility based on whether we have an image
+        if visible:
+            self.res_view.setVisible(self.res_view.has_image())
+        else:
+            self.res_view.setVisible(False)
+        self.preview_empty.setVisible(not visible or (visible and not self.preview_view.has_image()))
+        # Update result_empty overlay based on result image presence
+        if visible:
+            self.result_empty.setVisible(visible and not self.res_view.has_image())
+        else:
+            self.result_empty.setVisible(True)
         if visible:
             self.preview_result_panel.updateGeometry()
             self.preview_result_panel.adjustSize()
@@ -1721,14 +1811,13 @@ class ExtractionTabMixin:
 
             # Upload to backend asynchronously
             self.status_bar.showMessage("Uploading to create session...", 0)
-            # IMPORTANT: Store runner as instance variable to prevent garbage collection
-            self._library_upload_runner = AsyncRunner(self.api_client.upload_image, tmp.name)
-            self._library_upload_runner.finished.connect(lambda result: self._on_library_upload_finished(tmp.name, result))
-            self._library_upload_runner.error.connect(lambda error: self._on_library_upload_error(tmp.name, error))
+            runner = AsyncRunner(self.api_client.upload_image, tmp.name)
+            runner.finished.connect(lambda result: self._on_library_upload_finished(tmp.name, result))
+            runner.error.connect(lambda error: self._on_library_upload_error(tmp.name, error))
 
             # Run in thread pool
             thread_pool = QThreadPool.globalInstance()
-            runnable = QRunnable.create(lambda: self._library_upload_runner.run())
+            runnable = QRunnable.create(lambda: runner.run())
             runnable.setAutoDelete(True)
             thread_pool.start(runnable)
         except Exception as e:
@@ -1888,14 +1977,13 @@ class ExtractionTabMixin:
                     'old_session_id': old_session_id
                 }
 
-                # IMPORTANT: Store runner as instance variable to prevent garbage collection
-                self._rotate_upload_runner = AsyncRunner(self.api_client.upload_image, tmp.name)
-                self._rotate_upload_runner.finished.connect(lambda result: self._on_rotate_upload_finished(tmp.name, result))
-                self._rotate_upload_runner.error.connect(lambda error: self._on_rotate_upload_error(tmp.name, error))
+                runner = AsyncRunner(self.api_client.upload_image, tmp.name)
+                runner.finished.connect(lambda result: self._on_rotate_upload_finished(tmp.name, result))
+                runner.error.connect(lambda error: self._on_rotate_upload_error(tmp.name, error))
 
                 # Run in thread pool
                 thread_pool = QThreadPool.globalInstance()
-                runnable = QRunnable.create(lambda: self._rotate_upload_runner.run())
+                runnable = QRunnable.create(lambda: runner.run())
                 runnable.setAutoDelete(True)
                 thread_pool.start(runnable)
             except Exception as e:
@@ -2003,7 +2091,7 @@ class ExtractionTabMixin:
             text_color = '#000000' if lum > 186 else '#ffffff'
         except Exception:
             text_color = '#000000'
-        self.color_label.setStyleSheet(f"background-color: {hexc}; color: {text_color}; border: 1px solid #ccc; padding: 4px 8px; border-radius: 8px;")
+        self.color_label.setStyleSheet(f"background-color: {hexc}; color: {text_color}; border: 1px solid #ccc; padding: 4px 8px; border-radius: 16px;")
 
     def _remember_color(self, color: str, suppress_preview: bool = False) -> None:
         qcolor = QColor(color)
@@ -2079,7 +2167,7 @@ class ExtractionTabMixin:
             "QToolButton {"
             f"background-color: {color};"
             "border: 1px solid rgba(0,0,0,64);"
-            "border-radius: 8px;"
+            "border-radius: 16px;"
             "}"
             "QToolButton:hover {"
             "border-color: rgba(0,0,0,115);"
@@ -2099,12 +2187,16 @@ class ExtractionTabMixin:
 
     # -------- License/Evaluation helpers --------
     def _update_action_states(self, preview_ready: bool = False):
-        """Enable or disable actions based on whether a processed preview exists."""
+        """Enable or disable actions based on whether a processed preview exists and licensing status."""
         has_preview = bool(preview_ready or self._last_result_png)
+        
+        # Export-related actions are enabled if there's a preview
+        # The actual licensing check happens in the individual methods
         self.export_btn.setEnabled(has_preview)
         self.export_json_btn.setEnabled(True)  # Allow exporting metadata even without preview
         self.save_to_library_btn.setEnabled(has_preview)
         self.copy_btn.setEnabled(has_preview)
+        
         self._update_view_actions_enabled()
         self._adjust_pane_layout()  # Dynamically adjust layout based on content
         if hasattr(self, "_refresh_toolbar_action_states"):
@@ -2173,6 +2265,27 @@ class ExtractionTabMixin:
     def on_copy(self):
         if not self._last_result_png:
             return
+            
+        # Check if user has a valid license
+        if not self._licensed:
+            from PySide6.QtWidgets import QMessageBox
+            reply = QMessageBox.question(
+                cast(QWidget, self),
+                "Evaluation Mode",
+                "Copy to clipboard requires a license. Would you like to enter your license key?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes
+            )
+            if reply == QMessageBox.StandardButton.Yes:
+                self.on_enter_license()
+                # Only continue if licensed after entering license
+                if not self._licensed:
+                    self.status_bar.showMessage("Copy to clipboard requires a license", 3000)
+                    return
+            else:
+                self.status_bar.showMessage("Copy to clipboard requires a license", 3000)
+                return
+        
         try:
             img = QImage.fromData(self._last_result_png, "PNG")
             if img.isNull():

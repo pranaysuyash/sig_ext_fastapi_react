@@ -158,7 +158,7 @@ class ThemeMixin:
                         QListWidget, QTextEdit, QLineEdit, QSpinBox, QComboBox {{
                             background-color: rgba({colors["base"].red()}, {colors["base"].green()}, {colors["base"].blue()}, 240);
                             border: 1px solid rgba(255, 255, 255, 0.12);
-                            border-radius: {scale(8)}px;
+                            border-radius: 16px;
                             padding: {scale(4)}px;
                             color: rgba({text_color.red()}, {text_color.green()}, {text_color.blue()}, 240);
                         }}
@@ -171,16 +171,18 @@ class ThemeMixin:
                         QListWidget::item {{
                             padding: {scale(6)}px {scale(10)}px;
                             margin: {scale(2)}px {scale(2)}px {scale(2)}px 0px;
-                            border-radius: {scale(6)}px;
+                            border-radius: 16px;
                         }}
 
                         QListWidget::item:selected {{
                             background-color: rgba({accent_r}, {accent_g}, {accent_b}, 90);
                             color: rgba(255, 255, 255, 250);
+                            border-radius: 16px;
                         }}
 
                         QListWidget::item:hover {{
                             background-color: rgba(255, 255, 255, 0.10);
+                            border-radius: 16px;
                         }}
 
                         /* Scrollbar - minimal Mac style */
@@ -192,7 +194,7 @@ class ThemeMixin:
 
                         QScrollBar::handle:vertical {{
                             background: rgba(255, 255, 255, 0.25);
-                            border-radius: {scale(4)}px;
+                            border-radius: 16px;
                             min-height: {scale(30)}px;
                         }}
 
@@ -210,7 +212,7 @@ class ThemeMixin:
                         QWidget#pdfControlsPanel, QWidget#extractionControlsPanel, QWidget#_left_panel {{
                             background-color: rgba({colors["base"].red()}, {colors["base"].green()}, {colors["base"].blue()}, 20);
                             border: 1px solid rgba(255, 255, 255, 0.08);
-                            border-radius: {scale(12)}px;
+                            border-radius: 16px;
                             padding: {scale(16)}px;
                         }}
 
@@ -220,14 +222,28 @@ class ThemeMixin:
                             background-color: rgba(255, 255, 255, 13);
                             color: rgba(255, 255, 255, 210);
                             border: 1px solid rgba(255, 255, 255, 26);
-                            border-radius: {scale(8)}px;
+                            border-radius: 16px;
                             font-size: 12px;
                             line-height: 1.5;
                         }}
 
-                        /* Glass panels for image views */
+                        /* Glass panels - preserve widget's own glassmorphism styling but ensure consistent border radius */
                         QWidget#glassPanel {{
-                            background-color: transparent;
+                            border-radius: 16px;
+                        }}
+                        
+                        /* Image view containers - ensure rounded corners within glass panels */
+                        QGraphicsView {{
+                            border: 1px solid rgba(255, 255, 255, 0.10);
+                            border-radius: 16px;
+                            background-color: rgba(0, 0, 0, 0.05);
+                        }}
+                        
+                        /* Preview and result pane containers */
+                        QWidget#previewImageView, QWidget#resultImageView {{
+                            border: 1px solid rgba(255, 255, 255, 0.10);
+                            border-radius: 16px;
+                            background-color: rgba(0, 0, 0, 0.05);
                         }}
 
                         /* Image view containers - NO styling on QGraphicsView to prevent crashes */
@@ -238,7 +254,7 @@ class ThemeMixin:
                         /* Tabs with Mac styling */
                         QTabWidget::pane {{
                             border: 1px solid rgba(255, 255, 255, 0.10);
-                            border-radius: {scale(10)}px;
+                            border-radius: 16px;
                             padding: {scale(4)}px;
                             background-color: rgba({colors["base"].red()}, {colors["base"].green()}, {colors["base"].blue()}, 15);
                         }}
@@ -266,7 +282,7 @@ class ThemeMixin:
                             background-color: rgba({colors["tooltip_base"].red()}, {colors["tooltip_base"].green()}, {colors["tooltip_base"].blue()}, 245);
                             color: rgba({colors["tooltip_text"].red()}, {colors["tooltip_text"].green()}, {colors["tooltip_text"].blue()}, 250);
                             border: 1px solid rgba(255, 255, 255, 0.15);
-                            border-radius: {scale(6)}px;
+                            border-radius: 16px;
                             padding: {scale(4)}px {scale(8)}px;
                         }}
 
@@ -338,7 +354,7 @@ class ThemeMixin:
                         QListWidget, QTextEdit, QLineEdit, QSpinBox, QComboBox {{
                             background-color: rgba({colors["base"].red()}, {colors["base"].green()}, {colors["base"].blue()}, 255);
                             border: 1px solid rgba(0, 0, 0, 0.14);
-                            border-radius: {scale(8)}px;
+                            border-radius: 16px;
                             padding: {scale(4)}px;
                             color: rgba({text_color.red()}, {text_color.green()}, {text_color.blue()}, 255);
                         }}
@@ -351,16 +367,18 @@ class ThemeMixin:
                         QListWidget::item {{
                             padding: {scale(6)}px {scale(10)}px;
                             margin: {scale(2)}px {scale(2)}px {scale(2)}px 0px;
-                            border-radius: {scale(6)}px;
+                            border-radius: 16px;
                         }}
 
                         QListWidget::item:selected {{
                             background-color: rgba({accent_r}, {accent_g}, {accent_b}, 50);
                             color: rgba({accent_r}, {accent_g}, {accent_b}, 255);
+                            border-radius: 16px;
                         }}
 
                         QListWidget::item:hover {{
                             background-color: rgba(0, 0, 0, 0.05);
+                            border-radius: 16px;
                         }}
 
                         /* Scrollbar - minimal Mac style */
@@ -372,7 +390,7 @@ class ThemeMixin:
 
                         QScrollBar::handle:vertical {{
                             background: rgba(0, 0, 0, 0.20);
-                            border-radius: {scale(4)}px;
+                            border-radius: 16px;
                             min-height: {scale(30)}px;
                         }}
 
@@ -390,7 +408,7 @@ class ThemeMixin:
                         QWidget#pdfControlsPanel, QWidget#extractionControlsPanel, QWidget#_left_panel {{
                             background-color: rgba(255, 255, 255, 245);
                             border: 1px solid rgba(0, 0, 0, 0.10);
-                            border-radius: {scale(12)}px;
+                            border-radius: 16px;
                             padding: {scale(16)}px;
                         }}
 
@@ -400,14 +418,28 @@ class ThemeMixin:
                             background-color: rgba(0, 0, 0, 8);
                             color: #2b2b2b;
                             border: 1px solid rgba(0, 0, 0, 20);
-                            border-radius: {scale(8)}px;
+                            border-radius: 16px;
                             font-size: 12px;
                             line-height: 1.5;
                         }}
 
-                        /* Glass panels for image views */
+                        /* Glass panels - preserve widget's own glassmorphism styling but ensure consistent border radius */
                         QWidget#glassPanel {{
-                            background-color: transparent;
+                            border-radius: 16px;
+                        }}
+                        
+                        /* Image view containers - ensure rounded corners within glass panels */
+                        QGraphicsView {{
+                            border: 1px solid rgba(0, 0, 0, 0.10);
+                            border-radius: 16px;
+                            background-color: rgba(255, 255, 255, 0.10);
+                        }}
+                        
+                        /* Preview and result pane containers */
+                        QWidget#previewImageView, QWidget#resultImageView {{
+                            border: 1px solid rgba(0, 0, 0, 0.10);
+                            border-radius: 16px;
+                            background-color: rgba(255, 255, 255, 0.10);
                         }}
 
                         /* Image view containers - NO styling on QGraphicsView to prevent crashes */
@@ -418,7 +450,7 @@ class ThemeMixin:
                         /* Tabs with Mac styling */
                         QTabWidget::pane {{
                             border: 1px solid rgba(0, 0, 0, 0.12);
-                            border-radius: {scale(10)}px;
+                            border-radius: 16px;
                             padding: {scale(4)}px;
                             background-color: rgba(255, 255, 255, 245);
                         }}
@@ -446,7 +478,7 @@ class ThemeMixin:
                             background-color: rgba({colors["tooltip_base"].red()}, {colors["tooltip_base"].green()}, {colors["tooltip_base"].blue()}, 250);
                             color: rgba({colors["tooltip_text"].red()}, {colors["tooltip_text"].green()}, {colors["tooltip_text"].blue()}, 255);
                             border: 1px solid rgba(0, 0, 0, 0.15);
-                            border-radius: {scale(6)}px;
+                            border-radius: 16px;
                             padding: {scale(4)}px {scale(8)}px;
                         }}
 
