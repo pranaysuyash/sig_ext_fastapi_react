@@ -21,10 +21,10 @@ This document outlines the critical requirements for a comprehensive pre-launch 
 
 #### Acceptance Criteria
 
-1. THE Signature_Extractor_App SHALL implement one of three architecture approaches: embedded backend, removed backend, or bundled backend
-2. IF embedded backend is chosen, THE Signature_Extractor_App SHALL automatically start and manage the backend process without user intervention
-3. IF backend removal is chosen, THE Signature_Extractor_App SHALL integrate all image processing functionality directly into the desktop application
-4. IF bundled backend is chosen, THE Signature_Extractor_App SHALL package the backend as a hidden service that starts automatically
+1. THE Signature_Extractor_App SHALL implement hybrid architecture with embedded backend that auto-starts transparently to users
+2. THE Signature_Extractor_App SHALL move core image processing functionality to local processing for offline-first operation
+3. THE Signature_Extractor_App SHALL maintain backend functionality for licensing, updates, and future cloud features
+4. THE Signature_Extractor_App SHALL gracefully degrade to offline mode when backend is unavailable while maintaining core functionality
 5. THE chosen architecture SHALL support simple one-click installation and immediate functionality for end users
 
 ### Requirement 2: Critical Functionality Verification
@@ -57,11 +57,11 @@ This document outlines the critical requirements for a comprehensive pre-launch 
 
 #### Acceptance Criteria
 
-1. THE Signature_Extractor_App SHALL include a complete .env.example file with all required configuration variables
-2. THE Signature_Extractor_App SHALL provide clear setup instructions for both SQLite and PostgreSQL database options
-3. WHEN required environment variables are missing, THE Backend_API SHALL provide clear error messages indicating what needs to be configured
-4. THE Desktop_Client SHALL gracefully handle missing or invalid API base URL configuration
-5. THE Signature_Extractor_App SHALL include consistent port configuration across all components
+1. THE Signature_Extractor_App SHALL include a complete .env.example file with all required configuration variables including JWT_SECRET, DATABASE_URL, and API_BASE_URL
+2. THE Signature_Extractor_App SHALL use consistent port configuration (8001) across all components, documentation, and test files
+3. WHEN required environment variables are missing, THE Processing_Engine SHALL provide clear error messages indicating what needs to be configured
+4. THE Desktop_Client SHALL gracefully handle missing or invalid API base URL configuration with helpful error messages
+5. THE Signature_Extractor_App SHALL provide clear setup instructions that work for both technical and non-technical users
 
 ### Requirement 5: User Experience and Interface Quality
 
@@ -106,10 +106,10 @@ This document outlines the critical requirements for a comprehensive pre-launch 
 #### Acceptance Criteria
 
 1. THE Signature_Extractor_App SHALL process all images locally without cloud uploads or network transmission
-2. THE Processing_Engine SHALL implement proper input validation for all file operations and parameters
-3. THE Signature_Extractor_App SHALL handle file permissions and access controls appropriately
-4. THE Signature_Extractor_App SHALL not require authentication or user accounts for basic functionality
-5. THE Signature_Extractor_App SHALL not log or store sensitive user data unnecessarily
+2. THE Processing_Engine SHALL implement proper input validation for file types, sizes, and parameters to prevent malicious uploads
+3. THE Processing_Engine SHALL validate image file headers and content types to prevent execution of non-image files
+4. THE Signature_Extractor_App SHALL implement proper file path sanitization to prevent directory traversal attacks
+5. THE Signature_Extractor_App SHALL not log or store sensitive user data unnecessarily and shall clean up temporary files securely
 
 ### Requirement 9: Distribution and Packaging
 
@@ -135,14 +135,50 @@ This document outlines the critical requirements for a comprehensive pre-launch 
 4. THE Processing_Engine SHALL handle operations efficiently without blocking the user interface
 5. THE Signature_Extractor_App SHALL provide progress indicators for long-running operations
 
-### Requirement 11: Documentation and Support
+### Requirement 11: Critical Bug Fixes
+
+**User Story:** As a user, I want all known critical bugs to be resolved so that core functionality works reliably without workarounds.
+
+#### Acceptance Criteria
+
+1. WHEN a user opens a saved signature from the library, THE Signature_Extractor_App SHALL allow proper selection and processing without producing black output
+2. WHEN a user rotates an image, THE Signature_Extractor_App SHALL clear previous selections and reset coordinate mapping appropriately
+3. WHEN a user clicks "Clear Selection", THE Signature_Extractor_App SHALL properly clear the selection regardless of image source
+4. WHEN a user makes selections on library images, THE Signature_Extractor_App SHALL maintain proper coordinate mapping and session management
+5. THE Signature_Extractor_App SHALL implement proper error handling for backend connectivity issues with user-friendly messages
+
+### Requirement 12: Business and Legal Compliance
+
+**User Story:** As a business launching a commercial product, I want all legal and business requirements met so that the product can be sold and supported professionally.
+
+#### Acceptance Criteria
+
+1. THE Signature_Extractor_App SHALL include complete privacy policy, terms of service, and third-party attribution documentation
+2. THE Signature_Extractor_App SHALL implement a functional licensing system with clear evaluation mode restrictions
+3. THE Signature_Extractor_App SHALL provide working purchase flow integration with payment processor
+4. THE Signature_Extractor_App SHALL include 30-day refund policy information accessible from within the application
+5. THE Signature_Extractor_App SHALL implement proper support contact mechanisms and diagnostic reporting features
+
+### Requirement 13: Code Quality and Technical Debt
+
+**User Story:** As a developer maintaining the codebase, I want clean, well-documented code so that the application is maintainable and reliable for production use.
+
+#### Acceptance Criteria
+
+1. THE Signature_Extractor_App SHALL remove all commented-out code blocks and legacy implementations from the backend
+2. THE Processing_Engine SHALL implement consistent error handling and logging across all components
+3. THE Signature_Extractor_App SHALL include comprehensive input validation for all file operations and user inputs
+4. THE Signature_Extractor_App SHALL implement proper resource cleanup and memory management for image processing operations
+5. THE Signature_Extractor_App SHALL include comprehensive type hints and documentation for all public APIs
+
+### Requirement 14: Documentation and Support
 
 **User Story:** As a user needing help, I want comprehensive documentation and support resources so that I can resolve issues and learn advanced features independently.
 
 #### Acceptance Criteria
 
 1. THE Signature_Extractor_App SHALL include complete user documentation covering all features
-2. THE Signature_Extractor_App SHALL provide troubleshooting guides for common issues
+2. THE Signature_Extractor_App SHALL provide troubleshooting guides for common issues including backend connectivity problems
 3. THE Signature_Extractor_App SHALL include keyboard shortcut documentation and help menus
-4. THE Signature_Extractor_App SHALL provide clear contact information for technical support
-5. THE Signature_Extractor_App SHALL include privacy policy and terms of service documentation
+4. THE Signature_Extractor_App SHALL provide clear contact information for technical support with diagnostic information collection
+5. THE Signature_Extractor_App SHALL include setup instructions that work for non-technical users

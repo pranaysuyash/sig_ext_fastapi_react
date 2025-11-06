@@ -54,6 +54,16 @@ class ImageView(QGraphicsView):
         )
         self._hint_label.hide()
         self._hint_dismissed = False
+        # Ensure the view's background is transparent so container panels can show through
+        try:
+            from PySide6.QtGui import QColor
+            self.setBackgroundBrush(QColor(0, 0, 0, 0))
+            # Also ensure the viewport uses transparent background
+            self.viewport().setAttribute(self.viewport().WA_StyledBackground, True)
+            self.viewport().setStyleSheet("background: transparent;")
+        except Exception:
+            # Be defensive: if API differs across Qt versions, silently continue
+            pass
 
     def load_image_bytes(self, data: bytes) -> None:
         image = QImage.fromData(data)

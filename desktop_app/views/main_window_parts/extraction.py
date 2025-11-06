@@ -77,7 +77,7 @@ def run_async(func, *args, **kwargs):
     thread_pool.start(runnable)
 
     return future
-from PySide6.QtCore import QTimer, Qt, QPoint, QBuffer, QIODevice, QUrl
+from PySide6.QtCore import QTimer, Qt, QPoint, QBuffer, QIODevice, QUrl, QEvent
 from PySide6.QtGui import QColor, QDesktopServices, QFont, QFontMetrics, QImage, QKeySequence, QPalette, QPixmap, QShortcut, QTransform
 from PySide6.QtWidgets import (
     QApplication,
@@ -107,6 +107,7 @@ from desktop_app.license.storage import is_licensed
 from desktop_app.resources.icons import get_icon, set_button_icon
 from desktop_app.widgets.glass_panel import GlassPanel
 from desktop_app.widgets.image_view import ImageView
+from desktop_app.widgets.modern_mac_button import ModernMacButton
 from desktop_app.views.export_dialog import ExportDialog
 from desktop_app.views.help_dialog import HelpDialog
 from desktop_app.views.license_dialog import LicenseDialog
@@ -137,12 +138,74 @@ def _rgba(color: QColor) -> str:
     return f"rgba({color.red()}, {color.green()}, {color.blue()}, {color.alpha()})"
 
 
+def _create_button(
+    text: str = "",
+    parent: QWidget = None,
+    *,
+    use_modern_mac: bool = None,
+    primary: bool = False,
+    color: str = 'blue',
+    compact: bool = False  # Changed from True to False to match onboarding dialog quality
+) -> QPushButton:
+    """Create a button, using ModernMacButton on macOS if available and requested.
+
+    Args:
+        text: Button text
+        parent: Parent widget
+        use_modern_mac: Force modern button (default: auto-detect macOS)
+        primary: True for primary action buttons (colored)
+        color: One of 'blue', 'purple', 'pink', 'red', 'orange', 'yellow', 'green', 'teal'
+        compact: True for smaller buttons (sidebar/toolbar), False for larger (dialogs)
+    """
+    if use_modern_mac is None:
+        use_modern_mac = sys.platform == "darwin"
+
+    if use_modern_mac:
+        try:
+            btn = ModernMacButton(
+                text, parent,
+                primary=primary,
+                color=color,
+                glass=True,
+                compact=compact
+            )
+            return btn
+        except (NameError, TypeError):
+            # Fallback if ModernMacButton not available or doesn't support compact
+            pass
+
+    # Default to standard QPushButton
+    btn = QPushButton(text, parent)
+    # Mark compact variant so we can style it via stylesheet on macOS too
+    if compact:
+        # dynamic property is lowercased as "true"/"false" in Qt style matching
+        btn.setProperty("compact", True)
+    return btn
+
+
 class ElidingButton(QPushButton):
     """A QPushButton that elides text when it doesn't fit."""
 
     def __init__(self, text="", parent=None):
+        # Use ModernMacButton on macOS if available
+        if sys.platform == "darwin":
+            try:
+                # Create ModernMacButton instance directly
+                ModernMacButton.__init__(self, text, parent)
+                # Add eliding-specific attributes
+                self._full_text = text
+                return
+            except (NameError, Exception):
+                pass
+        # Fallback to QPushButton
         super().__init__(text, parent)
         self._full_text = text
+        # Make sidebar buttons expand horizontally but keep a sane height
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.setMinimumHeight(30)
+        # Tooltips should expose the full text when elided
+        if text:
+            self.setToolTip(text)
 
     def setText(self, text):
         self._full_text = text
@@ -154,6 +217,10 @@ class ElidingButton(QPushButton):
             fm = QFontMetrics(self.font())
             elided = fm.elidedText(self._full_text, Qt.ElideRight, self.width() - 10)
             super().setText(elided)
+
+    def mousePressEvent(self, event):
+        # Ensure default press behavior; stored _full_text is only for eliding, not the label itself
+        super().mousePressEvent(event)
 
 
 class ExtractionTabMixin:
@@ -199,6 +266,9 @@ class ExtractionTabMixin:
 
         # Store reference for responsive breakpoints
         self._left_panel = left_panel
+
+        # Install event filter for responsive sizing
+        left_panel.installEventFilter(self)
 
         # Compute section and pane label colors for both macOS and non-macOS
         palette = cast(QWidget, self).palette()
@@ -284,23 +354,50 @@ class ExtractionTabMixin:
                 "#extractionControlsPanel QComboBox {"
                 f"  background-color: {field_bg_str};"
                 f"  border: 1px solid {subtle_line_str};"
-                "  border-radius: 8px;"
+                "  border-radius: 6px;"
                 "  padding: 6px 8px;"
                 f"  color: {text_color.name()};"
+                "  selection-background-color: rgba(0, 122, 255, 0.2);"
                 "}"
                 "#extractionControlsPanel QLineEdit:focus,"
                 "#extractionControlsPanel QComboBox:focus {"
                 f"  border: 2px solid {'#007AFF' if is_dark_mode else '#0051D5'};"
                 "  outline: none;"
+                "  background-color: rgba(255, 255, 255, 0.05);"
                 "}"
                 "#extractionControlsPanel QComboBox::drop-down {"
-                "  width: 22px;"
+                "  width: 24px;"
+                "  border: none;"
+                "  background: transparent;"
                 "}"
-                "#extractionControlsPanel QListWidget {"
+                "#extractionControlsPanel QComboBox::down-arrow {"
+                "  image: none;"
+                "  border-left: 4px solid transparent;"
+                "  border-right: 4px solid transparent;"
+                f"  border-top: 4px solid {text_color.name()};"
+                "  margin-right: 6px;"
+                "}"
+                "#extractionControlsPanel QComboBox::down-arrow:hover {"
+                f"  border-top-color: {'#007AFF' if is_dark_mode else '#0051D5'};"
+                "}"
+                "#extractionControlsPanel QComboBox QAbstractItemView {"
                 f"  background-color: {field_bg_str};"
                 f"  border: 1px solid {subtle_line_str};"
-                "  border-radius: 10px;"
-                "  padding: 6px;"
+                "  border-radius: 6px;"
+                "  selection-background-color: rgba(0, 122, 255, 0.2);"
+                "  selection-color: inherit;"
+                "  padding: 4px;"
+                "}"
+                "#extractionControlsPanel QComboBox QAbstractItemView::item {"
+                "  padding: 6px 8px;"
+                "  border-radius: 3px;"
+                "  margin: 1px;"
+                "}"
+                "#extractionControlsPanel QComboBox QAbstractItemView::item:hover {"
+                "  background-color: rgba(0, 122, 255, 0.1);"
+                "}"
+                "#extractionControlsPanel QComboBox QAbstractItemView::item:selected {"
+                "  background-color: rgba(0, 122, 255, 0.2);"
                 "}"
                 "#extractionControlsPanel QListWidget:focus {"
                 f"  border: 2px solid {'#007AFF' if is_dark_mode else '#0051D5'};"
@@ -323,15 +420,22 @@ class ExtractionTabMixin:
                 "  margin: -6px 0;"
                 "  border-radius: 8px;"
                 "}"
-                f"QWidget#extractionControlsPanel QPushButton {{ padding: 7px 14px; border-radius: 8px; border: 1px solid {button_border_str};"
-                f"  background-color: {button_bg_str}; color: {text_color.name()}; font-weight: 500; }}"
-                f"QWidget#extractionControlsPanel QPushButton:hover {{ background-color: {button_hover_str}; }}"
-                f"QWidget#extractionControlsPanel QPushButton:focus {{ border: 2px solid {'#007AFF' if is_dark_mode else '#0051D5'}; outline: none; }}"
+                # Standard QPushButton styling (excludes ModernMacButton which uses custom paintEvent)
+                f"QWidget#extractionControlsPanel QPushButton:not([objectName='ModernMacButton']) {{ padding: 7px 14px; border-radius: 8px; border: 1px solid {button_border_str}; background-color: {button_bg_str}; color: {text_color.name()}; font-weight: 500; }}"
+                f"QWidget#extractionControlsPanel QPushButton[primary=\"true\"]:not([objectName='ModernMacButton']) {{ background-color: {'#007AFF' if is_dark_mode else '#0051D5'}; color: white; border-color: {'#007AFF' if is_dark_mode else '#0051D5'}; }}"
+                f"QWidget#extractionControlsPanel QPushButton[destructive=\"true\"]:not([objectName='ModernMacButton']) {{ background-color: #DC3545; color: white; border-color: #DC3545; }}"
+                f"QWidget#extractionControlsPanel QPushButton[compact=\"true\"]:not([objectName='ModernMacButton']) {{ padding: 5px 10px; min-height: 26px; font-size: 12px; }}"
+                f"QWidget#extractionControlsPanel QPushButton:not([objectName='ModernMacButton']):pressed {{ filter: brightness(0.95); }}"
+                f"QWidget#extractionControlsPanel QPushButton:not([objectName='ModernMacButton']):focus {{ box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.35); }}"
+                f"QWidget#extractionControlsPanel QPushButton:not([objectName='ModernMacButton']):hover {{ background-color: {button_hover_str}; }}"
+                f"QWidget#extractionControlsPanel QPushButton[primary=\"true\"]:not([objectName='ModernMacButton']):hover {{ background-color: {'#0056CC' if is_dark_mode else '#0041A8'}; }}"
+                f"QWidget#extractionControlsPanel QPushButton[destructive=\"true\"]:not([objectName='ModernMacButton']):hover {{ background-color: #C82333; }}"
+                f"QWidget#extractionControlsPanel QPushButton:not([objectName='ModernMacButton']):focus {{ border: 2px solid {'#007AFF' if is_dark_mode else '#0051D5'}; outline: none; }}"
                 f"QWidget#extractionControlsPanel QPushButton:disabled {{ color: {disabled_text_str}; background-color: {disabled_bg_str}; border-color: {subtle_line_str}; }}"
                 f"QWidget#extractionControlsPanel QCheckBox {{ color: {text_color.name()}; spacing: 6px; }}"
             )
 
-        self.open_btn = ElidingButton()
+        self.open_btn = _create_button("", parent_widget, primary=True)
         set_button_icon(self.open_btn, "open", "Open & Upload Image", use_emoji=False)
         self.open_btn.setObjectName("openFileButton")
         self.open_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -379,7 +483,7 @@ class ExtractionTabMixin:
 
         self.color_label = QLabel("Color: #000000")
         self.color_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        self.pick_color_btn = QPushButton()
+        self.pick_color_btn = _create_button(parent=parent_widget)
         set_button_icon(self.pick_color_btn, "color", "Pick Color", use_emoji=False)
         self.pick_color_btn.setObjectName("pickColorButton")
         self.pick_color_btn.clicked.connect(self.on_pick_color)
@@ -403,10 +507,10 @@ class ExtractionTabMixin:
 
         controls.addWidget(self._make_section_label("View", section_color_hex))
         view_row1 = QHBoxLayout()
-        self.zoom_in_btn = QPushButton("+")
+        self.zoom_in_btn = _create_button("+", parent_widget)
         self.zoom_in_btn.setObjectName("zoomInButton")
         self.zoom_in_btn.setToolTip("Zoom In (Ctrl/Cmd +)")
-        self.zoom_out_btn = QPushButton("−")
+        self.zoom_out_btn = _create_button("−", parent_widget)
         self.zoom_out_btn.setObjectName("zoomOutButton")
         self.zoom_out_btn.setToolTip("Zoom Out (Ctrl/Cmd −)")
         self.zoom_combo = QComboBox()
@@ -419,6 +523,7 @@ class ExtractionTabMixin:
         self.zoom_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self.zoom_combo.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed)
         self.zoom_combo.setMinimumWidth(60)  # Ensure minimum width for usability
+        self.zoom_combo.setMinimumContentsLength(4)  # Ensure uniform item sizes
         line_edit = self.zoom_combo.lineEdit()
         if line_edit is not None:
             line_edit.setPlaceholderText("Zoom")
@@ -430,13 +535,16 @@ class ExtractionTabMixin:
         view_row1.addWidget(self.zoom_in_btn)
         view_row1.addWidget(self.zoom_out_btn)
         view_row1.addWidget(self.zoom_combo)
+        # Set compact property for zoom buttons for macOS compact variant
+        self.zoom_in_btn.setProperty("compact", True)
+        self.zoom_out_btn.setProperty("compact", True)
         controls.addLayout(view_row1)
 
         view_row2 = QHBoxLayout()
-        self.fit_btn = QPushButton("Fit")
+        self.fit_btn = _create_button("Fit", parent_widget)
         self.fit_btn.setObjectName("fitButton")
         self.fit_btn.setToolTip("Fit image (Ctrl/Cmd 1)")
-        self.reset_view_btn = QPushButton("Reset")
+        self.reset_view_btn = _create_button("Reset", parent_widget)
         self.reset_view_btn.setObjectName("resetViewButton")
         self.reset_view_btn.setToolTip("Reset view (Ctrl/Cmd 0)")
         view_row2.addWidget(self.fit_btn)
@@ -445,10 +553,10 @@ class ExtractionTabMixin:
 
         controls.addWidget(self._make_section_label("Image", section_color_hex))
         rotate_row = QHBoxLayout()
-        self.rotate_ccw_btn = QPushButton("↺")
+        self.rotate_ccw_btn = _create_button("↺", parent_widget)
         self.rotate_ccw_btn.setObjectName("rotateCCWButton")
         self.rotate_ccw_btn.setToolTip("Rotate CCW (Ctrl/Cmd [)")
-        self.rotate_cw_btn = QPushButton("↻")
+        self.rotate_cw_btn = _create_button("↻", parent_widget)
         self.rotate_cw_btn.setObjectName("rotateCWButton")
         self.rotate_cw_btn.setToolTip("Rotate CW (Ctrl/Cmd ])")
         rotate_row.addWidget(self.rotate_ccw_btn)
@@ -467,17 +575,19 @@ class ExtractionTabMixin:
         self.clear_sel_btn.setObjectName("clearSelectionButton")
         self.clear_sel_btn.setToolTip("Clear current selection")
         self.clear_sel_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.clear_sel_btn.setProperty("compact", True)
         self.clean_session_btn = ElidingButton("Clean Viewport")
         self.clean_session_btn.setObjectName("cleanViewportButton")
         self.clean_session_btn.setToolTip("Clear the current upload and reset all panes")
         self.clean_session_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.clean_session_btn.setProperty("compact", True)
         controls.addWidget(self.toggle_mode_btn)
         controls.addWidget(self.clear_sel_btn)
         controls.addWidget(self.clean_session_btn)
 
         controls.addWidget(self._make_section_label("Export & Save", section_color_hex))
         export_row_1 = QHBoxLayout()
-        self.export_btn = ElidingButton("Export...")
+        self.export_btn = _create_button("Export...", parent_widget, primary=True)
         self.export_btn.setObjectName("exportButton")
         self.export_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         export_icon = get_icon("export")
@@ -486,7 +596,7 @@ class ExtractionTabMixin:
         self.export_btn.setToolTip("Export with advanced options (background, trim, format) - Ctrl/Cmd E")
         self.export_btn.clicked.connect(self.on_export)
         self.export_btn.setEnabled(False)
-        self.copy_btn = QPushButton("Copy")
+        self.copy_btn = _create_button("Copy", parent_widget, primary=True)
         self.copy_btn.setObjectName("copyButton")
         self.copy_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         copy_icon = get_icon("copy")
@@ -500,7 +610,7 @@ class ExtractionTabMixin:
         controls.addLayout(export_row_1)
 
         export_row_2 = QHBoxLayout()
-        self.save_to_library_btn = ElidingButton("Save to Library")
+        self.save_to_library_btn = _create_button("Save to Library", parent_widget, primary=True)
         self.save_to_library_btn.setObjectName("saveToLibraryButton")
         self.save_to_library_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         save_icon = get_icon("save")
@@ -510,7 +620,7 @@ class ExtractionTabMixin:
         self.save_to_library_btn.clicked.connect(self.on_save_to_library)
         self.save_to_library_btn.setEnabled(False)
 
-        self.export_json_btn = ElidingButton("Export JSON")
+        self.export_json_btn = _create_button("Export JSON", parent_widget)
         self.export_json_btn.setObjectName("exportJsonButton")
         self.export_json_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         export_json_icon = get_icon("export")
@@ -534,6 +644,7 @@ class ExtractionTabMixin:
         self.library_list.itemSelectionChanged.connect(self._update_library_controls)
         self.library_list.setMinimumHeight(80)  # Reduced from 120 for better flexibility on small screens
         self.library_list.setTextElideMode(Qt.TextElideMode.ElideRight)  # Elide long filenames
+        self.library_list.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         if sys.platform == "darwin":
             self.library_list.setStyleSheet(
                 "QListWidget#libraryList {"
@@ -547,7 +658,7 @@ class ExtractionTabMixin:
             )
         controls.addWidget(self.library_list)
 
-        self.delete_from_library_btn = ElidingButton("Delete Selected")
+        self.delete_from_library_btn = _create_button("Delete Selected", parent_widget)
         self.delete_from_library_btn.setObjectName("deleteLibraryButton")
         delete_icon = get_icon("delete")
         if not delete_icon.isNull():
@@ -618,6 +729,8 @@ class ExtractionTabMixin:
 
         self._images_layout = QVBoxLayout()
         self._src_container = QWidget()
+        # Name the source container so theme can target the main canvas area
+        self._src_container.setObjectName("sourcePanel")
         src_layout = QVBoxLayout(self._src_container)
         src_layout.setContentsMargins(0, 0, 0, 0)
         self.source_label = QLabel("Source")
@@ -637,6 +750,8 @@ class ExtractionTabMixin:
         self._images_layout.addWidget(self._src_container, stretch=3)
 
         self.preview_container = QWidget()
+         # Name the preview container for consistent theming
+        self.preview_container.setObjectName("previewPanel")
         preview_layout = QVBoxLayout(self.preview_container)
         preview_layout.setContentsMargins(0, 0, 0, 0)
         self.preview_label = QLabel("Crop preview")
@@ -667,6 +782,8 @@ class ExtractionTabMixin:
         self.preview_container.setVisible(False)
 
         result_container = QWidget()
+        # Name the result container for consistent theming
+        result_container.setObjectName("resultPanel")
         result_layout = QVBoxLayout(result_container)
         result_layout.setContentsMargins(0, 0, 0, 0)
         self.result_label = QLabel("Result")
@@ -1245,7 +1362,7 @@ class ExtractionTabMixin:
             self._health_check_attempt = 0
 
         self._health_check_attempt += 1
-        max_attempts = 5
+        self._max_health_check_attempts = 5
 
         # Update UI to show checking state
         if hasattr(self, "backend_status_label"):
@@ -1301,13 +1418,13 @@ class ExtractionTabMixin:
                 self.open_btn.setEnabled(True)
             else:
                 # Failure - check if we should retry
-                if self._health_check_attempt < max_attempts:
+                if self._health_check_attempt < self._max_health_check_attempts:
                     # Exponential backoff: 100ms, 500ms, 1s, 2s, 5s
                     delays = [100, 500, 1000, 2000, 5000]
                     delay = delays[min(self._health_check_attempt - 1, len(delays) - 1)]
 
                     LOG.debug("Health check failed (attempt %d/%d), retrying in %dms",
-                             self._health_check_attempt, max_attempts, delay)
+                             self._health_check_attempt, self._max_health_check_attempts, delay)
 
                     # Schedule retry
                     QTimer.singleShot(delay, self._check_backend_health)
@@ -2336,16 +2453,16 @@ class ExtractionTabMixin:
         self._update_coordinate_display()
 
     def _apply_left_panel_breakpoint(self):
-        """Apply breakpoint-based label shortening and section collapsing for narrow panels."""
-        # Shorten labels when panel width is less than 300px
-        panel_width = self._left_panel.width() if hasattr(self, '_left_panel') else 300
+        """Apply responsive breakpoints based on available width."""
+        if not hasattr(self, '_left_panel'):
+            return
 
-        # Also check main window width for global narrow mode
-        window_width = self.width() if hasattr(self, 'width') else 1200
-        is_narrow = window_width < 1000
+        # Get available width for responsive behavior
+        available_width = self._left_panel.width()
+        is_narrow = available_width < 280  # Breakpoint for narrow layouts
 
-        if panel_width < 300 or is_narrow:
-            # Shorten long button texts
+        if is_narrow:
+            # Shorten button texts for narrow layouts
             self.open_btn.setText("Open")
             self.toggle_mode_btn.setText("Mode")
             self.clear_sel_btn.setText("Clear")
@@ -2355,16 +2472,15 @@ class ExtractionTabMixin:
             self.export_json_btn.setText("JSON")
             self.delete_from_library_btn.setText("Delete")
 
-            # Collapse non-essential sections in narrow mode
-            if is_narrow:
-                if hasattr(self, '_welcome_label'):
-                    self._welcome_label.hide()
-                if hasattr(self, '_library_section_label'):
-                    self._library_section_label.hide()
-                if hasattr(self, 'library_list'):
-                    self.library_list.hide()
-                if hasattr(self, 'delete_from_library_btn'):
-                    self.delete_from_library_btn.hide()
+            # Hide non-essential sections in narrow mode
+            if hasattr(self, '_welcome_label'):
+                self._welcome_label.hide()
+            if hasattr(self, '_library_section_label'):
+                self._library_section_label.hide()
+            if hasattr(self, 'library_list'):
+                self.library_list.hide()
+            if hasattr(self, 'delete_from_library_btn'):
+                self.delete_from_library_btn.hide()
         else:
             # Restore full button texts
             self.open_btn.setText("Open & Upload Image")
@@ -2389,6 +2505,14 @@ class ExtractionTabMixin:
                 self.library_list.show()
             if hasattr(self, 'delete_from_library_btn'):
                 self.delete_from_library_btn.show()
+
+    def eventFilter(self, obj, event):
+        """Handle events for responsive behavior."""
+        if obj == self._left_panel and event.type() == QEvent.Type.Resize:
+            # Apply breakpoint when panel resizes
+            QTimer.singleShot(0, self._apply_left_panel_breakpoint)
+
+        return super().eventFilter(obj, event)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

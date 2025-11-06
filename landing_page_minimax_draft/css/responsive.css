@@ -433,16 +433,20 @@
   }
 
   .hero-visual {
-    display: none; /* Hide visual on small landscape screens */
+    display: none;
+    /* Hide visual on small landscape screens */
   }
 
   .scroll-indicator {
-    display: none; /* Hide scroll indicator in landscape */
+    display: none;
+    /* Hide scroll indicator in landscape */
   }
 }
 
 /* High DPI / Retina Display Support */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+
   /* Sharper borders for high DPI displays */
   .btn,
   .card,
@@ -461,6 +465,7 @@
 
 /* Touch Device Optimizations */
 @media (hover: none) and (pointer: coarse) {
+
   /* Larger touch targets */
   .btn {
     min-height: 44px;
@@ -496,6 +501,7 @@
 
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
+
   .hero-pattern,
   .blob,
   .animate-float,
@@ -526,6 +532,7 @@
 
 /* Print Styles */
 @media print {
+
   .nav,
   .hero-scroll,
   .back-to-top,
@@ -626,19 +633,19 @@
 
 /* Flexbox Gap Support for Older Browsers */
 @supports not (gap: 1rem) {
-  .hero-cta > * + * {
+  .hero-cta>*+* {
     margin-left: var(--space-md);
   }
 
-  .hero-badges > * + * {
+  .hero-badges>*+* {
     margin-left: var(--space-md);
   }
 
-  .feature-item + .feature-item {
+  .feature-item+.feature-item {
     margin-top: var(--space-sm);
   }
 
-  .feature-list li + li {
+  .feature-list li+li {
     margin-top: var(--space-xs);
   }
 }
@@ -673,42 +680,53 @@
 
 /* CSS Custom Property Fallbacks */
 .btn-primary {
-  background: #007AFF; /* Fallback */
+  background: #007AFF;
+  /* Fallback */
   background: var(--gradient-primary);
 }
 
 .btn-secondary {
-  color: #007AFF; /* Fallback */
+  color: #007AFF;
+  /* Fallback */
   color: var(--primary-blue);
-  border-color: #007AFF; /* Fallback */
+  border-color: #007AFF;
+  /* Fallback */
   border-color: var(--primary-blue);
 }
 
 /* Modern CSS Features with Fallbacks */
 .backdrop-filter {
-  background: rgba(255, 255, 255, 0.95); /* Fallback */
-  -webkit-backdrop-filter: blur(20px); /* Safari 9+ */
-  backdrop-filter: blur(20px); /* Modern browsers */
+  background: rgba(255, 255, 255, 0.95);
+  /* Fallback */
+  -webkit-backdrop-filter: blur(20px);
+  /* Safari 9+ */
+  backdrop-filter: blur(20px);
+  /* Modern browsers */
 }
 
 .gradient-text {
-  color: #007AFF; /* Fallback */
+  color: #007AFF;
+  /* Fallback */
   background: var(--gradient-text);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent; /* Fallback for non-webkit */
+  -webkit-text-fill-color: transparent;
+  /* Fallback for non-webkit */
   background-clip: text;
 }
 
 /* Performance Optimizations for Mobile */
 @media (max-width: 768px) {
+
   .blob,
   .hero-pattern,
   .animate-float {
-    animation: none; /* Disable complex animations on mobile */
+    animation: none;
+    /* Disable complex animations on mobile */
   }
 
   .parallax {
-    transform: none; /* Disable parallax on mobile */
+    transform: none;
+    /* Disable parallax on mobile */
   }
 
   /* Reduce shadow complexity for better performance */

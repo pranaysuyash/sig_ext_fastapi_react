@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, cast
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QColor, QIcon, QKeySequence, QPalette, QPixmap
@@ -31,6 +31,45 @@ from desktop_app.resources.icons import get_icon, set_button_icon
 def _rgba(color: QColor) -> str:
     """Return a Qt stylesheet-friendly RGBA string for the given QColor."""
     return f"rgba({color.red()}, {color.green()}, {color.blue()}, {color.alpha()})"
+
+
+def _create_button(
+    text: str = "",
+    parent: QWidget = None,
+    *,
+    use_modern_mac: bool = False,  # Changed default to False for consistency
+    primary: bool = False,
+    color: str = 'blue',
+    compact: bool = True  # Default to compact for sidebar buttons
+) -> QPushButton:
+    """Create a button, using ModernMacButton on macOS if available and requested.
+
+    Args:
+        text: Button text
+        parent: Parent widget
+        use_modern_mac: Force modern button (default: auto-detect macOS)
+        primary: True for primary action buttons (colored)
+        color: One of 'blue', 'purple', 'pink', 'red', 'orange', 'yellow', 'green', 'teal'
+        compact: True for smaller buttons (sidebar/toolbar), False for larger (dialogs)
+    """
+    if use_modern_mac:
+        try:
+            from desktop_app.widgets.modern_mac_button import ModernMacButton
+            btn = ModernMacButton(
+                text, parent,
+                primary=primary,
+                color=color,
+                glass=True,
+                compact=compact
+            )
+            return btn
+        except (NameError, TypeError):
+            # Fallback if ModernMacButton not available or doesn't support compact
+            pass
+
+    # Default to standard QPushButton - let theme system handle styling
+    return QPushButton(text, parent)
+
 
 from desktop_app.library import storage as lib
 from desktop_app.views.bulk_sign_dialog import BulkSignDialog
@@ -107,7 +146,7 @@ class PdfTabMixin:
                 layout.addWidget(error_label)
 
             # Help button
-            help_btn = QPushButton("📖 Installation Help")
+            help_btn = _create_button("📖 Installation Help", self)
             help_btn.clicked.connect(lambda: self._open_document("docs/PDF_SETUP.md"))
             help_btn.setStyleSheet(
                 "QPushButton { padding: 8px 16px; font-size: 13px; margin-top: 16px; }"
@@ -253,10 +292,10 @@ class PdfTabMixin:
                 "  border: 1px solid rgba(180, 180, 180, 200);"
                 "  width: 16px; height: 16px; margin: -6px 0; border-radius: 8px;"
                 "}"
-                f"QWidget#pdfControlsPanel QPushButton {{ padding: 7px 14px; border-radius: 8px; border: 1px solid {button_border_str};"
+                f"QWidget#pdfControlsPanel QPushButton:not([objectName='ModernMacButton']) {{ padding: 7px 14px; border-radius: 8px; border: 1px solid {button_border_str};"
                 f"  background-color: {button_bg_str}; color: {text_color.name()}; font-weight: 500; }}"
-                f"QWidget#pdfControlsPanel QPushButton:hover {{ background-color: {button_hover_str}; }}"
-                f"QWidget#pdfControlsPanel QPushButton:focus {{ border: 2px solid {'#007AFF' if is_dark_mode else '#0051D5'}; outline: none; }}"
+                f"QWidget#pdfControlsPanel QPushButton:not([objectName='ModernMacButton']):hover {{ background-color: {button_hover_str}; }}"
+                f"QWidget#pdfControlsPanel QPushButton:not([objectName='ModernMacButton']):focus {{ border: 2px solid {'#007AFF' if is_dark_mode else '#0051D5'}; outline: none; }}"
                 f"QWidget#pdfControlsPanel QPushButton:disabled {{ color: {disabled_text_str}; background-color: {disabled_bg_str}; border-color: {subtle_line_str}; }}"
                 f"QWidget#pdfControlsPanel QCheckBox {{ color: {text_color.name()}; spacing: 6px; }}"
             )
@@ -277,6 +316,9 @@ class PdfTabMixin:
         if not PDF_AVAILABLE:
             return
 
+        # Cast self to QWidget for type checking (self will be a QMainWindow at runtime)
+        parent_widget = cast(QWidget, self)
+
         # Compute section label colors for both macOS and non-macOS
         palette = self.palette()
         group = palette.currentColorGroup()
@@ -296,17 +338,17 @@ class PdfTabMixin:
 
         pdf_controls.addWidget(self._make_section_label("PDF Document", section_color_hex, top_margin=0))
 
-        open_pdf_btn = QPushButton("Open PDF...")
+        open_pdf_btn = _create_button("Open PDF...", parent_widget)
         set_button_icon(open_pdf_btn, "open", "Open PDF...", use_emoji=False)
         open_pdf_btn.clicked.connect(self._on_pdf_tab_open)
         pdf_controls.addWidget(open_pdf_btn)
 
-        close_pdf_btn = QPushButton("Close PDF")
+        close_pdf_btn = _create_button("Close PDF", parent_widget)
         set_button_icon(close_pdf_btn, "close", "Close PDF", use_emoji=False)
         close_pdf_btn.clicked.connect(self._on_pdf_tab_close)
         pdf_controls.addWidget(close_pdf_btn)
 
-        save_pdf_btn = QPushButton("Save Signed PDF...")
+        save_pdf_btn = _create_button("Save Signed PDF...", parent_widget)
         set_button_icon(save_pdf_btn, "save", "Save Signed PDF...", use_emoji=False)
         save_pdf_btn.clicked.connect(self._on_pdf_tab_save)
         pdf_controls.addWidget(save_pdf_btn)
@@ -326,19 +368,19 @@ class PdfTabMixin:
         pdf_controls.addWidget(self.pdf_sig_list)
 
         lib_buttons = QHBoxLayout()
-        refresh_sig_btn = QPushButton("Refresh")
+        refresh_sig_btn = _create_button("Refresh", parent_widget)
         set_button_icon(refresh_sig_btn, "refresh", "Refresh", use_emoji=False)
         refresh_sig_btn.clicked.connect(self._refresh_pdf_signature_library)
         lib_buttons.addWidget(refresh_sig_btn)
 
-        paste_sig_btn = QPushButton("Paste")
+        paste_sig_btn = _create_button("Paste", parent_widget)
         set_button_icon(paste_sig_btn, "paste", "Paste", use_emoji=False)
         paste_sig_btn.setToolTip("Paste signature from clipboard (Ctrl/Cmd+V)")
         paste_sig_btn.clicked.connect(self._on_pdf_paste_signature)
         lib_buttons.addWidget(paste_sig_btn)
         pdf_controls.addLayout(lib_buttons)
 
-        bulk_sign_btn = QPushButton("Apply to Multiple Pages...")
+        bulk_sign_btn = _create_button("Apply to Multiple Pages...", parent_widget)
         set_button_icon(bulk_sign_btn, "bulk", "Apply to Multiple Pages...", use_emoji=False)
         bulk_sign_btn.setToolTip("Apply signature to multiple pages at once")
         bulk_sign_btn.clicked.connect(self._on_bulk_sign_clicked)

@@ -2,6 +2,7 @@
 
 from typing import Optional, List, Dict, Any
 from pathlib import Path
+import sys
 
 from PySide6.QtCore import Qt, Signal, QRectF, QPointF, QPoint
 from PySide6.QtGui import QPixmap, QPainter, QPen, QColor, QCursor
@@ -11,6 +12,47 @@ from PySide6.QtWidgets import (
 )
 
 from desktop_app.pdf.renderer import PDFRenderer
+from desktop_app.widgets.modern_mac_button import ModernMacButton
+
+
+def _create_button(
+    text: str = "",
+    parent: Optional[QWidget] = None,
+    *,
+    use_modern_mac: Optional[bool] = None,
+    primary: bool = False,
+    color: str = 'blue',
+    compact: bool = False  # Dialog buttons are typically not compact
+) -> QPushButton:
+    """Create a button, using ModernMacButton on macOS if available and requested.
+
+    Args:
+        text: Button text
+        parent: Parent widget
+        use_modern_mac: Force modern button (default: auto-detect macOS)
+        primary: True for primary action buttons (colored)
+        color: One of 'blue', 'purple', 'pink', 'red', 'orange', 'yellow', 'green', 'teal'
+        compact: True for smaller buttons (sidebar/toolbar), False for larger (dialogs)
+    """
+    if use_modern_mac is None:
+        use_modern_mac = sys.platform == "darwin"
+
+    if use_modern_mac:
+        try:
+            btn = ModernMacButton(
+                text, parent,
+                primary=primary,
+                color=color,
+                glass=True,
+                compact=compact
+            )
+            return btn
+        except (NameError, TypeError):
+            # Fallback if ModernMacButton not available or doesn't support compact
+            pass
+
+    # Default to standard QPushButton
+    return QPushButton(text, parent)
 
 
 class PDFPageView(QWidget):
@@ -467,14 +509,14 @@ class PDFViewer(QWidget):
         # Top toolbar
         toolbar = QHBoxLayout()
         
-        self.prev_btn = QPushButton("◀ Previous")
+        self.prev_btn = _create_button("◀ Previous", self)
         self.prev_btn.clicked.connect(self.previous_page)
         toolbar.addWidget(self.prev_btn)
         
         self.page_label = QLabel("Page 0 of 0")
         toolbar.addWidget(self.page_label)
         
-        self.next_btn = QPushButton("Next ▶")
+        self.next_btn = _create_button("Next ▶", self)
         self.next_btn.clicked.connect(self.next_page)
         toolbar.addWidget(self.next_btn)
         

@@ -3,10 +3,53 @@
 from pathlib import Path
 from types import ModuleType
 from typing import Optional, TYPE_CHECKING, Any
+import sys
 
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QTextBrowser, QPushButton, QHBoxLayout
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QFont, QPalette
+
+from desktop_app.widgets.modern_mac_button import ModernMacButton
+
+
+def _create_button(
+    text: str = "",
+    parent: Optional[QDialog] = None,
+    *,
+    use_modern_mac: Optional[bool] = None,
+    primary: bool = False,
+    color: str = 'blue',
+    compact: bool = False  # Dialog buttons are typically not compact
+) -> QPushButton:
+    """Create a button, using ModernMacButton on macOS if available and requested.
+
+    Args:
+        text: Button text
+        parent: Parent widget
+        use_modern_mac: Force modern button (default: auto-detect macOS)
+        primary: True for primary action buttons (colored)
+        color: One of 'blue', 'purple', 'pink', 'red', 'orange', 'yellow', 'green', 'teal'
+        compact: True for smaller buttons (sidebar/toolbar), False for larger (dialogs)
+    """
+    if use_modern_mac is None:
+        use_modern_mac = sys.platform == "darwin"
+
+    if use_modern_mac:
+        try:
+            btn = ModernMacButton(
+                text, parent,
+                primary=primary,
+                color=color,
+                glass=True,
+                compact=compact
+            )
+            return btn
+        except (NameError, TypeError):
+            # Fallback if ModernMacButton not available or doesn't support compact
+            pass
+
+    # Default to standard QPushButton
+    return QPushButton(text, parent)
 
 _markdown_runtime: Optional[ModuleType]
 try:
@@ -54,7 +97,7 @@ class HelpDialog(QDialog):
         button_layout = QHBoxLayout()
         button_layout.addStretch()
         
-        close_button = QPushButton("Close")
+        close_button = _create_button("Close", self)
         close_button.setFixedWidth(100)
         close_button.clicked.connect(self.accept)
         button_layout.addWidget(close_button)

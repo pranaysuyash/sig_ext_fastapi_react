@@ -1,477 +1,506 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Signature Extractor - Professional Signature Tools</title>
-    <meta name="description" content="Extract, clean, and place signatures on PDFs with precision. Desktop app for professionals.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+    <meta
+      name="description"
+      content="Extract, clean, and place signatures on PDFs with precision. Desktop app for professionals."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
     <!-- Loading Screen -->
     <div id="loading-screen">
-        <div class="loader">
-            <div class="spinner"></div>
-            <p>Loading Signature Extractor...</p>
-        </div>
+      <div class="loader">
+        <div class="spinner"></div>
+        <p>Loading Signature Extractor...</p>
+      </div>
     </div>
 
     <!-- Navigation -->
     <nav id="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <i class="fas fa-signature"></i>
-                <span>Signature Extractor</span>
-            </div>
-            <div class="nav-menu">
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#how-it-works" class="nav-link">How It Works</a>
-                <a href="#pricing" class="nav-link">Pricing</a>
-                <a href="#testimonials" class="nav-link">Reviews</a>
-                <button class="btn btn-primary nav-cta">Download Now</button>
-            </div>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+      <div class="nav-container">
+        <div class="nav-logo">
+          <i class="fas fa-signature"></i>
+          <span>Signature Extractor</span>
         </div>
+        <div class="nav-menu">
+          <a href="#features" class="nav-link">Features</a>
+          <a href="#how-it-works" class="nav-link">How It Works</a>
+          <a href="#pricing" class="nav-link">Pricing</a>
+          <a href="#testimonials" class="nav-link">Reviews</a>
+          <button class="btn btn-primary nav-cta">Download Now</button>
+        </div>
+        <div class="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
     </nav>
 
     <!-- Hero Section -->
     <section id="hero">
-        <div class="hero-bg">
-            <div class="floating-shapes">
-                <div class="shape shape-1"></div>
-                <div class="shape shape-2"></div>
-                <div class="shape shape-3"></div>
-            </div>
+      <div class="hero-bg">
+        <div class="floating-shapes">
+          <div class="shape shape-1"></div>
+          <div class="shape shape-2"></div>
+          <div class="shape shape-3"></div>
         </div>
-        <div class="hero-container">
-            <div class="hero-content">
-                <div class="hero-badge">
-                    <i class="fas fa-star"></i>
-                    <span>#1 Signature Tool for Professionals</span>
-                </div>
-                <h1 class="hero-title">
-                    Extract Clean Signatures.<br>
-                    <span class="highlight">Sign PDFs Instantly.</span>
-                </h1>
-                <p class="hero-subtitle">
-                    Professional signature extraction and PDF signing in one beautiful desktop app.
-                    No subscriptions, no cloud uploads, just precision and privacy.
-                </p>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <div class="stat-number">50K+</div>
-                        <div class="stat-label">Signatures Extracted</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-number">4.9/5</div>
-                        <div class="stat-label">User Rating</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-number">30s</div>
-                        <div class="stat-label">Average Time</div>
-                    </div>
-                </div>
-                <div class="hero-cta">
-                    <button class="btn btn-primary btn-large">
-                        <i class="fas fa-download"></i>
-                        Download Free Trial
-                    </button>
-                    <button class="btn btn-secondary btn-large">
-                        <i class="fas fa-play"></i>
-                        Watch Demo
-                    </button>
-                </div>
-                <div class="hero-trust">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>100% Local Processing • 30-Day Money Back</span>
-                </div>
+      </div>
+      <div class="hero-container">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <i class="fas fa-star"></i>
+            <span>#1 Signature Tool for Professionals</span>
+          </div>
+          <h1 class="hero-title">
+            Extract Clean Signatures.<br />
+            <span class="highlight">Sign PDFs Instantly.</span>
+          </h1>
+          <p class="hero-subtitle">
+            Professional signature extraction and PDF signing in one beautiful
+            desktop app. No subscriptions, no cloud uploads, just precision and
+            privacy.
+          </p>
+          <div class="hero-stats">
+            <div class="stat">
+              <div class="stat-number">50K+</div>
+              <div class="stat-label">Signatures Extracted</div>
             </div>
-            <div class="hero-visual">
-                <div class="mockup-container">
-                    <div class="mockup">
-                        <div class="mockup-header">
-                            <div class="mockup-dots">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </div>
-                            <div class="mockup-title">Signature Extractor</div>
-                        </div>
-                        <div class="mockup-content">
-                            <div class="demo-image">
-                                <img src="assets/images/demo-screenshot.png" alt="App Screenshot">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="floating-elements">
-                        <div class="floating-card card-1">
-                            <i class="fas fa-magic"></i>
-                            <span>AI-Powered Extraction</span>
-                        </div>
-                        <div class="floating-card card-2">
-                            <i class="fas fa-file-pdf"></i>
-                            <span>PDF Integration</span>
-                        </div>
-                        <div class="floating-card card-3">
-                            <i class="fas fa-lock"></i>
-                            <span>Privacy First</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="stat">
+              <div class="stat-number">4.9/5</div>
+              <div class="stat-label">User Rating</div>
             </div>
+            <div class="stat">
+              <div class="stat-number">30s</div>
+              <div class="stat-label">Average Time</div>
+            </div>
+          </div>
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-large">
+              <i class="fas fa-download"></i>
+              Download Free Trial
+            </button>
+            <button class="btn btn-secondary btn-large">
+              <i class="fas fa-play"></i>
+              Watch Demo
+            </button>
+          </div>
+          <div class="hero-trust">
+            <i class="fas fa-shield-alt"></i>
+            <span>100% Local Processing • 30-Day Money Back</span>
+          </div>
         </div>
-        <div class="scroll-indicator">
-            <div class="scroll-mouse">
-                <div class="scroll-wheel"></div>
+        <div class="hero-visual">
+          <div class="mockup-container">
+            <div class="mockup">
+              <div class="mockup-header">
+                <div class="mockup-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="mockup-title">Signature Extractor</div>
+              </div>
+              <div class="mockup-content">
+                <div class="demo-image">
+                  <img
+                    src="assets/images/demo-screenshot.png"
+                    alt="App Screenshot"
+                  />
+                </div>
+              </div>
             </div>
-            <span>Scroll to explore</span>
+            <div class="floating-elements">
+              <div class="floating-card card-1">
+                <i class="fas fa-magic"></i>
+                <span>AI-Powered Extraction</span>
+              </div>
+              <div class="floating-card card-2">
+                <i class="fas fa-file-pdf"></i>
+                <span>PDF Integration</span>
+              </div>
+              <div class="floating-card card-3">
+                <i class="fas fa-lock"></i>
+                <span>Privacy First</span>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="scroll-indicator">
+        <div class="scroll-mouse">
+          <div class="scroll-wheel"></div>
+        </div>
+        <span>Scroll to explore</span>
+      </div>
     </section>
 
     <!-- Features Section -->
     <section id="features">
-        <div class="container">
-            <div class="section-header">
-                <h2>Powerful Features for Professional Results</h2>
-                <p>Everything you need to extract and use signatures professionally</p>
-            </div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-crosshairs"></i>
-                    </div>
-                    <h3>Precision Selection</h3>
-                    <p>Zoom in for pixel-perfect signature selection with advanced tools</p>
-                    <ul class="feature-list">
-                        <li>High-resolution zoom</li>
-                        <li>Magnetic selection</li>
-                        <li>Real-time preview</li>
-                    </ul>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-magic"></i>
-                    </div>
-                    <h3>Smart Extraction</h3>
-                    <p>AI-powered algorithms automatically clean and optimize signatures</p>
-                    <ul class="feature-list">
-                        <li>Background removal</li>
-                        <li>Noise reduction</li>
-                        <li>Color optimization</li>
-                    </ul>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-file-signature"></i>
-                    </div>
-                    <h3>PDF Integration</h3>
-                    <p>Seamlessly place signatures on any PDF document</p>
-                    <ul class="feature-list">
-                        <li>Drag & drop placement</li>
-                        <li>Multiple signature support</li>
-                        <li>Batch processing</li>
-                    </ul>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3>Privacy & Security</h3>
-                    <p>All processing happens locally on your device</p>
-                    <ul class="feature-list">
-                        <li>No cloud uploads</li>
-                        <li>HIPAA compliant</li>
-                        <li>Zero data collection</li>
-                    </ul>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <h3>Lightning Fast</h3>
-                    <p>Extract and sign documents in under 30 seconds</p>
-                    <ul class="feature-list">
-                        <li>Instant processing</li>
-                        <li>Batch operations</li>
-                        <li>Optimized performance</li>
-                    </ul>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-palette"></i>
-                    </div>
-                    <h3>Professional Output</h3>
-                    <p>Export signatures in multiple formats for any use case</p>
-                    <ul class="feature-list">
-                        <li>PNG with transparency</li>
-                        <li>SVG vector format</li>
-                        <li>High-resolution export</li>
-                    </ul>
-                </div>
-            </div>
+      <div class="container">
+        <div class="section-header">
+          <h2>Powerful Features for Professional Results</h2>
+          <p>
+            Everything you need to extract and use signatures professionally
+          </p>
         </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-crosshairs"></i>
+            </div>
+            <h3>Precision Selection</h3>
+            <p>
+              Zoom in for pixel-perfect signature selection with advanced tools
+            </p>
+            <ul class="feature-list">
+              <li>High-resolution zoom</li>
+              <li>Magnetic selection</li>
+              <li>Real-time preview</li>
+            </ul>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-magic"></i>
+            </div>
+            <h3>Smart Extraction</h3>
+            <p>
+              AI-powered algorithms automatically clean and optimize signatures
+            </p>
+            <ul class="feature-list">
+              <li>Background removal</li>
+              <li>Noise reduction</li>
+              <li>Color optimization</li>
+            </ul>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-file-signature"></i>
+            </div>
+            <h3>PDF Integration</h3>
+            <p>Seamlessly place signatures on any PDF document</p>
+            <ul class="feature-list">
+              <li>Drag & drop placement</li>
+              <li>Multiple signature support</li>
+              <li>Batch processing</li>
+            </ul>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <h3>Privacy & Security</h3>
+            <p>All processing happens locally on your device</p>
+            <ul class="feature-list">
+              <li>No cloud uploads</li>
+              <li>HIPAA compliant</li>
+              <li>Zero data collection</li>
+            </ul>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <h3>Lightning Fast</h3>
+            <p>Extract and sign documents in under 30 seconds</p>
+            <ul class="feature-list">
+              <li>Instant processing</li>
+              <li>Batch operations</li>
+              <li>Optimized performance</li>
+            </ul>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-palette"></i>
+            </div>
+            <h3>Professional Output</h3>
+            <p>Export signatures in multiple formats for any use case</p>
+            <ul class="feature-list">
+              <li>PNG with transparency</li>
+              <li>SVG vector format</li>
+              <li>High-resolution export</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- How It Works Section -->
     <section id="how-it-works">
-        <div class="container">
-            <div class="section-header">
-                <h2>How It Works</h2>
-                <p>Three simple steps to professional signatures</p>
-            </div>
-            <div class="steps-container">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h3>Upload & Select</h3>
-                        <p>Drag your document into the app and select the signature area</p>
-                    </div>
-                    <div class="step-visual">
-                        <div class="step-icon">
-                            <i class="fas fa-upload"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="step-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h3>Extract & Clean</h3>
-                        <p>AI automatically extracts and cleans the signature</p>
-                    </div>
-                    <div class="step-visual">
-                        <div class="step-icon">
-                            <i class="fas fa-magic"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="step-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h3>Sign & Save</h3>
-                        <p>Place on PDFs and save your signed documents</p>
-                    </div>
-                    <div class="step-visual">
-                        <div class="step-icon">
-                            <i class="fas fa-file-signature"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="container">
+        <div class="section-header">
+          <h2>How It Works</h2>
+          <p>Three simple steps to professional signatures</p>
         </div>
+        <div class="steps-container">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>Upload & Select</h3>
+              <p>
+                Drag your document into the app and select the signature area
+              </p>
+            </div>
+            <div class="step-visual">
+              <div class="step-icon">
+                <i class="fas fa-upload"></i>
+              </div>
+            </div>
+          </div>
+          <div class="step-arrow">
+            <i class="fas fa-arrow-right"></i>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>Extract & Clean</h3>
+              <p>AI automatically extracts and cleans the signature</p>
+            </div>
+            <div class="step-visual">
+              <div class="step-icon">
+                <i class="fas fa-magic"></i>
+              </div>
+            </div>
+          </div>
+          <div class="step-arrow">
+            <i class="fas fa-arrow-right"></i>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>Sign & Save</h3>
+              <p>Place on PDFs and save your signed documents</p>
+            </div>
+            <div class="step-visual">
+              <div class="step-icon">
+                <i class="fas fa-file-signature"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Testimonials Section -->
     <section id="testimonials">
-        <div class="container">
-            <div class="section-header">
-                <h2>What Professionals Say</h2>
-                <p>Join thousands of satisfied users</p>
-            </div>
-            <div class="testimonials-grid">
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="testimonial-text">
-                        "This app saved me hours of work. The signature extraction is incredibly accurate and the PDF integration is seamless."
-                    </p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">SM</div>
-                        <div class="author-info">
-                            <div class="author-name">Sarah Mitchell</div>
-                            <div class="author-title">Real Estate Agent</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="testimonial-text">
-                        "Finally, a tool that respects privacy. Everything stays on my Mac, and the results are professional quality."
-                    </p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">JD</div>
-                        <div class="author-info">
-                            <div class="author-name">James Davis</div>
-                            <div class="author-title">Contract Lawyer</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-card">
-                    <div class="testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="testimonial-text">
-                        "The speed and accuracy are unbelievable. I process dozens of signatures daily and this tool handles it perfectly."
-                    </p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">LC</div>
-                        <div class="author-info">
-                            <div class="author-name">Lisa Chen</div>
-                            <div class="author-title">Medical Administrator</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="container">
+        <div class="section-header">
+          <h2>What Professionals Say</h2>
+          <p>Join thousands of satisfied users</p>
         </div>
+        <div class="testimonials-grid">
+          <div class="testimonial-card">
+            <div class="testimonial-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">
+              "This app saved me hours of work. The signature extraction is
+              incredibly accurate and the PDF integration is seamless."
+            </p>
+            <div class="testimonial-author">
+              <div class="author-avatar">SM</div>
+              <div class="author-info">
+                <div class="author-name">Sarah Mitchell</div>
+                <div class="author-title">Real Estate Agent</div>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card">
+            <div class="testimonial-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">
+              "Finally, a tool that respects privacy. Everything stays on my
+              Mac, and the results are professional quality."
+            </p>
+            <div class="testimonial-author">
+              <div class="author-avatar">JD</div>
+              <div class="author-info">
+                <div class="author-name">James Davis</div>
+                <div class="author-title">Contract Lawyer</div>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card">
+            <div class="testimonial-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">
+              "The speed and accuracy are unbelievable. I process dozens of
+              signatures daily and this tool handles it perfectly."
+            </p>
+            <div class="testimonial-author">
+              <div class="author-avatar">LC</div>
+              <div class="author-info">
+                <div class="author-name">Lisa Chen</div>
+                <div class="author-title">Medical Administrator</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Pricing Section -->
     <section id="pricing">
-        <div class="container">
-            <div class="section-header">
-                <h2>Simple, Transparent Pricing</h2>
-                <p>One-time purchase, lifetime access</p>
-            </div>
-            <div class="pricing-container">
-                <div class="pricing-card featured">
-                    <div class="pricing-badge">Most Popular</div>
-                    <div class="pricing-header">
-                        <h3>Professional</h3>
-                        <div class="pricing-price">
-                            <span class="price">$29</span>
-                            <span class="period">one-time</span>
-                        </div>
-                    </div>
-                    <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Unlimited signature extractions</li>
-                        <li><i class="fas fa-check"></i> PDF signing workflow</li>
-                        <li><i class="fas fa-check"></i> High-resolution export</li>
-                        <li><i class="fas fa-check"></i> Lifetime updates</li>
-                        <li><i class="fas fa-check"></i> Priority support</li>
-                        <li><i class="fas fa-check"></i> 30-day money back</li>
-                    </ul>
-                    <button class="btn btn-primary btn-large">Get Started</button>
-                </div>
-                <div class="pricing-card">
-                    <div class="pricing-header">
-                        <h3>Enterprise</h3>
-                        <div class="pricing-price">
-                            <span class="price">$99</span>
-                            <span class="period">one-time</span>
-                        </div>
-                    </div>
-                    <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Everything in Professional</li>
-                        <li><i class="fas fa-check"></i> Batch processing</li>
-                        <li><i class="fas fa-check"></i> API access</li>
-                        <li><i class="fas fa-check"></i> Custom integrations</li>
-                        <li><i class="fas fa-check"></i> Dedicated support</li>
-                        <li><i class="fas fa-check"></i> Training sessions</li>
-                    </ul>
-                    <button class="btn btn-secondary btn-large">Contact Sales</button>
-                </div>
-            </div>
+      <div class="container">
+        <div class="section-header">
+          <h2>Simple, Transparent Pricing</h2>
+          <p>One-time purchase, lifetime access</p>
         </div>
+        <div class="pricing-container">
+          <div class="pricing-card featured">
+            <div class="pricing-badge">Most Popular</div>
+            <div class="pricing-header">
+              <h3>Professional</h3>
+              <div class="pricing-price">
+                <span class="price">$29</span>
+                <span class="period">one-time</span>
+              </div>
+            </div>
+            <ul class="pricing-features">
+              <li>
+                <i class="fas fa-check"></i> Unlimited signature extractions
+              </li>
+              <li><i class="fas fa-check"></i> PDF signing workflow</li>
+              <li><i class="fas fa-check"></i> High-resolution export</li>
+              <li><i class="fas fa-check"></i> Lifetime updates</li>
+              <li><i class="fas fa-check"></i> Priority support</li>
+              <li><i class="fas fa-check"></i> 30-day money back</li>
+            </ul>
+            <button class="btn btn-primary btn-large">Get Started</button>
+          </div>
+          <div class="pricing-card">
+            <div class="pricing-header">
+              <h3>Enterprise</h3>
+              <div class="pricing-price">
+                <span class="price">$99</span>
+                <span class="period">one-time</span>
+              </div>
+            </div>
+            <ul class="pricing-features">
+              <li><i class="fas fa-check"></i> Everything in Professional</li>
+              <li><i class="fas fa-check"></i> Batch processing</li>
+              <li><i class="fas fa-check"></i> API access</li>
+              <li><i class="fas fa-check"></i> Custom integrations</li>
+              <li><i class="fas fa-check"></i> Dedicated support</li>
+              <li><i class="fas fa-check"></i> Training sessions</li>
+            </ul>
+            <button class="btn btn-secondary btn-large">Contact Sales</button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- CTA Section -->
     <section id="cta">
-        <div class="container">
-            <div class="cta-content">
-                <h2>Ready to Transform Your Signature Workflow?</h2>
-                <p>Join thousands of professionals who have streamlined their document signing process</p>
-                <div class="cta-buttons">
-                    <button class="btn btn-primary btn-large">
-                        <i class="fas fa-download"></i>
-                        Download Now - $29
-                    </button>
-                    <button class="btn btn-outline btn-large">
-                        <i class="fas fa-question-circle"></i>
-                        Have Questions?
-                    </button>
-                </div>
-                <div class="cta-trust">
-                    <div class="trust-item">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>30-Day Money Back Guarantee</span>
-                    </div>
-                    <div class="trust-item">
-                        <i class="fas fa-lock"></i>
-                        <span>100% Privacy Protected</span>
-                    </div>
-                    <div class="trust-item">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>Lifetime Updates</span>
-                    </div>
-                </div>
+      <div class="container">
+        <div class="cta-content">
+          <h2>Ready to Transform Your Signature Workflow?</h2>
+          <p>
+            Join thousands of professionals who have streamlined their document
+            signing process
+          </p>
+          <div class="cta-buttons">
+            <button class="btn btn-primary btn-large">
+              <i class="fas fa-download"></i>
+              Download Now - $29
+            </button>
+            <button class="btn btn-outline btn-large">
+              <i class="fas fa-question-circle"></i>
+              Have Questions?
+            </button>
+          </div>
+          <div class="cta-trust">
+            <div class="trust-item">
+              <i class="fas fa-shield-alt"></i>
+              <span>30-Day Money Back Guarantee</span>
             </div>
+            <div class="trust-item">
+              <i class="fas fa-lock"></i>
+              <span>100% Privacy Protected</span>
+            </div>
+            <div class="trust-item">
+              <i class="fas fa-sync-alt"></i>
+              <span>Lifetime Updates</span>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Footer -->
     <footer id="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo">
-                        <i class="fas fa-signature"></i>
-                        <span>Signature Extractor</span>
-                    </div>
-                    <p>Professional signature tools for the modern workplace</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                        <a href="#"><i class="fab fa-github"></i></a>
-                    </div>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4>Product</h4>
-                        <a href="#features">Features</a>
-                        <a href="#pricing">Pricing</a>
-                        <a href="#how-it-works">How It Works</a>
-                        <a href="#">Download</a>
-                    </div>
-                    <div class="footer-column">
-                        <h4>Support</h4>
-                        <a href="#">Help Center</a>
-                        <a href="#">Contact Us</a>
-                        <a href="#">System Requirements</a>
-                        <a href="#">FAQ</a>
-                    </div>
-                    <div class="footer-column">
-                        <h4>Company</h4>
-                        <a href="#">About</a>
-                        <a href="#">Blog</a>
-                        <a href="#">Privacy Policy</a>
-                        <a href="#">Terms of Service</a>
-                    </div>
-                </div>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-brand">
+            <div class="footer-logo">
+              <i class="fas fa-signature"></i>
+              <span>Signature Extractor</span>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 Signature Extractor. All rights reserved.</p>
+            <p>Professional signature tools for the modern workplace</p>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-linkedin"></i></a>
+              <a href="#"><i class="fab fa-github"></i></a>
             </div>
+          </div>
+          <div class="footer-links">
+            <div class="footer-column">
+              <h4>Product</h4>
+              <a href="#features">Features</a>
+              <a href="#pricing">Pricing</a>
+              <a href="#how-it-works">How It Works</a>
+              <a href="#">Download</a>
+            </div>
+            <div class="footer-column">
+              <h4>Support</h4>
+              <a href="#">Help Center</a>
+              <a href="#">Contact Us</a>
+              <a href="#">System Requirements</a>
+              <a href="#">FAQ</a>
+            </div>
+            <div class="footer-column">
+              <h4>Company</h4>
+              <a href="#">About</a>
+              <a href="#">Blog</a>
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Service</a>
+            </div>
+          </div>
         </div>
+        <div class="footer-bottom">
+          <p>&copy; 2025 Signature Extractor. All rights reserved.</p>
+        </div>
+      </div>
     </footer>
 
     <script src="js/main.js"></script>
-</body>
+  </body>
 </html>

@@ -19,6 +19,47 @@ from PySide6.QtWidgets import (
 )
 
 from desktop_app.resources.icons import get_icon
+from desktop_app.widgets.modern_mac_button import ModernMacButton
+
+
+def _create_button(
+    text: str = "",
+    parent: Optional[QWidget] = None,
+    *,
+    use_modern_mac: Optional[bool] = None,
+    primary: bool = False,
+    color: str = 'blue',
+    compact: bool = False  # Dialog buttons are typically not compact
+) -> QPushButton:
+    """Create a button, using ModernMacButton on macOS if available and requested.
+
+    Args:
+        text: Button text
+        parent: Parent widget
+        use_modern_mac: Force modern button (default: auto-detect macOS)
+        primary: True for primary action buttons (colored)
+        color: One of 'blue', 'purple', 'pink', 'red', 'orange', 'yellow', 'green', 'teal'
+        compact: True for smaller buttons (sidebar/toolbar), False for larger (dialogs)
+    """
+    if use_modern_mac is None:
+        use_modern_mac = sys.platform == "darwin"
+
+    if use_modern_mac:
+        try:
+            btn = ModernMacButton(
+                text, parent,
+                primary=primary,
+                color=color,
+                glass=True,
+                compact=compact
+            )
+            return btn
+        except (NameError, TypeError):
+            # Fallback if ModernMacButton not available or doesn't support compact
+            pass
+
+    # Default to standard QPushButton
+    return QPushButton(text, parent)
 
 
 class OnboardingDialog(QDialog):
@@ -84,7 +125,7 @@ class OnboardingDialog(QDialog):
 
         health_section.addStretch()
 
-        self.check_health_btn = QPushButton("Check Connection")
+        self.check_health_btn = _create_button("Check Connection", self)
         self.check_health_btn.clicked.connect(self._check_backend_health)
         health_section.addWidget(self.check_health_btn)
 
@@ -94,11 +135,11 @@ class OnboardingDialog(QDialog):
         links_section = QHBoxLayout()
         links_section.setSpacing(16)
 
-        help_btn = QPushButton("📖 Help & Troubleshooting")
+        help_btn = _create_button("📖 Help & Troubleshooting", self)
         help_btn.clicked.connect(lambda: self._open_document("docs/HELP.md"))
         links_section.addWidget(help_btn)
 
-        shortcuts_btn = QPushButton("⌨️ Keyboard Shortcuts")
+        shortcuts_btn = _create_button("⌨️ Keyboard Shortcuts", self)
         shortcuts_btn.clicked.connect(lambda: self._open_document("docs/SHORTCUTS.md"))
         links_section.addWidget(shortcuts_btn)
 
@@ -113,22 +154,9 @@ class OnboardingDialog(QDialog):
 
         bottom_layout.addStretch()
 
-        get_started_btn = QPushButton("Get Started")
+        get_started_btn = _create_button("Get Started", self, primary=True)
         get_started_btn.setDefault(True)
         get_started_btn.clicked.connect(self.accept)
-        get_started_btn.setStyleSheet(
-            "QPushButton { "
-            "  padding: 10px 24px; "
-            "  font-size: 14px; "
-            "  font-weight: 600; "
-            "  background-color: #007AFF; "
-            "  color: white; "
-            "  border: none; "
-            "  border-radius: 8px; "
-            "}"
-            "QPushButton:hover { background-color: #0051D5; }"
-            "QPushButton:pressed { background-color: #003DA5; }"
-        )
         bottom_layout.addWidget(get_started_btn)
 
         layout.addLayout(bottom_layout)

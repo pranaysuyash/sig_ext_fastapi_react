@@ -115,16 +115,11 @@ class ToolbarMixin:
         extraction_index = getattr(self, "_extraction_tab_index", 0)
         is_pdf_tab = pdf_index >= 0 and index == pdf_index
 
-        if is_pdf_tab:
-            self._toolbar_open_action.setText("Open PDF")
-            self._toolbar_export_action.setText("Save PDF")
-            if self._toolbar_save_action:
-                self._toolbar_save_action.setVisible(False)
-        else:
-            self._toolbar_open_action.setText("Open")
-            self._toolbar_export_action.setText("Export")
-            if self._toolbar_save_action:
-                self._toolbar_save_action.setVisible(True)
+        # Keep consistent text to prevent visual shifting
+        self._toolbar_open_action.setText("Open")
+        self._toolbar_export_action.setText("Export")
+        if self._toolbar_save_action:
+            self._toolbar_save_action.setVisible(not is_pdf_tab)
 
         self._refresh_toolbar_action_states()
 

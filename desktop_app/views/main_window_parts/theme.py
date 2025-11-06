@@ -102,21 +102,25 @@ class ThemeMixin:
                 r_scale = scale(7)
 
                 if is_dark_mode:
-                    # Dark mode with proper shadows and depth
+                    # Dark mode with proper shadows and depth - pristine glassy background
                     stylesheet = f"""
-                        /* Main window background */
+                        /* Main window background - pristine glassy appearance */
                         QMainWindow {{
-                            background-color: rgb({colors["window"].red()}, {colors["window"].green()}, {colors["window"].blue()});
+                            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 rgba(45, 55, 75, 95),
+                                stop:0.3 rgba(35, 45, 65, 80),
+                                stop:0.7 rgba(25, 35, 55, 60),
+                                stop:1 rgba(15, 25, 45, 40));
                         }}
 
                         /* Base widget transparency - scoped carefully */
                         QWidget {{
                             background-color: transparent;
-                            color: rgba({text_color.red()}, {text_color.green()}, {text_color.blue()}, 230);
+                            color: rgba(255, 255, 255, 240);
                         }}
 
-                        /* Buttons with proper Mac styling and shadows */
-                        QPushButton {{
+                        /* Buttons with proper Mac styling and shadows - exclude ModernMacButton */
+                        QPushButton:not([objectName='ModernMacButton']) {{
                             background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                 stop:0 rgba({button_bg.red()}, {button_bg.green()}, {button_bg.blue()}, 40),
                                 stop:1 rgba({button_bg.red()}, {button_bg.green()}, {button_bg.blue()}, 25));
@@ -125,30 +129,21 @@ class ThemeMixin:
                             padding: {scale(7)}px {scale(16)}px;
                             font-weight: 500;
                             color: rgba({text_color.red()}, {text_color.green()}, {text_color.blue()}, 240);
-                            /* Subtle shadow for depth */
-                            margin: 1px;
                         }}
 
-                        QPushButton:hover {{
+                        QPushButton:not([objectName='ModernMacButton']):hover {{
                             background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                 stop:0 rgba({accent_r}, {accent_g}, {accent_b}, 55),
                                 stop:1 rgba({accent_r}, {accent_g}, {accent_b}, 35));
                             border-color: rgba({accent_r}, {accent_g}, {accent_b}, 180);
                         }}
 
-                        QPushButton:pressed {{
+                        QPushButton:not([objectName='ModernMacButton']):pressed {{
                             background: rgba({accent_r}, {accent_g}, {accent_b}, 75);
                             border-color: rgba({accent_r}, {accent_g}, {accent_b}, 200);
-                            padding-top: {scale(8)}px;
-                            padding-bottom: {scale(6)}px;
                         }}
 
-                        QPushButton:focus {{
-                            border: 2px solid rgba({accent_r}, {accent_g}, {accent_b}, 200);
-                            padding: {scale(6)}px {scale(15)}px;
-                        }}
-
-                        QPushButton:disabled {{
+                        QPushButton:not([objectName='ModernMacButton']):disabled {{
                             background: rgba(255, 255, 255, 0.05);
                             border-color: rgba(255, 255, 255, 0.08);
                             color: rgba({disabled_color.red()}, {disabled_color.green()}, {disabled_color.blue()}, 180);
@@ -208,12 +203,14 @@ class ThemeMixin:
                             border: none;
                         }}
 
-                        /* Panels with depth */
-                        QWidget#pdfControlsPanel, QWidget#extractionControlsPanel, QWidget#_left_panel {{
-                            background-color: rgba({colors["base"].red()}, {colors["base"].green()}, {colors["base"].blue()}, 20);
-                            border: 1px solid rgba(255, 255, 255, 0.08);
+                        /* Panels with depth (sidebar and main canvas containers) */
+                        QWidget#pdfControlsPanel, QWidget#_left_panel,
+                        QWidget#sourcePanel, QWidget#previewPanel, QWidget#resultPanel {{
+                            /* Match the sidebar glass look for main canvas containers too */
+                            background-color: rgba({colors["base"].red()}, {colors["base"].green()}, {colors["base"].blue()}, 28);
+                            border: 1px solid rgba(255, 255, 255, 0.10);
                             border-radius: 16px;
-                            padding: {scale(16)}px;
+                            padding: {scale(12)}px;
                         }}
 
                         /* Instructions/Welcome panels */
@@ -231,6 +228,11 @@ class ThemeMixin:
                         QWidget#glassPanel {{
                             border-radius: 16px;
                         }}
+                        /* Text inside canvas panels - improve contrast */
+                        QWidget#sourcePanel QLabel, QWidget#previewPanel QLabel, QWidget#resultPanel QLabel {{
+                            color: rgba(255, 255, 255, 230);
+                            font-weight: 500;
+                        }}
                         
                         /* Image view containers - ensure rounded corners within glass panels */
                         QGraphicsView {{
@@ -244,11 +246,6 @@ class ThemeMixin:
                             border: 1px solid rgba(255, 255, 255, 0.10);
                             border-radius: 16px;
                             background-color: rgba(0, 0, 0, 0.05);
-                        }}
-
-                        /* Image view containers - NO styling on QGraphicsView to prevent crashes */
-                        QGraphicsView {{
-                            border: none;
                         }}
 
                         /* Tabs with Mac styling */
@@ -270,20 +267,17 @@ class ThemeMixin:
 
                         QTabBar::tab:selected {{
                             background-color: rgba({accent_r}, {accent_g}, {accent_b}, 45);
-                            color: rgba({text_color.red()}, {text_color.green()}, {text_color.blue()}, 250);
+                            color: rgba(255, 255, 255, 250);  /* White text for contrast on colored background */
                         }}
 
                         QTabBar::tab:hover {{
                             background-color: rgba(255, 255, 255, 0.08);
                         }}
 
-                        /* Tooltips */
-                        QToolTip {{
-                            background-color: rgba({colors["tooltip_base"].red()}, {colors["tooltip_base"].green()}, {colors["tooltip_base"].blue()}, 245);
-                            color: rgba({colors["tooltip_text"].red()}, {colors["tooltip_text"].green()}, {colors["tooltip_text"].blue()}, 250);
-                            border: 1px solid rgba(255, 255, 255, 0.15);
-                            border-radius: 16px;
-                            padding: {scale(4)}px {scale(8)}px;
+                        /* Tool buttons with rounded corners */
+                        QToolButton {{
+                            border-radius: {r_scale}px;
+                            padding: {scale(4)}px;
                         }}
 
                         /* Status bar */
@@ -295,26 +289,32 @@ class ThemeMixin:
                         /* Pane labels */
                         QLabel#sourcePaneLabel, QLabel#previewPaneLabel, QLabel#resultPaneLabel {{
                             padding: {scale(4)}px;
-                            color: rgba({text_color.red()}, {text_color.green()}, {text_color.blue()}, 220);
+                            color: rgba(255, 255, 255, 240);
+                            font-weight: 600;
+                            font-size: 11px;
                         }}
                     """
                     self.setStyleSheet(stylesheet)
                 else:
-                    # Light mode with solid backgrounds and proper contrast
+                    # Light mode with solid backgrounds and proper contrast - pristine clean background
                     stylesheet = f"""
-                        /* Main window background */
+                        /* Main window background - pristine clean appearance */
                         QMainWindow {{
-                            background-color: rgb({colors["window"].red()}, {colors["window"].green()}, {colors["window"].blue()});
+                            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                stop:0 rgba(245, 250, 255, 95),
+                                stop:0.3 rgba(240, 248, 252, 85),
+                                stop:0.7 rgba(235, 245, 250, 70),
+                                stop:1 rgba(230, 242, 248, 55));
                         }}
 
                         /* Base widget - keep content solid */
                         QWidget {{
                             background-color: transparent;
-                            color: rgba({text_color.red()}, {text_color.green()}, {text_color.blue()}, 255);
+                            color: rgba(0, 0, 0, 240);
                         }}
 
-                        /* Buttons with proper Mac styling */
-                        QPushButton {{
+                        /* Buttons with proper Mac styling - exclude ModernMacButton */
+                        QPushButton:not([objectName='ModernMacButton']) {{
                             background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                 stop:0 rgba(255, 255, 255, 240),
                                 stop:1 rgba(250, 250, 252, 240));
@@ -325,26 +325,19 @@ class ThemeMixin:
                             color: rgba({text_color.red()}, {text_color.green()}, {text_color.blue()}, 255);
                         }}
 
-                        QPushButton:hover {{
+                        QPushButton:not([objectName='ModernMacButton']):hover {{
                             background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                 stop:0 rgba({accent_r}, {accent_g}, {accent_b}, 35),
                                 stop:1 rgba({accent_r}, {accent_g}, {accent_b}, 20));
                             border-color: rgba({accent_r}, {accent_g}, {accent_b}, 140);
                         }}
 
-                        QPushButton:pressed {{
+                        QPushButton:not([objectName='ModernMacButton']):pressed {{
                             background: rgba({accent_r}, {accent_g}, {accent_b}, 50);
                             border-color: rgba({accent_r}, {accent_g}, {accent_b}, 180);
-                            padding-top: {scale(8)}px;
-                            padding-bottom: {scale(6)}px;
                         }}
 
-                        QPushButton:focus {{
-                            border: 2px solid rgba({accent_r}, {accent_g}, {accent_b}, 180);
-                            padding: {scale(6)}px {scale(15)}px;
-                        }}
-
-                        QPushButton:disabled {{
+                        QPushButton:not([objectName='ModernMacButton']):disabled {{
                             background: rgba(255, 255, 255, 0.50);
                             border-color: rgba(0, 0, 0, 0.10);
                             color: rgba({disabled_color.red()}, {disabled_color.green()}, {disabled_color.blue()}, 200);
@@ -404,12 +397,13 @@ class ThemeMixin:
                             border: none;
                         }}
 
-                        /* Panels */
-                        QWidget#pdfControlsPanel, QWidget#extractionControlsPanel, QWidget#_left_panel {{
-                            background-color: rgba(255, 255, 255, 245);
+                        /* Panels (sidebar and main canvas containers) */
+                        QWidget#pdfControlsPanel, QWidget#_left_panel,
+                        QWidget#sourcePanel, QWidget#previewPanel, QWidget#resultPanel {{
+                            background-color: rgba(255, 255, 255, 250);
                             border: 1px solid rgba(0, 0, 0, 0.10);
                             border-radius: 16px;
-                            padding: {scale(16)}px;
+                            padding: {scale(12)}px;
                         }}
 
                         /* Instructions/Welcome panels - Light mode */
@@ -427,6 +421,11 @@ class ThemeMixin:
                         QWidget#glassPanel {{
                             border-radius: 16px;
                         }}
+                        /* Text inside canvas panels - improve contrast in light mode */
+                        QWidget#sourcePanel QLabel, QWidget#previewPanel QLabel, QWidget#resultPanel QLabel {{
+                            color: rgba(0, 0, 0, 220);
+                            font-weight: 500;
+                        }}
                         
                         /* Image view containers - ensure rounded corners within glass panels */
                         QGraphicsView {{
@@ -440,11 +439,6 @@ class ThemeMixin:
                             border: 1px solid rgba(0, 0, 0, 0.10);
                             border-radius: 16px;
                             background-color: rgba(255, 255, 255, 0.10);
-                        }}
-
-                        /* Image view containers - NO styling on QGraphicsView to prevent crashes */
-                        QGraphicsView {{
-                            border: none;
                         }}
 
                         /* Tabs with Mac styling */
@@ -466,20 +460,17 @@ class ThemeMixin:
 
                         QTabBar::tab:selected {{
                             background-color: rgba({accent_r}, {accent_g}, {accent_b}, 40);
-                            color: rgba({accent_r}, {accent_g}, {accent_b}, 255);
+                            color: rgba(255, 255, 255, 255);  /* White text for contrast on colored background */
                         }}
 
                         QTabBar::tab:hover {{
                             background-color: rgba({accent_r}, {accent_g}, {accent_b}, 20);
                         }}
 
-                        /* Tooltips */
-                        QToolTip {{
-                            background-color: rgba({colors["tooltip_base"].red()}, {colors["tooltip_base"].green()}, {colors["tooltip_base"].blue()}, 250);
-                            color: rgba({colors["tooltip_text"].red()}, {colors["tooltip_text"].green()}, {colors["tooltip_text"].blue()}, 255);
-                            border: 1px solid rgba(0, 0, 0, 0.15);
-                            border-radius: 16px;
-                            padding: {scale(4)}px {scale(8)}px;
+                        /* Tool buttons with rounded corners */
+                        QToolButton {{
+                            border-radius: {r_scale}px;
+                            padding: {scale(4)}px;
                         }}
 
                         /* Status bar */
@@ -491,7 +482,9 @@ class ThemeMixin:
                         /* Pane labels */
                         QLabel#sourcePaneLabel, QLabel#previewPaneLabel, QLabel#resultPaneLabel {{
                             padding: {scale(4)}px;
-                            color: rgba({text_color.red()}, {text_color.green()}, {text_color.blue()}, 230);
+                            color: rgba(0, 0, 0, 240);
+                            font-weight: 600;
+                            font-size: 11px;
                         }}
                     """
                     self.setStyleSheet(stylesheet)

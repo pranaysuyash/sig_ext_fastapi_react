@@ -7,6 +7,7 @@ A stunning landing page for the Signature Extractor desktop application, built w
 ## ✨ Features
 
 ### Design & UI
+
 - **Modern macOS-inspired design** with glassmorphism effects
 - **Beautiful gradient backgrounds** and smooth animations
 - **Responsive design** that works on all devices
@@ -14,6 +15,7 @@ A stunning landing page for the Signature Extractor desktop application, built w
 - **Interactive elements** with hover effects and micro-animations
 
 ### Animations
+
 - **Scroll-triggered animations** using Intersection Observer
 - **Parallax effects** for immersive experience
 - **Magnetic buttons** with magnetic hover effect
@@ -22,6 +24,7 @@ A stunning landing page for the Signature Extractor desktop application, built w
 - **Smooth transitions** throughout the page
 
 ### Interactive Elements
+
 - **Demo showcase** with auto-advancing steps
 - **FAQ accordion** with smooth expand/collapse
 - **Before/after image comparison**
@@ -31,6 +34,7 @@ A stunning landing page for the Signature Extractor desktop application, built w
 - **Progress bars** and loading animations
 
 ### User Experience
+
 - **Loading screen** with branded animation
 - **Smooth scrolling** navigation
 - **Mobile-optimized** touch interactions
@@ -61,6 +65,7 @@ landing_page_minimax_draft/
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - A modern web browser (Chrome, Firefox, Safari, Edge)
 - No build tools required - pure HTML, CSS, JavaScript
 
@@ -86,31 +91,34 @@ Then navigate to `http://localhost:8000` in your browser.
 ## 🎨 Design System
 
 ### Color Palette
+
 ```css
---primary-blue: #007AFF;        /* macOS blue */
---primary-purple: #5856D6;      /* Secondary purple */
---success-green: #30D158;       /* Success indicators */
---text-primary: #1C1C1E;        /* Main text */
---text-secondary: #3A3A3C;      /* Secondary text */
---bg-primary: #FFFFFF;          /* Main background */
---bg-secondary: #F2F2F7;        /* Section backgrounds */
+--primary-blue: #007aff; /* macOS blue */
+--primary-purple: #5856d6; /* Secondary purple */
+--success-green: #30d158; /* Success indicators */
+--text-primary: #1c1c1e; /* Main text */
+--text-secondary: #3a3a3c; /* Secondary text */
+--bg-primary: #ffffff; /* Main background */
+--bg-secondary: #f2f2f7; /* Section backgrounds */
 ```
 
 ### Typography
+
 - **Font Family**: Inter (system fonts fallback)
 - **Weights**: 300, 400, 500, 600, 700, 800, 900
 - **Responsive scaling** with clamp() functions
 - **Optimized line heights** for readability
 
 ### Spacing System
+
 ```css
---space-xs: 0.5rem;    /* 8px */
---space-sm: 1rem;      /* 16px */
---space-md: 1.5rem;    /* 24px */
---space-lg: 2rem;      /* 32px */
---space-xl: 3rem;      /* 48px */
---space-2xl: 4rem;     /* 64px */
---space-3xl: 6rem;     /* 96px */
+--space-xs: 0.5rem; /* 8px */
+--space-sm: 1rem; /* 16px */
+--space-md: 1.5rem; /* 24px */
+--space-lg: 2rem; /* 32px */
+--space-xl: 3rem; /* 48px */
+--space-2xl: 4rem; /* 64px */
+--space-3xl: 6rem; /* 96px */
 ```
 
 ## 📱 Responsive Breakpoints
@@ -125,17 +133,20 @@ Then navigate to `http://localhost:8000` in your browser.
 ## 🎭 Animation Features
 
 ### Scroll Animations
+
 - Elements fade in as they enter the viewport
 - Staggered animations for grid layouts
 - Direction-based reveals (up, down, left, right, scale, rotate)
 
 ### Hover Effects
+
 - **Magnetic effect** on interactive elements
 - **Tilt effect** on cards and images
 - **Glow effects** for CTAs and important elements
 - **Smooth transformations** with proper easing
 
 ### Performance Optimizations
+
 - **GPU acceleration** with transform3d
 - **Reduced motion** support for accessibility
 - **Intersection Observer** for efficient scroll detection
@@ -144,22 +155,25 @@ Then navigate to `http://localhost:8000` in your browser.
 ## 🔧 Customization
 
 ### Changing Colors
+
 Edit the CSS variables in `css/style.css`:
 
 ```css
 :root {
-  --primary-blue: #007AFF;     /* Change to your brand color */
-  --primary-purple: #5856D6;   /* Change to your secondary color */
+  --primary-blue: #007aff; /* Change to your brand color */
+  --primary-purple: #5856d6; /* Change to your secondary color */
   /* ... other variables */
 }
 ```
 
 ### Adding New Sections
+
 1. **HTML**: Add your section to `index.html`
 2. **CSS**: Add styles in `css/style.css`
 3. **JavaScript**: Add interactions in `js/main.js` if needed
 
 ### Modifying Animations
+
 - Edit animation keyframes in `css/animations.css`
 - Adjust timing and easing functions
 - Add new animation classes as needed
@@ -201,6 +215,7 @@ Edit the CSS variables in `css/style.css`:
 ## 🎬 Content Requirements
 
 ### Images Needed
+
 Replace placeholder images in `assets/images/`:
 
 ```
@@ -216,6 +231,7 @@ assets/images/
 ```
 
 ### Video Content
+
 - **Demo Video**: 45-second walkthrough (MP4 format)
 - **Workflow GIF**: 15-second process animation
 - Place in `assets/videos/` directory
@@ -223,7 +239,9 @@ assets/images/
 ## 🚀 Deployment
 
 ### Static Hosting
+
 Perfect for deployment on:
+
 - **Netlify** (drag & drop)
 - **Vercel** (Git integration)
 - **GitHub Pages** (free hosting)
@@ -231,6 +249,7 @@ Perfect for deployment on:
 - **Cloudflare Pages** (fast global CDN)
 
 ### Build Process
+
 No build process required! Just upload the files to your hosting provider.
 
 ## 🔧 Browser Support
@@ -250,6 +269,7 @@ No build process required! Just upload the files to your hosting provider.
 ## 🎯 Conversion Optimization
 
 ### A/B Testing Ready
+
 - **Clear CTAs** with tracking capabilities
 - **Social proof** elements
 - **Urgency indicators** for limited offers
@@ -257,7 +277,9 @@ No build process required! Just upload the files to your hosting provider.
 - **Objection handling** in FAQ section
 
 ### Analytics Integration
+
 Ready for integration with:
+
 - **Google Analytics 4**
 - **Facebook Pixel**
 - **Plausible Analytics** (privacy-focused)
@@ -266,12 +288,14 @@ Ready for integration with:
 ## 🛠️ Development Notes
 
 ### CSS Architecture
+
 - **Mobile-first** approach
 - **CSS Custom Properties** for theming
 - **BEM methodology** for class naming
 - **Component-based** structure
 
 ### JavaScript Patterns
+
 - **ES6+ features** for modern code
 - **Event delegation** for performance
 - **Intersection Observer** for scroll effects
