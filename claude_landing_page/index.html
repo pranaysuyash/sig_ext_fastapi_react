@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signature Extractor - Extract & Sign PDFs Locally | Lifetime $29</title>
+
+    <!-- Meta Tags -->
+    <meta name="description" content="Professional signature extraction software for macOS. Extract clean signatures from any document and place them on PDFs. Privacy-first, local processing. One-time payment of $29.">
+    <meta name="keywords" content="signature extractor, PDF signature, document signing, privacy-first, macOS app">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Signature Extractor - Extract & Sign PDFs Locally">
+    <meta property="og:description" content="Extract signatures. Place on PDFs. Done. Privacy-first signature extraction for $29.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="./assets/images/og-image.jpg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/animations.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg">
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="navbar">
+        <div class="container nav-container">
+            <div class="nav-logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 24L14 8L18 16L24 12L20 24H8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Signature Extractor</span>
+            </div>
+
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
+                <a href="#faq" class="nav-link">FAQ</a>
+                <a href="#demo" class="nav-link-demo">Watch Demo</a>
+            </div>
+
+            <button class="btn btn-primary btn-nav" id="navCTA">
+                Get Started - $29
+            </button>
+
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <div class="mesh-gradient"></div>
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
+        </div>
+
+        <div class="container hero-container">
+            <div class="hero-content">
+                <div class="hero-badge animate-fade-up">
+                    <span class="badge-icon">✨</span>
+                    <span>Launch Special: 25% Off - Limited Time</span>
+                </div>
+
+                <h1 class="hero-title animate-fade-up" style="animation-delay: 0.1s;">
+                    Extract signatures.<br>
+                    Place on PDFs.<br>
+                    <span class="gradient-text">Done.</span>
+                </h1>
+
+                <p class="hero-subtitle animate-fade-up" style="animation-delay: 0.2s;">
+                    The only desktop app that extracts clean signatures and places them on PDFs.
+                    Privacy-first, precision-focused, no subscriptions.
+                </p>
+
+                <div class="hero-features animate-fade-up" style="animation-delay: 0.3s;">
+                    <div class="feature-check">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                            <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Precision selection with zoom controls</span>
+                    </div>
+                    <div class="feature-check">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                            <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Clean PNG export with transparency</span>
+                    </div>
+                    <div class="feature-check">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                            <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Interactive PDF viewer + signing</span>
+                    </div>
+                    <div class="feature-check">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                            <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>30-day money-back guarantee</span>
+                    </div>
+                </div>
+
+                <div class="hero-cta animate-fade-up" style="animation-delay: 0.4s;">
+                    <button class="btn btn-primary btn-large" id="heroCTA">
+                        <span>Get Lifetime Access - $29</span>
+                        <span class="btn-strike">$39</span>
+                    </button>
+                    <button class="btn btn-secondary btn-large" id="demoBtn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M6 4L16 10L6 16V4Z" fill="currentColor"/>
+                        </svg>
+                        <span>Watch 45s Demo</span>
+                    </button>
+                </div>
+
+                <div class="hero-trust animate-fade-up" style="animation-delay: 0.5s;">
+                    <div class="trust-badge">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 2L9.5 6.5H14L10.5 9.5L12 14L8 11L4 14L5.5 9.5L2 6.5H6.5L8 2Z" fill="currentColor"/>
+                        </svg>
+                        <span>Privacy-First</span>
+                    </div>
+                    <div class="trust-badge">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 1L3 3V8C3 11 8 15 8 15C8 15 13 11 13 8V3L8 1Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        </svg>
+                        <span>Lifetime Updates</span>
+                    </div>
+                    <div class="trust-badge">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                            <path d="M6 8L7.5 9.5L10 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <span>30-Day Guarantee</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual animate-fade-left">
+                <div class="demo-window">
+                    <div class="window-header">
+                        <div class="window-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span class="window-title">Signature Extractor</span>
+                    </div>
+                    <div class="window-content">
+                        <div class="demo-step active" data-step="1">
+                            <div class="demo-placeholder">
+                                <div class="placeholder-icon">📄</div>
+                                <p>Upload Document</p>
+                            </div>
+                        </div>
+                        <div class="demo-step" data-step="2">
+                            <div class="demo-placeholder">
+                                <div class="placeholder-icon">🎯</div>
+                                <p>Select Signature</p>
+                            </div>
+                        </div>
+                        <div class="demo-step" data-step="3">
+                            <div class="demo-placeholder">
+                                <div class="placeholder-icon">✨</div>
+                                <p>Clean & Extract</p>
+                            </div>
+                        </div>
+                        <div class="demo-step" data-step="4">
+                            <div class="demo-placeholder">
+                                <div class="placeholder-icon">✅</div>
+                                <p>Place on PDF</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="demo-controls">
+                        <button class="demo-dot active" data-step="1"></button>
+                        <button class="demo-dot" data-step="2"></button>
+                        <button class="demo-dot" data-step="3"></button>
+                        <button class="demo-dot" data-step="4"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="mouse-wheel"></div>
+            </div>
+            <span>Scroll to explore</span>
+        </div>
+    </section>
+
+    <!-- Social Proof Strip -->
+    <section class="social-proof">
+        <div class="container">
+            <div class="social-proof-content">
+                <div class="proof-item">
+                    <div class="proof-number">1,200+</div>
+                    <div class="proof-label">Happy Customers</div>
+                </div>
+                <div class="proof-item">
+                    <div class="proof-number">12,847</div>
+                    <div class="proof-label">Signatures Extracted</div>
+                </div>
+                <div class="proof-item">
+                    <div class="proof-number">4.8/5</div>
+                    <div class="proof-label">Average Rating</div>
+                </div>
+                <div class="proof-item">
+                    <div class="proof-number">30s</div>
+                    <div class="proof-label">Avg. Processing Time</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem section">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">Tired of juggling multiple tools just to sign a document?</h2>
+
+            <div class="problem-grid">
+                <div class="problem-card animate-on-scroll">
+                    <div class="problem-icon">💸</div>
+                    <h3>Expensive Subscriptions</h3>
+                    <div class="problem-cost">
+                        <div>Adobe Acrobat: <strong>$240/year</strong></div>
+                        <div>DocuSign: <strong>$120/year</strong></div>
+                    </div>
+                    <p>You're paying <strong>$360+ annually</strong> for basic signature features.</p>
+                </div>
+
+                <div class="problem-card animate-on-scroll" style="animation-delay: 0.1s;">
+                    <div class="problem-icon">🔓</div>
+                    <h3>Privacy Concerns</h3>
+                    <p class="problem-highlight">Cloud-based tools upload your sensitive documents.</p>
+                    <p>Your contracts, medical forms, and legal docs exposed to potential breaches.</p>
+                </div>
+
+                <div class="problem-card animate-on-scroll" style="animation-delay: 0.2s;">
+                    <div class="problem-icon">🎨</div>
+                    <h3>Clunky Workflows</h3>
+                    <p class="problem-flow">Photoshop → Upload → Download → Sign → Download again</p>
+                    <p><strong>15+ clicks</strong> and <strong>10 minutes</strong> wasted per signature.</p>
+                </div>
+            </div>
+
+            <div class="transition-arrow animate-on-scroll">
+                <span>There's a better way</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Showcase -->
+    <section class="solution section" id="features">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">One app. Three powerful workflows. Zero subscriptions.</h2>
+
+            <div class="tabs">
+                <div class="tab-buttons">
+                    <button class="tab-button active" data-tab="extract">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Extract</span>
+                    </button>
+                    <button class="tab-button" data-tab="organize">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2" fill="none"/>
+                        </svg>
+                        <span>Organize</span>
+                    </button>
+                    <button class="tab-button" data-tab="sign">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Sign PDFs</span>
+                    </button>
+                </div>
+
+                <div class="tab-content active" id="tab-extract">
+                    <div class="tab-split">
+                        <div class="tab-text">
+                            <h3>Extract Signatures with Precision</h3>
+                            <ul class="feature-list">
+                                <li>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                                        <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Upload any document (PDF, JPG, PNG)
+                                </li>
+                                <li>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                                        <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Zoom in for pixel-perfect selection
+                                </li>
+                                <li>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                                        <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Auto-remove backgrounds and shadows
+                                </li>
+                                <li>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                                        <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Export clean, transparent PNGs
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab-visual">
+                            <div class="visual-card">
+                                <div class="visual-content">
+                                    <div class="before-after">
+                                        <div class="before">
+                                            <span class="label">Before</span>
+                                            <div class="signature-sample messy">John Doe</div>
+                                        </div>
+                                        <div class="arrow">→</div>
+                                        <div class="after">
+                                            <span class="label">After</span>
+                                            <div class="signature-sample clean">John Doe</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-organize">
+                    <div class="tab-split">
+                        <div class="tab-text">
+                            <h3>Build Your Signature Library</h3>
+                            <ul class="feature-list">
+                                <li>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                                        <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Save unlimited signatures
+                                </li>
+                                <li>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                                        <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Tag and categorize
+                                </li>
+                                <li>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                                        <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Quick search and filter
+                                </li>
+                                <li>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                                        <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Reuse across documents
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab-visual">
+                            <div class="visual-card">
+                                <div class="library-grid">
+                                    <div class="library-item">
+                                        <div class="signature-thumbnail">JD</div>
+                                        <span>John Doe</span>
+                                    </div>
+                                    <div class="library-item">
+                                        <div class="signature-thumbnail">JS</div>
+                                        <span>Jane Smith</span>
+                                    </div>
+                                    <div class="library-item">
+                                        <div class="signature-thumbnail">MB</div>
+                                        <span>Mike Brown</span>
+                                    </div>
+                                    <div class="library-item">
+                                        <div class="signature-thumbnail">+</div>
+                                        <span>Add New</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-sign">
+                    <div class="tab-split">
+                        <div class="tab-text">
+                            <h3>Place Signatures on PDFs</h3>
+                            <ul class="feature-list">
+                                <li>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                                        <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Built-in PDF viewer
+                                </li>
+                                <li>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                                        <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Click to place signatures
+                                </li>
+                                <li>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                                        <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Resize and position precisely
+                                </li>
+                                <li>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="#10b981"/>
+                                        <path d="M6 10L9 13L14 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Save signed documents instantly
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab-visual">
+                            <div class="visual-card">
+                                <div class="pdf-preview">
+                                    <div class="pdf-page">
+                                        <div class="pdf-content">
+                                            <div class="pdf-line"></div>
+                                            <div class="pdf-line short"></div>
+                                            <div class="pdf-line"></div>
+                                            <div class="pdf-signature-box">
+                                                <span class="sig-label">Signature:</span>
+                                                <div class="placed-signature">John Doe</div>
+                                            </div>
+                                            <div class="pdf-line short"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing section" id="pricing">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">Own it forever. Use it everywhere.</h2>
+            <p class="section-subtitle animate-on-scroll">One-time payment. Lifetime updates. 30-day guarantee.</p>
+
+            <div class="pricing-card animate-on-scroll">
+                <div class="pricing-badge">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2L12 8H18L13 12L15 18L10 14L5 18L7 12L2 8H8L10 2Z" fill="currentColor"/>
+                    </svg>
+                    <span>Lifetime Deal</span>
+                </div>
+
+                <div class="price-display">
+                    <span class="price-original">$39</span>
+                    <span class="price-current">$29</span>
+                </div>
+
+                <p class="price-note">Launch price - limited time</p>
+
+                <ul class="pricing-features">
+                    <li>✓ All extraction features included</li>
+                    <li>✓ PDF viewer & signing workflow</li>
+                    <li>✓ Unlimited signature extractions</li>
+                    <li>✓ Local processing (privacy-first)</li>
+                    <li>✓ Lifetime updates & improvements</li>
+                    <li>✓ macOS native interface</li>
+                    <li>✓ Email support included</li>
+                    <li>✓ 30-day money-back guarantee</li>
+                </ul>
+
+                <button class="btn btn-primary btn-large btn-full" id="pricingCTA">
+                    <span>Get Lifetime Access - $29</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 10H15M15 10L10 5M15 10L10 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+
+                <div class="payment-info">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 1L3 3V8C3 11 8 15 8 15C8 15 13 11 13 8V3L8 1Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    </svg>
+                    <span>Secure payment via Stripe • Instant download • No subscription</span>
+                </div>
+            </div>
+
+            <div class="value-box animate-on-scroll">
+                <h3>Why $29 is a steal</h3>
+                <div class="value-comparison">
+                    <div class="comparison-item">
+                        <strong>Adobe Acrobat Pro:</strong>
+                        <span>$240/year ($2,400 over 10 years)</span>
+                    </div>
+                    <div class="comparison-item">
+                        <strong>DocuSign:</strong>
+                        <span>$120/year ($1,200 over 10 years)</span>
+                    </div>
+                    <div class="comparison-item highlight">
+                        <strong>Signature Extractor:</strong>
+                        <span>$29 one-time (saves you $1,000+)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq section" id="faq">
+        <div class="container">
+            <h2 class="section-title animate-on-scroll">Frequently Asked Questions</h2>
+
+            <div class="faq-container">
+                <div class="faq-item animate-on-scroll">
+                    <button class="faq-question">
+                        <span>How is this different from just using Photoshop?</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="faq-icon">
+                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Photoshop is a $240/year professional image editor designed for designers. Signature Extractor is a $29 one-time purchase designed specifically for signature extraction.</p>
+                        <p><strong>Key differences:</strong> One-click signature detection (vs. manual selection), Built-in PDF signing (Photoshop doesn't have this), No learning curve (Photoshop takes weeks to master), $29 once vs. $240 every year.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item animate-on-scroll">
+                    <button class="faq-question">
+                        <span>Is there a free trial?</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="faq-icon">
+                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We don't offer a free trial, but we offer something better: a 30-day money-back guarantee. You can use the full product for 30 days and get a refund if it's not right for you. No questions asked.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item animate-on-scroll">
+                    <button class="faq-question">
+                        <span>What operating systems are supported?</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="faq-icon">
+                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Currently macOS 11.0 (Big Sur) and later. We're macOS-only right now to deliver the best native experience. Windows and Linux versions are on our 2026 roadmap.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item animate-on-scroll">
+                    <button class="faq-question">
+                        <span>What about privacy and security?</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="faq-icon">
+                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Your documents never leave your computer. Ever. All processing happens locally using on-device algorithms. No cloud uploads, no external servers, no internet connection required. HIPAA-compliant by design.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item animate-on-scroll">
+                    <button class="faq-question">
+                        <span>How do updates work?</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="faq-icon">
+                            <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>All updates are completely free for life. You'll get new features, performance improvements, bug fixes, and compatibility updates for new macOS versions. No upgrade fees. No "pro" version. No subscription tiers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final-cta">
+        <div class="container">
+            <div class="final-cta-content animate-on-scroll">
+                <h2>Join 1,200+ professionals who've streamlined their signature workflow</h2>
+                <p class="final-subtitle">Extract signatures. Place on PDFs. Done.<br>One app. One price. Forever.</p>
+
+                <button class="btn btn-primary btn-xl" id="finalCTA">
+                    Get Lifetime Access - $29
+                </button>
+
+                <div class="urgency">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <path d="M10 5V10L13 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Launch pricing ends soon • Lock in your lifetime access for $29</span>
+                </div>
+
+                <div class="final-trust">
+                    <span>✓ 30-day money-back guarantee</span>
+                    <span>✓ Secure payment via Stripe</span>
+                    <span>✓ Instant download</span>
+                    <span>✓ Privacy-first, local processing</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 24L14 8L18 16L24 12L20 24H8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Signature Extractor</span>
+                    </div>
+                    <p>Built with care for professionals who need precision and privacy in signature extraction.</p>
+                    <div class="footer-social">
+                        <a href="#" aria-label="Twitter">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M6.29 18.25c7.55 0 11.67-6.25 11.67-11.67v-.53c.8-.59 1.49-1.3 2.04-2.13-.75.33-1.54.55-2.36.65a4.12 4.12 0 0 0 1.8-2.27c-.8.48-1.68.81-2.6 1a4.1 4.1 0 0 0-7 3.74 11.65 11.65 0 0 1-8.45-4.3 4.1 4.1 0 0 0 1.27 5.49c-.67-.02-1.3-.2-1.86-.5v.05a4.1 4.1 0 0 0 3.3 4.03 4.1 4.1 0 0 1-1.86.07 4.1 4.1 0 0 0 3.83 2.85A8.23 8.23 0 0 1 0 16.4a11.62 11.62 0 0 0 6.29 1.84"/>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="LinkedIn">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M5 3c0 1.1-.7 2-2 2-1.2 0-2-.9-2-1.9C1 2 1.8 1 3 1s2 .9 2 2zM1 19h4V6H1v13zM14.6 6.2c-2.1 0-3.3 1.2-3.8 2h-.1l-.2-1.7H6.9c0 1.1.1 2.4.1 3.9V19h4v-7.1c0-.4 0-.7.1-1 .3-.7.9-1.5 1.9-1.5 1.4 0 2 1.1 2 2.7V19h4v-7.4c0-3.7-1.9-5.4-4.4-5.4z"/>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="GitHub">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 0C4.477 0 0 4.477 0 10c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0110 4.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C17.137 18.163 20 14.418 20 10c0-5.523-4.477-10-10-10z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Product</h4>
+                        <a href="#features">Features</a>
+                        <a href="#pricing">Pricing</a>
+                        <a href="#demo">Download</a>
+                        <a href="#">Roadmap</a>
+                    </div>
+
+                    <div class="footer-column">
+                        <h4>Support</h4>
+                        <a href="#">Help Center</a>
+                        <a href="#">Contact</a>
+                        <a href="#faq">FAQ</a>
+                        <a href="#">System Status</a>
+                    </div>
+
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Service</a>
+                        <a href="#">EULA</a>
+                        <a href="#">Refund Policy</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 Signature Extractor. All rights reserved.</p>
+                <div class="footer-badges">
+                    <span>🔒 HIPAA Compliant</span>
+                    <span>🛡️ Privacy First</span>
+                    <span>🍎 macOS Native</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 15V5M10 5L5 10M10 5L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </button>
+
+    <!-- Scripts -->
+    <script src="./js/main.js"></script>
+    <script src="./js/animations.js"></script>
+</body>
+</html>

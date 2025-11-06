@@ -1,0 +1,555 @@
+:root {
+    --primary-color: #0056b3; /* Darker blue for primary elements */
+    --secondary-color: #495057; /* Darker gray for secondary text */
+    --accent-color: #00c471; /* More vibrant green for CTAs */
+    --dark-color: #212529; /* Even darker for text and footer */
+    --light-color: #f0f2f5; /* Slightly darker light background */
+    --white-color: #ffffff;
+    --gray-color: #dee2e6; /* Slightly darker gray for section backgrounds */
+
+    --font-family: 'Inter', sans-serif;
+    --heading-font-weight: 800; /* Bolder headings */
+    --body-font-weight: 400;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    line-height: 1.7; /* Slightly increased line height */
+    color: var(--dark-color);
+    background-color: var(--white-color);
+    overflow-x: hidden; /* Prevent horizontal scroll from animations */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 25px; /* Slightly more padding */
+}
+
+h1, h2, h3 {
+    font-weight: var(--heading-font-weight);
+    margin-bottom: 1.2rem;
+    line-height: 1.2;
+}
+
+h1 {
+    font-size: 4.2rem; /* Larger hero heading */
+    color: var(--dark-color);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.05); /* Subtle text shadow */
+}
+
+h2 {
+    font-size: 3rem; /* Larger section headings */
+    text-align: center;
+    margin-bottom: 4rem; /* More space below headings */
+    color: var(--dark-color);
+    position: relative;
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -15px;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background-color: var(--accent-color);
+    border-radius: 2px;
+}
+
+h3 {
+    font-size: 2rem; /* Larger subheadings */
+    color: var(--dark-color);
+}
+
+p {
+    margin-bottom: 1.2rem;
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+/* Buttons */
+.cta-button {
+    display: inline-block;
+    background-color: var(--accent-color);
+    color: var(--white-color);
+    padding: 18px 35px; /* Larger padding */
+    border-radius: 8px; /* More rounded corners */
+    text-decoration: none;
+    font-weight: 700; /* Bolder text */
+    font-size: 1.2rem; /* Larger font size */
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 196, 113, 0.3); /* Accent color shadow */
+}
+
+.cta-button:hover {
+    background-color: #00a860; /* Darker shade of accent */
+    transform: translateY(-3px); /* More pronounced lift */
+    box-shadow: 0 8px 20px rgba(0, 196, 113, 0.4);
+}
+
+/* Header - Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, var(--light-color) 0%, var(--white-color) 100%); /* Gradient background */
+    padding: 120px 0; /* More padding */
+    text-align: center;
+    display: flex;
+    align-items: center;
+    min-height: 90vh; /* Taller hero section */
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.hero-section h1 {
+    margin-bottom: 25px;
+    line-height: 1.1;
+    opacity: 0; /* For animation */
+    transform: translateY(-20px); /* For animation */
+    animation: fadeInSlideDown 1s ease-out forwards 0.2s;
+}
+
+.hero-section p {
+    font-size: 1.5rem; /* Larger sub-headline */
+    margin-bottom: 50px;
+    max-width: 800px;
+    color: var(--secondary-color);
+    opacity: 0; /* For animation */
+    transform: translateY(-20px); /* For animation */
+    animation: fadeInSlideDown 1s ease-out forwards 0.4s;
+}
+
+.hero-section .cta-button {
+    opacity: 0; /* For animation */
+    transform: translateY(-20px); /* For animation */
+    animation: fadeInSlideDown 1s ease-out forwards 0.6s;
+}
+
+.hero-animation-placeholder {
+    margin-top: 80px; /* More space */
+    width: 100%;
+    max-width: 900px; /* Wider animation area */
+    height: 450px; /* Taller animation area */
+    background-color: var(--gray-color);
+    border-radius: 15px; /* More rounded corners */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* More prominent shadow */
+    opacity: 0; /* For animation */
+    transform: translateY(20px); /* For animation */
+    animation: fadeInSlideUp 1s ease-out forwards 0.8s;
+}
+
+.hero-animation {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Ensure the SVG is fully visible */
+}
+
+/* Features Section */
+.features-section {
+    background-color: var(--white-color);
+    padding: 100px 0; /* More padding */
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 40px; /* More gap */
+    text-align: center;
+}
+
+.feature-item {
+    background-color: var(--light-color);
+    padding: 40px; /* More padding */
+    border-radius: 10px; /* More rounded corners */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); /* Enhanced shadow */
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    border-bottom: 4px solid var(--accent-color); /* Accent border */
+}
+
+.feature-item:hover {
+    transform: translateY(-8px); /* More pronounced lift */
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+.feature-item img {
+    width: 70px; /* Larger icons */
+    height: 70px;
+    margin-bottom: 25px;
+}
+
+.feature-item h3 {
+    margin-bottom: 15px;
+    color: var(--primary-color); /* Primary color for feature titles */
+}
+
+/* How It Works Section */
+.how-it-works-section {
+    background-color: var(--gray-color);
+    padding: 100px 0; /* More padding */
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 50px; /* More gap */
+    text-align: center;
+}
+
+.step-item {
+    background-color: var(--white-color);
+    padding: 50px 30px; /* More padding */
+    border-radius: 12px; /* More rounded corners */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Enhanced shadow */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.step-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.step-item img {
+    width: 90px; /* Larger icons */
+    height: 90px;
+    margin-bottom: 30px;
+}
+
+.step-item h3 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+/* Testimonials Section */
+.testimonials-section {
+    background-color: var(--white-color);
+    padding: 100px 0; /* More padding */
+}
+
+.testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 40px; /* More gap */
+}
+
+.testimonial-item {
+    background-color: var(--light-color);
+    padding: 35px; /* More padding */
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    font-style: italic;
+    position: relative;
+    border-left: 5px solid var(--primary-color); /* Accent border */
+}
+
+.testimonial-item p {
+    font-size: 1.2rem; /* Larger text */
+    margin-bottom: 20px;
+    color: var(--dark-color);
+}
+
+.testimonial-item span {
+    display: block;
+    text-align: right;
+    font-weight: 700; /* Bolder text */
+    color: var(--primary-color);
+    font-style: normal;
+}
+
+/* FAQ Section */
+.faq-section {
+    background-color: var(--gray-color);
+    padding: 100px 0;
+}
+
+.accordion {
+    max-width: 900px; /* Wider accordion */
+    margin: 0 auto;
+}
+
+.accordion-item {
+    background-color: var(--white-color);
+    border-radius: 10px; /* More rounded corners */
+    margin-bottom: 18px; /* More space */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Enhanced shadow */
+    overflow: hidden;
+}
+
+.accordion-header {
+    width: 100%;
+    background-color: var(--white-color);
+    border: none;
+    text-align: left;
+    padding: 22px 30px; /* More padding */
+    font-size: 1.3rem; /* Larger font size */
+    font-weight: 700; /* Bolder text */
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s ease;
+    color: var(--dark-color);
+}
+
+.accordion-header:hover {
+    background-color: var(--light-color);
+}
+
+.accordion-header::after {
+    content: '+';
+    font-size: 1.8rem; /* Larger icon */
+    transition: transform 0.3s ease;
+    color: var(--accent-color);
+}
+
+.accordion-header.active::after {
+    content: '-';
+    transform: rotate(0deg); /* No rotation, just change to minus */
+}
+
+.accordion-content {
+    padding: 0 30px; /* More padding */
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+}
+
+.accordion-content.active {
+    max-height: 300px; /* Increased max-height */
+    padding: 20px 30px 25px; /* More padding */
+}
+
+/* Footer */
+footer {
+    background-color: var(--dark-color);
+    color: var(--light-color);
+    padding: 50px 0; /* More padding */
+    text-align: center;
+    font-size: 1rem; /* Slightly larger font */
+}
+
+footer .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer-links a {
+    color: var(--gray-color);
+    margin: 0 20px; /* More space between links */
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: var(--white-color);
+    text-decoration: none;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    h1 {
+        font-size: 3.5rem;
+    }
+    h2 {
+        font-size: 2.5rem;
+    }
+    .hero-section p {
+        font-size: 1.3rem;
+    }
+    .hero-animation-placeholder {
+        height: 350px;
+    }
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2.8rem;
+    }
+
+    h2 {
+        font-size: 2.2rem;
+        margin-bottom: 3rem;
+    }
+
+    h2::after {
+        bottom: -10px;
+    }
+
+    .hero-section {
+        padding: 100px 0;
+        min-height: 70vh;
+    }
+
+    .hero-section p {
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+    }
+
+    .cta-button {
+        padding: 15px 30px;
+        font-size: 1.1rem;
+    }
+
+    .hero-animation-placeholder {
+        margin-top: 50px;
+        height: 300px;
+    }
+
+    .feature-grid, .steps-grid, .testimonial-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-item, .step-item, .testimonial-item {
+        margin-bottom: 25px;
+    }
+
+    .feature-item img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .step-item img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .accordion-header {
+        font-size: 1.1rem;
+        padding: 18px 25px;
+    }
+
+    .accordion-content {
+        padding: 0 25px;
+    }
+
+    .accordion-content.active {
+        padding: 15px 25px 20px;
+    }
+
+    .footer-links a {
+        margin: 0 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 2.2rem;
+    }
+
+    h2 {
+        font-size: 1.8rem;
+    }
+
+    .hero-section p {
+        font-size: 1rem;
+    }
+
+    .cta-button {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+
+    .hero-animation-placeholder {
+        height: 200px;
+        margin-top: 40px;
+    }
+
+    .feature-item, .step-item, .testimonial-item {
+        padding: 30px;
+    }
+
+    .accordion-header {
+        font-size: 1rem;
+        padding: 15px 20px;
+    }
+
+    .accordion-content.active {
+        padding: 10px 20px 15px;
+    }
+
+    footer {
+        padding: 40px 0;
+    }
+
+    .footer-links a {
+        margin: 0 10px;
+    }
+}
+
+/* Keyframe Animations */
+@keyframes fadeInSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.03);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Scroll Animation Classes (to be added by JS) */
+.hidden {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.show {
+    opacity: 1;
+    transform: translateY(0);
+}

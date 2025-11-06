@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signature Extractor - Professional Signature Extraction Software</title>
+    <meta name="description" content="Professional signature extraction software with privacy-first approach. Extract, edit, and place signatures locally. $39 lifetime, no subscription.">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- SVG Icons -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="icon-logo" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8Z"/>
+            <path fill="currentColor" d="M15.5,11H13V8.5C13,8.2 12.8,8 12.5,8S12,8.2 12,8.5V11H9.5C9.2,11 9,11.2 9,11.5S9.2,12 9.5,12H12V14.5C12,14.8 12.2,15 12.5,15S13,14.8 13,14.5V12H15.5C15.8,12 16,11.8 16,11.5S15.8,11 15.5,11Z"/>
+        </symbol>
+        <symbol id="icon-privacy" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7C13.4,7 14.8,8.6 14.8,10.5V11.5C15.4,11.5 16,12.1 16,13V16C16,16.6 15.6,17 15,17H9C8.4,17 8,16.6 8,16V13C8,12.1 8.4,11.5 9,11.5V10.5C9,8.6 10.6,7 12,7M12,8.2C11.2,8.2 10.2,9.2 10.2,10.5V11.5H13.8V10.5C13.8,9.2 12.8,8.2 12,8.2Z"/>
+        </symbol>
+        <symbol id="icon-precision" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/>
+        </symbol>
+        <symbol id="icon-pdf" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+        </symbol>
+        <symbol id="icon-upload" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"/>
+        </symbol>
+        <symbol id="icon-select" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M15,3V7H18L14,11H18V15H14L10,19V15H6V11H10V7H6V3H10V7H14V3H15Z"/>
+        </symbol>
+        <symbol id="icon-adjust" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M15,7H16.63A3.31,3.31 0 0,1 19,10.37A3.31,3.31 0 0,1 16.63,13.73H15V15H13V13.73H12V15H10V13.73H9V15H7V13.73H5.37A3.31,3.31 0 0,1 3,10.37A3.31,3.31 0 0,1 5.37,7H7V5H9V7H10V5H12V7H13V5H15V7M12,9A1,1 0 0,0 11,10A1,1 0 0,0 12,11A1,1 0 0,0 13,10A1,1 0 0,0 12,9Z"/>
+        </symbol>
+        <symbol id="icon-extract" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12,2A7,7 0 0,1 19,9C19,11.38 17.81,13.47 16,14.74V17A1,1 0 0,1 15,18H9A1,1 0 0,1 8,17V14.74C6.19,13.47 5,11.38 5,9A7,7 0 0,1 12,2M9,21V20H15V21A1,1 0 0,1 14,22H10A1,1 0 0,1 9,21M12,4A5,5 0 0,0 7,9C7,11.05 8.23,12.81 10,13.58V16H14V13.59C15.77,12.82 17,11.06 17,9A5,5 0 0,0 12,4Z"/>
+        </symbol>
+        <symbol id="icon-export" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+        </symbol>
+        <symbol id="icon-gavel" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M19 3H5C3.89 3 3 3.89 3 5V19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.89 20.1 3 19 3M12 12C10.34 12 9 13.34 9 15S10.34 18 12 18 15 16.66 15 15 13.66 12 12 12M6 6H18V13H6V6Z"/>
+        </symbol>
+        <symbol id="icon-home" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M19 9.3V4H5V13H3V4C3 2.9 3.9 2 5 2H19C20.1 2 21 2.9 21 4V9.3C20.4 9.1 19.7 9 19 9M15 10H5V14H15V10M17 15H5V17H17V15M19 11V13H22V11H19M5 17V19H7V17H5M11 17V19H13V17H11M15 17V19H17V17H15M19 17V19H21V17H19M19 13V15H21V13H19M15 13V15H17V13H15M11 13V15H13V13H11M7 13V15H9V13H7M3 13V20C3 21.1 3.9 22 5 22H19C20.1 22 21 21.1 21 20V13H3Z"/>
+        </symbol>
+        <symbol id="icon-heartbeat" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3M19 19H5V5H19V19Z"/>
+            <path fill="currentColor" d="M15.5 11H13V8.5C13 8.2 12.8 8 12.5 8S12 8.2 12 8.5V11H9.5C9.2 11 9 11.2 9 11.5S9.2 12 9.5 12H12V14.5C12 14.8 12.2 15 12.5 15S13 14.8 13 14.5V12H15.5C15.8 12 16 11.8 16 11.5S15.8 11 15.5 11Z"/>
+        </symbol>
+    </svg>
+
+    <!-- Header/Navigation -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <svg class="logo-icon" width="24" height="24"><use href="#icon-logo"/></svg>
+                <span>Signature Extractor</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#use-cases">Use Cases</a>
+                <a href="#faq">FAQ</a>
+            </nav>
+            <div class="nav-cta">
+                <a href="#pricing" class="btn btn-secondary">View Pricing</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Extract Signatures in Seconds with Precision</h1>
+                <p class="hero-subtitle">Desktop app with precision control. Export to DocuSign, HelloSign, or anywhere.</p>
+                <div class="hero-cta">
+                    <a href="#pricing" class="btn btn-primary">Get Lifetime $29</a>
+                    <span class="intro-offer">Intro Price - Limited Time</span>
+                </div>
+                <p class="hero-guarantee">30-day money-back guarantee • Own it forever</p>
+            </div>
+            <div class="hero-visual">
+                <div class="workflow-demo">
+                    <div class="workflow-step active">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Upload</div>
+                        <div class="step-desc">Select your document</div>
+                    </div>
+                    <div class="workflow-arrow">→</div>
+                    <div class="workflow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Select</div>
+                        <div class="step-desc">Draw selection box</div>
+                    </div>
+                    <div class="workflow-arrow">→</div>
+                    <div class="workflow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Adjust</div>
+                        <div class="step-desc">Fine-tune settings</div>
+                    </div>
+                    <div class="workflow-arrow">→</div>
+                    <div class="workflow-step">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Extract</div>
+                        <div class="step-desc">Get transparent PNG</div>
+                    </div>
+                </div>
+                <div class="app-preview">
+                    <div class="app-window">
+                        <div class="window-header">
+                            <div class="window-controls">
+                                <div class="control red"></div>
+                                <div class="control yellow"></div>
+                                <div class="control green"></div>
+                            </div>
+                        </div>
+                        <div class="window-content">
+                            <div class="app-demo">
+                                <div class="source-image">
+                                    <div class="image-placeholder">
+                                        <svg class="preview-icon" width="48" height="48"><use href="#icon-upload"/></svg>
+                                        <p>Upload your document</p>
+                                    </div>
+                                </div>
+                                <div class="selection-overlay">
+                                    <div class="selection-area"></div>
+                                </div>
+                                <div class="result-preview">
+                                    <div class="result-placeholder">
+                                        <svg class="preview-icon" width="48" height="48"><use href="#icon-extract"/></svg>
+                                        <p>Signature extracted</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose Signature Extractor?</h2>
+            <p class="section-subtitle">Professional tools with privacy-first approach</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg class="feature-icon-svg" width="40" height="40"><use href="#icon-privacy"/></svg>
+                    </div>
+                    <h3>Privacy-First</h3>
+                    <p>All processing happens locally on your machine. No cloud uploads, no data sharing.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Local processing</li>
+                        <li><i class="fas fa-check-circle"></i> No cloud uploads</li>
+                        <li><i class="fas fa-check-circle"></i> Your data stays private</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg class="feature-icon-svg" width="40" height="40"><use href="#icon-precision"/></svg>
+                    </div>
+                    <h3>Precision Control</h3>
+                    <p>Advanced tools for perfect extraction every time.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Zoom and pan controls</li>
+                        <li><i class="fas fa-check-circle"></i> Threshold adjustment</li>
+                        <li><i class="fas fa-check-circle"></i> Color customization</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg class="feature-icon-svg" width="40" height="40"><use href="#icon-pdf"/></svg>
+                    </div>
+                    <h3>PDF Integration</h3>
+                    <p>Extract signatures and place them directly on PDF documents.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> PDF viewer</li>
+                        <li><i class="fas fa-check-circle"></i> Signature placement</li>
+                        <li><i class="fas fa-check-circle"></i> Audit logging</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Workflow Section -->
+    <section class="workflow">
+        <div class="container">
+            <h2 class="section-title">Simple 5-Step Workflow</h2>
+            <p class="section-subtitle">Extract signatures in seconds with our intuitive interface</p>
+            
+            <div class="workflow-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-icon"><svg class="workflow-icon" width="32" height="32"><use href="#icon-upload"/></svg></div>
+                    <h3>Upload</h3>
+                    <p>Drag & drop or select your image or PDF document</p>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-icon"><svg class="workflow-icon" width="32" height="32"><use href="#icon-select"/></svg></div>
+                    <h3>Select</h3>
+                    <p>Draw a rectangle around your signature area</p>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-icon"><svg class="workflow-icon" width="32" height="32"><use href="#icon-adjust"/></svg></div>
+                    <h3>Adjust</h3>
+                    <p>Customize threshold, color, and background</p>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-icon"><svg class="workflow-icon" width="32" height="32"><use href="#icon-extract"/></svg></div>
+                    <h3>Extract</h3>
+                    <p>Preview and refine your signature extraction</p>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-icon"><svg class="workflow-icon" width="32" height="32"><use href="#icon-export"/></svg></div>
+                    <h3>Export</h3>
+                    <p>Save as transparent PNG or place on PDF</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases Section -->
+    <section id="use-cases" class="use-cases">
+        <div class="container">
+            <h2 class="section-title">Trusted by Professionals Across Industries</h2>
+            <p class="section-subtitle">See how different industries benefit from our solution</p>
+            
+            <div class="use-cases-grid">
+                <div class="use-case-card">
+                    <div class="use-case-icon">
+                        <svg class="use-case-icon-svg" width="32" height="32"><use href="#icon-gavel"/></svg>
+                    </div>
+                    <h3>Legal Professionals</h3>
+                    <ul>
+                        <li>Extract signatures from contracts</li>
+                        <li>Process documents locally</li>
+                        <li>Keep client data private</li>
+                    </ul>
+                </div>
+                
+                <div class="use-case-card">
+                    <div class="use-case-icon">
+                        <svg class="use-case-icon-svg" width="32" height="32"><use href="#icon-home"/></svg>
+                    </div>
+                    <h3>Real Estate</h3>
+                    <ul>
+                        <li>Process client signatures</li>
+                        <li>Prepare closing documents</li>
+                        <li>Speed up transaction process</li>
+                    </ul>
+                </div>
+                
+                <div class="use-case-card">
+                    <div class="use-case-icon">
+                        <svg class="use-case-icon-svg" width="32" height="32"><use href="#icon-heartbeat"/></svg>
+                    </div>
+                    <h3>Healthcare</h3>
+                    <ul>
+                        <li>Process consent forms</li>
+                        <li>HIPAA compliant processing</li>
+                        <li>Secure patient data handling</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <h2 class="section-title">Simple, Transparent Pricing</h2>
+            <p class="section-subtitle">Choose the plan that fits your needs</p>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card popular">
+                    <div class="popular-tag">POPULAR</div>
+                    <h3>Lifetime</h3>
+                    <div class="price">$29</div>
+                    <div class="price-subtitle">One-time payment</div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i> All extraction tools</li>
+                        <li><i class="fas fa-check"></i> PDF signing workflow</li>
+                        <li><i class="fas fa-check"></i> Local processing</li>
+                        <li><i class="fas fa-check"></i> Lifetime updates</li>
+                        <li><i class="fas fa-check"></i> Priority support</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Get Lifetime</a>
+                    <div class="guarantee">30-day money-back guarantee</div>
+                </div>
+                
+                <div class="pricing-card">
+                    <h3>Pro</h3>
+                    <div class="price">$15<span>/month</span></div>
+                    <div class="price-subtitle">Coming Soon</div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i> Lifetime + all features</li>
+                        <li><i class="fas fa-check"></i> Multi-user sync</li>
+                        <li><i class="fas fa-check"></i> Batch processing</li>
+                        <li><i class="fas fa-check"></i> Cloud sync</li>
+                        <li><i class="fas fa-check"></i> Advanced integrations</li>
+                    </ul>
+                    <a href="#" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+        <div class="container">
+            <h2 class="section-title">What Our Users Say</h2>
+            <p class="section-subtitle">Hear from professionals who trust our solution</p>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"Finally, a signature tool that respects privacy and works. No more cloud uploads! The precision controls are exactly what I needed for legal documents."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">S</div>
+                        <div class="author-info">
+                            <h4>Sarah M.</h4>
+                            <p>Legal Professional</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"The PDF integration is a game-changer. I can extract signatures and place them directly in contracts. Saves me hours every week!"</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">J</div>
+                        <div class="author-info">
+                            <h4>James T.</h4>
+                            <p>Real Estate Agent</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"As a small business owner, the lifetime pricing model made this an easy decision. The quality of extraction is better than expensive alternatives."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">M</div>
+                        <div class="author-info">
+                            <h4>Maria L.</h4>
+                            <p>Small Business Owner</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq">
+        <div class="container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <p class="section-subtitle">Everything you need to know about the product</p>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How is this different from Adobe Acrobat?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Signature Extractor is designed specifically for signature extraction with advanced controls, while Adobe Acrobat is a general PDF tool. Our desktop-first approach with privacy by design means your documents never leave your computer, unlike Adobe's cloud integration.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Is my data secure with local processing?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolutely! All processing happens locally on your machine. Your documents never leave your computer, ensuring complete privacy and security. We don't collect or store any of your data.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>What file formats do you support?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We support common image formats (PNG, JPG, JPEG, TIFF) and PDF documents. For output, you can save as transparent PNG, JPEG, or place directly in PDF documents.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Can I use this for commercial purposes?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! The lifetime license allows you to use Signature Extractor for both personal and commercial purposes. You can process documents for clients, create templates, and integrate into your business workflows.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>How does the PDF signing feature work?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Our PDF integration allows you to open PDF documents, place signatures from your library directly onto PDF pages, and save the signed document. This creates a properly signed PDF that can be used for official purposes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Extract Signatures with Precision?</h2>
+            <p>Join hundreds of professionals who trust Signature Extractor for their signature extraction needs.</p>
+            <div class="cta-buttons">
+                <a href="#pricing" class="btn btn-primary">Get Lifetime $29</a>
+                <a href="#" class="btn btn-secondary">Watch Demo</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <div class="footer-logo">
+                        <svg class="footer-logo-svg" width="24" height="24"><use href="#icon-logo"/></svg>
+                        <span>Signature Extractor</span>
+                    </div>
+                    <p>Professional signature extraction with privacy-first approach.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Use Cases</a></li>
+                        <li><a href="#">Roadmap</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Signature Extractor. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

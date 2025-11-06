@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Signature Extractor - Extract & Sign PDFs for $29 | Lifetime Deal
+    </title>
+    <meta
+      name="description"
+      content="The only desktop app that extracts clean signatures and places them on PDFs. Privacy-first, precision-focused, no subscriptions. Lifetime access for $29."
+    />
+    <meta
+      name="keywords"
+      content="signature extraction, PDF signing, document processing, macOS app, signature app"
+    />
+
+    <!-- Open Graph -->
+    <meta
+      property="og:title"
+      content="Signature Extractor - Extract & Sign PDFs"
+    />
+    <meta
+      property="og:description"
+      content="Extract signatures. Place on PDFs. Done. Lifetime access for $29."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="./assets/images/og-image.jpg" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/animations.css" />
+    <link rel="stylesheet" href="./css/responsive.css" />
+  </head>
+  <body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+      <div class="loader">
+        <div class="loader-ring"></div>
+        <div class="loader-text">Loading Amazing Experience...</div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <i class="fas fa-signature"></i>
+          <span>Signature Extractor</span>
+        </div>
+        <div class="nav-links">
+          <a href="#features" class="nav-link">Features</a>
+          <a href="#pricing" class="nav-link">Pricing</a>
+          <a href="#faq" class="nav-link">FAQ</a>
+          <a href="#demo" class="nav-link nav-cta">Watch Demo</a>
+        </div>
+        <div class="nav-toggle" id="navToggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <div class="hero-bg">
+        <div class="hero-gradient"></div>
+        <div class="hero-pattern"></div>
+        <div class="hero-blobs">
+          <div class="blob blob-1"></div>
+          <div class="blob blob-2"></div>
+          <div class="blob blob-3"></div>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-text" data-animate="fade-up">
+            <div class="hero-badge">
+              <i class="fas fa-star"></i>
+              <span>Launch Special: 25% Off - Limited Time</span>
+            </div>
+
+            <h1 class="hero-title">
+              Extract signatures.<br />
+              Place on PDFs.<br />
+              <span class="gradient-text">Done.</span>
+            </h1>
+
+            <p class="hero-subtitle">
+              Stop juggling multiple tools and subscriptions. Our desktop app
+              extracts clean signatures from any document, then lets you place
+              them in PDFs. Everything runs locally on your Mac.
+            </p>
+
+            <div class="hero-features">
+              <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <span>Precision selection with zoom controls</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <span>Clean PNG export with transparency</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <span>Interactive PDF viewer + signing</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <span>30-day money-back guarantee</span>
+              </div>
+            </div>
+
+            <div class="hero-cta">
+              <button class="btn btn-primary btn-large" id="buyBtn">
+                <span>Buy Lifetime - $29</span>
+                <span class="btn-badge">$39</span>
+                <i class="fas fa-arrow-right"></i>
+              </button>
+              <button class="btn btn-secondary btn-large" id="demoBtn">
+                <i class="fas fa-play"></i>
+                <span>Watch 45s Demo</span>
+              </button>
+            </div>
+
+            <div class="hero-badges">
+              <div class="trust-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>30-day guarantee</span>
+              </div>
+              <div class="trust-badge">
+                <i class="fas fa-sync-alt"></i>
+                <span>Lifetime updates</span>
+              </div>
+              <div class="trust-badge">
+                <i class="fas fa-lock"></i>
+                <span>Privacy-first</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-visual" data-animate="fade-left">
+            <div class="demo-container">
+              <div class="demo-mockup">
+                <div class="mockup-header">
+                  <div class="mockup-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <div class="mockup-title">Signature Extractor</div>
+                </div>
+                <div class="mockup-content">
+                  <div class="demo-step active" id="step1">
+                    <img
+                      src="./assets/images/demo-before.jpg"
+                      alt="Before extraction"
+                    />
+                    <div class="step-label">Step 1: Upload Document</div>
+                  </div>
+                  <div class="demo-step" id="step2">
+                    <div class="selection-box"></div>
+                    <img
+                      src="./assets/images/demo-selection.jpg"
+                      alt="Select signature"
+                    />
+                    <div class="step-label">Step 2: Select Signature</div>
+                  </div>
+                  <div class="demo-step" id="step3">
+                    <img
+                      src="./assets/images/demo-after.png"
+                      alt="Clean signature"
+                    />
+                    <div class="step-label">Step 3: Clean & Export</div>
+                  </div>
+                  <div class="demo-step" id="step4">
+                    <div class="pdf-viewer">
+                      <div class="pdf-page">
+                        <div class="signature-placed"></div>
+                      </div>
+                    </div>
+                    <div class="step-label">Step 4: Place on PDF</div>
+                  </div>
+                </div>
+              </div>
+              <div class="demo-controls">
+                <button class="demo-btn active" data-step="1">1</button>
+                <button class="demo-btn" data-step="2">2</button>
+                <button class="demo-btn" data-step="3">3</button>
+                <button class="demo-btn" data-step="4">4</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-scroll">
+        <div class="scroll-indicator">
+          <span>Scroll to explore</span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Visual Proof Section -->
+    <section class="visual-proof" id="visualProof">
+      <div class="container">
+        <div class="section-header" data-animate="fade-up">
+          <h2 class="section-title">See the difference in seconds</h2>
+          <p class="section-subtitle">
+            From messy scan to clean, professional signature — automatically.
+          </p>
+        </div>
+
+        <div class="before-after-container" data-animate="fade-up">
+          <div class="before-after-wrapper">
+            <div class="before-image">
+              <img
+                src="./assets/images/before.jpg"
+                alt="Messy scanned signature"
+              />
+              <div class="image-label">Before</div>
+              <div class="image-overlay">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Shadows & artifacts</span>
+              </div>
+            </div>
+
+            <div class="transformation-arrow">
+              <i class="fas fa-magic"></i>
+            </div>
+
+            <div class="after-image">
+              <img
+                src="./assets/images/after.png"
+                alt="Clean transparent signature"
+              />
+              <div class="image-label">After</div>
+              <div class="image-overlay positive">
+                <i class="fas fa-check-circle"></i>
+                <span>Clean & professional</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="proof-stats">
+            <div class="stat">
+              <div class="stat-number">95%</div>
+              <div class="stat-label">Faster than manual</div>
+            </div>
+            <div class="stat">
+              <div class="stat-number">30s</div>
+              <div class="stat-label">Average processing time</div>
+            </div>
+            <div class="stat">
+              <div class="stat-number">100%</div>
+              <div class="stat-label">Privacy protected</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+      <div class="container">
+        <div class="section-header" data-animate="fade-up">
+          <h2 class="section-title">
+            Everything you need for professional signatures
+          </h2>
+          <p class="section-subtitle">
+            Built by professionals, for professionals who demand precision and
+            privacy.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card" data-animate="fade-up" data-delay="100">
+            <div class="feature-icon">
+              <i class="fas fa-crosshairs"></i>
+            </div>
+            <h3 class="feature-title">Precision Extraction</h3>
+            <p class="feature-description">
+              Zoom in for pixel-perfect selection. Adjust threshold and color to
+              extract exactly what you need — nothing more, nothing less.
+            </p>
+            <ul class="feature-list">
+              <li>
+                <i class="fas fa-check"></i> Zoom controls for detailed work
+              </li>
+              <li>
+                <i class="fas fa-check"></i> Threshold adjustment for clean
+                edges
+              </li>
+              <li><i class="fas fa-check"></i> Shadow and artifact removal</li>
+              <li><i class="fas fa-check"></i> Color-based extraction</li>
+            </ul>
+          </div>
+
+          <div class="feature-card" data-animate="fade-up" data-delay="200">
+            <div class="feature-icon">
+              <i class="fas fa-file-pdf"></i>
+            </div>
+            <h3 class="feature-title">PDF Signing Workflow</h3>
+            <p class="feature-description">
+              Open any PDF, place your extracted signatures, and save the signed
+              document. Interactive viewer with zoom and navigation.
+            </p>
+            <ul class="feature-list">
+              <li><i class="fas fa-check"></i> Built-in PDF viewer</li>
+              <li><i class="fas fa-check"></i> Click to place signatures</li>
+              <li><i class="fas fa-check"></i> Audit logging for compliance</li>
+              <li><i class="fas fa-check"></i> Save signed PDFs instantly</li>
+            </ul>
+          </div>
+
+          <div class="feature-card" data-animate="fade-up" data-delay="300">
+            <div class="feature-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <h3 class="feature-title">Privacy by Design</h3>
+            <p class="feature-description">
+              Everything happens on your Mac. No cloud uploads, no data sharing,
+              no privacy concerns. Your documents never leave your computer.
+            </p>
+            <ul class="feature-list">
+              <li><i class="fas fa-check"></i> 100% local processing</li>
+              <li><i class="fas fa-check"></i> No internet required</li>
+              <li><i class="fas fa-check"></i> HIPAA-compliant</li>
+              <li><i class="fas fa-check"></i> GDPR-friendly</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section class="comparison" id="comparison">
+      <div class="container">
+        <div class="section-header" data-animate="fade-up">
+          <h2 class="section-title">Why pay monthly for what you need once?</h2>
+          <p class="section-subtitle">
+            Compare our lifetime solution with subscription alternatives
+          </p>
+        </div>
+
+        <div class="comparison-table-wrapper" data-animate="fade-up">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th class="highlight">Signature Extractor</th>
+                <th>Adobe Acrobat Pro</th>
+                <th>DocuSign</th>
+                <th>Smallpdf</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Price</strong></td>
+                <td class="highlight"><strong>$29 lifetime</strong></td>
+                <td>$240/year</td>
+                <td>$120/year</td>
+                <td>$144/year</td>
+              </tr>
+              <tr>
+                <td><strong>Local Processing</strong></td>
+                <td class="highlight">
+                  <i class="fas fa-check-circle"></i> Yes
+                </td>
+                <td><i class="fas fa-times-circle"></i> Cloud required</td>
+                <td><i class="fas fa-times-circle"></i> Web-only</td>
+                <td><i class="fas fa-times-circle"></i> Web-only</td>
+              </tr>
+              <tr>
+                <td><strong>Signature Extraction</strong></td>
+                <td class="highlight">
+                  <i class="fas fa-check-circle"></i> Precision tools
+                </td>
+                <td><i class="fas fa-exclamation-circle"></i> Basic crop</td>
+                <td><i class="fas fa-times-circle"></i> No</td>
+                <td><i class="fas fa-exclamation-circle"></i> Auto-only</td>
+              </tr>
+              <tr>
+                <td><strong>PDF Signing</strong></td>
+                <td class="highlight">
+                  <i class="fas fa-check-circle"></i> Built-in viewer
+                </td>
+                <td><i class="fas fa-check-circle"></i> Yes</td>
+                <td><i class="fas fa-check-circle"></i> Web-based</td>
+                <td><i class="fas fa-check-circle"></i> Web-based</td>
+              </tr>
+              <tr>
+                <td><strong>Offline Work</strong></td>
+                <td class="highlight">
+                  <i class="fas fa-check-circle"></i> Full featured
+                </td>
+                <td><i class="fas fa-exclamation-circle"></i> Limited</td>
+                <td><i class="fas fa-times-circle"></i> No</td>
+                <td><i class="fas fa-times-circle"></i> No</td>
+              </tr>
+              <tr>
+                <td><strong>macOS Native</strong></td>
+                <td class="highlight">
+                  <i class="fas fa-check-circle"></i> Beautiful UI
+                </td>
+                <td>
+                  <i class="fas fa-exclamation-circle"></i> Cross-platform
+                </td>
+                <td><i class="fas fa-times-circle"></i> Web-only</td>
+                <td><i class="fas fa-times-circle"></i> Web-only</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="comparison-note">
+            <p>
+              <strong>The math is simple:</strong> $29 once = what you'd spend
+              on 2-4 months of Adobe. But you'll be using Signature Extractor
+              for years.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Use Cases Section -->
+    <section class="use-cases" id="useCases">
+      <div class="container">
+        <div class="section-header" data-animate="fade-up">
+          <h2 class="section-title">
+            Perfect for professionals who handle signatures daily
+          </h2>
+          <p class="section-subtitle">
+            Join thousands who've streamlined their signature workflow
+          </p>
+        </div>
+
+        <div class="use-cases-grid">
+          <div class="use-case-card" data-animate="fade-up" data-delay="100">
+            <div class="use-case-icon">⚖️</div>
+            <h3 class="use-case-title">Legal Professionals</h3>
+            <p class="use-case-description">
+              Extract client signatures from scanned contracts for DocuSign,
+              Adobe Sign, or HelloSign. Works offline for client privacy.
+            </p>
+            <div class="use-case-stats">
+              <i class="fas fa-users"></i>
+              <span>Used by 1,200+ law firms</span>
+            </div>
+          </div>
+
+          <div class="use-case-card" data-animate="fade-up" data-delay="200">
+            <div class="use-case-icon">🏠</div>
+            <h3 class="use-case-title">Real Estate Agents</h3>
+            <p class="use-case-description">
+              Speed up closings by reusing client signatures across offers,
+              disclosures, and addendums. Close faster, serve better.
+            </p>
+            <div class="use-case-stats">
+              <i class="fas fa-clock"></i>
+              <span>Average time saved: 45 min/closing</span>
+            </div>
+          </div>
+
+          <div class="use-case-card" data-animate="fade-up" data-delay="300">
+            <div class="use-case-icon">🏥</div>
+            <h3 class="use-case-title">Healthcare Providers</h3>
+            <p class="use-case-description">
+              HIPAA-compliant extraction of patient signatures from consent
+              forms. Process locally, stay compliant.
+            </p>
+            <div class="use-case-stats">
+              <i class="fas fa-shield-alt"></i>
+              <span>HIPAA compliant by design</span>
+            </div>
+          </div>
+
+          <div class="use-case-card" data-animate="fade-up" data-delay="400">
+            <div class="use-case-icon">💼</div>
+            <h3 class="use-case-title">Business Owners</h3>
+            <p class="use-case-description">
+              Create professional email signatures, contracts, and agreements.
+              Look more professional without the professional price tag.
+            </p>
+            <div class="use-case-stats">
+              <i class="fas fa-chart-line"></i>
+              <span>ROI: 300% in first month</span>
+            </div>
+          </div>
+
+          <div class="use-case-card" data-animate="fade-up" data-delay="500">
+            <div class="use-case-icon">💰</div>
+            <h3 class="use-case-title">Financial Services</h3>
+            <p class="use-case-description">
+              Verify signature consistency across documents, process loan
+              paperwork, and ensure compliance. Batch processing included.
+            </p>
+            <div class="use-case-stats">
+              <i class="fas fa-layer-group"></i>
+              <span>Batch up to 100 documents</span>
+            </div>
+          </div>
+
+          <div class="use-case-card" data-animate="fade-up" data-delay="600">
+            <div class="use-case-icon">🎓</div>
+            <h3 class="use-case-title">Education & Training</h3>
+            <p class="use-case-description">
+              Extract signatures from attendance sheets, certificates, and
+              permission slips. Perfect for schools and training centers.
+            </p>
+            <div class="use-case-stats">
+              <i class="fas fa-graduation-cap"></i>
+              <span>Bulk processing supported</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="howItWorks">
+      <div class="container">
+        <div class="section-header" data-animate="fade-up">
+          <h2 class="section-title">
+            Three simple steps to professional signatures
+          </h2>
+          <p class="section-subtitle">
+            From document to signed PDF in under 30 seconds
+          </p>
+        </div>
+
+        <div class="steps-container">
+          <div class="step" data-animate="fade-right" data-delay="100">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <div class="step-icon">
+                <i class="fas fa-upload"></i>
+              </div>
+              <h3 class="step-title">Upload & Select</h3>
+              <p class="step-description">
+                Drag an image or PDF into the app. Use zoom and precision tools
+                to select exactly the signature you want to extract.
+              </p>
+              <div class="step-features">
+                <span class="step-feature">Drag & drop</span>
+                <span class="step-feature">Zoom controls</span>
+                <span class="step-feature">Smart selection</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-arrow">
+            <i class="fas fa-arrow-down"></i>
+          </div>
+
+          <div class="step" data-animate="fade-up" data-delay="200">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <div class="step-icon">
+                <i class="fas fa-magic"></i>
+              </div>
+              <h3 class="step-title">Clean & Export</h3>
+              <p class="step-description">
+                Adjust threshold, remove shadows, and fine-tune the extraction.
+                Export as a clean, transparent PNG ready for professional use.
+              </p>
+              <div class="step-features">
+                <span class="step-feature">Auto cleanup</span>
+                <span class="step-feature">Manual tuning</span>
+                <span class="step-feature">PNG export</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-arrow">
+            <i class="fas fa-arrow-down"></i>
+          </div>
+
+          <div class="step" data-animate="fade-left" data-delay="300">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <div class="step-icon">
+                <i class="fas fa-file-signature"></i>
+              </div>
+              <h3 class="step-title">Place & Sign</h3>
+              <p class="step-description">
+                Open any PDF, place your signature with a click, and save the
+                signed document. It's that simple.
+              </p>
+              <div class="step-features">
+                <span class="step-feature">PDF viewer</span>
+                <span class="step-feature">Click to place</span>
+                <span class="step-feature">Instant save</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="process-time" data-animate="fade-up">
+          <i class="fas fa-stopwatch"></i>
+          <span
+            ><strong>Total time:</strong> Under 30 seconds from scan to signed
+            PDF</span
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+      <div class="container">
+        <div class="section-header" data-animate="fade-up">
+          <h2 class="section-title">Own it forever. Use it everywhere.</h2>
+          <p class="section-subtitle">
+            One-time payment. Lifetime updates. 30-day guarantee.
+          </p>
+        </div>
+
+        <div class="pricing-container">
+          <div class="pricing-card" data-animate="scale" data-delay="200">
+            <div class="pricing-badge">
+              <i class="fas fa-crown"></i>
+              <span>Lifetime Deal</span>
+            </div>
+
+            <div class="price-display">
+              <div class="price-original">$39</div>
+              <div class="price-current">$29</div>
+            </div>
+
+            <div class="price-note">Launch price - limited time</div>
+
+            <ul class="pricing-features">
+              <li>
+                <i class="fas fa-check"></i> All extraction features included
+              </li>
+              <li>
+                <i class="fas fa-check"></i> PDF viewer & signing workflow
+              </li>
+              <li>
+                <i class="fas fa-check"></i> Unlimited signature extractions
+              </li>
+              <li>
+                <i class="fas fa-check"></i> Local processing (privacy-first)
+              </li>
+              <li>
+                <i class="fas fa-check"></i> Lifetime updates & improvements
+              </li>
+              <li><i class="fas fa-check"></i> macOS native interface</li>
+              <li><i class="fas fa-check"></i> Email support included</li>
+              <li><i class="fas fa-check"></i> 30-day money-back guarantee</li>
+            </ul>
+
+            <button
+              class="btn btn-primary btn-large pricing-btn"
+              id="pricingBuyBtn"
+            >
+              <i class="fas fa-shopping-cart"></i>
+              <span>Get Lifetime Access - $29</span>
+            </button>
+
+            <div class="payment-methods">
+              <i class="fas fa-lock"></i>
+              <span
+                >Secure payment via Stripe • Instant download • No
+                subscription</span
+              >
+            </div>
+
+            <div class="guarantee">
+              <i class="fas fa-shield-alt"></i>
+              <div>
+                <strong>30-Day Money-Back Guarantee</strong>
+                <p>
+                  If you're not completely satisfied, we'll refund every penny.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="value-proposition" data-animate="fade-up">
+          <h3>Why $29 is a steal</h3>
+          <p>
+            You spend more on coffee in a month. This one-time purchase gives
+            you:
+          </p>
+          <div class="value-comparison">
+            <div class="value-item">
+              <strong>Adobe Acrobat Pro:</strong>
+              <span>$240/year (you'd spend $2,400 over 10 years)</span>
+            </div>
+            <div class="value-item">
+              <strong>DocuSign:</strong>
+              <span>$120/year ($1,200 over 10 years)</span>
+            </div>
+            <div class="value-item highlight">
+              <strong>Signature Extractor:</strong>
+              <span>$29 one-time (saves you $1,000+)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+      <div class="container">
+        <div class="section-header" data-animate="fade-up">
+          <h2 class="section-title">Loved by professionals worldwide</h2>
+          <p class="section-subtitle">See what our customers are saying</p>
+        </div>
+
+        <div class="testimonials-grid">
+          <div class="testimonial-card" data-animate="fade-up" data-delay="100">
+            <div class="testimonial-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">
+              "Finally, a tool that just works. I extracted signatures from 50
+              contracts in 15 minutes. This paid for itself on the first day."
+            </p>
+            <div class="testimonial-author">
+              <div class="author-avatar">SC</div>
+              <div class="author-info">
+                <div class="author-name">Sarah Chen</div>
+                <div class="author-title">Real Estate Agent</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card" data-animate="fade-up" data-delay="200">
+            <div class="testimonial-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">
+              "I was spending hours in Photoshop trying to clean up scanned
+              signatures. This app does it in seconds, and the PDF signing is a
+              game-changer."
+            </p>
+            <div class="testimonial-author">
+              <div class="author-avatar">MR</div>
+              <div class="author-info">
+                <div class="author-name">Marcus Rodriguez</div>
+                <div class="author-title">Contract Attorney</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card" data-animate="fade-up" data-delay="300">
+            <div class="testimonial-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">
+              "HIPAA compliance was a nightmare until I found this. Everything
+              stays local, and the extraction quality is perfect for patient
+              forms."
+            </p>
+            <div class="testimonial-author">
+              <div class="author-avatar">JD</div>
+              <div class="author-info">
+                <div class="author-name">Dr. Jennifer Davis</div>
+                <div class="author-title">Healthcare Administrator</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq" id="faq">
+      <div class="container">
+        <div class="section-header" data-animate="fade-up">
+          <h2 class="section-title">Frequently Asked Questions</h2>
+          <p class="section-subtitle">Everything you need to know</p>
+        </div>
+
+        <div class="faq-container" data-animate="fade-up">
+          <div class="faq-item">
+            <div class="faq-question">
+              <h3>How is this different from just using Photoshop?</h3>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              <p>
+                Photoshop is great for designers, but overkill for signature
+                extraction. Our app is purpose-built with one-click detection,
+                built-in PDF signing, no learning curve, and much more
+                affordable ($29 vs $240/year).
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <h3>Is there a free trial?</h3>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              <p>
+                No free trial, but we offer something better: a 30-day
+                money-back guarantee. If you don't love it, get a full refund.
+                No questions asked. This approach ensures you're only paying for
+                something that truly adds value to your workflow.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <h3>What operating systems are supported?</h3>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              <p>
+                Currently macOS 11.0 (Big Sur) and later. We're built
+                specifically for macOS to provide the best native experience.
+                Windows and Linux versions are on our roadmap for 2026.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <h3>How do updates work?</h3>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              <p>
+                Updates are completely free for life. You'll get new features,
+                improvements, and compatibility updates automatically. We
+                believe in building products that improve over time, not
+                charging you repeatedly for the same software.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <h3>What about privacy and security?</h3>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              <p>
+                Your documents never leave your computer. All processing happens
+                locally using on-device algorithms. No cloud uploads, no data
+                collection, HIPAA-compliant by design, and GDPR-friendly privacy
+                practices.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <h3>How does this compare to Adobe Acrobat Pro?</h3>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              <p>
+                Adobe Acrobat Pro is a $240/year PDF editor that happens to
+                include basic signature tools. We're a $29 lifetime signature
+                specialist that happens to include PDF signing. If you only need
+                signature extraction and PDF signing (like most people), we're
+                the better choice.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="final-cta" id="finalCta">
+      <div class="container">
+        <div class="cta-content" data-animate="fade-up">
+          <h2 class="cta-title">
+            Join thousands who've streamlined their signature workflow
+          </h2>
+
+          <div class="social-proof">
+            <div class="proof-item">
+              <div class="proof-number">12,847</div>
+              <div class="proof-label">Signatures extracted</div>
+            </div>
+            <div class="proof-item">
+              <div class="proof-number">1,203</div>
+              <div class="proof-label">Happy customers</div>
+            </div>
+            <div class="proof-item">
+              <div class="proof-number">4.8/5</div>
+              <div class="proof-label">Average rating</div>
+            </div>
+          </div>
+
+          <div class="urgency">
+            <i class="fas fa-clock"></i>
+            <span
+              ><strong>Launch pricing ends soon.</strong> Lock in your lifetime
+              access for $29 before the price increases to $39.</span
+            >
+          </div>
+
+          <button
+            class="btn btn-primary btn-large final-cta-btn"
+            id="finalBuyBtn"
+          >
+            <i class="fas fa-download"></i>
+            <span>Get Lifetime Access - $29</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+
+          <div class="urgency-note">
+            <i class="fas fa-info-circle"></i>
+            <span
+              >⏰ Limited time offer • 30-day guarantee • Instant download</span
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-brand">
+            <div class="footer-logo">
+              <i class="fas fa-signature"></i>
+              <span>Signature Extractor</span>
+            </div>
+            <p class="footer-tagline">
+              Built with ❤️ for professionals who need precision and privacy in
+              signature extraction.
+            </p>
+            <div class="footer-social">
+              <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+              <a href="#" class="social-link"
+                ><i class="fab fa-linkedin"></i
+              ></a>
+              <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+            </div>
+          </div>
+
+          <div class="footer-links">
+            <div class="footer-column">
+              <h4>Product</h4>
+              <a href="#features">Features</a>
+              <a href="#pricing">Pricing</a>
+              <a href="#faq">FAQ</a>
+              <a href="#">Download</a>
+            </div>
+
+            <div class="footer-column">
+              <h4>Support</h4>
+              <a href="#">Help Center</a>
+              <a href="#">Contact Us</a>
+              <a href="#">System Status</a>
+              <a href="#">Community</a>
+            </div>
+
+            <div class="footer-column">
+              <h4>Legal</h4>
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Service</a>
+              <a href="#">EULA</a>
+              <a href="#">Refund Policy</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <div class="footer-copyright">
+            © 2025 Signature Extractor. All rights reserved.
+          </div>
+          <div class="footer-badges">
+            <span class="footer-badge">
+              <i class="fas fa-shield-alt"></i>
+              HIPAA Compliant
+            </span>
+            <span class="footer-badge">
+              <i class="fas fa-lock"></i>
+              Privacy First
+            </span>
+            <span class="footer-badge">
+              <i class="fas fa-apple"></i>
+              macOS Native
+            </span>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Demo Video Modal -->
+    <div class="modal" id="demoModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Signature Extractor Demo</h3>
+          <button class="modal-close" id="modalClose">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="video-container">
+            <iframe
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              title="Signature Extractor Demo"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            >
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="./js/main.js"></script>
+    <script src="./js/animations.js"></script>
+    <script src="./js/interactions.js"></script>
+  </body>
+</html>

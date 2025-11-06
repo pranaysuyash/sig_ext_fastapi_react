@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Signature Extractor App — extract pristine signatures locally in seconds with audit-ready exports.">
+  <title>Signature Extractor App — Codex Landing Page</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="page" data-analytics-scope="codex-landing-page">
+    <header class="hero" id="hero" aria-labelledby="hero-title">
+      <div class="hero__background" aria-hidden="true">
+        <img src="assets/hero-blob.svg" alt="" class="hero__blob">
+        <div class="hero__particles" id="particle-field"></div>
+      </div>
+      <div class="container hero__layout">
+        <div class="hero__copy">
+          <p class="eyebrow">Local-first signature workflows</p>
+          <h1 class="hero__title" id="hero-title">Extract pristine signatures in seconds—without uploading a single file.</h1>
+          <p class="hero__subtitle">Clean, isolate, and drop perfect signatures into every contract, design asset, and audit trail. All processing happens on your desktop.</p>
+          <div class="hero__ctas" role="group" aria-label="Primary actions">
+            <button type="button" class="btn btn--primary" data-platform="mac" data-event="hero_cta_click">Download for macOS</button>
+            <button type="button" class="btn btn--secondary" data-event="demo_video_open" aria-label="Watch a 60 second product walkthrough">
+              <span class="btn__icon" aria-hidden="true">▶</span>
+              Watch 60s demo
+            </button>
+          </div>
+          <ul class="hero__trust" aria-label="Trust badges">
+            <li class="trust-badge">HIPAA-friendly</li>
+            <li class="trust-badge">SOC2-ready</li>
+            <li class="trust-badge">Desktop app</li>
+          </ul>
+        </div>
+        <div class="hero__visual" aria-hidden="true">
+          <div class="signature-canvas">
+            <svg class="signature-canvas__svg" viewBox="0 0 400 220" role="presentation">
+              <defs>
+                <linearGradient id="signatureGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#8a5cf6" />
+                  <stop offset="50%" stop-color="#635bff" />
+                  <stop offset="100%" stop-color="#3ef5c3" />
+                </linearGradient>
+              </defs>
+              <path class="signature-canvas__stroke" d="M22 160 C55 90, 95 95, 130 155 S210 200, 230 150 S285 70, 330 120" />
+            </svg>
+            <div class="signature-canvas__glow"></div>
+          </div>
+          <div class="hero__stats">
+            <div class="glass-card">
+              <h3>100% Local</h3>
+              <p>No uploads. Keep sensitive agreements on-device.</p>
+            </div>
+            <div class="glass-card">
+              <h3>12× Faster</h3>
+              <p>Cut contract prep from hours to minutes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="section problem" id="problem" aria-labelledby="problem-title">
+        <div class="container">
+          <div class="section__header">
+            <p class="eyebrow">From chaos to clarity</p>
+            <h2 class="section__title" id="problem-title">Signature capture is still a manual bottleneck. We built a desktop flow that fixes it.</h2>
+          </div>
+          <div class="problem__grid">
+            <div class="problem__card problem__card--pain">
+              <h3>Legacy workflow</h3>
+              <ul>
+                <li>83% of legal teams still screenshot and crop signatures by hand.</li>
+                <li>Smudges and skew stall approval cycles.</li>
+                <li>Compliance teams can’t prove signature provenance.</li>
+              </ul>
+            </div>
+            <div class="problem__card problem__card--solution">
+              <h3>Signature Extractor App</h3>
+              <ul>
+                <li>Auto-orients scans and mobile photos instantly.</li>
+                <li>Adjust thresholds with sub-pixel precision.</li>
+                <li>Export transparent PNGs and audit logs in one click.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="problem__metrics" role="list">
+            <div class="metric" data-target="12">
+              <span class="metric__value">0</span>
+              <span class="metric__label">x faster review cycles</span>
+            </div>
+            <div class="metric" data-target="100">
+              <span class="metric__value">0</span>
+              <span class="metric__label">% local processing</span>
+            </div>
+            <div class="metric" data-target="60">
+              <span class="metric__value">0</span>
+              <span class="metric__label">second demo</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section features" id="features" aria-labelledby="features-title">
+        <div class="container">
+          <div class="section__header">
+            <p class="eyebrow">Crafted for precision</p>
+            <h2 class="section__title" id="features-title">Three pillars that eliminate signature clean-up guesswork.</h2>
+          </div>
+          <div class="feature-carousel" data-event-scope="feature_carousel">
+            <div class="feature-carousel__track" id="featureTrack">
+              <article class="feature-card" id="feature-slide-0" data-feature="canvas">
+                <div class="feature-card__icon" aria-hidden="true"></div>
+                <h3>Precision Canvas</h3>
+                <p>Zoom, pan, rotate, and tune thresholds with guidance built for signature capture—not generic photo edits.</p>
+                <a href="#workflow" class="feature-card__link">See the workflow</a>
+              </article>
+              <article class="feature-card" id="feature-slide-1" data-feature="cleanup">
+                <div class="feature-card__icon" aria-hidden="true"></div>
+                <h3>Smart Cleanup Pipeline</h3>
+                <p>Adaptive background removal and smoothing deliver clean exports without round-tripping through Photoshop.</p>
+                <a href="../docs/PDF_QUICK_START.md" class="feature-card__link">View docs</a>
+              </article>
+              <article class="feature-card" id="feature-slide-2" data-feature="export">
+                <div class="feature-card__icon" aria-hidden="true"></div>
+                <h3>Instant Export & Audit</h3>
+                <p>Transparent PNGs, PDF drop-ins, and JSONL audit trails keep compliance and design teams aligned.</p>
+                <a href="../docs/PRICING.md" class="feature-card__link">Compare plans</a>
+              </article>
+            </div>
+            <div class="feature-carousel__nav" role="tablist" aria-label="Feature slideshow">
+              <button type="button" class="feature-carousel__dot is-active" data-slide="0" role="tab" aria-selected="true" aria-controls="feature-slide-0"></button>
+              <button type="button" class="feature-carousel__dot" data-slide="1" role="tab" aria-selected="false" aria-controls="feature-slide-1"></button>
+              <button type="button" class="feature-carousel__dot" data-slide="2" role="tab" aria-selected="false" aria-controls="feature-slide-2"></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section workflow" id="workflow" aria-labelledby="workflow-title">
+        <div class="container">
+          <div class="section__header">
+            <p class="eyebrow">End-to-end assurance</p>
+            <h2 class="section__title" id="workflow-title">A guided flow from upload to signed PDF with full provenance.</h2>
+          </div>
+          <ol class="timeline" role="list">
+            <li class="timeline__item" data-step="1">
+              <div class="timeline__badge">1</div>
+              <h3>Import & Detect</h3>
+              <p>Drag in scans, PDFs, or mobile photos. EXIF auto-rotation and smart cropping prep your canvas instantly.</p>
+            </li>
+            <li class="timeline__item" data-step="2">
+              <div class="timeline__badge">2</div>
+              <h3>Refine & Isolate</h3>
+              <p>Dial thresholds, contrast, and feathering while zooming and panning with pixel precision.</p>
+            </li>
+            <li class="timeline__item" data-step="3">
+              <div class="timeline__badge">3</div>
+              <h3>Export & Share</h3>
+              <p>Save transparent PNGs, layered PSDs, or send straight into the PDF signing workspace.</p>
+            </li>
+            <li class="timeline__item" data-step="4">
+              <div class="timeline__badge">4</div>
+              <h3>Sign & Audit</h3>
+              <p>Place signatures, finalize contracts, and ship JSONL audit logs to your compliance vault.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section testimonials" id="testimonials" aria-labelledby="testimonials-title">
+        <div class="container">
+          <div class="section__header">
+            <p class="eyebrow">Proof in practice</p>
+            <h2 class="section__title" id="testimonials-title">Trusted by teams who can’t compromise on signature integrity.</h2>
+          </div>
+          <div class="testimonial-grid">
+            <article class="testimonial-card">
+              <blockquote>
+                “We cut contract prep from three days to twelve hours. The audit log alone made procurement sign off in a week.”
+              </blockquote>
+              <p class="testimonial-card__author">Dana Patel · Legal Operations Director, Amicus Law Group</p>
+            </article>
+            <article class="testimonial-card">
+              <blockquote>
+                “Local-only processing was non-negotiable. Now our compliance team has verifiable JSONL trails for every signature.”
+              </blockquote>
+              <p class="testimonial-card__author">Miguel Arroyo · Compliance Manager, Northline Bank</p>
+            </article>
+            <article class="testimonial-card">
+              <blockquote>
+                “Designers finally have clean signature assets without detouring through six tools. Export fidelity is unreal.”
+              </blockquote>
+              <p class="testimonial-card__author">Grace Liu · Senior Product Designer, FluxSign</p>
+            </article>
+          </div>
+          <div class="logo-marquee" aria-label="Customer logos">
+            <div class="logo-marquee__track">
+              <span>Amicus Law Group</span>
+              <span>Northline Bank</span>
+              <span>FluxSign</span>
+              <span>Atlas Compliance</span>
+              <span>Veridian Health</span>
+              <span>Docsemble</span>
+              <span>Amicus Law Group</span>
+              <span>Northline Bank</span>
+              <span>FluxSign</span>
+              <span>Atlas Compliance</span>
+              <span>Veridian Health</span>
+              <span>Docsemble</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section cta" id="cta" aria-labelledby="cta-title">
+        <div class="container cta__container">
+          <div class="cta__content">
+            <p class="eyebrow">Pick your platform</p>
+            <h2 class="cta__title" id="cta-title">Spin up the desktop app in under two minutes.</h2>
+            <p class="cta__subtitle">Download the macOS or Windows build, or let us walk you through a live deployment.</p>
+            <div class="cta__platform" role="radiogroup" aria-label="Select platform">
+              <button type="button" class="cta__chip is-selected" role="radio" aria-checked="true" data-platform="mac">macOS</button>
+              <button type="button" class="cta__chip" role="radio" aria-checked="false" data-platform="windows">Windows</button>
+              <button type="button" class="cta__chip" role="radio" aria-checked="false" data-platform="linux">Linux</button>
+            </div>
+            <div class="cta__actions">
+              <button type="button" class="btn btn--primary" id="downloadCta" data-platform-label="macOS">Download for macOS</button>
+              <a href="mailto:sales@signatureextractor.app" class="btn btn--ghost">Book a 15-min walkthrough</a>
+            </div>
+            <ul class="cta__highlights">
+              <li>No credit card required</li>
+              <li>Offline ready</li>
+              <li>SOC2 under review</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section faq" id="faq" aria-labelledby="faq-title">
+        <div class="container">
+          <div class="section__header">
+            <p class="eyebrow">Answers on deck</p>
+            <h2 class="section__title" id="faq-title">Everything you need to know before you deploy.</h2>
+          </div>
+          <div class="faq__list" role="list">
+            <article class="faq__item">
+              <button type="button" class="faq__question" aria-expanded="false">Does everything run locally?</button>
+              <div class="faq__answer" hidden>
+                <p>Yes. All extraction and signing happens on-device by default. Optional cloud sync is available for teams with regional storage requirements.</p>
+              </div>
+            </article>
+            <article class="faq__item">
+              <button type="button" class="faq__question" aria-expanded="false">What files can I import?</button>
+              <div class="faq__answer" hidden>
+                <p>Drop in PDFs, PNG, JPG, TIFF, or HEIC up to 500MB. We auto-handle EXIF orientation and DPI normalization.</p>
+              </div>
+            </article>
+            <article class="faq__item">
+              <button type="button" class="faq__question" aria-expanded="false">How do teams collaborate?</button>
+              <div class="faq__answer" hidden>
+                <p>Pro and Team tiers sync signature outputs via encrypted workspaces. Enterprise offers on-prem deployment with SSO.</p>
+              </div>
+            </article>
+            <article class="faq__item">
+              <button type="button" class="faq__question" aria-expanded="false">Do you provide audit logs?</button>
+              <div class="faq__answer" hidden>
+                <p>Every export can include a JSONL audit log with timestamps, operators, and signature hashes. Export them to your compliance vault automatically.</p>
+              </div>
+            </article>
+            <article class="faq__item">
+              <button type="button" class="faq__question" aria-expanded="false">What’s the pricing model?</button>
+              <div class="faq__answer" hidden>
+                <p>Free tier covers unlimited local extractions. Pro unlocks cloud sync and batch processing. Team tier adds API access; Enterprise is custom.</p>
+              </div>
+            </article>
+            <article class="faq__item">
+              <button type="button" class="faq__question" aria-expanded="false">Need to talk to a human?</button>
+              <div class="faq__answer" hidden>
+                <p>Email <a href="mailto:support@signatureextractor.app">support@signatureextractor.app</a> or join the Slack community. We reply within one business day.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer" id="footer">
+      <div class="container footer__grid">
+        <div class="footer__brand">
+          <span class="footer__logo">Signature Extractor App</span>
+          <p>Precision-built for legal, finance, and design teams who need clean signatures with compliance baked in.</p>
+        </div>
+        <nav class="footer__nav" aria-label="Footer navigation">
+          <a href="#features">Features</a>
+          <a href="#workflow">Workflow</a>
+          <a href="#testimonials">Customers</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+        <div class="footer__links">
+          <a href="../docs/PRICING.md">Pricing</a>
+          <a href="../docs/HELP.md">Help Center</a>
+          <a href="mailto:hello@signatureextractor.app">Contact</a>
+        </div>
+        <div class="footer__meta">
+          <small>© 2025 Signature Extractor App. All rights reserved.</small>
+          <a href="#" class="footer__policy">Privacy & Compliance</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
