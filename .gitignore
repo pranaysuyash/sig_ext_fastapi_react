@@ -14,22 +14,16 @@ dist/
 build/
 *.so
 .pytest_cache/
+.mypy_cache/
+.dmypy.json
+.ruff_cache/
 
 # Environment and secrets
 .env
 .env.*
 !.env.example
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-app.log
-mcp-shell.log
+.envrc
+.direnv/
 
 # Database files
 *.db
@@ -38,100 +32,105 @@ mcp-shell.log
 alembic.db
 backend/data/*.db
 
-# Backend uploads and temporary files
+# Upload directories (keep structure but ignore contents)
 backend/uploads/**/*
 !backend/uploads/.gitkeep
 backend/uploads/images/
-backend/uploads/original_images/
-
-# Desktop app uploads and library
 uploads/**/*
 !uploads/.gitkeep
-desktop_app/library/**/*
-!desktop_app/library/.gitkeep
+uploads/images/
 
-# Generated/processed images
+# Generated/processed images and files
 *.png
 *.jpg
 *.jpeg
 *.gif
 *.bmp
 *.tiff
+*.pdf
+demo_document.pdf
+test_image.jpg
 !docs/**/*.png
 !docs/**/*.jpg
 !docs/**/*.jpeg
 !.github/**/*.png
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-*.ipynb
+# Logs
+*.log
+logs/
+app.log
+backend.log
+mcp-shell.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Development artifacts
-.vscode/settings.json
-.vscode/launch.json
+# IDE and Editor files
+.vscode/
+.claude/
+.kiro/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.atom/
+*.swp
+*.swo
+*~
+.cache/
+*.tmp
+*.bak
 *.code-workspace
 
-# MyPy cache
-.mypy_cache/
-.dmypy.json
+# Development artifacts and debug files
+debug_*.py
+test_*.py
+test_*.sh
+test.html
+take_screenshots.py
+create_demo_pdf.py
+test_fix_verification.py
+test_layout_issue.py
+test_modern_mac_button.py
+test_result_pane.py
+test_results_pane.sh
+test_upload_debug.py
+debug_result_pane_issue.py
+debug_results_pane.py
+debug_session_issue.py
 
-# Ruff cache
-.ruff_cache/
-
-# Pre-commit hooks
-.pre-commit-config.yaml.backup
-
-# Local development databases (additional patterns)
-local.db
-local.sqlite
-dev.db
-dev.sqlite
-development.db
-development.sqlite
-
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-._*
-
-# Windows
-Thumbs.db
-desktop.ini
-ehthumbs.db
-
-# Linux
-*~
-
-# Test files and artifacts
-.pytest_cache/
-.coverage
-coverage.xml
-htmlcov/
-.tox/
-.nox/
+# Test directories and artifacts
+tests/
 test-results/
 test_output/
 test_screenshots/
-test_*.log
-*.test
-*_test.db
-*_test.sqlite
-*_test.sqlite3
+htmlcov/
+.coverage
+coverage.xml
+.tox/
+.nox/
 
-# Backend test artifacts
-backend/test_*.db
-backend/test_*.sqlite
-backend/test_*.sqlite3
-backend/test_output/
-backend/test_logs/
+# Debug and development directories
+screenshots_debug/
+flows/
+.trash/
+tools/
 
-# Desktop app test artifacts
-desktop_app/test_output/
-desktop_app/test_logs/
-desktop_app/test_screenshots/
-desktop_app/tests/__pycache__/
-desktop_app/tests/*.pyc
+# Landing page development artifacts
+claude_landing_page/
+codex_landing_page/
+codex_landing_page_flat/
+codex_landing_page_warm/
+gemini_landing_page/
+grok_landing_page/
+landing_page_minimax_draft/
+qwen_landing_page/
+
+# Alembic
+alembic/versions/*.pyc
+alembic/*.log
+alembic/*.tmp
 
 # PyInstaller
 *.spec
@@ -146,39 +145,50 @@ temp/
 *.swp
 *.swo
 *~
-.cache/
-*.cache
 
-# Debug files
-debug.log
-debug_*.log
-*.debug
-*.dump
+# Session files
+.session
+*.session
 
 # Profile files
 *.prof
 *.lprof
 profile_*.txt
 
-# Session files
-.session
-*.session
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Icon
+.Spotlight-V100
+.Trashes
 
-# Node (legacy, may be removed if fully migrated to desktop)
-node_modules/
-dist-ssr/
-out/
-package-lock.json
-yarn.lock
+# Windows
+Thumbs.db
+desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+*.stackdump
 
-# Alembic
-alembic/versions/*.pyc
-alembic/*.log
-alembic/*.tmp
+# Linux
+*~
+.directory
+.Trash-*
 
-# Trash directory
-.trash/
-# Session/one-off logs kept locally
-app.log
-mcp-shell.log
-screenshots_debug/
+# Docker (if used)
+.dockerignore
+docker-compose.override.yml
+Dockerfile.*
+docker-compose.*.yml
+
+# CI/CD backups
+.github/workflows/*.yml.backup
+.github/dependabot.yml
+
+# Documentation builds
+docs/_build/
+docs/build/
+
+# Pre-commit hooks
+.pre-commit-config.yaml.backup
