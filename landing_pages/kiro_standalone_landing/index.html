@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signature Extractor - Extract. Sign. Done.</title>
+  <meta name="description" content="Professional signature extraction without cloud storage or subscriptions. 100% local processing.">
+  <link rel="stylesheet" href="assets/css/01-reset.css">
+  <link rel="stylesheet" href="assets/css/02-variables.css">
+  <link rel="stylesheet" href="assets/css/03-typography.css">
+  <link rel="stylesheet" href="assets/css/04-components.css">
+  <link rel="stylesheet" href="assets/css/05-sections.css">
+</head>
+<body>
+  <nav class="nav-dark" id="nav">
+    <div class="container">
+      <div class="nav-content">
+        <div class="nav-logo">
+          <svg width="32" height="32" viewBox="0 0 32 32">
+            <rect width="32" height="32" rx="8" fill="url(#logo-grad)"/>
+            <path d="M8,16 Q12,10 16,16 T24,16" stroke="white" stroke-width="2" fill="none"/>
+            <defs>
+              <linearGradient id="logo-grad">
+                <stop offset="0%" stop-color="#f4a261"/>
+                <stop offset="100%" stop-color="#52b788"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span>Signature Extractor</span>
+        </div>
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#demo">Try Demo</a>
+          <a href="#pricing">Pricing</a>
+        </div>
+        <button class="btn btn-primary">Download</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-left">
+          <span class="eyebrow">Privacy-First Signature Tool</span>
+          <h1 class="hero-title">
+            Extract. Sign. <span class="highlight">Done.</span>
+          </h1>
+          <p class="hero-subtitle">Professional signature extraction and PDF signing without cloud uploads or subscriptions.</p>
+          
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-large">Download for macOS</button>
+            <button class="btn btn-secondary">Try Interactive Demo</button>
+          </div>
+          
+          <div class="trust-badges">
+            <span>✓ 30-Day Guarantee</span>
+            <span>✓ 100% Local</span>
+            <span>✓ No Subscription</span>
+          </div>
+        </div>
+        
+        <div class="hero-right">
+          <canvas id="signature-canvas" width="600" height="400"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="metrics">
+    <div class="container">
+      <div class="metrics-grid">
+        <div class="metric">
+          <span class="metric-number" data-target="1200">0</span>+
+          <span class="metric-label">Professionals</span>
+        </div>
+        <div class="metric">
+          <span class="metric-number" data-target="12847">0</span>
+          <span class="metric-label">Signatures Extracted</span>
+        </div>
+        <div class="metric">
+          <span class="metric-number" data-target="4.8">0</span>★
+          <span class="metric-label">Average Rating</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="problem" id="problem">
+    <div class="container">
+      <div class="section-header">
+        <span class="eyebrow">From chaos to clarity</span>
+        <h2>Document signing shouldn't be this complicated</h2>
+      </div>
+      
+      <div class="bento-grid">
+        <div class="bento-item large">
+          <h3>Expensive Subscriptions</h3>
+          <p class="price-compare">$360/year for DocuSign vs <strong>$29 one-time</strong></p>
+        </div>
+        
+        <div class="bento-item medium">
+          <h3>Privacy Concerns</h3>
+          <p>Your signatures stored on someone else's servers</p>
+        </div>
+        
+        <div class="bento-item medium">
+          <h3>Clunky Workflows</h3>
+          <p>Photoshop → Preview → DocuSign → Done?</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo" id="demo">
+    <div class="container">
+      <div class="section-header">
+        <span class="eyebrow">Try it yourself</span>
+        <h2>See signature extraction in action</h2>
+      </div>
+      
+      <div class="demo-workspace">
+        <div class="demo-upload">
+          <input type="file" id="demo-file" accept="image/*" hidden>
+          <label for="demo-file" class="upload-zone">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+            </svg>
+            <p>Drop an image or click to upload</p>
+            <span class="note">Runs 100% in your browser</span>
+          </label>
+        </div>
+        
+        <div class="demo-process">
+          <canvas id="demo-canvas"></canvas>
+          <div class="demo-controls">
+            <label>
+              Threshold
+              <input type="range" id="threshold" min="0" max="255" value="128">
+            </label>
+            <label>
+              Remove Color
+              <input type="color" id="color-picker" value="#ffffff">
+            </label>
+            <button class="btn btn-primary" id="extract-btn">Extract Signature</button>
+          </div>
+        </div>
+        
+        <div class="demo-result">
+          <canvas id="result-canvas"></canvas>
+          <button class="btn btn-secondary" id="download-btn">Download Result</button>
+        </div>
+      </div>
+      
+      <div class="demo-privacy">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+        </svg>
+        <p>Your image never leaves your browser. Zero uploads.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <div class="pricing-card">
+        <span class="badge">Launch Special</span>
+        <div class="price">
+          <span class="old-price">$39</span>
+          <span class="new-price">$29</span>
+          <span class="period">Lifetime</span>
+        </div>
+        <ul class="features">
+          <li>✓ Unlimited signature extractions</li>
+          <li>✓ PDF signing</li>
+          <li>✓ Library management</li>
+          <li>✓ Export in multiple formats</li>
+          <li>✓ Lifetime updates</li>
+        </ul>
+        <button class="btn btn-primary btn-xl">Get Lifetime Access</button>
+        <div class="guarantee">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+          </svg>
+          <span>30-Day Money-Back Guarantee</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq" id="faq">
+    <div class="container">
+      <h2>Questions? We've got answers.</h2>
+      <div class="faq-accordion">
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>How does signature extraction work?</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div class="faq-answer">
+            <p>Our AI-powered engine analyzes your image, detects the signature, removes the background, and exports a clean, transparent PNG.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Is my data secure?</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div class="faq-answer">
+            <p>Absolutely. All processing happens locally on your device. Your signatures never leave your computer.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>What file formats are supported?</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div class="faq-answer">
+            <p>Input: JPG, PNG, HEIC, WebP. Output: PNG (transparent), JPG, SVG, PDF.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#download">Download</a>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <a href="#help">Help Center</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#about">About</a>
+          <a href="#blog">Blog</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="#privacy">Privacy</a>
+          <a href="#terms">Terms</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Signature Extractor. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/signature.js"></script>
+  <script src="assets/js/demo.js"></script>
+</body>
+</html>

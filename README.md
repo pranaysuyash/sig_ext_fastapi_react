@@ -37,37 +37,55 @@ For archived session notes moved from the repo root, see `docs/ROOT_DOCS_INDEX.m
 
 ## Quick Start
 
-### 1. Backend Setup
+### 1. Configuration Setup
 
-Create `.env` at repo root:
+**Quick Setup (Recommended)**:
+
+```zsh
+# Copy example configuration
+cp .env.example .env
+
+# Generate secure JWT secret
+openssl rand -hex 32
+
+# Edit .env and replace JWT_SECRET with the generated value
+```
+
+**Manual Setup**:
+
+Create `.env` at repo root with these required settings:
 
 ```env
-JWT_SECRET=replace-with-secure-string
+# REQUIRED: Generate with: openssl rand -hex 32
+JWT_SECRET=your_secure_32_byte_hex_key_here
 
-# SQLite (recommended for local use):
-DATABASE_URL=sqlite:///backend/data/app.db
+# REQUIRED: API endpoint for desktop app
+API_BASE_URL=http://127.0.0.1:8001
 
-# OR PostgreSQL (optional):
-# DATABASE_HOSTNAME=localhost
-# DATABASE_PORT=5432
-# DATABASE_USERNAME=your_user
-# DATABASE_PASSWORD=your_password
-# DATABASE_NAME=signature_extractor
+# REQUIRED: Database (SQLite recommended for local use)
+DATABASE_URL=sqlite:///./signature_extractor.db
+
+# OPTIONAL: PostgreSQL instead of SQLite
+# DATABASE_URL=postgresql://username:password@localhost:5432/signature_extractor
 ```
+
+See `.env.example` for complete configuration options and examples.
+
+### 2. Backend Setup
 
 Run backend:
 
 ```zsh
-# Optional: Initialize DB (auto-creates SQLite file)
-python backend/setup_db.py
+# Install backend dependencies
+pip install -r backend/requirements.txt
 
-# Start server
+# Start server (auto-creates SQLite DB if needed)
 uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8001
 ```
 
 Health check: <http://127.0.0.1:8001/health>
 
-### 2. Desktop App
+### 3. Desktop App
 
 Install dependencies:
 

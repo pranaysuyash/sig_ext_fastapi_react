@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Signature Extractor AI — Extract perfect signatures locally with military-grade precision. Desktop app with advanced AI, no uploads required.">
+  <title>Signature Extractor AI — Precision Signature Extraction Desktop App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loading-screen">
+    <div class="loading-content">
+      <div class="loading-signature">
+        <svg viewBox="0 0 120 60" class="loading-svg">
+          <path d="M 10 45 Q 40 15, 70 40 T 110 30" class="loading-path"/>
+        </svg>
+      </div>
+      <div class="loading-text">Signature Extractor AI</div>
+      <div class="loading-progress">
+        <div class="loading-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-brand">
+        <svg class="brand-logo" viewBox="0 0 40 40">
+          <rect x="4" y="4" width="32" height="32" rx="8" fill="#2563eb"/>
+          <path d="M 12 20 Q 20 10, 28 20 Q 24 28, 12 20 Z" fill="white" opacity="0.9"/>
+        </svg>
+        <span>Signature Extractor AI</span>
+      </div>
+
+      <div class="navbar-menu">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#workflow" class="nav-link">Workflow</a>
+        <a href="#security" class="nav-link">Security</a>
+        <a href="#pricing" class="nav-link">Pricing</a>
+      </div>
+
+      <div class="navbar-actions">
+        <button class="btn btn--glass">Live Demo</button>
+        <button class="btn btn--primary">Download</button>
+      </div>
+
+      <button class="mobile-menu-toggle">
+        <span class="hamburger"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <h1>
+          <span class="highlight">Extract Perfect Signatures</span><br>
+          with Surgical Precision
+        </h1>
+        <p class="hero-description">
+          Advanced AI-powered desktop application that extracts pristine signatures
+          from any document without ever uploading your sensitive files.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn--primary btn--large">
+            <span>Download for macOS</span>
+          </button>
+          <button class="btn btn--glass btn--large">
+            <span>Watch Demo</span>
+          </button>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-item">
+            <span class="trust-icon">Secure</span>
+            <span>100% Local Processing</span>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">Rated</span>
+            <span>4.9/5 User Rating</span>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon">Certified</span>
+            <span>HIPAA Compliant</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="signature-canvas">
+          <svg class="signature-svg" viewBox="0 0 800 400">
+            <path d="M 100 280 Q 200 120, 300 200 T 500 180 Q 600 140, 700 240"
+                  class="signature-path"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Features Section -->
+    <section class="section" id="features">
+      <div class="section-container">
+        <div class="section-header">
+          <h2 class="section-title">Powerful Features</h2>
+          <p class="section-subtitle">
+            Everything you need for professional signature extraction
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">AI</div>
+            <h3>AI-Powered Detection</h3>
+            <p>Advanced neural networks detect signatures with 99.9% accuracy, even in complex documents.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">Fast</div>
+            <h3>Lightning Fast</h3>
+            <p>Process hundreds of documents in minutes. 12x faster than manual extraction methods.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">Enhance</div>
+            <h3>Auto Enhancement</h3>
+            <p>Automatic quality improvement with noise reduction, contrast adjustment, and background removal.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">Batch</div>
+            <h3>Batch Processing</h3>
+            <p>Process entire folders of documents automatically. Queue hundreds of files and walk away.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">Secure</div>
+            <h3>Enterprise Security</h3>
+            <p>Your data never leaves your device. Military-grade encryption and zero-knowledge architecture.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">Export</div>
+            <h3>Multiple Formats</h3>
+            <p>Export as transparent PNG, SVG vector, or audit-ready PDF with full metadata.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workflow Section -->
+    <section class="section workflow" id="workflow">
+      <div class="section-container">
+        <div class="section-header">
+          <h2 class="section-title">Simple Workflow</h2>
+          <p class="section-subtitle">
+            From document to perfect signature in four simple steps
+          </p>
+        </div>
+
+        <div class="workflow-steps">
+          <div class="step">
+            <div class="step-icon">1</div>
+            <h4>Upload</h4>
+            <p>Drag & drop your PDFs, images, or scans</p>
+          </div>
+
+          <div class="step">
+            <div class="step-icon">2</div>
+            <h4>Analyze</h4>
+            <p>AI scans and identifies all signature instances</p>
+          </div>
+
+          <div class="step">
+            <div class="step-icon">3</div>
+            <h4>Extract</h4>
+            <p>Precise extraction with quality optimization</p>
+          </div>
+
+          <div class="step">
+            <div class="step-icon">4</div>
+            <h4>Export</h4>
+            <p>Download in your preferred format instantly</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Security Section -->
+    <section class="section security" id="security">
+      <div class="section-container">
+        <div class="section-header">
+          <h2 class="section-title">Enterprise Security</h2>
+          <p class="section-subtitle">
+            Your data never leaves your device. Ever.
+          </p>
+        </div>
+
+        <div class="security-features">
+          <div class="security-feature">
+            <h4>Zero-Knowledge Architecture</h4>
+            <p>We never have access to your documents or extracted signatures. All processing happens locally.</p>
+          </div>
+
+          <div class="security-feature">
+            <h4>HIPAA & GDPR Compliant</h4>
+            <p>Full compliance with healthcare and privacy regulations. Audit trails and complete transparency.</p>
+          </div>
+
+          <div class="security-feature">
+            <h4>AES-256 Encryption</h4>
+            <p>End-to-end encryption for all stored data. FIPS 140-2 validated cryptographic modules.</p>
+          </div>
+
+          <div class="security-feature">
+            <h4>Enterprise SSO</h4>
+            <p>Integrate with your existing authentication systems. Support for SAML, OAuth 2.0, and LDAP.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="section" id="pricing">
+      <div class="section-container">
+        <div class="section-header">
+          <h2 class="section-title">Simple Pricing</h2>
+          <p class="section-subtitle">
+            14-day free trial. No credit card required.
+          </p>
+        </div>
+
+        <div class="pricing-cards">
+          <div class="pricing-card">
+            <h3>Personal</h3>
+            <div class="price">
+              $29<span class="price-period">/month</span>
+            </div>
+            <p>Perfect for individual users</p>
+            <ul>
+              <li>✓ Unlimited extractions</li>
+              <li>✓ Basic AI models</li>
+              <li>✓ PNG export</li>
+              <li>✓ Email support</li>
+              <li>✓ 1 device license</li>
+            </ul>
+            <button class="btn btn--glass">Start Free Trial</button>
+          </div>
+
+          <div class="pricing-card recommended">
+            <h3>Professional</h3>
+            <div class="price">
+              $79<span class="price-period">/month</span>
+            </div>
+            <p>For businesses and teams</p>
+            <ul>
+              <li>✓ Everything in Personal</li>
+              <li>✓ Advanced AI models</li>
+              <li>✓ PNG, SVG, PDF export</li>
+              <li>✓ Batch processing</li>
+              <li>✓ Priority support</li>
+              <li>✓ 5 device licenses</li>
+              <li>✓ API access</li>
+            </ul>
+            <button class="btn btn--primary">Start Free Trial</button>
+          </div>
+
+          <div class="pricing-card">
+            <h3>Enterprise</h3>
+            <div class="price">
+              Custom<span class="price-period">pricing</span>
+            </div>
+            <p>For large organizations</p>
+            <ul>
+              <li>✓ Everything in Professional</li>
+              <li>✓ Custom AI training</li>
+              <li>✓ On-premise deployment</li>
+              <li>✓ Unlimited users</li>
+              <li>✓ Dedicated support</li>
+              <li>✓ Custom integrations</li>
+              <li>✓ SLA guarantee</li>
+            </ul>
+            <button class="btn btn--glass">Contact Sales</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <h3>Signature Extractor AI</h3>
+          <p>Advanced AI-powered signature extraction desktop application. Military-grade precision meets enterprise security.</p>
+        </div>
+
+        <div class="footer-column">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#workflow">Workflow</a></li>
+            <li><a href="#security">Security</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#about">About</a></li>
+            <li><a href="#blog">Blog</a></li>
+            <li><a href="#careers">Careers</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#privacy">Privacy Policy</a></li>
+            <li><a href="#terms">Terms of Service</a></li>
+            <li><a href="#security">Security</a></li>
+            <li><a href="#compliance">Compliance</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-copyright">
+          <p>&copy; 2024 Signature Extractor AI. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

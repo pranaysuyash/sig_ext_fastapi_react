@@ -231,19 +231,238 @@ class ExtractionTabMixin:
     it expects the including class to provide QMainWindow methods.
     """
 
+    # Signal for pane focus changes (used by context menus and status updates)
+    pane_focus_changed = Signal(str)
+
     # Declare attributes that will be provided by QMainWindow or other mixins
     # Using 'Any' to avoid circular imports and mypy issues with mixins
     api_client: Any
+    backend_manager: Any
+    local_extractor: Any
     status_bar: Any
     tab_widget: Any
     session: Any
 
+    # Visual feedback system attributes
+    _feedback_timers: dict[str, QTimer]
+    _progress_dialogs: dict[str, Any]
+
     # Declare methods that will be provided by other mixins
-    def _install_pane_click_filter(self, view, pane_name): ...
+    def _install_pane_click_filter(self, view: 'ImageView', pane_name: str) -> None:
+        """Install event filter for pane click detection with enhanced interaction."""
+        if not hasattr(self, '_pane_event_filters'):
+            self._pane_event_filters = {}
+
+        # Enable custom context menu for the view
+        view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        view.customContextMenuRequested.connect(lambda pos: self._on_pane_context_menu(view, pane_name, pos))
+
+        # Create event filter for this pane
+        class PaneEventFilter(QObject):
+            def __init__(self, parent_extraction, pane_name):
+                super().__init__()
+                self.parent = parent_extraction
+                self.pane_name = pane_name
+                self._press_pos = None
+
+            def eventFilter(self, obj, event):
+                # Handle mouse press for pane activation
+                if event.type() == event.Type.MouseButtonPress:
+                    if event.button() == event.MouseButton.LeftButton:
+                        self._press_pos = event.pos()
+                        return False  # Let the event propagate
+
+                # Handle mouse release for pane activation
+                elif event.type() == event.Type.MouseButtonRelease:
+                    if (event.button() == event.MouseButton.LeftButton and
+                        self._press_pos is not None):
+                        # Only activate pane if it's a click (not a drag)
+                        click_distance = (event.pos() - self._press_pos).manhattanLength()
+                        if click_distance < 3:  # Threshold for click vs drag
+                            QTimer.singleShot(50, lambda: self.parent._on_pane_clicked(self.pane_name))
+                        self._press_pos = None
+                        return False  # Let the event propagate
+
+                return False  # Don't block any events
+
+        # Install the event filter
+        event_filter = PaneEventFilter(self, pane_name)
+        view.installEventFilter(event_filter)
+        self._pane_event_filters[pane_name] = event_filter
     def _update_coordinate_display(self): ...
-    def _update_pane_borders(self): ...
-    def _on_pane_clicked(self, pane: str): ...
-    def _get_active_view(self): ...
+    def _update_pane_borders(self) -> None:
+        """Update visual borders to indicate the active pane with clear visual feedback."""
+        if not hasattr(self, '_active_pane'):
+            return
+
+        # Get theme-appropriate colors
+        is_dark_mode = self._is_dark_mode()
+        if is_dark_mode:
+            active_color = QColor(0, 122, 255, 180)  # Vibrant blue for dark mode
+            active_border = QColor(0, 122, 255, 220)
+            hover_color = QColor(0, 122, 255, 60)
+        else:
+            active_color = QColor(0, 122, 255, 40)   # Subtle blue for light mode
+            active_border = QColor(0, 122, 255, 120)
+            hover_color = QColor(0, 122, 255, 20)
+
+        # Reset all borders to default
+        default_style = """
+            ImageView {
+                border: 1px solid rgba(128, 128, 128, 0.3);
+                border-radius: 4px;
+                background: transparent;
+            }
+        """
+
+        # Apply default styling to all panes
+        if hasattr(self, 'src_view'):
+            self.src_view.setStyleSheet(default_style)
+        if hasattr(self, 'preview_view'):
+            self.preview_view.setStyleSheet(default_style)
+        if hasattr(self, 'res_view'):
+            self.res_view.setStyleSheet(default_style)
+
+        # Highlight active pane with enhanced visual feedback
+        active_style = f"""
+            ImageView {{
+                border: 2px solid {active_border.name()};
+                border-radius: 6px;
+                background-color: {active_color.name()};
+                position: relative;
+            }}
+            ImageView::hover {{
+                background-color: {hover_color.name()};
+            }}
+        """
+
+        # Apply active styling to the current active pane
+        if self._active_pane == "source" and hasattr(self, 'src_view'):
+            self.src_view.setStyleSheet(active_style)
+        elif self._active_pane == "preview" and hasattr(self, 'preview_view'):
+            self.preview_view.setStyleSheet(active_style)
+        elif self._active_pane == "result" and hasattr(self, 'res_view'):
+            self.res_view.setStyleSheet(active_style)
+
+    def _on_pane_clicked(self, pane: str) -> None:
+        """Handle pane click with proper focus management and visual feedback."""
+        if not hasattr(self, '_active_pane') or self._active_pane != pane:
+            self._active_pane = pane
+            self._update_pane_borders()
+
+            # Update status bar with context-aware message
+            status_messages = {
+                "source": "📷 Source pane active - Click and drag to select signature area",
+                "preview": "🔍 Preview pane active - Selection preview with current settings",
+                "result": "✨ Result pane active - Processed signature ready for export"
+            }
+
+            if hasattr(self, 'statusBar'):
+                self.statusBar().showMessage(status_messages.get(pane, f"{pane.title()} pane active"))
+
+            # Emit focus change signal for context menus
+            if hasattr(self, 'pane_focus_changed'):
+                self.pane_focus_changed.emit(pane)
+
+    def _get_active_view(self) -> Optional['ImageView']:
+        """Get the currently active image view for context operations."""
+        if self._active_pane == "source":
+            return getattr(self, 'src_view', None)
+        elif self._active_pane == "preview":
+            return getattr(self, 'preview_view', None)
+        elif self._active_pane == "result":
+            return getattr(self, 'res_view', None)
+        return None
+
+    def _on_pane_context_menu(self, view: 'ImageView', pane_name: str, pos: QPoint) -> None:
+        """Show smart context menu based on the current pane and state."""
+        menu = QMenu(cast(QWidget, self))
+
+        if pane_name == "source":
+            # Source pane: image-related actions
+            if hasattr(self, 'rotate_cw_btn') and self.rotate_cw_btn.isEnabled():
+                rotate_cw_action = menu.addAction("↻ Rotate 90° CW")
+                rotate_cw_action.triggered.connect(lambda: self.on_rotate(90))
+                rotate_cw_action.setShortcut(QKeySequence("Ctrl+R"))
+
+                rotate_ccw_action = menu.addAction("↺ Rotate 90° CCW")
+                rotate_ccw_action.triggered.connect(lambda: self.on_rotate(-90))
+                rotate_ccw_action.setShortcut(QKeySequence("Ctrl+Shift+R"))
+
+                menu.addSeparator()
+
+            if hasattr(self, 'fit_btn') and self.fit_btn.isEnabled():
+                fit_action = menu.addAction("⛶ Fit to View")
+                fit_action.triggered.connect(self._on_fit)
+                fit_action.setShortcut(QKeySequence("Ctrl+0"))
+
+                reset_action = menu.addAction("⟲ Reset Viewport")
+                reset_action.triggered.connect(self._on_reset_zoom)
+                reset_action.setShortcut(QKeySequence("Ctrl+1"))
+
+            menu.addSeparator()
+
+            # Image properties
+            if hasattr(self, '_current_image_data') and self._current_image_data:
+                props_action = menu.addAction("ℹ Image Properties")
+                props_action.triggered.connect(self._show_image_properties)
+
+        elif pane_name == "preview":
+            # Preview pane: selection and processing actions
+            if hasattr(self, 'src_view') and self.src_view.has_image() and self.src_view.has_selection():
+                clear_action = menu.addAction("✕ Clear Selection")
+                clear_action.triggered.connect(self.on_clear_selection)
+                clear_action.setShortcut(QKeySequence("Delete"))
+
+                # Add processing actions
+                process_action = menu.addAction("⚡ Process Selection")
+                process_action.triggered.connect(self.on_preview)
+                process_action.setShortcut(QKeySequence("Ctrl+P"))
+
+                menu.addSeparator()
+
+                # Threshold adjustments
+                if hasattr(self, 'threshold_slider'):
+                    auto_threshold_action = menu.addAction("🎯 Auto Threshold")
+                    auto_threshold_action.triggered.connect(self._auto_adjust_threshold)
+
+                # Color adjustments
+                if hasattr(self, 'color_picker_btn'):
+                    invert_action = menu.addAction("🔄 Invert Colors")
+                    invert_action.triggered.connect(self._invert_colors)
+
+        elif pane_name == "result":
+            # Result pane: export and save actions
+            if hasattr(self, '_last_result_png') and self._last_result_png:
+                export_action = menu.addAction("💾 Export PNG...")
+                export_action.triggered.connect(self.on_export)
+                export_action.setShortcut(QKeySequence("Ctrl+E"))
+
+                copy_action = menu.addAction("📋 Copy to Clipboard")
+                copy_action.triggered.connect(self._copy_result_to_clipboard)
+                copy_action.setShortcut(QKeySequence("Ctrl+C"))
+
+                menu.addSeparator()
+
+                save_lib_action = menu.addAction("📚 Save to Library")
+                save_lib_action.triggered.connect(self.on_save_to_library)
+                save_lib_action.setShortcut(QKeySequence("Ctrl+S"))
+
+        # Common actions for all panes
+        menu.addSeparator()
+
+        # Zoom controls
+        if hasattr(self, 'zoom_in_btn'):
+            zoom_in_action = menu.addAction("🔍+ Zoom In")
+            zoom_in_action.triggered.connect(self._on_zoom_in)
+            zoom_in_action.setShortcut(QKeySequence("Ctrl++"))
+
+            zoom_out_action = menu.addAction("🔍- Zoom Out")
+            zoom_out_action.triggered.connect(self._on_zoom_out)
+            zoom_out_action.setShortcut(QKeySequence("Ctrl+-"))
+
+        # Show the menu
+        menu.exec(view.mapToGlobal(pos))
 
     if TYPE_CHECKING:
         # Tell mypy that at runtime, self will be a QWidget with these methods
@@ -436,7 +655,7 @@ class ExtractionTabMixin:
             )
 
         self.open_btn = _create_button("", parent_widget, primary=True)
-        set_button_icon(self.open_btn, "open", "Open & Upload Image", use_emoji=False)
+        set_button_icon(self.open_btn, "open", "Choose Image", use_emoji=False)
         self.open_btn.setObjectName("openFileButton")
         self.open_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.open_btn.clicked.connect(self.on_open)
@@ -587,7 +806,7 @@ class ExtractionTabMixin:
 
         controls.addWidget(self._make_section_label("Export & Save", section_color_hex))
         export_row_1 = QHBoxLayout()
-        self.export_btn = _create_button("Export...", parent_widget, primary=True)
+        self.export_btn = _create_button("Export Signature", parent_widget, primary=True)
         self.export_btn.setObjectName("exportButton")
         self.export_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         export_icon = get_icon("export")
@@ -670,14 +889,14 @@ class ExtractionTabMixin:
         
         controls.addSpacing(20)
         
-        # Add friendly welcome/help text to fill blank space - let theme system style it
+        # Add modern welcome/help text with clean design
         welcome_label = QLabel(
-            "✨ <b>Quick Start</b><br><br>"
-            "1️⃣ Click <b>Open & Upload Image</b><br>"
-            "2️⃣ Drag to select signature area<br>"
-            "3️⃣ Preview updates automatically<br>"
-            "4️⃣ <b>Export</b> or <b>Copy</b> when ready<br><br>"
-            "💡 Tip: Adjust threshold and color for best results"
+            "<span style='font-size: 14px; font-weight: 600; color: #ffffff; margin-bottom: 8px;'>Get Started</span><br><br>"
+            "<span style='color: rgba(255, 255, 255, 0.9);'>1. Open & upload image</span><br>"
+            "<span style='color: rgba(255, 255, 255, 0.9);'>2. Select signature area</span><br>"
+            "<span style='color: rgba(255, 255, 255, 0.9);'>3. Preview automatically</span><br>"
+            "<span style='color: rgba(255, 255, 255, 0.9);'>4. Export when ready</span><br><br>"
+            "<span style='color: rgba(255, 255, 255, 0.7); font-size: 12px; font-style: italic;'>💡 Adjust threshold and color for best results</span>"
         )
         welcome_label.setObjectName("instructionsPanel")  # Let theme system style it
         welcome_label.setWordWrap(True)
@@ -743,7 +962,7 @@ class ExtractionTabMixin:
         self.src_view = ImageView(parent_widget)
         self.src_view.setObjectName("sourceImageView")
         self.src_view.setAccessibleName("Source image pane")
-        self.src_view.setAccessibleDescription("Original image with selection tool. Click and drag to select signature area")
+        self.src_view.setAccessibleDescription("Source image pane with selection tool. Click and drag to select signature area for extraction.")
         self._install_pane_click_filter(self.src_view, "source")
         self.src_view.fileDropped.connect(self._on_source_file_dropped)
         src_layout.addWidget(self.src_view)
@@ -773,10 +992,20 @@ class ExtractionTabMixin:
         self._install_pane_click_filter(self.preview_view, "preview")
         self._install_pane_click_filter(self.preview_container, "preview")
         preview_layout.addWidget(self.preview_view)
-        # Add empty-state overlay for preview
-        self.preview_empty = QLabel("Drag on the Source to see a crop preview")
+        # Add empty-state overlay for preview with modern styling
+        self.preview_empty = QLabel("Select an area to see the preview")
         self.preview_empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.preview_empty.setStyleSheet("opacity:0.7; font-size:12px; padding:24px;")
+        # Use modern styling that matches the overall design theme
+        self.preview_empty.setStyleSheet(
+            "color: rgba(140, 140, 140, 0.8); "
+            "font-size: 13px; "
+            "font-weight: 500; "
+            "padding: 32px; "
+            "background: rgba(255, 255, 255, 0.02); "
+            "border: 1px solid rgba(255, 255, 255, 0.08); "
+            "border-radius: 8px; "
+            "margin: 16px;"
+        )
         self.preview_empty.setVisible(False)
         preview_layout.addWidget(self.preview_empty)
         self.preview_container.setVisible(False)
@@ -804,10 +1033,20 @@ class ExtractionTabMixin:
         self._install_pane_click_filter(self.res_view, "result")
         self.res_view.setVisible(False)
         result_layout.addWidget(self.res_view)
-        # Add empty-state overlay for result
-        self.result_empty = QLabel("Process a selection to see the result")
+        # Add empty-state overlay for result with modern styling
+        self.result_empty = QLabel("Process selection to extract signature")
         self.result_empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.result_empty.setStyleSheet("opacity:0.7; font-size:12px; padding:24px;")
+        # Use modern styling that matches the overall design theme
+        self.result_empty.setStyleSheet(
+            "color: rgba(140, 140, 140, 0.8); "
+            "font-size: 13px; "
+            "font-weight: 500; "
+            "padding: 32px; "
+            "background: rgba(255, 255, 255, 0.02); "
+            "border: 1px solid rgba(255, 255, 255, 0.08); "
+            "border-radius: 8px; "
+            "margin: 16px;"
+        )
         self.result_empty.setVisible(False)
         result_layout.addWidget(self.result_empty)
 
@@ -869,6 +1108,12 @@ class ExtractionTabMixin:
         self._set_preview_panel_visible(False)
         self._init_extraction_state()
 
+        # Initialize active pane visual indicators
+        QTimer.singleShot(100, self._update_pane_borders)  # Delay to ensure UI is fully constructed
+
+        # Initialize accessibility improvements
+        QTimer.singleShot(200, self._setup_accessibility)  # Slight delay after UI construction
+
     def _init_extraction_state(self) -> None:
         self._color_hex = "#000000"
         self._update_color_ui()
@@ -886,7 +1131,19 @@ class ExtractionTabMixin:
         self._updating_zoom_combo = False
         self._last_valid_zoom_text = "100%"
         self._temp_files: list[str] = []
+
+        # Rotation coordinate mapping state
+        self._current_rotation_angle = 0  # Track current rotation in degrees
+        self._pre_rotation_zoom = 1.0     # Store zoom state before rotation
+        self._pre_rotation_transform = None  # Store view transform before rotation
+        self._pending_rotation_degrees = 0  # Store rotation angle for upload completion
+        self._last_rotation_degrees = 0     # Store last rotation for feedback
+
         atexit.register(self._cleanup_temp_files)
+
+        # Initialize visual feedback system
+        self._feedback_timers = {}
+        self._progress_dialogs = {}
 
         self._preview_timer = QTimer(cast(QWidget, self))
         self._preview_timer.setSingleShot(True)
@@ -1034,29 +1291,49 @@ class ExtractionTabMixin:
             raise RuntimeError("Could not load selected image into viewer")
 
         self.src_view.set_image(image)
+
+        # Reset rotation state when opening new image
+        self._current_rotation_angle = 0
+        self._pre_rotation_zoom = 1.0
+        self._pre_rotation_transform = None
+
+        # Re-apply modern styling after image loading to maintain design consistency
+        QTimer.singleShot(25, lambda: self._update_pane_borders())
+
         # Auto-fit with margin for better initial view
         QTimer.singleShot(50, lambda: self.src_view.fit(margin_percent=5.0))
         self._on_pane_clicked("source")
 
-        # Upload to backend asynchronously
-        self.status_bar.showMessage("Uploading image...", 0)
-        self.open_btn.setEnabled(False)  # Disable during upload
+        # Process image locally (offline-first approach)
+        self.status_bar.showMessage("Loading image...", 0)
+        self.open_btn.setEnabled(False)  # Disable during processing
+        self.open_btn.setText("Loading...")
 
-        # IMPORTANT: Store runner as instance variable to prevent garbage collection
-        # before signals are emitted!
-        self._upload_runner = AsyncRunner(self.api_client.upload_image, file_path)
-        self._upload_runner.finished.connect(lambda result: self._on_upload_finished(file_path, result))
-        self._upload_runner.error.connect(lambda error: self._on_upload_error(file_path, error))
-
-        # Run in thread pool
-        thread_pool = QThreadPool.globalInstance()
-        runnable = QRunnable.create(lambda: self._upload_runner.run())
-        runnable.setAutoDelete(True)
-        thread_pool.start(runnable)
+        try:
+            # Use local extractor instead of backend API
+            session_id = self.local_extractor.create_session(file_path)
+            
+            # Simulate the upload finished payload for compatibility
+            payload = {
+                "id": session_id,
+                "filename": os.path.basename(file_path),
+                "file_path": file_path
+            }
+            
+            # Call the existing upload finished handler
+            self._on_upload_finished(file_path, payload)
+            
+        except Exception as e:
+            LOG.error(f"Failed to create local session: {e}")
+            self.open_btn.setEnabled(True)
+            self.open_btn.setText("Choose Image")  # Reset button text
+            self.status_bar.showMessage("Failed to load image", 3000)
+            raise
 
     def _on_upload_finished(self, file_path: str, payload) -> None:
         """Handle completion of async upload."""
         self.open_btn.setEnabled(True)  # Re-enable
+        self.open_btn.setText("Choose Image")  # Reset button text
         try:
             LOG.info(f"Upload finished. Payload type: {type(payload)}, Payload: {payload}")
 
@@ -1087,7 +1364,7 @@ class ExtractionTabMixin:
             # Debug: check session state
             LOG.info(f"After upload - session.session_id: '{self.session.session_id}' (type: {type(self.session.session_id)})")
             
-            self.status_bar.showMessage("Image uploaded successfully", 3000)
+            self.status_bar.showMessage("Image loaded successfully", 3000)
 
             self._last_result_png = None
             self.preview_view.clear_image()
@@ -1119,6 +1396,7 @@ class ExtractionTabMixin:
         """Handle error in async upload."""
         LOG.error(f"Upload error for {file_path}: {error}")
         self.open_btn.setEnabled(True)  # Re-enable
+        self.open_btn.setText("Choose Image")  # Reset button text
         # Immediately flip health indicator to offline on upload failure
         if hasattr(self, "backend_status_label"):
             self.backend_status_label.setText("Backend: Offline")
@@ -1147,12 +1425,15 @@ class ExtractionTabMixin:
         if image.isNull():
             raise RuntimeError("Could not load image")
         self.src_view.set_image(image)
+
+        # Re-apply modern styling after demo image loading
+        QTimer.singleShot(25, lambda: self._update_pane_borders())
+
         self._on_pane_clicked("source")
         self.session.session_id = "demo-session"
         self.status_bar.showMessage("Demo image loaded", 1500)
         self._update_action_states()
         self._update_coordinate_display()
-        self._update_pane_borders()
         if sys.platform == "darwin":
             cast(QWidget, self).setWindowFilePath(file_path)
 
@@ -1163,6 +1444,10 @@ class ExtractionTabMixin:
         img.fill(QColor(color))
         self._current_image_data = None
         self.src_view.set_image(img)
+
+        # Re-apply modern styling after sample image creation
+        QTimer.singleShot(25, lambda: self._update_pane_borders())
+
         self._on_pane_clicked("source")
         self.session.session_id = "demo-session"
         self.status_bar.showMessage("Demo image created", 1200)
@@ -1273,7 +1558,7 @@ class ExtractionTabMixin:
         LOG.debug("Color: %s, Threshold: %d", self._color_hex, self.threshold.value())
 
         if x1 == x2 or y1 == y2:
-            self.status_bar.showMessage("No region selected - drag on the source image to select a region", 4000)
+            self.status_bar.showMessage("Select an area on the source image to extract signature", 4000)
             LOG.warning("on_preview called with zero-size selection: (%d,%d)→(%d,%d)", x1, y1, x2, y2)
             return
 
@@ -1283,29 +1568,31 @@ class ExtractionTabMixin:
             QMessageBox.warning(cast(QWidget, self), "Invalid selection", "Selection coordinates are invalid. Please try again.")
             return
 
-        # Process asynchronously
+        # Process locally (offline-first approach)
         self.status_bar.showMessage("Processing...", 0)
         self.export_btn.setEnabled(False)  # Disable during processing
 
         import time
         start_time = time.time()
 
-        # IMPORTANT: Store runner as instance variable to prevent garbage collection
-        self._process_runner = AsyncRunner(
-            self.api_client.process_image,
-            session_id=self.session.session_id,
-            x1=x1, y1=y1, x2=x2, y2=y2,
-            color=self._color_hex,
-            threshold=int(self.threshold.value())
-        )
-        self._process_runner.finished.connect(lambda result: self._on_process_finished(result, start_time))
-        self._process_runner.error.connect(lambda error: self._on_process_error(error, start_time))
-
-        # Run in thread pool
-        thread_pool = QThreadPool.globalInstance()
-        runnable = QRunnable.create(lambda: self._process_runner.run())
-        runnable.setAutoDelete(True)
-        thread_pool.start(runnable)
+        try:
+            # Use local extractor instead of backend API
+            png_bytes = self.local_extractor.process_selection(
+                session_id=self.session.session_id,
+                x1=x1, y1=y1, x2=x2, y2=y2,
+                color=self._color_hex,
+                threshold=int(self.threshold.value())
+            )
+            
+            # Call the existing process finished handler
+            self._on_process_finished(png_bytes, start_time)
+            
+        except Exception as e:
+            LOG.error(f"Local processing failed: {e}")
+            self.export_btn.setEnabled(True)
+            self.status_bar.showMessage("Processing failed", 3000)
+            # Call the existing error handler
+            self._on_process_error(e, start_time)
 
     def _on_process_finished(self, png_bytes, start_time: float) -> None:
         """Handle completion of async processing."""
@@ -1356,40 +1643,93 @@ class ExtractionTabMixin:
         self._update_coordinate_display()
 
     def _check_backend_health(self) -> None:
-        """Check backend availability asynchronously with exponential backoff."""
-        # Initialize retry state on first call
-        if not hasattr(self, '_health_check_attempt'):
-            self._health_check_attempt = 0
-
-        self._health_check_attempt += 1
-        self._max_health_check_attempts = 5
-
-        # Update UI to show checking state
-        if hasattr(self, "backend_status_label"):
-            self.backend_status_label.setText("⏳ Backend: Checking...")
-            self.backend_status_label.setStyleSheet("color: #a37f00; padding: 2px 8px;")
-
-        # Run health check asynchronously
-        def _do_health_check():
-            try:
-                if hasattr(self.api_client, "health_check"):
-                    return self.api_client.health_check(timeout=2.0)
+        """Check backend availability with graceful degradation."""
+        # Check if we have a backend manager
+        if hasattr(self, 'backend_manager') and self.backend_manager:
+            # Use backend manager for health check
+            backend_available = self.backend_manager.is_available()
+            
+            if backend_available:
+                self._on_backend_online()
+            else:
+                # Try to start backend if auto-start is enabled
+                if self.backend_manager.auto_start:
+                    if self.backend_manager.start():
+                        self._on_backend_online()
+                    else:
+                        self._on_backend_offline("Backend auto-start failed")
                 else:
-                    # If client does not implement health_check (tests), assume online
-                    return True, {"status": "assumed-healthy"}
-            except Exception as e:
-                return False, {"error": str(e)}
+                    self._on_backend_offline("Backend not running")
+        else:
+            # Fallback to API client health check
+            def _do_health_check():
+                try:
+                    if hasattr(self.api_client, "health_check"):
+                        return self.api_client.health_check(timeout=2.0)
+                    else:
+                        return True, {"status": "assumed-healthy"}
+                except Exception as e:
+                    return False, {"error": str(e)}
 
-        # IMPORTANT: Store runner as instance variable to prevent garbage collection
-        self._health_check_runner = AsyncRunner(_do_health_check)
-        self._health_check_runner.finished.connect(self._on_health_check_finished)
-        self._health_check_runner.error.connect(self._on_health_check_error)
+            # IMPORTANT: Store runner as instance variable to prevent garbage collection
+            self._health_check_runner = AsyncRunner(_do_health_check)
+            self._health_check_runner.finished.connect(self._on_health_check_finished)
+            self._health_check_runner.error.connect(self._on_health_check_error)
 
-        # Run in thread pool
-        thread_pool = QThreadPool.globalInstance()
-        runnable = QRunnable.create(lambda: self._health_check_runner.run())
-        runnable.setAutoDelete(True)
-        thread_pool.start(runnable)
+            # Run in thread pool
+            thread_pool = QThreadPool.globalInstance()
+            runnable = QRunnable.create(lambda: self._health_check_runner.run())
+            runnable.setAutoDelete(True)
+            thread_pool.start(runnable)
+    
+    def _on_backend_online(self) -> None:
+        """Handle backend online state."""
+        self._backend_online = True
+        
+        if hasattr(self, "backend_status_label"):
+            self.backend_status_label.setText("● Backend: Online")
+            self.backend_status_label.setStyleSheet("color: #2e7d32; padding: 2px 8px;")
+            self.backend_status_label.setToolTip(
+                "Backend is running - cloud features enabled\n"
+                "Core features use local processing for better performance"
+            )
+        
+        # Enable cloud features if any
+        self._update_cloud_features_availability(True)
+    
+    def _on_backend_offline(self, reason: str = "Backend unavailable") -> None:
+        """Handle backend offline state with graceful degradation."""
+        self._backend_online = False
+        
+        if hasattr(self, "backend_status_label"):
+            self.backend_status_label.setText("○ Backend: Offline")
+            self.backend_status_label.setStyleSheet("color: #666666; padding: 2px 8px;")
+            self.backend_status_label.setToolTip(
+                f"Running in offline mode - {reason}\n"
+                "Core signature extraction features are fully available\n"
+                "Cloud features (sync, updates) are disabled"
+            )
+        
+        # Disable cloud features but keep core functionality
+        self._update_cloud_features_availability(False)
+        
+        # Show user-friendly message about offline mode
+        if hasattr(self, 'status_bar'):
+            self.status_bar.showMessage("Running in offline mode - core features available", 3000)
+    
+    def _update_cloud_features_availability(self, available: bool) -> None:
+        """Update availability of cloud-dependent features.
+        
+        Args:
+            available: True if cloud features should be enabled
+        """
+        # Update API client offline mode
+        if hasattr(self, 'api_client'):
+            self.api_client.set_offline_mode(not available)
+        
+        # Here you can disable/enable specific cloud features
+        # For now, core features work offline, so no changes needed
+        pass
 
     def _on_health_check_finished(self, result) -> None:
         """Handle completion of async health check."""
@@ -1573,12 +1913,12 @@ class ExtractionTabMixin:
         x1, y1, x2, y2 = self.src_view.selected_rect_image_coords()
         if x1 == x2 or y1 == y2:
             LOG.warning(f"schedule_preview blocked: zero size selection ({x1},{y1})→({x2},{y2})")
-            self.status_bar.showMessage(f"Preview not scheduled - zero size selection ({x1},{y1})→({x2},{y2})", 1500)
+            self.status_bar.showMessage("Make a selection to see preview", 1500)
             return
         # Debounce 200ms - stop any existing timer first to prevent restart issues
         self._preview_timer.stop()
         LOG.info(f"Scheduling preview in 200ms for selection ({x1},{y1})→({x2},{y2})")
-        self.status_bar.showMessage(f"Scheduling preview in 200ms for selection ({x1},{y1})→({x2},{y2})", 1000)
+        self.status_bar.showMessage("Updating preview...", 1000)
         self._preview_timer.start(200)
 
     def _on_auto_threshold_toggled(self, state: int):
@@ -1704,6 +2044,12 @@ class ExtractionTabMixin:
     def on_export(self):
         """Open the export dialog with professional options."""
         if not self._last_result_png:
+            return
+        
+        # Check license before allowing export
+        from desktop_app.license import check_and_enforce_export_license
+        if not check_and_enforce_export_license(self):
+            self.status_bar.showMessage("Export requires a license", 2000)
             return
         
         self.status_bar.showMessage("Opening export dialog...", 1000)
@@ -1836,18 +2182,28 @@ class ExtractionTabMixin:
             if sys.platform == "darwin":
                 cast(QWidget, self).setWindowFilePath(path)
 
-            # Upload to backend asynchronously
-            self.status_bar.showMessage("Uploading to create session...", 0)
-            # IMPORTANT: Store runner as instance variable to prevent garbage collection
-            self._library_upload_runner = AsyncRunner(self.api_client.upload_image, tmp.name)
-            self._library_upload_runner.finished.connect(lambda result: self._on_library_upload_finished(tmp.name, result))
-            self._library_upload_runner.error.connect(lambda error: self._on_library_upload_error(tmp.name, error))
-
-            # Run in thread pool
-            thread_pool = QThreadPool.globalInstance()
-            runnable = QRunnable.create(lambda: self._library_upload_runner.run())
-            runnable.setAutoDelete(True)
-            thread_pool.start(runnable)
+            # Process library image locally (offline-first approach)
+            self.status_bar.showMessage("Processing image...", 0)
+            
+            try:
+                # Use local extractor for library images
+                session_id = self.local_extractor.create_session(tmp.name)
+                
+                # Simulate the library upload finished payload for compatibility
+                payload = {
+                    "id": session_id,
+                    "filename": os.path.basename(tmp.name),
+                    "file_path": tmp.name
+                }
+                
+                # Call the existing library upload finished handler
+                self._on_library_upload_finished(tmp.name, payload)
+                
+            except Exception as e:
+                LOG.error(f"Failed to create local session for library image: {e}")
+                self.status_bar.showMessage("Failed to load library image", 3000)
+                # Call the existing error handler
+                self._on_library_upload_error(tmp.name, e)
         except Exception as e:
             self._handle_backend_exception(e, context="Open failed")
 
@@ -1993,28 +2349,39 @@ class ExtractionTabMixin:
                 self._last_local_path = tmp.name
                 self._track_temp_file(tmp.name)
 
-                # Upload to backend asynchronously
-                self.status_bar.showMessage("Uploading rotated image...", 0)
-                self.rotate_cw_btn.setEnabled(False)  # Disable during upload
+                # Process rotation locally (offline-first approach)
+                self.status_bar.showMessage("Processing rotated image...", 0)
+                self.rotate_cw_btn.setEnabled(False)  # Disable during processing
                 self.rotate_ccw_btn.setEnabled(False)
 
-                # Store backup state for revert in case of failure
-                self._rotation_backup = {
-                    'old_image_data': old_image_data,
-                    'old_local_path': old_local_path,
-                    'old_session_id': old_session_id
-                }
+                try:
+                    # Store rotation angle for use in completion handler
+                    self._pending_rotation_degrees = degrees
 
-                # IMPORTANT: Store runner as instance variable to prevent garbage collection
-                self._rotate_upload_runner = AsyncRunner(self.api_client.upload_image, tmp.name)
-                self._rotate_upload_runner.finished.connect(lambda result: self._on_rotate_upload_finished(tmp.name, result))
-                self._rotate_upload_runner.error.connect(lambda error: self._on_rotate_upload_error(tmp.name, error))
+                    # Use local extractor for rotation
+                    new_session_id = self.local_extractor.rotate_image(self.session.session_id, degrees)
 
-                # Run in thread pool
-                thread_pool = QThreadPool.globalInstance()
-                runnable = QRunnable.create(lambda: self._rotate_upload_runner.run())
-                runnable.setAutoDelete(True)
-                thread_pool.start(runnable)
+                    # Simulate the rotation upload finished payload for compatibility
+                    payload = {
+                        "id": new_session_id,
+                        "filename": os.path.basename(tmp.name),
+                        "file_path": tmp.name
+                    }
+
+                    # Call the existing rotation finished handler
+                    self._on_rotate_upload_finished(tmp.name, payload)
+                    
+                except Exception as e:
+                    LOG.error(f"Local rotation failed: {e}")
+                    # Revert state on rotation failure
+                    self._current_image_data = old_image_data
+                    self._last_local_path = old_local_path
+                    self.session.session_id = old_session_id
+                    
+                    # Re-enable rotation buttons
+                    self.rotate_cw_btn.setEnabled(True)
+                    self.rotate_ccw_btn.setEnabled(True)
+                    self.status_bar.showMessage("Rotation failed", 3000)
             except Exception as e:
                 # Revert state on rotation/save failure
                 self._current_image_data = old_image_data
@@ -2041,9 +2408,25 @@ class ExtractionTabMixin:
             if qimg.isNull():
                 raise RuntimeError("Could not load rotated image into viewer")
 
+            # Store current zoom state before rotation
+            self._pre_rotation_zoom = self.src_view.get_zoom_percent() / 100.0
+            self._pre_rotation_transform = self.src_view.transform()
+
+            # Update rotation angle tracking
+            if hasattr(self, '_pending_rotation_degrees'):
+                self._current_rotation_angle = (self._current_rotation_angle + self._pending_rotation_degrees) % 360
+                self._last_rotation_degrees = self._pending_rotation_degrees  # Store for feedback
+                self._pending_rotation_degrees = 0  # Reset after use
+
             self.src_view.set_image(qimg)
-            # Auto-fit after rotation for better view
-            QTimer.singleShot(50, lambda: self.src_view.fit(margin_percent=5.0))
+
+            # Restore zoom state after rotation instead of auto-fitting
+            # This preserves user's zoom level and viewport position
+            QTimer.singleShot(50, lambda: self._restore_view_state_after_rotation())
+
+            # Re-apply modern styling after rotation to maintain design consistency
+            QTimer.singleShot(75, lambda: self._update_pane_borders())
+
             self.session.session_id = session_id
             if hasattr(self, "session_id_label"):
                 self.session_id_label.setText(f"Session: {session_id[:8]}...")
@@ -2222,10 +2605,24 @@ class ExtractionTabMixin:
         self.export_json_btn.setEnabled(True)  # Allow exporting metadata even without preview
         self.save_to_library_btn.setEnabled(has_preview)
         self.copy_btn.setEnabled(has_preview)
+        self._update_export_tooltips()  # Update tooltips based on license status
         self._update_view_actions_enabled()
         self._adjust_pane_layout()  # Dynamically adjust layout based on content
         if hasattr(self, "_refresh_toolbar_action_states"):
             self._refresh_toolbar_action_states()
+    
+    def _update_export_tooltips(self):
+        """Update export-related tooltips based on license status."""
+        from desktop_app.license import is_export_allowed
+        
+        if is_export_allowed():
+            # Licensed - show normal tooltips
+            self.export_btn.setToolTip("Export with advanced options (background, trim, format) - Ctrl/Cmd E")
+            self.copy_btn.setToolTip("Copy result to clipboard (preserves transparency) - Ctrl/Cmd C")
+        else:
+            # Trial mode - indicate license required
+            self.export_btn.setToolTip("Export with advanced options - Requires License")
+            self.copy_btn.setToolTip("Copy result to clipboard - Requires License")
 
     def _adjust_pane_layout(self):
         """Intelligently resize panes: minimize source, maximize result when extraction active.
@@ -2483,7 +2880,7 @@ class ExtractionTabMixin:
                 self.delete_from_library_btn.hide()
         else:
             # Restore full button texts
-            self.open_btn.setText("Open & Upload Image")
+            self.open_btn.setText("Choose Image")
             # Update toggle mode text based on current state
             if self.toggle_mode_btn.isChecked():
                 self.toggle_mode_btn.setText("Selection Mode: Select")
@@ -2491,7 +2888,7 @@ class ExtractionTabMixin:
                 self.toggle_mode_btn.setText("Pan Mode")
             self.clear_sel_btn.setText("Clear Selection")
             self.clean_session_btn.setText("Clean Viewport")
-            self.export_btn.setText("Export...")
+            self.export_btn.setText("Export Signature")
             self.save_to_library_btn.setText("Save to Library")
             self.export_json_btn.setText("Export JSON")
             self.delete_from_library_btn.setText("Delete Selected")
@@ -2519,4 +2916,511 @@ class ExtractionTabMixin:
         # Defer update to ensure layouts settle before querying viewport sizes
         QTimer.singleShot(0, self._update_coordinate_display)
         QTimer.singleShot(0, self._apply_left_panel_breakpoint)
+
+    # Enhanced Visual Feedback System
+
+    def _show_feedback(self, message: str, feedback_type: str = "info", duration: int = 3000) -> None:
+        """Show enhanced visual feedback with color coding and animations."""
+        if not hasattr(self, 'statusBar'):
+            return
+
+        # Color coding for different feedback types
+        colors = {
+            "success": "#28a745",    # Green
+            "error": "#dc3545",      # Red
+            "warning": "#ffc107",    # Yellow
+            "info": "#17a2b8",       # Blue
+            "processing": "#6f42c1"  # Purple
+        }
+
+        # Create styled message with color
+        color = colors.get(feedback_type, colors["info"])
+        styled_message = f'<span style="color: {color}; font-weight: bold;">{message}</span>'
+
+        # Show in status bar
+        self.statusBar().showMessage(styled_message, duration)
+
+        # Add temporary highlight effect to active pane
+        if feedback_type in ["success", "error", "warning"]:
+            self._flash_active_pane(feedback_type)
+
+    def _flash_active_pane(self, feedback_type: str) -> None:
+        """Add a brief flash effect to the active pane for visual emphasis."""
+        if not hasattr(self, '_active_pane'):
+            return
+
+        # Flash colors for different feedback types
+        flash_colors = {
+            "success": QColor(40, 167, 69, 60),     # Green with transparency
+            "error": QColor(220, 53, 69, 60),       # Red with transparency
+            "warning": QColor(255, 193, 7, 60),     # Yellow with transparency
+        }
+
+        flash_color = flash_colors.get(feedback_type)
+        if not flash_color:
+            return
+
+        # Apply flash effect
+        active_view = self._get_active_view()
+        if active_view:
+            original_style = active_view.styleSheet()
+            flash_style = f"ImageView {{ border: 3px solid {flash_color.name()}; border-radius: 6px; }}"
+
+            active_view.setStyleSheet(flash_style)
+
+            # Remove flash after brief delay
+            if "pane_flash" not in self._feedback_timers:
+                self._feedback_timers["pane_flash"] = QTimer(cast(QWidget, self))
+                self._feedback_timers["pane_flash"].setSingleShot(True)
+
+            self._feedback_timers["pane_flash"].timeout.connect(
+                lambda: self._restore_pane_style(active_view, original_style)
+            )
+            self._feedback_timers["pane_flash"].start(300)  # 300ms flash
+
+    def _restore_pane_style(self, view: 'ImageView', original_style: str) -> None:
+        """Restore original pane style after flash effect."""
+        view.setStyleSheet(original_style)
+        # Ensure active pane styling is reapplied
+        self._update_pane_borders()
+
+    def _show_progress(self, operation: str, title: str = "Processing") -> str:
+        """Show progress dialog for long-running operations."""
+        from PySide6.QtWidgets import QProgressDialog
+
+        # Create unique progress ID
+        progress_id = f"{operation}_{id(self)}"
+
+        # Create progress dialog
+        progress = QProgressDialog(title, "Cancel", 0, 100, cast(QWidget, self))
+        progress.setWindowModality(Qt.WindowModality.WindowModal)
+        progress.setAutoClose(False)
+        progress.setMinimumDuration(1000)  # Show after 1 second
+
+        # Add custom styling
+        progress.setStyleSheet("""
+            QProgressDialog {
+                background-color: palette(window);
+                border: 1px solid palette(mid);
+                border-radius: 6px;
+            }
+            QProgressBar {
+                border: 1px solid palette(mid);
+                border-radius: 3px;
+                text-align: center;
+                background-color: palette(base);
+            }
+            QProgressBar::chunk {
+                background-color: #007AFF;
+                border-radius: 2px;
+            }
+        """)
+
+        # Store reference
+        self._progress_dialogs[progress_id] = progress
+
+        return progress_id
+
+    def _update_progress(self, progress_id: str, value: int, message: str = "") -> None:
+        """Update progress dialog value and message."""
+        if progress_id in self._progress_dialogs:
+            progress = self._progress_dialogs[progress_id]
+            progress.setValue(value)
+            if message:
+                progress.setLabelText(message)
+
+    def _hide_progress(self, progress_id: str) -> None:
+        """Hide and cleanup progress dialog."""
+        if progress_id in self._progress_dialogs:
+            progress = self._progress_dialogs[progress_id]
+            progress.close()
+            del self._progress_dialogs[progress_id]
+
+    # Accessibility Improvements
+
+    def _setup_accessibility(self) -> None:
+        """Configure comprehensive accessibility features."""
+        # Enable high contrast mode if system is configured for it
+        if self._is_high_contrast_enabled():
+            self._enable_high_contrast_mode()
+
+        # Set up keyboard navigation
+        self._setup_keyboard_navigation()
+
+        # Configure screen reader announcements
+        self._setup_screen_reader_announcements()
+
+        # Add focus indicators to key widgets
+        self._enhance_focus_indicators()
+
+    def _is_high_contrast_enabled(self) -> bool:
+        """Check if system has high contrast mode enabled."""
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance()
+        if app:
+            palette = app.palette()
+            # Check if high contrast by examining color differences
+            window_color = palette.color(QPalette.ColorRole.Window)
+            window_text_color = palette.color(QPalette.ColorRole.WindowText)
+
+            # Calculate contrast ratio (simplified)
+            contrast = abs(window_color.lightness() - window_text_color.lightness())
+            return contrast > 200  # High contrast threshold
+        return False
+
+    def _enable_high_contrast_mode(self) -> None:
+        """Enable high contrast styling for better visibility."""
+        high_contrast_style = """
+            ImageView {
+                border: 3px solid palette(text);
+                border-radius: 4px;
+                background-color: palette(base);
+            }
+            QPushButton {
+                border: 2px solid palette(text);
+                border-radius: 4px;
+                padding: 6px;
+                background-color: palette(button);
+                color: palette(button-text);
+            }
+            QPushButton:focus {
+                border: 3px solid palette(highlight);
+                outline: 2px solid palette(highlight);
+            }
+            QLabel {
+                color: palette(text);
+                font-weight: bold;
+            }
+        """
+
+        # Apply high contrast styles to all image views
+        for view_name in ['src_view', 'preview_view', 'res_view']:
+            if hasattr(self, view_name):
+                view = getattr(self, view_name)
+                view.setStyleSheet(high_contrast_style)
+
+    def _setup_keyboard_navigation(self) -> None:
+        """Set up comprehensive keyboard shortcuts and navigation."""
+        # Pane switching shortcuts
+        shortcut_source = QShortcut(QKeySequence("Ctrl+1"), cast(QWidget, self))
+        shortcut_source.activated.connect(lambda: self._on_pane_clicked("source"))
+
+        shortcut_preview = QShortcut(QKeySequence("Ctrl+2"), cast(QWidget, self))
+        shortcut_preview.activated.connect(lambda: self._on_pane_clicked("preview"))
+
+        shortcut_result = QShortcut(QKeySequence("Ctrl+3"), cast(QWidget, self))
+        shortcut_result.activated.connect(lambda: self._on_pane_clicked("result"))
+
+        # Action shortcuts
+        shortcut_clear = QShortcut(QKeySequence("Delete"), cast(QWidget, self))
+        shortcut_clear.activated.connect(self.on_clear_selection)
+
+        shortcut_export = QShortcut(QKeySequence("Ctrl+E"), cast(QWidget, self))
+        shortcut_export.activated.connect(self.on_export)
+
+        shortcut_open = QShortcut(QKeySequence("Ctrl+O"), cast(QWidget, self))
+        shortcut_open.activated.connect(self.on_open)
+
+        # Accessibility help shortcut
+        shortcut_help = QShortcut(QKeySequence("F1"), cast(QWidget, self))
+        shortcut_help.activated.connect(self._show_accessibility_help)
+
+    def _setup_screen_reader_announcements(self) -> None:
+        """Configure announcements for screen readers."""
+        # Update pane descriptions to be more descriptive
+        if hasattr(self, 'src_view'):
+            self.src_view.setAccessibleDescription(
+                "Source image pane. Contains the original document image. "
+                "Press Tab to focus, then use arrow keys to navigate, "
+                "press and hold Enter to start selection mode, use arrow keys to adjust selection."
+            )
+
+        if hasattr(self, 'preview_view'):
+            self.preview_view.setAccessibleDescription(
+                "Preview pane. Shows the selected signature area with current processing settings. "
+                "Use Tab to access processing controls."
+            )
+
+        if hasattr(self, 'res_view'):
+            self.res_view.setAccessibleDescription(
+                "Result pane. Displays the final processed signature ready for export. "
+                "Press Ctrl+E to export or Ctrl+C to copy to clipboard."
+            )
+
+    def _enhance_focus_indicators(self) -> None:
+        """Add clear focus indicators to all interactive elements."""
+        focus_style = """
+           :focus {
+                border: 2px solid #007AFF;
+                outline: 2px solid #007AFF;
+                outline-offset: 2px;
+            }
+        """
+
+        # Apply focus styles to all image views
+        for view_name in ['src_view', 'preview_view', 'res_view']:
+            if hasattr(self, view_name):
+                view = getattr(self, view_name)
+                current_style = view.styleSheet() or ""
+                view.setStyleSheet(current_style + focus_style)
+
+        # Enhance button focus indicators
+        if hasattr(self, 'zoom_in_btn'):
+            self.zoom_in_btn.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+            self.zoom_in_btn.setAccessibleName("Zoom In button")
+
+        if hasattr(self, 'zoom_out_btn'):
+            self.zoom_out_btn.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+            self.zoom_out_btn.setAccessibleName("Zoom Out button")
+
+        if hasattr(self, 'clear_sel_btn'):
+            self.clear_sel_btn.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+            self.clear_sel_btn.setAccessibleName("Clear Selection button")
+
+    def _show_accessibility_help(self) -> None:
+        """Show accessibility help dialog."""
+        from PySide6.QtWidgets import QMessageBox
+
+        help_text = """
+        <h3>Accessibility Help</h3>
+
+        <h4>Keyboard Navigation</h4>
+        <ul>
+        <li><b>Ctrl+1/2/3</b> - Switch between Source/Preview/Result panes</li>
+        <li><b>Tab</b> - Navigate between controls</li>
+        <li><b>Arrow Keys</b> - Navigate within images (when focused)</li>
+        <li><b>Enter</b> - Activate buttons or start selection mode</li>
+        <li><b>Delete</b> - Clear current selection</li>
+        <li><b>Ctrl+O</b> - Open new image</li>
+        <li><b>Ctrl+E</b> - Export result</li>
+        <li><b>Ctrl+C</b> - Copy result to clipboard</li>
+        </ul>
+
+        <h4>Screen Reader Support</h4>
+        <p>All panes and controls have descriptive labels and descriptions.
+        Status messages will be announced for important actions.</p>
+
+        <h4>High Contrast Mode</h4>
+        <p>The application automatically detects and enables high contrast styling
+        when system high contrast mode is enabled.</p>
+
+        <h4>Getting Started</h4>
+        <ol>
+        <li>Press Ctrl+O to open an image</li>
+        <li>Press Ctrl+1 to focus the Source pane</li>
+        <li>Press Enter, then use arrow keys to select signature area</li>
+        <li>Press Ctrl+E to export the result</li>
+        </ol>
+        """
+
+        msg = QMessageBox(cast(QWidget, self))
+        msg.setWindowTitle("Accessibility Help")
+        msg.setTextFormat(Qt.TextFormat.RichText)
+        msg.setText(help_text)
+        msg.setIcon(QMessageBox.Icon.Information)
+        msg.exec()
+
+    def _announce_to_screen_reader(self, message: str) -> None:
+        """Announce message to screen readers."""
+        if hasattr(self, 'statusBar'):
+            self.statusBar().showMessage(message, 2000)
+
+    # Context Menu Helper Methods
+
+    def _show_image_properties(self) -> None:
+        """Show image properties dialog for the current source image."""
+        if not hasattr(self, '_current_image_data') or not self._current_image_data:
+            return
+
+        # Create a simple info dialog
+        from PySide6.QtWidgets import QMessageBox
+        msg = QMessageBox(cast(QWidget, self))
+        msg.setWindowTitle("Image Properties")
+        msg.setIcon(QMessageBox.Icon.Information)
+
+        # Calculate image size
+        if hasattr(self, 'src_view') and self.src_view.has_image():
+            image = self.src_view.get_image()
+            if image:
+                width, height = image.width(), image.height()
+                size_mb = len(self._current_image_data) / (1024 * 1024)
+
+                info_text = f"""<b>Image Information</b><br><br>
+                <b>Dimensions:</b> {width} × {height} pixels<br>
+                <b>File Size:</b> {size_mb:.2f} MB<br>
+                <b>Format:</b> PNG<br>
+                <b>Color Depth:</b> {image.depth()} bits"""
+
+                msg.setText(info_text)
+                msg.exec()
+
+    def _auto_adjust_threshold(self) -> None:
+        """Automatically adjust threshold based on image content."""
+        if hasattr(self, 'threshold_slider'):
+            # Simple auto-threshold: set to middle value
+            # This could be enhanced with actual image analysis
+            self.threshold_slider.setValue(128)
+            if hasattr(self, 'on_preview'):
+                self.on_preview()
+
+    def _invert_colors(self) -> None:
+        """Invert the current color selection."""
+        # Simple color inversion - could be enhanced
+        if hasattr(self, '_color_hex'):
+            # Convert hex to RGB, invert, convert back
+            hex_color = self._color_hex.lstrip('#')
+            r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+            r, g, b = 255 - r, 255 - g, 255 - b
+            inverted_hex = f"#{r:02x}{g:02x}{b:02x}"
+
+            # Apply inverted color
+            if hasattr(self, '_apply_color'):
+                self._apply_color(inverted_hex)
+
+    def _copy_result_to_clipboard(self) -> None:
+        """Copy the result image to clipboard."""
+        if not hasattr(self, '_last_result_png') or not self._last_result_png:
+            return
+
+        # Check license before allowing clipboard copy
+        from desktop_app.license import check_and_enforce_export_license
+        if not check_and_enforce_export_license(self):
+            if hasattr(self, 'statusBar'):
+                self.statusBar().showMessage("Copy to clipboard requires a license", 2000)
+            return
+
+        from PySide6.QtGui import QClipboard
+        clipboard = QApplication.clipboard()
+
+        # Create QPixmap from PNG data
+        from PySide6.QtGui import QPixmap
+        pixmap = QPixmap()
+        if pixmap.loadFromData(self._last_result_png):
+            clipboard.setPixmap(pixmap)
+
+            # Show brief status message
+            if hasattr(self, 'statusBar'):
+                self.statusBar().showMessage("📋 Result copied to clipboard", 2000)
+
+    # Rotation Coordinate Mapping Helper Methods
+
+    def _restore_view_state_after_rotation(self) -> None:
+        """Restore zoom and viewport state after rotation to maintain user context."""
+        if not hasattr(self, 'src_view') or not self.src_view.has_image():
+            return
+
+        # Restore zoom level with bounds checking
+        try:
+            # Calculate reasonable zoom bounds for the new image size
+            image_size = self.src_view.get_image().size() if self.src_view.get_image() else None
+            if image_size:
+                max_zoom = min(5.0, 2000.0 / max(image_size.width(), image_size.height()))  # Cap at 5x or based on image size
+                min_zoom = 0.1  # Minimum 10% zoom
+
+                # Apply the stored zoom with bounds checking
+                target_zoom = max(min_zoom, min(max_zoom, self._pre_rotation_zoom))
+
+                # Restore zoom
+                current_zoom = self.src_view.get_zoom_percent() / 100.0
+                if abs(current_zoom - target_zoom) > 0.01:  # Only change if significant difference
+                    self.src_view.set_zoom(target_zoom * 100.0)
+
+                # Show feedback about rotation preservation
+                rotation_degrees = getattr(self, '_last_rotation_degrees', 0)
+                self._show_feedback(f"Rotated {rotation_degrees}° - zoom and viewport preserved", "success", 2000)
+
+        except Exception as e:
+            LOG.warning(f"Could not restore view state after rotation: {e}")
+            # Fallback to fit if restore fails
+            self.src_view.fit(margin_percent=5.0)
+
+    def _transform_selection_coordinates(self, x1: int, y1: int, x2: int, y2: int,
+                                         from_rotation: int, to_rotation: int,
+                                         image_width: int, image_height: int) -> tuple[int, int, int, int]:
+        """Transform selection coordinates from one rotation to another.
+
+        Args:
+            x1, y1, x2, y2: Original selection coordinates
+            from_rotation: Source rotation angle in degrees
+            to_rotation: Target rotation angle in degrees
+            image_width: Image width in pixels
+            image_height: Image height in pixels
+
+        Returns:
+            Transformed coordinates (x1, y1, x2, y2)
+        """
+        if from_rotation == to_rotation:
+            return x1, y1, x2, y2
+
+        # Calculate rotation difference
+        rotation_diff = (to_rotation - from_rotation) % 360
+
+        # Handle 90-degree rotations specifically (most common case)
+        if rotation_diff == 90:
+            # 90° clockwise rotation: (x, y) -> (y, width-x)
+            return (
+                y1,
+                image_width - x2,
+                y2,
+                image_width - x1
+            )
+        elif rotation_diff == 180:
+            # 180° rotation: (x, y) -> (width-x, height-y)
+            return (
+                image_width - x2,
+                image_height - y2,
+                image_width - x1,
+                image_height - y1
+            )
+        elif rotation_diff == 270:
+            # 270° clockwise rotation: (x, y) -> (height-y, x)
+            return (
+                image_height - y2,
+                x1,
+                image_height - y1,
+                x2
+            )
+        elif rotation_diff == 0:
+            # No rotation needed
+            return x1, y1, x2, y2
+        else:
+            # For non-standard angles, use trigonometric transformation
+            import math
+
+            # Center of image
+            cx, cy = image_width / 2.0, image_height / 2.0
+
+            # Convert to radians
+            angle_rad = math.radians(rotation_diff)
+            cos_angle = math.cos(angle_rad)
+            sin_angle = math.sin(angle_rad)
+
+            # Transform each corner
+            def transform_point(px, py):
+                # Translate to origin
+                px, py = px - cx, py - cy
+
+                # Rotate
+                new_px = px * cos_angle - py * sin_angle
+                new_py = px * sin_angle + py * cos_angle
+
+                # Translate back and round
+                return int(round(new_px + cx)), int(round(new_py + cy))
+
+            # Transform all four corners
+            corners = [
+                (x1, y1), (x1, y2), (x2, y1), (x2, y2)
+            ]
+            transformed_corners = [transform_point(px, py) for px, py in corners]
+
+            # Get bounding box of transformed corners
+            xs = [corner[0] for corner in transformed_corners]
+            ys = [corner[1] for corner in transformed_corners]
+
+            return (
+                max(0, min(image_width, min(xs))),
+                max(0, min(image_height, min(ys))),
+                max(0, min(image_width, max(xs))),
+                max(0, min(image_height, max(ys)))
+            )
     

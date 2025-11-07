@@ -60,9 +60,9 @@ except Exception as e:
 # Configure CORS with all necessary origins
 origins = [
     "http://localhost:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:8000",
-    "http://localhost:8000",
+    "http://localhost:5173", 
+    "http://127.0.0.1:8001",  # Updated to match consistent port
+    "http://localhost:8001",  # Updated to match consistent port
     "http://127.0.0.1:5173",
 ]
 

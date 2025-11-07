@@ -14,16 +14,22 @@ dist/
 build/
 *.so
 .pytest_cache/
-.mypy_cache/
-.dmypy.json
-.ruff_cache/
 
 # Environment and secrets
 .env
 .env.*
 !.env.example
-.envrc
-.direnv/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+app.log
+mcp-shell.log
 
 # Database files
 *.db
@@ -32,105 +38,100 @@ build/
 alembic.db
 backend/data/*.db
 
-# Upload directories (keep structure but ignore contents)
+# Backend uploads and temporary files
 backend/uploads/**/*
 !backend/uploads/.gitkeep
 backend/uploads/images/
+backend/uploads/original_images/
+
+# Desktop app uploads and library
 uploads/**/*
 !uploads/.gitkeep
-uploads/images/
+desktop_app/library/**/*
+!desktop_app/library/.gitkeep
 
-# Generated/processed images and files
+# Generated/processed images
 *.png
 *.jpg
 *.jpeg
 *.gif
 *.bmp
 *.tiff
-*.pdf
-demo_document.pdf
-test_image.jpg
 !docs/**/*.png
 !docs/**/*.jpg
 !docs/**/*.jpeg
 !.github/**/*.png
 
-# Logs
-*.log
-logs/
-app.log
-backend.log
-mcp-shell.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*.ipynb
 
-# IDE and Editor files
-.vscode/
-.claude/
-.kiro/
-.idea/
-*.sublime-project
-*.sublime-workspace
-.atom/
-*.swp
-*.swo
-*~
-.cache/
-*.tmp
-*.bak
+# Development artifacts
+.vscode/settings.json
+.vscode/launch.json
 *.code-workspace
 
-# Development artifacts and debug files
-debug_*.py
-test_*.py
-test_*.sh
-test.html
-take_screenshots.py
-create_demo_pdf.py
-test_fix_verification.py
-test_layout_issue.py
-test_modern_mac_button.py
-test_result_pane.py
-test_results_pane.sh
-test_upload_debug.py
-debug_result_pane_issue.py
-debug_results_pane.py
-debug_session_issue.py
+# MyPy cache
+.mypy_cache/
+.dmypy.json
 
-# Test directories and artifacts
-tests/
+# Ruff cache
+.ruff_cache/
+
+# Pre-commit hooks
+.pre-commit-config.yaml.backup
+
+# Local development databases (additional patterns)
+local.db
+local.sqlite
+dev.db
+dev.sqlite
+development.db
+development.sqlite
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Linux
+*~
+
+# Test files and artifacts
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.nox/
 test-results/
 test_output/
 test_screenshots/
-htmlcov/
-.coverage
-coverage.xml
-.tox/
-.nox/
+test_*.log
+*.test
+*_test.db
+*_test.sqlite
+*_test.sqlite3
 
-# Debug and development directories
-screenshots_debug/
-flows/
-.trash/
-tools/
+# Backend test artifacts
+backend/test_*.db
+backend/test_*.sqlite
+backend/test_*.sqlite3
+backend/test_output/
+backend/test_logs/
 
-# Landing page development artifacts
-claude_landing_page/
-codex_landing_page/
-codex_landing_page_flat/
-codex_landing_page_warm/
-gemini_landing_page/
-grok_landing_page/
-landing_page_minimax_draft/
-qwen_landing_page/
-
-# Alembic
-alembic/versions/*.pyc
-alembic/*.log
-alembic/*.tmp
+# Desktop app test artifacts
+desktop_app/test_output/
+desktop_app/test_logs/
+desktop_app/test_screenshots/
+desktop_app/tests/__pycache__/
+desktop_app/tests/*.pyc
 
 # PyInstaller
 *.spec
@@ -145,50 +146,39 @@ temp/
 *.swp
 *.swo
 *~
+.cache/
+*.cache
 
-# Session files
-.session
-*.session
+# Debug files
+debug.log
+debug_*.log
+*.debug
+*.dump
 
 # Profile files
 *.prof
 *.lprof
 profile_*.txt
 
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-._*
-Icon
-.Spotlight-V100
-.Trashes
+# Session files
+.session
+*.session
 
-# Windows
-Thumbs.db
-desktop.ini
-ehthumbs.db
-$RECYCLE.BIN/
-*.stackdump
+# Node (legacy, may be removed if fully migrated to desktop)
+node_modules/
+dist-ssr/
+out/
+package-lock.json
+yarn.lock
 
-# Linux
-*~
-.directory
-.Trash-*
+# Alembic
+alembic/versions/*.pyc
+alembic/*.log
+alembic/*.tmp
 
-# Docker (if used)
-.dockerignore
-docker-compose.override.yml
-Dockerfile.*
-docker-compose.*.yml
-
-# CI/CD backups
-.github/workflows/*.yml.backup
-.github/dependabot.yml
-
-# Documentation builds
-docs/_build/
-docs/build/
-
-# Pre-commit hooks
-.pre-commit-config.yaml.backup
+# Trash directory
+.trash/
+# Session/one-off logs kept locally
+app.log
+mcp-shell.log
+screenshots_debug/

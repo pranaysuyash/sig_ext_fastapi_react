@@ -45,12 +45,57 @@ class Settings(BaseSettings):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._validate_configuration()
         logger.info("Settings initialized successfully")
         logger.debug("Database URL: %s", self.DATABASE_URL)
         logger.debug("JWT Algorithm: %s", self.JWT_ALGORITHM)
         logger.debug(
             "JWT Expiry: %s minutes", self.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
         )
+    
+    def _validate_configuration(self) -> None:
+        """Validate configuration and provide helpful error messages."""
+        errors = []
+        
+        # Validate JWT_SECRET
+        if not self.JWT_SECRET or self.JWT_SECRET == "your_super_secret_jwt_key_here_replace_with_random_32_byte_hex":
+            errors.append(
+                "JWT_SECRET is missing or using example value. "
+                "Generate a secure key with: openssl rand -hex 32"
+            )
+        elif len(self.JWT_SECRET) < 32:
+            errors.append(
+                "JWT_SECRET is too short. Use at least 32 characters for security. "
+                "Generate with: openssl rand -hex 32"
+            )
+        
+        # Validate database configuration
+        if not self.DATABASE_NAME:
+            errors.append("DATABASE_NAME is required")
+        
+        if not self.DATABASE_USERNAME:
+            errors.append("DATABASE_USERNAME is required")
+        
+        if not self.DATABASE_PASSWORD or self.DATABASE_PASSWORD == "your_db_password":
+            errors.append(
+                "DATABASE_PASSWORD is missing or using example value. "
+                "Set a secure database password."
+            )
+        
+        # Validate port
+        try:
+            port = int(self.DATABASE_PORT)
+            if port < 1 or port > 65535:
+                errors.append(f"DATABASE_PORT must be between 1-65535, got {port}")
+        except ValueError:
+            errors.append(f"DATABASE_PORT must be a number, got '{self.DATABASE_PORT}'")
+        
+        if errors:
+            error_msg = "Configuration validation failed:\n" + "\n".join(f"  - {error}" for error in errors)
+            error_msg += "\n\nPlease check your .env file or environment variables."
+            error_msg += "\nSee .env.example for configuration examples."
+            logger.error(error_msg)
+            raise ValueError(error_msg)
 
 
 try:

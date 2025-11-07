@@ -1,0 +1,108 @@
+/* Design Tokens - Ultimate Hybrid Landing Page */
+:root {
+  /* Primary Colors - Sophisticated & Unique */
+  --color-deep-navy: #0a1628;
+  --color-midnight-blue: #1a2942;
+  --color-signature-blue: #4a90e2;
+  --color-warm-amber: #f4a261;
+  --color-sage-green: #52b788;
+  
+  /* Accent Colors */
+  --color-soft-lavender: #b8a9c9;
+  --color-teal-accent: #20c997;
+  
+  /* Neutrals */
+  --color-pearl-white: #f8f9fa;
+  --color-warm-gray: #e0e1dd;
+  --color-charcoal: #415a77;
+  
+  /* Semantic Colors */
+  --color-success: var(--color-sage-green);
+  --color-error: #ff6b6b;
+  --color-warning: #ffd43b;
+  --color-info: var(--color-signature-blue);
+  
+  /* Gradients */
+  --gradient-hero: linear-gradient(135deg, #0a1628 0%, #1a2942 50%, #2d4263 100%);
+  --gradient-cta: linear-gradient(135deg, #f4a261 0%, #52b788 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  --gradient-signature: linear-gradient(135deg, #f4a261 0%, #52b788 100%);
+  
+  /* Font Families */
+  --font-display: 'Clash Display', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-primary: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  
+  /* Font Sizes (Fluid Typography) */
+  --font-size-hero: clamp(2.5rem, 5vw, 4.5rem);
+  --font-size-h1: clamp(2rem, 4vw, 3.5rem);
+  --font-size-h2: clamp(1.75rem, 3vw, 2.5rem);
+  --font-size-h3: clamp(1.5rem, 2.5vw, 2rem);
+  --font-size-body: clamp(1rem, 1.5vw, 1.125rem);
+  --font-size-small: clamp(0.875rem, 1.25vw, 1rem);
+  
+  /* Font Weights */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+  
+  /* Line Heights */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* Spacing Scale */
+  --space-3xs: 0.25rem;   /* 4px */
+  --space-2xs: 0.5rem;    /* 8px */
+  --space-xs: 0.75rem;    /* 12px */
+  --space-sm: 1rem;       /* 16px */
+  --space-md: 1.5rem;     /* 24px */
+  --space-lg: 2rem;       /* 32px */
+  --space-xl: 3rem;       /* 48px */
+  --space-2xl: 4rem;      /* 64px */
+  --space-3xl: 6rem;      /* 96px */
+  --space-4xl: 8rem;      /* 128px */
+  
+  /* Animation Durations */
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-slower: 800ms;
+  
+  /* Easing Functions */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* Transitions */
+  --transition-base: var(--duration-normal) var(--ease-out-expo);
+  --transition-fast: var(--duration-fast) var(--ease-out-expo);
+  --transition-slow: var(--duration-slow) var(--ease-in-out);
+  
+  /* Component Tokens */
+  --button-height: 48px;
+  --button-padding: 0 var(--space-lg);
+  --button-radius: 8px;
+  
+  --card-padding: var(--space-lg);
+  --card-radius: 16px;
+  --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-blur: 12px;
+  
+  --nav-height: 72px;
+  
+  /* Breakpoints (for reference in JS) */
+  --breakpoint-mobile-s: 320px;
+  --breakpoint-mobile-l: 481px;
+  --breakpoint-tablet: 769px;
+  --breakpoint-desktop: 1025px;
+  --breakpoint-desktop-l: 1441px;
+  --breakpoint-desktop-xl: 1921px;
+}

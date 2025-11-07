@@ -10,6 +10,7 @@ from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QWidget, QTabWidget
 
 from desktop_app.api.client import ApiClient
+from desktop_app.processing import SignatureExtractor
 from desktop_app.resources.icons import get_icon
 from desktop_app.state.session import SessionState
 from desktop_app.views.onboarding_dialog import OnboardingDialog
@@ -38,10 +39,14 @@ class MainWindow(
 ):
     """Top-level window that orchestrates extraction and PDF signing flows."""
 
-    def __init__(self, api_client: ApiClient, session_state: SessionState, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, api_client: ApiClient, session_state: SessionState, backend_manager: Optional['BackendManager'] = None, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.api_client = api_client
         self.session = session_state
+        self.backend_manager = backend_manager
+        
+        # Initialize local processing engine
+        self.local_extractor = SignatureExtractor()
 
         self.setWindowTitle("Signature Extractor (Desktop)")
         app_icon = get_icon("file")

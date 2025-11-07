@@ -11,6 +11,7 @@ class ApiClient:
     def __init__(self, base_url: str, session: SessionState) -> None:
         self.base_url = base_url.rstrip("/")
         self.session = session
+        self._offline_mode = False
 
     def _headers(self, extra: Optional[Dict[str, str]] = None) -> Dict[str, str]:
         headers: Dict[str, str] = {"Accept": "application/json"}
@@ -65,12 +66,31 @@ class ApiClient:
         resp.raise_for_status()
         return resp.content  # PNG bytes
 
+    def set_offline_mode(self, offline: bool) -> None:
+        """Set offline mode for graceful degradation.
+        
+        Args:
+            offline: True to enable offline mode, False for online mode
+        """
+        self._offline_mode = offline
+    
+    def is_offline(self) -> bool:
+        """Check if client is in offline mode.
+        
+        Returns:
+            True if in offline mode
+        """
+        return self._offline_mode
+
     def health_check(self, timeout: float = 3.0) -> Tuple[bool, Dict[str, Any]]:
         """Ping backend /health. Returns (ok, payload_or_error).
 
         - ok=True and payload dict when reachable and healthy
         - ok=False and payload containing {"error": str} when unreachable or unhealthy
         """
+        if self._offline_mode:
+            return False, {"error": "Client in offline mode"}
+            
         url = f"{self.base_url}/health"
         try:
             resp = requests.get(url, headers={"Accept": "application/json"}, timeout=timeout)
@@ -80,6 +100,8 @@ class ApiClient:
             ok = True
             if isinstance(payload, dict) and payload.get("status"):
                 ok = str(payload.get("status")).lower() in {"ok", "healthy", "up"}
+            self._offline_mode = False  # Reset offline mode on successful health check
             return ok, payload if isinstance(payload, dict) else {"raw": payload}
         except requests.exceptions.RequestException as e:
+            self._offline_mode = True  # Set offline mode on connection failure
             return False, {"error": str(e)}

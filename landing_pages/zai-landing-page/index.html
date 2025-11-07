@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signature Extractor - AI-Powered Signature Extraction Software</title>
+    <meta name="description" content="Extract signatures from documents with AI-powered precision. Professional results in seconds. No manual work required.">
+    <meta name="keywords" content="signature extraction, AI document processing, automated signature detection">
+    <meta name="author" content="Signature Extractor">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://signatureextractor.app/">
+    <meta property="og:title" content="Signature Extractor - AI-Powered Signature Extraction">
+    <meta property="og:description" content="Extract signatures from documents with AI-powered precision. Professional results in seconds.">
+    <meta property="og:image" content="./assets/images/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://signatureextractor.app/">
+    <meta property="twitter:title" content="Signature Extractor - AI-Powered Signature Extraction">
+    <meta property="twitter:description" content="Extract signatures from documents with AI-powered precision. Professional results in seconds.">
+    <meta property="twitter:image" content="./assets/images/twitter-image.jpg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="./assets/css/normalize.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="./assets/css/animations.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="./assets/images/favicon.svg">
+    <link rel="apple-touch-icon" href="./assets/images/apple-touch-icon.png">
+
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Signature Extractor",
+        "description": "AI-powered signature extraction software for professional document processing",
+        "url": "https://signatureextractor.app",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Windows, macOS, Linux",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <header class="navigation" role="banner">
+        <nav class="nav-container" role="navigation" aria-label="Main navigation">
+            <div class="nav-brand">
+                <a href="#" class="brand-link" aria-label="Signature Extractor Home">
+                    <svg class="brand-logo" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="40" height="40" rx="8" fill="url(#brand-gradient)"/>
+                        <path d="M20 12L25 17L20 22L15 17L20 12Z" fill="white" opacity="0.9"/>
+                        <path d="M12 20L17 25L22 20L17 15L12 20Z" fill="white" opacity="0.7"/>
+                        <defs>
+                            <linearGradient id="brand-gradient" x1="0" y1="0" x2="40" y2="40">
+                                <stop stop-color="#3182ce"/>
+                                <stop offset="1" stop-color="#2c5282"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span class="brand-text">Signature Extractor</span>
+                </a>
+            </div>
+
+            <ul class="nav-menu" role="menubar">
+                <li class="nav-item" role="none">
+                    <a href="#features" class="nav-link" role="menuitem">Features</a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#workflow" class="nav-link" role="menuitem">How It Works</a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#testimonials" class="nav-link" role="menuitem">Testimonials</a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#pricing" class="nav-link" role="menuitem">Pricing</a>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="#demo" class="btn btn-secondary">Watch Demo</a>
+                <a href="#download" class="btn btn-primary">Try Free Demo</a>
+            </div>
+
+            <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </nav>
+    </header>
+
+    <main role="main">
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="hero-particles" id="particles-canvas"></div>
+
+            <div class="hero-container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1 class="hero-headline">
+                            Extract Signatures with
+                            <span class="gradient-text">AI-Powered Precision</span>
+                        </h1>
+                        <p class="hero-subheadline">
+                            Professional signature extraction in seconds. No manual work required.
+                            Join 10,000+ professionals who trust our AI technology.
+                        </p>
+
+                        <div class="hero-actions">
+                            <a href="#demo" class="btn btn-primary btn-large">
+                                <span>Try Free Demo</span>
+                                <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M10 2L18 10L10 18L8 16L14 10L8 4L10 2Z"/>
+                                </svg>
+                            </a>
+                            <a href="#video-demo" class="btn btn-secondary btn-large video-trigger">
+                                <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M10 2C14.4183 2 18 5.58172 18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2ZM8 7L13 10L8 13V7Z"/>
+                                </svg>
+                                <span>Watch Video Tour</span>
+                            </a>
+                        </div>
+
+                        <div class="hero-trust">
+                            <div class="trust-item">
+                                <div class="trust-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z"/>
+                                    </svg>
+                                </div>
+                                <span class="trust-text">10,000+ Professionals</span>
+                            </div>
+                            <div class="trust-item">
+                                <div class="trust-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1L9 7V9C9 11.2 10.8 13 13 13H17C19.2 13 21 11.2 21 9Z"/>
+                                    </svg>
+                                </div>
+                                <span class="trust-text">1M+ Signatures Extracted</span>
+                            </div>
+                            <div class="trust-item">
+                                <div class="trust-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.62L12 2L9.19 8.62L2 9.24L7.45 13.97L5.82 21L12 17.27Z"/>
+                                    </svg>
+                                </div>
+                                <span class="trust-text">4.9/5 Star Rating</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-visual">
+                        <div class="hero-mockup">
+                            <div class="mockup-frame">
+                                <div class="mockup-header">
+                                    <div class="mockup-controls">
+                                        <span class="control control-red"></span>
+                                        <span class="control control-yellow"></span>
+                                        <span class="control control-green"></span>
+                                    </div>
+                                    <div class="mockup-title">Signature Extractor</div>
+                                </div>
+                                <div class="mockup-content">
+                                    <div class="mockup-sidebar">
+                                        <div class="sidebar-section active">Upload</div>
+                                        <div class="sidebar-section">Threshold</div>
+                                        <div class="sidebar-section">Export</div>
+                                    </div>
+                                    <div class="mockup-main">
+                                        <div class="document-preview">
+                                            <div class="document-signature"></div>
+                                            <div class="selection-box"></div>
+                                        </div>
+                                        <div class="result-preview">
+                                            <div class="extracted-signature"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="floating-elements">
+                            <div class="floating-element floating-document" data-delay="0">
+                                <svg width="40" height="50" viewBox="0 0 40 50" fill="currentColor">
+                                    <rect x="5" y="5" width="30" height="40" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    <line x1="10" y1="15" x2="30" y2="15" stroke="currentColor" stroke-width="2"/>
+                                    <line x1="10" y1="20" x2="25" y2="20" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M15 30L20 35L25 30" stroke="currentColor" stroke-width="2" fill="none"/>
+                                </svg>
+                            </div>
+                            <div class="floating-element floating-signature" data-delay="1000">
+                                <svg width="60" height="30" viewBox="0 0 60 30" fill="none">
+                                    <path d="M5 15Q15 5, 25 15T45 15" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    <path d="M50 10Q55 20, 50 25" stroke="currentColor" stroke-width="2" fill="none"/>
+                                </svg>
+                            </div>
+                            <div class="floating-element floating-export" data-delay="2000">
+                                <svg width="35" height="35" viewBox="0 0 35 35" fill="currentColor">
+                                    <path d="M17.5 2V20M17.5 20L12 15M17.5 20L23 15M2 25Q2 23, 4 23H31Q33 23, 33 25V30Q33 32, 31 32H4Q2 32, 2 30V25Z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Animated Workflow Section -->
+        <section class="workflow" id="workflow">
+            <div class="workflow-container">
+                <div class="workflow-header">
+                    <h2>How It Works</h2>
+                    <p>Extract Signatures in 4 Simple Steps</p>
+                </div>
+
+                <div class="workflow-steps">
+                    <div class="step" data-step="1">
+                        <div class="step-icon">
+                            <svg class="step-animation" width="40" height="40" viewBox="0 0 40 40" fill="currentColor">
+                                <rect x="8" y="10" width="24" height="20" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M12 15L28 15M12 20L24 20M12 25L20 25" stroke="currentColor" stroke-width="2"/>
+                                <path d="M20 2L20 10L25 5" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                            <div class="step-indicator"></div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Upload</h3>
+                            <p>Upload your document</p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="2">
+                        <div class="step-icon">
+                            <svg class="step-animation" width="40" height="40" viewBox="0 0 40 40" fill="currentColor">
+                                <circle cx="20" cy="20" r="8" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M16 20Q20 12, 24 20" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M12 8Q20 4, 28 8" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M12 32Q20 36, 28 32" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                            <div class="step-indicator"></div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Analyze</h3>
+                            <p>AI analyzes the content</p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="3">
+                        <div class="step-icon">
+                            <svg class="step-animation" width="40" height="40" viewBox="0 0 40 40" fill="currentColor">
+                                <rect x="8" y="10" width="24" height="20" rx="2" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="2,2"/>
+                                <circle cx="20" cy="20" r="6" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M14 20L18 24L26 16" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                            <div class="step-indicator"></div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Select</h3>
+                            <p>Select signature area</p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="4">
+                        <div class="step-icon">
+                            <svg class="step-animation" width="40" height="40" viewBox="0 0 40 40" fill="currentColor">
+                                <rect x="8" y="10" width="24" height="20" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M12 15Q16 12, 20 15Q24 18, 28 15" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <rect x="12" y="25" width="16" height="2" rx="1" fill="currentColor"/>
+                                <path d="M20 28L22 26L24 28L26 26L28 28" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                            <div class="step-indicator"></div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Extract</h3>
+                            <p>Extract with precision</p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="5">
+                        <div class="step-icon">
+                            <svg class="step-animation" width="40" height="40" viewBox="0 0 40 40" fill="currentColor">
+                                <rect x="8" y="8" width="24" height="24" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M12 15Q16 12, 20 15Q24 18, 28 15" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <circle cx="20" cy="30" r="2" fill="currentColor"/>
+                            </svg>
+                            <div class="step-indicator"></div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Preview</h3>
+                            <p>Review your result</p>
+                        </div>
+                    </div>
+
+                    <div class="step" data-step="6">
+                        <div class="step-icon">
+                            <svg class="step-animation" width="40" height="40" viewBox="0 0 40 40" fill="currentColor">
+                                <path d="M20 10L10 20H15V30H25V20H30L20 10Z"/>
+                                <circle cx="32" cy="8" r="6" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M32 5L32 11M29 8L35 8" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <div class="step-indicator"></div>
+                        </div>
+                        <div class="step-content">
+                            <h3>Export</h3>
+                            <p>Save or share</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="workflow-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div class="workflow-controls">
+                    <button class="workflow-btn workflow-btn-prev" id="workflow-prev">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M10 2L2 8L10 14V8H14V6H10V2Z"/>
+                        </svg>
+                        Previous
+                    </button>
+                    <button class="workflow-btn workflow-btn-play" id="workflow-play">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M5 2L13 8L5 14V2Z"/>
+                        </svg>
+                        Play
+                    </button>
+                    <button class="workflow-btn workflow-btn-next" id="workflow-next">
+                        Next
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M6 2L14 8L6 14V8H2V6H6V2Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features" id="features">
+            <div class="features-container">
+                <div class="features-header">
+                    <h2>Powerful Features</h2>
+                    <p>Everything you need to extract signatures with professional results</p>
+                </div>
+
+                <div class="features-grid">
+                    <article class="feature-card" data-categories="productivity,quality">
+                        <div class="feature-icon" data-animation="neural-network">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="currentColor">
+                                <circle cx="20" cy="20" r="8" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <circle cx="10" cy="10" r="3" fill="currentColor"/>
+                                <circle cx="30" cy="10" r="3" fill="currentColor"/>
+                                <circle cx="10" cy="30" r="3" fill="currentColor"/>
+                                <circle cx="30" cy="30" r="3" fill="currentColor"/>
+                                <path d="M12 12L18 18M28 12L22 18M12 28L18 22M28 28L22 22" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>AI-Powered Extraction</h3>
+                        <p>Advanced artificial intelligence automatically detects and extracts signatures with 99.9% accuracy</p>
+                        <button class="feature-learn-more" aria-expanded="false">Learn more</button>
+                    </article>
+
+                    <article class="feature-card" data-categories="productivity">
+                        <div class="feature-icon" data-animation="document-stack">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="currentColor">
+                                <rect x="8" y="8" width="20" height="24" rx="2" fill="currentColor" opacity="0.3"/>
+                                <rect x="10" y="10" width="20" height="24" rx="2" fill="currentColor" opacity="0.6"/>
+                                <rect x="12" y="12" width="20" height="24" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M16 20L28 20M16 24L24 24M16 28L26 28" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>Batch Processing</h3>
+                        <p>Process multiple documents simultaneously. Save hours of manual work with bulk extraction.</p>
+                        <button class="feature-learn-more" aria-expanded="false">Learn more</button>
+                    </article>
+
+                    <article class="feature-card" data-categories="export">
+                        <div class="feature-icon" data-animation="file-formats">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="currentColor">
+                                <rect x="8" y="8" width="10" height="12" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <rect x="22" y="8" width="10" height="12" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <rect x="15" y="20" width="10" height="12" rx="1" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <text x="13" y="16" font-size="8" text-anchor="middle" fill="currentColor">PNG</text>
+                                <text x="27" y="16" font-size="8" text-anchor="middle" fill="currentColor">PDF</text>
+                                <text x="20" y="28" font-size="8" text-anchor="middle" fill="currentColor">SVG</text>
+                            </svg>
+                        </div>
+                        <h3>Export Multiple Formats</h3>
+                        <p>Save signatures in various formats. Perfect for different use cases and requirements.</p>
+                        <button class="feature-learn-more" aria-expanded="false">Learn more</button>
+                    </article>
+
+                    <article class="feature-card" data-categories="quality,tools">
+                        <div class="feature-icon" data-animation="selection-tool">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="currentColor">
+                                <path d="M20 8L28 16L20 24L12 16L20 8Z" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <circle cx="20" cy="16" r="2" fill="currentColor"/>
+                                <path d="M8 32L32 32" stroke="currentColor" stroke-width="2"/>
+                                <path d="M15 28L15 32M25 28L25 32" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>Smart Selection Tools</h3>
+                        <p>Precision selection tools with edge detection. Manually refine selections for perfect results.</p>
+                        <button class="feature-learn-more" aria-expanded="false">Learn more</button>
+                    </article>
+
+                    <article class="feature-card" data-categories="security">
+                        <div class="feature-icon" data-animation="shield-protection">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="currentColor">
+                                <path d="M20 4L10 8V20C10 26, 20 32, 20 32C20 32, 30 26, 30 20V8L20 4Z" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M15 18L18 21L25 14" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>Privacy First</h3>
+                        <p>Process documents locally on your device. No data leaves your computer. Complete privacy.</p>
+                        <button class="feature-learn-more" aria-expanded="false">Learn more</button>
+                    </article>
+
+                    <article class="feature-card" data-categories="integration">
+                        <div class="feature-icon" data-animation="network-connections">
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="currentColor">
+                                <circle cx="20" cy="20" r="4" fill="currentColor"/>
+                                <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <circle cx="30" cy="10" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <circle cx="10" cy="30" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <circle cx="30" cy="30" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <path d="M20 16L20 7M20 24L20 33M14 14L12 12M26 14L28 12M14 26L12 28M26 26L28 28" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3>Integration Ready</h3>
+                        <p>Seamless integration with your existing workflow. API access for custom implementations.</p>
+                        <button class="feature-learn-more" aria-expanded="false">Learn more</button>
+                    </article>
+                </div>
+
+                <div class="features-filter">
+                    <button class="filter-btn active" data-filter="all">All Features</button>
+                    <button class="filter-btn" data-filter="productivity">Productivity</button>
+                    <button class="filter-btn" data-filter="quality">Quality</button>
+                    <button class="filter-btn" data-filter="security">Security</button>
+                    <button class="filter-btn" data-filter="integration">Integration</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials" id="testimonials">
+            <div class="testimonials-container">
+                <div class="testimonials-header">
+                    <h2>Trusted by Professionals</h2>
+                    <p>See what our users are saying about Signature Extractor</p>
+                </div>
+
+                <div class="testimonials-carousel">
+                    <div class="testimonial-card active">
+                        <div class="testimonial-content">
+                            <blockquote>
+                                "Signature Extractor has transformed our document processing workflow. What used to take hours now takes minutes. The AI accuracy is incredible."
+                            </blockquote>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">
+                                    <img src="./assets/images/testimonial-1.jpg" alt="Sarah Johnson" loading="lazy"/>
+                                </div>
+                                <div class="author-info">
+                                    <div class="author-name">Sarah Johnson</div>
+                                    <div class="author-title">Legal Assistant</div>
+                                    <div class="author-company">Johnson & Associates</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <span class="rating-star">★</span>
+                            <span class="rating-star">★</span>
+                            <span class="rating-star">★</span>
+                            <span class="rating-star">★</span>
+                            <span class="rating-star">★</span>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <blockquote>
+                                "The batch processing feature alone has saved us hundreds of hours. We can now process hundreds of documents in the time it used to take for ten."
+                            </blockquote>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">
+                                    <img src="./assets/images/testimonial-2.jpg" alt="Michael Chen" loading="lazy"/>
+                                </div>
+                                <div class="author-info">
+                                    <div class="author-name">Michael Chen</div>
+                                    <div class="author-title">Operations Manager</div>
+                                    <div class="author-company">Global Financial Services</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <span class="rating-star">★</span>
+                            <span class="rating-star">★</span>
+                            <span class="rating-star">★</span>
+                            <span class="rating-star">★</span>
+                            <span class="rating-star">★</span>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <blockquote>
+                                "The privacy-first approach was crucial for our firm. Being able to process sensitive documents locally gives us complete confidence in security."
+                            </blockquote>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">
+                                    <img src="./assets/images/testimonial-3.jpg" alt="Emily Rodriguez" loading="lazy"/>
+                                </div>
+                                <div class="author-info">
+                                    <div class="author-name">Emily Rodriguez</div>
+                                    <div class="author-title">Partner</div>
+                                    <div class="author-company">Rodriguez Law Firm</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-rating">
+                            <span class="rating-star">★</span>
+                            <span class="rating-star">★</span>
+                            <span class="rating-star">★</span>
+                            <span class="rating-star">★</span>
+                            <span class="rating-star">★</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonials-controls">
+                    <button class="testimonial-btn testimonial-btn-prev" id="testimonial-prev">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M10 2L2 8L10 14V8H14V6H10V2Z"/>
+                        </svg>
+                    </button>
+                    <button class="testimonial-btn testimonial-btn-next" id="testimonial-next">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M6 2L14 8L6 14V8H2V6H6V2Z"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="testimonials-indicators">
+                    <button class="indicator active" data-slide="0"></button>
+                    <button class="indicator" data-slide="1"></button>
+                    <button class="indicator" data-slide="2"></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta" id="cta">
+            <div class="cta-container">
+                <div class="cta-content">
+                    <h2>Ready to Transform Your Document Workflow?</h2>
+                    <p>Join thousands of professionals who are already saving hours every week with Signature Extractor.</p>
+                    <div class="cta-actions">
+                        <a href="#download" class="btn btn-primary btn-large">Start Free Trial</a>
+                        <a href="#demo" class="btn btn-secondary btn-large">Schedule Demo</a>
+                    </div>
+                    <div class="cta-features">
+                        <div class="cta-feature">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 2L2 7V17L10 22L18 17V7L10 2Z"/>
+                            </svg>
+                            <span>No credit card required</span>
+                        </div>
+                        <div class="cta-feature">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 2C11.1 2 12 2.9 12 4C12 5.1 11.1 6 10 6C8.9 6 8 5.1 8 4C8 2.9 8.9 2 10 2ZM16 9V7L10 1L4 7V9C4 11.2 5.8 13 8 13H12C14.2 13 16 11.2 16 9Z"/>
+                            </svg>
+                            <span>14-day free trial</span>
+                        </div>
+                        <div class="cta-feature">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M12 2L14.5 7L20 8L16 12L17 18L12 15L7 18L8 12L4 8L9.5 7L12 2Z"/>
+                            </svg>
+                            <span>Setup in minutes</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <svg class="brand-logo" width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="40" height="40" rx="8" fill="url(#brand-gradient)"/>
+                            <path d="M20 12L25 17L20 22L15 17L20 12Z" fill="white" opacity="0.9"/>
+                            <path d="M12 20L17 25L22 20L17 15L12 20Z" fill="white" opacity="0.7"/>
+                            <defs>
+                                <linearGradient id="brand-gradient" x1="0" y1="0" x2="40" y2="40">
+                                    <stop stop-color="#3182ce"/>
+                                    <stop offset="1" stop-color="#2c5282"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <h3>Signature Extractor</h3>
+                        <p>Professional signature extraction powered by AI. Transform your document workflow today.</p>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#workflow">How It Works</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="#testimonials">Testimonials</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#blog">Blog</a></li>
+                        <li><a href="#careers">Careers</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#help">Help Center</a></li>
+                        <li><a href="#docs">Documentation</a></li>
+                        <li><a href="#api">API Reference</a></li>
+                        <li><a href="#status">System Status</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                        <li><a href="#security">Security</a></li>
+                        <li><a href="#compliance">Compliance</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    <p>&copy; 2024 Signature Extractor. All rights reserved.</p>
+                </div>
+
+                <div class="footer-social">
+                    <a href="#twitter" aria-label="Twitter">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M18.5 4.5C17.8 5 17 5.2 16.2 5.3C17 4.8 17.6 4 17.9 3.1C17.1 3.6 16.2 3.9 15.3 4.1C14.6 3.3 13.3 2.8 12 2.8C9.5 2.8 7.5 4.8 7.5 7.3C7.5 7.6 7.5 8 7.6 8.3C4 8.1 0.9 6.4 0.9 3.7C0.9 2.5 1.4 1.4 2.2 0.6C1.5 0.6 0.8 0.8 0.2 1.1C0.2 1.1 0.2 1.1 0.2 1.1C0.2 3.1 1.8 4.7 3.8 5.1C3.4 5.2 3 5.3 2.6 5.3C2.3 5.3 2 5.3 1.7 5.2C2.2 6.8 3.7 8 5.5 8C4.1 9 2.3 9.7 0.3 9.7C0 9.7 -0.3 9.7 -0.6 9.6C1.4 10.8 3.8 11.5 6.3 11.5C12 11.5 15.1 6.8 15.1 2.8C15.1 2.7 15.1 2.5 15.1 2.4C15.9 1.8 16.6 1.2 17.2 0.5C16.4 0.8 15.6 1.1 14.8 1.2C15.7 0.6 16.3 -0.3 16.6 -1.3C15.8 -0.8 14.9 -0.4 13.9 -0.2C13.1 -1.1 11.8 -1.7 10.4 -1.7C7.7 -1.7 5.5 0.5 5.5 3.2C5.5 3.5 5.5 3.8 5.6 4.1C1.8 3.9 -1.5 2 -3.8 -0.8C-4.1 -0.2 -4.3 0.5 -4.3 1.3C-4.3 2.7 -3.6 4 -2.5 4.7C-3.2 4.7 -3.9 4.5 -4.5 4.2C-4.5 4.2 -4.5 4.2 -4.5 4.2C-4.5 6.5 -2.8 8.4 -0.6 8.9C-1 9 -1.4 9 -1.8 9C-2.1 9 -2.4 9 -2.7 8.9C-2.1 10.8 -0.3 12.1 1.8 12.2C0.1 13.5 -2.2 14.3 -4.7 14.3C-5.1 14.3 -5.4 14.3 -5.8 14.2C-3.5 15.5 -0.8 16.3 2.1 16.3C12 16.3 17.2 8.1 17.2 1.1C17.2 0.9 17.2 0.7 17.2 0.5C18.1 -0.2 18.8 -1 19.4 -1.9C18.5 -1.6 17.7 -1.3 16.9 -1.2C17.8 -1.8 18.4 -2.7 18.7 -3.7C17.9 -3.2 17 -2.8 16 -2.6C15.2 -3.5 13.9 -4 12.5 -4C9.8 -4 7.6 -1.8 7.6 0.9C7.6 1.2 7.6 1.5 7.7 1.8C3.9 1.6 0.6 -0.3 -1.7 -3.1C-2 -2.5 -2.2 -1.8 -2.2 -1C-2.2 0.4 -1.5 1.7 -0.4 2.4C-1.1 2.4 -1.8 2.2 -2.4 1.9C-2.4 1.9 -2.4 1.9 -2.4 1.9C-2.4 4.2 -0.7 6.1 1.5 6.6C1.1 6.7 0.7 6.8 0.3 6.8C0 6.8 -0.3 6.8 -0.6 6.7C-0.1 8.6 1.7 9.9 3.8 10C2.1 11.3 -0.2 12.1 -2.7 12.1C-3.1 12.1 -3.4 12.1 -3.8 12C-1.5 13.3 1.2 14.1 4.1 14.1C14 14.1 19.2 5.9 19.2 -1.1C19.2 -1.3 19.2 -1.5 19.2 -1.7C20.1 -2.4 20.8 -3.2 21.4 -4.1Z"/>
+                        </svg>
+                    </a>
+                    <a href="#linkedin" aria-label="LinkedIn">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M18.5 0H1.5C0.7 0 0 0.7 0 1.5V18.5C0 19.3 0.7 20 1.5 20H18.5C19.3 20 20 19.3 20 18.5V1.5C20 0.7 19.3 0 18.5 0ZM6 17H3V8H6V17ZM4.5 6.5C3.7 6.5 3 5.8 3 5C3 4.2 3.7 3.5 4.5 3.5C5.3 3.5 6 4.2 6 5C6 5.8 5.3 6.5 4.5 6.5ZM17 17H14V12.5C14 11.7 13.3 11 12.5 11C11.7 11 11 11.7 11 12.5V17H8V8H11V9.5C11.7 8.4 13 8 14.5 8C16 8 17 9 17 10.5V17Z"/>
+                        </svg>
+                    </a>
+                    <a href="#github" aria-label="GitHub">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 0C4.5 0 0 4.5 0 10C0 14.4 3.2 18.1 7.3 19.3C7.8 19.4 8 19 8 18.7V17C5 17.5 4.5 15.4 4.5 15.4C4.1 14.3 3.5 14 3.5 14C2.7 13.4 3.5 13.5 3.5 13.5C4.4 13.5 4.8 14.4 4.8 14.4C5.5 15.7 6.8 15.4 7.3 15.2C7.4 14.6 7.6 14.2 7.9 14C5.8 13.8 3.7 13 3.7 9.2C3.7 8.2 4 7.3 4.6 6.6C4.5 6.4 4.2 5.4 4.7 4.1C4.7 4.1 5.6 3.8 7.5 5C8.3 4.8 9.1 4.7 10 4.7C10.9 4.7 11.7 4.8 12.5 5C14.4 3.8 15.3 4.1 15.3 4.1C15.8 5.4 15.5 6.4 15.4 6.6C16 7.3 16.3 8.2 16.3 9.2C16.3 13 14.2 13.8 12.1 14C12.4 14.3 12.7 14.9 12.7 15.8V18.7C12.7 19 12.9 19.4 13.4 19.3C17.5 18.1 20.7 14.4 20.7 10C20 4.5 15.5 0 10 0Z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="./assets/js/main.js"></script>
+    <script src="./assets/js/animations.js"></script>
+    <script src="./assets/js/workflow.js"></script>
+    <script src="./assets/js/testimonials.js"></script>
+    <script src="./assets/js/particles.js"></script>
+</body>
+</html>

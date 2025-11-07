@@ -14,6 +14,7 @@ from PySide6.QtCore import Qt
 from desktop_app.config import load_config
 from desktop_app.state.session import SessionState
 from desktop_app.api.client import ApiClient
+from desktop_app.backend_manager import BackendManager
 from desktop_app.views.login_dialog import LoginDialog
 from desktop_app.views.main_window import MainWindow
 
@@ -66,9 +67,19 @@ def main():
     cfg = load_config()
     session = SessionState()
     client = ApiClient(cfg.api_base_url, session)
+    
+    # Initialize backend manager for hybrid architecture
+    backend_manager = BackendManager(port=8001, auto_start=True)
+    
+    # Try to start backend (non-blocking)
+    backend_available = backend_manager.start()
+    if backend_available:
+        print("Backend started successfully - cloud features enabled")
+    else:
+        print("Running in offline mode - core features available")
 
     # By default, skip login dialog and go straight to main window
-    win = MainWindow(client, session)
+    win = MainWindow(client, session, backend_manager)
     win.setMinimumSize(1000, 700)
     win.resize(1200, 800)
     win.show()
