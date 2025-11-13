@@ -2,6 +2,57 @@
 
 This module provides local image processing capabilities for signature extraction,
 eliminating the need for backend API calls and enabling offline-first operation.
+
+SECURITY ARCHITECTURE:
+=====================
+This module implements defense-in-depth security with multiple validation layers:
+
+1. File Extension Check
+   - First line of defense (weakest)
+   - Blocks obvious non-image files (.exe, .pdf, .zip)
+   - Easy to bypass by renaming files
+
+2. Magic Number Validation (File Signature)
+   - Second line of defense (strong)
+   - Reads actual file binary headers
+   - Cannot be bypassed by simple file renaming
+   - See SecurityValidator.validate_image_file() for implementation details
+
+3. File Size Limits
+   - Prevents denial-of-service via huge files
+   - 50MB max to balance security vs. usability
+   - Protects against memory exhaustion attacks
+
+4. Image Dimension Validation
+   - Prevents memory exhaustion from maliciously crafted images
+   - Max 10,000 x 10,000 pixels per dimension
+   - Max 50 megapixels total
+   - A 10000x10000 image at 24-bit color = ~286MB in memory
+
+5. PIL/Pillow Verification
+   - PIL.Image.verify() checks file structure integrity
+   - Detects corrupted or malformed images
+   - Prevents crashes from crafted files exploiting image library bugs
+
+6. Path Sanitization
+   - Prevents directory traversal attacks (../../../etc/passwd)
+   - Blocks access to system directories (/etc, /bin, /sys, etc.)
+   - See SecurityValidator.sanitize_path() for implementation
+
+WHY THIS MATTERS:
+================
+User-uploaded files are the #1 attack vector in web and desktop applications:
+- Malicious files can exploit bugs in image processing libraries (CVE history)
+- Large files can exhaust system memory (DoS attack)
+- Path traversal can expose sensitive system files
+- File type spoofing can bypass naive validation
+
+Real-world examples:
+- ImageTragick (CVE-2016-3714): ImageMagick RCE via crafted image files
+- LibPNG vulnerabilities: Buffer overflows from malformed PNG chunks
+- JPEG parsing bugs: Crashes and potential code execution
+
+This multi-layer approach ensures the app is production-ready and secure.
 """
 
 from __future__ import annotations
@@ -67,19 +118,36 @@ class ProcessingSession:
 
 
 class SecurityValidator:
-    """Validates file inputs for security."""
+    """Validates file inputs for security.
+    
+    This class performs multiple layers of validation to protect against:
+    1. File type spoofing attacks (renaming malicious files to .jpg/.png)
+    2. Path traversal attacks (accessing system files)
+    3. Memory exhaustion attacks (processing huge images)
+    4. Malformed file attacks (corrupted or crafted files that crash the app)
+    
+    Security is critical because:
+    - Users can upload any file from their system
+    - Malicious files could exploit image processing libraries (PIL, OpenCV)
+    - Without validation, attackers could crash the app or potentially execute code
+    """
     
     ALLOWED_MIME_TYPES = {'image/png', 'image/jpeg', 'image/jpg'}
     MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
     ALLOWED_EXTENSIONS = {'.png', '.jpg', '.jpeg'}
     
     # Magic number signatures for image validation
+    # Note: These are kept for reference but validation uses prefix matching (see validate_image_file)
     IMAGE_SIGNATURES = {
         b'\x89PNG\r\n\x1a\n': 'image/png',
         b'\xff\xd8\xff\xe0': 'image/jpeg',  # JFIF
         b'\xff\xd8\xff\xe1': 'image/jpeg',  # EXIF
+        b'\xff\xd8\xff\xe2': 'image/jpeg',  # Canon
+        b'\xff\xd8\xff\xe3': 'image/jpeg',  # Samsung
+        b'\xff\xd8\xff\xe8': 'image/jpeg',  # SPIFF
         b'\xff\xd8\xff\xdb': 'image/jpeg',  # Raw JPEG
         b'\xff\xd8\xff\xee': 'image/jpeg',  # Adobe JPEG
+        b'\xff\xd8\xff\xfe': 'image/jpeg',  # JPEG with comment
     }
     
     # Maximum image dimensions to prevent memory exhaustion
@@ -116,16 +184,46 @@ class SecurityValidator:
         if path.suffix.lower() not in cls.ALLOWED_EXTENSIONS:
             raise ValueError(f"Unsupported file extension: {path.suffix}")
         
-        # Validate magic numbers
+        # Validate magic numbers (file signatures)
+        # CRITICAL SECURITY: Magic numbers prevent file type spoofing
+        # 
+        # WHY THIS IS NEEDED:
+        # - File extensions (.jpg, .png) can be easily faked by renaming files
+        # - A malicious .exe file renamed to .jpg would pass extension checks
+        # - Magic numbers are the ACTUAL file format identifiers in the binary data
+        # 
+        # HOW IT WORKS:
+        # - Every file format has a unique signature in its first few bytes
+        # - PNG: Always starts with \x89PNG\r\n\x1a\n (8 bytes)
+        # - JPEG: Always starts with \xff\xd8\xff (3 bytes) followed by marker
+        # 
+        # IMPLEMENTATION STRATEGY:
+        # - PNG: Exact match required (signature is always the same)
+        # - JPEG: Prefix match (\xff\xd8\xff) because the 4th byte varies:
+        #   * \xe0 = JFIF (most common, from photo editing software)
+        #   * \xe1 = EXIF (from digital cameras with metadata)
+        #   * \xe2 = Canon cameras
+        #   * \xfe = JPEG with comment
+        #   * Many more variants exist
+        # 
+        # BUGFIX HISTORY:
+        # - Original implementation checked only specific JPEG markers (e0, e1, db, ee)
+        # - Failed for images from certain cameras/software with different markers
+        # - Fixed by checking universal JPEG prefix (\xff\xd8\xff) instead
+        # - This accepts ALL valid JPEG files while still preventing spoofed files
         try:
             with open(file_path, 'rb') as f:
                 header = f.read(16)
                 
             valid_signature = False
-            for signature in cls.IMAGE_SIGNATURES:
-                if header.startswith(signature):
-                    valid_signature = True
-                    break
+            
+            # Check PNG signature (exact match required)
+            if header.startswith(b'\x89PNG\r\n\x1a\n'):
+                valid_signature = True
+            # Check JPEG signature (universal prefix match)
+            # Accepts any JPEG variant (JFIF, EXIF, Canon, Samsung, etc.)
+            elif header.startswith(b'\xff\xd8\xff'):
+                valid_signature = True
             
             if not valid_signature:
                 raise ValueError("Invalid image file format (magic number check failed)")

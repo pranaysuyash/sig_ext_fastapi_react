@@ -1311,7 +1311,9 @@ class ExtractionTabMixin:
 
         try:
             # Use local extractor instead of backend API
+            LOG.info(f"Creating local session for: {file_path}")
             session_id = self.local_extractor.create_session(file_path)
+            LOG.info(f"Local session created successfully: {session_id}")
             
             # Simulate the upload finished payload for compatibility
             payload = {
@@ -1324,10 +1326,10 @@ class ExtractionTabMixin:
             self._on_upload_finished(file_path, payload)
             
         except Exception as e:
-            LOG.error(f"Failed to create local session: {e}")
+            LOG.error(f"Failed to create local session: {e}", exc_info=True)
             self.open_btn.setEnabled(True)
             self.open_btn.setText("Choose Image")  # Reset button text
-            self.status_bar.showMessage("Failed to load image", 3000)
+            self.status_bar.showMessage(f"Failed to load image: {str(e)[:50]}", 5000)
             raise
 
     def _on_upload_finished(self, file_path: str, payload) -> None:

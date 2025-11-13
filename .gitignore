@@ -10,10 +10,11 @@ env/
 ENV/
 *.egg
 *.egg-info/
-dist/
-build/
 *.so
 .pytest_cache/
+.mypy_cache/
+.dmypy.json
+.ruff_cache/
 
 # Environment and secrets
 .env
@@ -70,13 +71,8 @@ desktop_app/library/**/*
 .vscode/settings.json
 .vscode/launch.json
 *.code-workspace
-
-# MyPy cache
-.mypy_cache/
-.dmypy.json
-
-# Ruff cache
-.ruff_cache/
+.claude/
+.kiro/
 
 # Pre-commit hooks
 .pre-commit-config.yaml.backup
@@ -133,10 +129,11 @@ desktop_app/test_screenshots/
 desktop_app/tests/__pycache__/
 desktop_app/tests/*.pyc
 
-# PyInstaller
-*.spec
+# PyInstaller / App Bundling
 dist/
 build/
+# Keep spec files for reproducible builds
+!build-tools/*.spec
 
 # Temporary files
 tmp/
@@ -178,7 +175,35 @@ alembic/*.tmp
 
 # Trash directory
 .trash/
-# Session/one-off logs kept locally
-app.log
-mcp-shell.log
+
+# Debug artifacts
 screenshots_debug/
+
+# Documentation (keep in repo but ignore large generated assets)
+!docs/**/*.md
+!docs/**/*.png
+!docs/**/*.jpg
+!docs/**/*.jpeg
+
+# Marketing assets (keep tracked)
+!marketing/**/*
+!web/**/*
+!assets/**/*
+
+# Legal documents (keep tracked)
+!legal/**/*
+
+# Build tools (keep tracked for reproducibility)
+!build-tools/**/*.py
+!build-tools/**/*.sh
+!build-tools/**/*.spec
+
+# DMG installers (generated artifacts)
+*.dmg
+
+# Code signing artifacts
+*.provisionprofile
+*.mobileprovision
+*.cer
+*.p12
+*.certSigningRequest

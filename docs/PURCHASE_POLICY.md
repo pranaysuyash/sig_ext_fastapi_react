@@ -1,65 +1,66 @@
-# Purchase Policy - Signature Extractor
+# Purchase Policy - SignKit
 
 **Last Updated:** November 7, 2025  
 **Effective Date:** November 7, 2025
 
-## Try Before You Buy - No Refunds Needed
+## Professional Software - All Sales Final
 
-Signature Extractor uses a **"try before you buy"** model. You can test ALL features before purchasing, so refunds aren't necessary.
+SignKit is professional desktop software sold with a clear "all sales final" policy. We provide comprehensive product information, demo videos, and screenshots so you can make an informed decision before purchase.
 
 ## How It Works
 
-### Full-Featured Trial
+### Before You Buy
 
-**Download and try everything:**
-- ✅ Extract signatures with full precision controls
-- ✅ Adjust threshold and colors
-- ✅ Rotate and process images
-- ✅ Save to library
-- ✅ View PDFs
-- ✅ Place signatures in PDFs (preview mode)
-- ✅ Use all features unlimited times
+**We provide complete product information:**
+- ✅ Detailed feature descriptions on our website
+- ✅ Professional screenshots showing actual interface
+- ✅ Demo video showing complete workflow
+- ✅ Clear list of what's included
+- ✅ System requirements clearly stated
+- ✅ Honest about what it does and doesn't do
 
-**What's restricted in trial mode:**
-- 🔒 Export extracted signatures (shows restriction dialog)
-- 🔒 Save signed PDFs (shows restriction dialog)
+**Make an informed decision:**
+- Watch the demo video (60-90 seconds)
+- Review all screenshots
+- Read feature descriptions
+- Check system requirements
+- Read customer reviews (after launch)
 
-**Try for as long as you want:**
-- No time limit
-- No feature expiration
-- No credit card required
-- No account needed
+### Purchase Process
 
-### Purchase When Ready
-
-**Once you're satisfied:**
-1. Click "Buy License" in the app
-2. Purchase via Gumroad ($29)
-3. Receive license key via email
-4. Enter key in app
-5. Export and PDF save features unlock immediately
+**When you're ready to buy:**
+1. Visit our Gumroad product page
+2. Purchase for $29 (one-time payment)
+3. Receive download link + license key via email
+4. Download and install SignKit
+5. Enter your license key
+6. Start using all features immediately
 
 **What you get:**
 - Lifetime license (own forever)
-- All current features unlocked
+- All features unlocked
+- Desktop app for macOS/Windows/Linux
 - Future updates for your version
 - Email support
+- No subscriptions or recurring fees
 
 ## No Refunds Policy
 
-### Why No Refunds?
+### Why All Sales Are Final
 
-**You can try everything before buying:**
-- Test all features in trial mode
-- Use the app as long as you need
-- Only pay when you're 100% satisfied
-- No risk, no surprises
+**Professional software with clear information:**
+- We provide complete product information upfront
+- Demo video shows exactly how it works
+- Screenshots show the actual interface
+- Feature list is comprehensive and honest
+- You know exactly what you're buying
 
-**This is better than a refund policy because:**
-- ✅ No time pressure (vs 30-day refund window)
-- ✅ No questions asked (vs refund request process)
-- ✅ No waiting (vs refund processing time)
-- ✅ No risk of abuse (vs refund fraud)
+**This protects both of us:**
+- ✅ You make an informed decision
+- ✅ We avoid refund abuse
+- ✅ Clear expectations from the start
+- ✅ Professional business relationship
+- ✅ Lower prices (no refund overhead)
 
 ### What This Means
 
@@ -67,12 +68,14 @@ Signature Extractor uses a **"try before you buy"** model. You can test ALL feat
 - No refunds after purchase
 - No exchanges or credits
 - License keys cannot be transferred
+- Digital products cannot be "returned"
 
-**But you can try first:**
-- Download the full application
-- Test every feature
-- Take your time deciding
-- Only buy when ready
+**Before you buy:**
+- Watch the demo video carefully
+- Review all screenshots
+- Read the feature list
+- Check system requirements
+- Make sure it meets your needs
 
 ## Exceptions
 

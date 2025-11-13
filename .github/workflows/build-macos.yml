@@ -1,0 +1,153 @@
+name: Build macOS Apps
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-intel:
+    name: Build Intel (x86_64)
+    runs-on: macos-13  # Intel runner
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          architecture: 'x64'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r desktop_app/requirements.txt
+          pip install pyinstaller
+      
+      - name: Build Intel app
+        run: |
+          python -m PyInstaller --clean --noconfirm build-tools/SignatureExtractor_Intel.spec
+      
+      - name: Create DMG
+        run: |
+          hdiutil create \
+            -volname "Signature Extractor (Intel)" \
+            -srcfolder dist/SignatureExtractor_Intel.app \
+            -ov \
+            -format UDZO \
+            dist/SignatureExtractor_Intel.dmg
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SignatureExtractor-Intel-macOS
+          path: dist/SignatureExtractor_Intel.dmg
+  
+  build-apple-silicon:
+    name: Build Apple Silicon (ARM64)
+    runs-on: macos-14  # ARM64 runner
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          architecture: 'arm64'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r desktop_app/requirements.txt
+          pip install pyinstaller
+      
+      - name: Build ARM64 app
+        run: |
+          python -m PyInstaller --clean --noconfirm build-tools/SignatureExtractor_macOS.spec
+      
+      - name: Rename app
+        run: |
+          mv dist/SignatureExtractor.app dist/SignatureExtractor_ARM64.app
+      
+      - name: Create DMG
+        run: |
+          hdiutil create \
+            -volname "Signature Extractor (Apple Silicon)" \
+            -srcfolder dist/SignatureExtractor_ARM64.app \
+            -ov \
+            -format UDZO \
+            dist/SignatureExtractor_ARM64.dmg
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SignatureExtractor-ARM64-macOS
+          path: dist/SignatureExtractor_ARM64.dmg
+  
+  create-release:
+    name: Create Release
+    needs: [build-intel, build-apple-silicon]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - name: Download Intel artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SignatureExtractor-Intel-macOS
+          path: ./artifacts
+      
+      - name: Download ARM64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SignatureExtractor-ARM64-macOS
+          path: ./artifacts
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./artifacts/SignatureExtractor_Intel.dmg
+            ./artifacts/SignatureExtractor_ARM64.dmg
+          body: |
+            ## Signature Extractor ${{ github.ref_name }}
+            
+            ### Download the right version for your Mac:
+            
+            **Apple Silicon (M1/M2/M3/M4)**
+            - Download: `SignatureExtractor_ARM64.dmg`
+            - For: Mac with Apple M1, M2, M3, or M4 chip
+            - To check: Apple menu  → About This Mac → Look for "Apple M" chip
+            
+            **Intel**
+            - Download: `SignatureExtractor_Intel.dmg`
+            - For: Mac with Intel processor
+            - To check: Apple menu  → About This Mac → Look for "Intel" processor
+            
+            ### Installation
+            
+            1. Download the appropriate DMG file for your Mac
+            2. Open the DMG file
+            3. Drag SignatureExtractor.app to your Applications folder
+            4. Right-click the app and select "Open" (first launch only)
+            
+            ### What's New
+            
+            - Professional signature extraction with precision controls
+            - Offline-first operation (no internet required)
+            - PDF signing capabilities
+            - Library management for saved signatures
+            - Export to PNG/JPG
+            
+            ### License
+            
+            Test license email: `pranay@example.com` (for testing)
+            
+            For production use, purchase a license at: [Your Gumroad Link]
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
