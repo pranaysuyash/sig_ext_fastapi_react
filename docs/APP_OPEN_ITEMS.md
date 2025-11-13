@@ -8,7 +8,8 @@ Use this list to track app-side tasks only (no web or backend infra beyond what�
 - [~] Keyboard Shortcuts — Open/Export/Copy/Zoom/Rotate implemented; still add Delete (clear) + Esc (cancel) and document in Help
 - [x] Library MVP — auto-save, list, double-click open, context delete (library/storage.py + main_window)
 - [x] Export Metadata JSON saved alongside PNG (Export JSON button)
-- [ ] Drag‑and‑drop to open image; Recent files (last 5)
+- [x] Drag‑and‑drop to open image (implemented in widgets/image_view.py with fileDropped signal)
+- [ ] Recent files (last 5)
 - [ ] Improve error toasts: backend offline, 404/415, 500, disk full, large image guidance (friendly, actionable messages)
 - [ ] Optional advanced processing: Otsu/Adaptive thresholds, erode/dilate, edge smoothing (post-launch)
 
@@ -38,9 +39,12 @@ Use this list to track app-side tasks only (no web or backend infra beyond what�
 - [ ] “Report issue / Send diagnostics” opens logs folder + prefilled email template
 
 ## Packaging/Release Touchpoints
-- [ ] PyInstaller builds for macOS/Windows/Linux; include readme/how‑to
-- [ ] “How to open on macOS” instructions for unsigned builds
+- [x] PyInstaller builds for macOS (ARM64 + Intel via GitHub Actions)
+- [x] GitHub Actions CI/CD configured (.github/workflows/build-macos.yml)
+- [x] DMG creation automated in build pipeline
+- [x] "How to open on macOS" instructions included in GitHub Release notes
 - [ ] Versioned artifact names and checksums; CHANGELOG entry per release
+- [ ] Windows/Linux builds (post-launch)
 
 ## Config & Consistency
 - [ ] Unify ports to 8001 across desktop docs and in‑app references (desktop_app/README still cites 8000)
