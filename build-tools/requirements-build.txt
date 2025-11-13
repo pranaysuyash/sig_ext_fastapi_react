@@ -1,0 +1,15 @@
+# Build-time requirements for packaging Signature Extractor
+
+# PyInstaller for creating distributable packages
+pyinstaller>=5.0.0,<6.0.0
+
+# Optional: For better icon handling on Windows
+pillow>=9.0.0
+
+# Optional: For code signing (Windows)
+setuptools>=60.0.0
+
+# Development dependencies (optional)
+# pytest>=7.0.0  # For testing before packaging
+# black>=22.0.0   # For code formatting
+# flake8>=5.0.0   # For linting

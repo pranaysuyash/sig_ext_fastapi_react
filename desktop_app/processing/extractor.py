@@ -369,10 +369,13 @@ class SignatureExtractor:
             # Apply mask to create colored signature
             result_image = cv2.bitwise_and(color_image, color_image, mask=mask)
             
+            # Convert BGR to RGB for PIL
+            result_image_rgb = cv2.cvtColor(result_image, cv2.COLOR_BGR2RGB)
+            
             # Add alpha channel for transparency
-            b_channel, g_channel, r_channel = cv2.split(result_image)
+            r_channel, g_channel, b_channel = cv2.split(result_image_rgb)
             alpha = mask
-            final_image = cv2.merge([b_channel, g_channel, r_channel, alpha])
+            final_image = cv2.merge([r_channel, g_channel, b_channel, alpha])
             
             # Convert to PIL Image and save as PNG bytes
             final_image_pil = Image.fromarray(final_image, 'RGBA')

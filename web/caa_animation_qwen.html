@@ -1,0 +1,387 @@
+1 <!DOCTYPE html> 2
+<html lang="en">
+  3
+  <head>
+    4
+    <meta charset="UTF-8" />
+    5
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    6
+    <title>Signature Extractor Animation</title>
+    7
+    <style>
+        8         body {
+        9             margin: 0;
+       10             padding: 0;
+       11             height: 100vh;
+       12             display: flex;
+       13             justify-content: center;
+       14             align-items: center;
+       15             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+       16             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+       17             overflow: hidden;
+       18         }
+       19
+       20         .animation-container {
+       21             width: 1000px;
+       22             height: 600px;
+       23             position: relative;
+       24             perspective: 1000px;
+       25         }
+       26
+       27         /* Upload State - Left Side */
+       28         .upload-container {
+       29             position: absolute;
+       30             left: 0;
+       31             width: 450px;
+       32             height: 500px;
+       33             background: white;
+       34             border-radius: 15px;
+       35             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+       36             padding: 20px;
+       37             transform: rotateY(0deg);
+       38             animation: float 3s ease-in-out infinite;
+       39         }
+       40
+       41         .document-placeholder {
+       42             width: 100%;
+       43             height: 350px;
+       44             background: #f8f9fa;
+       45             border: 3px dashed #dee2e6;
+       46             border-radius: 10px;
+       47             display: flex;
+       48             align-items: center;
+       49             justify-content: center;
+       50             margin-bottom: 20px;
+       51             position: relative;
+       52             overflow: hidden;
+       53         }
+       54
+       55         .signature-placeholder {
+       56             position: absolute;
+       57             top: 60%;
+       58             left: 50%;
+       59             transform: translate(-50%, -50%);
+       60             font-size: 48px;
+       61             font-family: 'Segoe Script', 'Lucida Calligraphy', cursive;
+       62             color: #adb5bd;
+       63             opacity: 0.7;
+       64         }
+       65
+       66         .upload-icon {
+       67             font-size: 64px;
+       68             color: #6c757d;
+       69             margin-bottom: 10px;
+       70         }
+       71
+       72         .processing-state {
+       73             position: absolute;
+       74             left: 50%;
+       75             top: 50%;
+       76             transform: translate(-50%, -50%);
+       77             width: 450px;
+       78             height: 500px;
+       79             background: white;
+       80             border-radius: 15px;
+       81             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+       82             padding: 20px;
+       83             opacity: 0;
+       84             animation: processingState 8s ease-in-out forwards;
+       85         }
+       86
+       87         .processing-animation {
+       88             width: 100px;
+       89             height: 100px;
+       90             border: 5px solid #e9ecef;
+       91             border-top: 5px solid #007bff;
+       92             border-radius: 50%;
+       93             margin: 150px auto;
+       94             animation: spin 1s linear infinite;
+       95         }
+       96
+       97         .processing-text {
+       98             text-align: center;
+       99             font-size: 18px;
+      100             color: #6c757d;
+      101             margin-top: 20px;
+      102         }
+      103
+      104         /* Reveal State - Right Side */
+      105         .reveal-container {
+      106             position: absolute;
+      107             right: 0;
+      108             width: 450px;
+      109             height: 500px;
+      110             background: white;
+      111             border-radius: 15px;
+      112             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      113             padding: 20px;
+      114             transform: translateX(100px) scale(0.8);
+      115             opacity: 0;
+      116             animation: revealState 8s 2s ease-in-out forwards;
+      117         }
+      118
+      119         .signature-canvas {
+      120             width: 100%;
+      121             height: 350px;
+      122             background: #f8f9fa;
+      123             border-radius: 10px;
+      124             display: flex;
+      125             align-items: center;
+      126             justify-content: center;
+      127             position: relative;
+      128             overflow: hidden;
+      129         }
+      130
+      131         .signature-reveal {
+      132             font-size: 64px;
+      133             font-family: 'Segoe Script', 'Lucida Calligraphy', cursive;
+      134             color: transparent;
+      135             background: linear-gradient(45deg, #007bff, #28a745);
+      136             -webkit-background-clip: text;
+      137             background-clip: text;
+      138             opacity: 0;
+      139             animation: signatureReveal 2s 4s ease-out forwards;
+      140         }
+      141
+      142         /* PDF State */
+      143         .pdf-container {
+      144             position: absolute;
+      145             right: 0;
+      146             width: 450px;
+      147             height: 500px;
+      148             background: white;
+      149             border-radius: 15px;
+      150             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      151             padding: 20px;
+      152             transform: translateX(100px) scale(0.8);
+      153             opacity: 0;
+      154             animation: pdfState 8s 5s ease-in-out forwards;
+      155         }
+      156
+      157         .pdf-document {
+      158             width: 100%;
+      159             height: 350px;
+      160             background: white;
+      161             border: 1px solid #dee2e6;
+      162             border-radius: 5px;
+      163             position: relative;
+      164             overflow: hidden;
+      165             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      166         }
+      167
+      168         .pdf-content {
+      169             padding: 30px;
+      170             font-size: 14px;
+      171             line-height: 1.6;
+      172             color: #495057;
+      173         }
+      174
+      175         .pdf-title {
+      176             font-weight: bold;
+      177             margin-bottom: 20px;
+      178             color: #212529;
+      179         }
+      180
+      181         .signature-placeholder-pdf {
+      182             position: absolute;
+      183             bottom: 40px;
+      184             right: 30px;
+      185             font-size: 48px;
+      186             font-family: 'Segoe Script', 'Lucida Calligraphy', cursive;
+      187             color: transparent;
+      188             background: linear-gradient(45deg, #007bff, #28a745);
+      189             -webkit-background-clip: text;
+      190             background-clip: text;
+      191             opacity: 0;
+      192             animation: signatureFlyIn 1s 6.5s ease-out forwards;
+      193         }
+      194
+      195         .signature-box {
+      196             position: absolute;
+      197             bottom: 30px;
+      198             right: 30px;
+      199             width: 120px;
+      200             height: 60px;
+      201             border: 2px dashed #007bff;
+      202             border-radius: 5px;
+      203             opacity: 0;
+      204             animation: showSignatureBox 0.5s 6.2s ease-out forwards;
+      205         }
+      206
+      207         /* Animations */
+      208         @keyframes float {
+      209             0%, 100% { transform: translateY(0px) rotateY(0deg); }
+      210             50% { transform: translateY(-10px) rotateY(5deg); }
+      211         }
+      212
+      213         @keyframes spin {
+      214             0% { transform: rotate(0deg); }
+      215             100% { transform: rotate(360deg); }
+      216         }
+      217
+      218         @keyframes processingState {
+      219             0% { opacity: 1; transform: translateX(0) scale(1); }
+      220             25% { opacity: 1; }
+      221             50% { opacity: 1; }
+      222             100% { opacity: 0; transform: translateX(-100px) scale(0.8); }
+      223         }
+      224
+      225         @keyframes revealState {
+      226             0%, 20% { opacity: 0; transform: translateX(100px) scale(0.8); }
+      227             25%, 100% { opacity: 1; transform: translateX(0) scale(1); }
+      228         }
+      229
+      230         @keyframes signatureReveal {
+      231             0% {
+      232                 opacity: 0;
+      233                 transform: scale(0.5);
+      234                 width: 0;
+      235             }
+      236             100% {
+      237                 opacity: 1;
+      238                 transform: scale(1);
+      239                 width: auto;
+      240             }
+      241         }
+      242
+      243         @keyframes pdfState {
+      244             0%, 60% { opacity: 0; transform: translateX(100px) scale(0.8); }
+      245             65%, 100% { opacity: 1; transform: translateX(0) scale(1); }
+      246         }
+      247
+      248         @keyframes signatureFlyIn {
+      249             0% {
+      250                 opacity: 0;
+      251                 transform: translateX(100px) translateY(100px) rotate(10deg);
+      252             }
+      253             100% {
+      254                 opacity: 1;
+      255                 transform: translateX(0) translateY(0) rotate(0deg);
+      256             }
+      257         }
+      258
+      259         @keyframes showSignatureBox {
+      260             0% { opacity: 0; }
+      261             100% { opacity: 1; }
+      262         }
+      263
+      264         /* Progress indicators */
+      265         .progress-indicator {
+      266             position: absolute;
+      267             top: 20px;
+      268             left: 20px;
+      269             font-size: 14px;
+      270             font-weight: bold;
+      271             color: #6c757d;
+      272         }
+      273
+      274         .stage-indicator {
+      275             position: absolute;
+      276             bottom: 20px;
+      277             width: 100%;
+      278             text-align: center;
+      279             font-size: 16px;
+      280             font-weight: 500;
+      281             color: #495057;
+      282         }
+      283
+    </style>
+    284
+  </head>
+  285
+  <body>
+    286
+    <div class="animation-container">
+      287
+      <!-- Upload State -->
+      288
+      <div class="upload-container">
+        289
+        <div class="progress-indicator">Step 1: Upload</div>
+        290
+        <div class="document-placeholder">
+          291
+          <div class="signature-placeholder">John Smith</div>
+          292
+          <div class="upload-icon">📁</div>
+          293
+        </div>
+        294
+        <div class="stage-indicator">Upload your document with signature</div>
+        295
+      </div>
+      296 297
+      <!-- Processing State -->
+      298
+      <div class="processing-state">
+        299
+        <div class="progress-indicator">Step 2: Processing</div>
+        300
+        <div class="processing-animation"></div>
+        301
+        <div class="processing-text">
+          Extracting signature with precision...
+        </div>
+        302
+        <div class="stage-indicator">Processing your signature</div>
+        303
+      </div>
+      304 305
+      <!-- Reveal State -->
+      306
+      <div class="reveal-container">
+        307
+        <div class="progress-indicator">Step 3: Extract</div>
+        308
+        <div class="signature-canvas">
+          309
+          <div class="signature-reveal">John Smith</div>
+          310
+        </div>
+        311
+        <div class="stage-indicator">Clean signature extracted</div>
+        312
+      </div>
+      313 314
+      <!-- PDF State -->
+      315
+      <div class="pdf-container">
+        316
+        <div class="progress-indicator">Step 4: Place</div>
+        317
+        <div class="pdf-document">
+          318
+          <div class="pdf-content">
+            319
+            <div class="pdf-title">CONTRACT FOR SERVICES</div>
+            320
+            <p>
+              This agreement is made between the parties on this day of [DATE].
+            </p>
+            321
+            <p>
+              The undersigned agrees to the terms and conditions set forth in
+              this contract.
+            </p>
+            322 <br /><br /><br />
+            323
+            <p>Signed:</p>
+            324
+          </div>
+          325
+          <div class="signature-box"></div>
+          326
+          <div class="signature-placeholder-pdf">John Smith</div>
+          327
+        </div>
+        328
+        <div class="stage-indicator">Signature placed in PDF</div>
+        329
+      </div>
+      330
+    </div>
+    331
+  </body>
+  332
+</html>

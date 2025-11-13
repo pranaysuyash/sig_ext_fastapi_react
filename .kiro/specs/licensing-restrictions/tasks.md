@@ -27,18 +27,21 @@
   - Add license status awareness to export-related UI elements
   - _Requirements: 1.4, 3.3_
 
-- [ ] 4. Implement PDF operations restrictions
-- [ ] 4.1 Add license check to PDF paste operations
-  - Modify `_on_pdf_paste_signature` method to validate license before allowing paste
-  - Show restriction dialog for unlicensed paste attempts
-  - Maintain signature preview functionality in trial mode
+- [x] 4. Implement PDF operations restrictions
+- [x] 4.1 Add license check to PDF paste operations
+  - ✅ Added check_and_enforce_pdf_operations_license() to `_on_pdf_paste_signature` method
+  - ✅ Shows restriction dialog for unlicensed paste attempts
+  - ✅ Maintains signature preview functionality in trial mode
   - _Requirements: 2.1, 2.2, 2.4_
+  - **STATUS: COMPLETED**
 
-- [ ] 4.2 Add license check to PDF save operations
-  - Modify `on_pdf_save` and `_on_pdf_tab_save` methods to validate license before saving
-  - Show restriction dialog for unlicensed save attempts
-  - Allow PDF viewing and signature placement preview in trial mode
+- [x] 4.2 Add license check to PDF save operations
+  - ✅ Added check_and_enforce_pdf_operations_license() to `on_pdf_save` method
+  - ✅ Added check_and_enforce_pdf_operations_license() to `_on_pdf_tab_save` method
+  - ✅ Shows restriction dialog for unlicensed save attempts
+  - ✅ Allows PDF viewing and signature placement preview in trial mode
   - _Requirements: 2.1, 2.2, 2.4_
+  - **STATUS: COMPLETED**
 
 - [ ] 4.3 Update PDF UI elements for trial mode
   - Add trial mode indicators to PDF-related buttons and menus
@@ -59,18 +62,21 @@
   - Provide immediate feedback for restricted operations
   - _Requirements: 1.1, 2.1, 3.1_
 
-- [ ] 6. Configure test license and validation
-- [ ] 6.1 Implement test license configuration
-  - Add test license constant and validation logic
-  - Ensure test license enables all functionality identical to purchased licenses
-  - Create helper methods for test license detection and handling
+- [x] 6. Configure test license and validation
+- [x] 6.1 Implement test license configuration
+  - ✅ VERIFIED: TEST_LICENSE_EMAIL = "pranay@example.com" in storage.py
+  - ✅ Test license enables all functionality identical to purchased licenses
+  - ✅ Helper methods for test license detection in LicenseValidator class
   - _Requirements: 4.1, 4.2, 4.3_
+  - **STATUS: ALREADY IMPLEMENTED**
 
-- [ ] 6.2 Add license validation helpers
-  - Create utility functions for checking operation permissions
-  - Implement consistent license validation across all restriction points
-  - Add offline license validation support for test license
+- [x] 6.2 Add license validation helpers
+  - ✅ VERIFIED: check_and_enforce_export_license() in restrictions.py
+  - ✅ check_and_enforce_pdf_operations_license() in restrictions.py
+  - ✅ LicenseValidator.is_operation_allowed() for consistent validation
+  - ✅ Offline license validation support for test license working
   - _Requirements: 4.4, 4.5_
+  - **STATUS: ALREADY IMPLEMENTED**
 
 - [ ] 7. Testing and validation
 - [ ] 7.1 Create license restriction tests

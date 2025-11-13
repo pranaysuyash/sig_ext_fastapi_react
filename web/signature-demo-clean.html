@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signature Extraction Animation</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        padding: 40px;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .demo-container {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 40px;
+        max-width: 1000px;
+        width: 100%;
+      }
+
+      .extraction-process {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 40px;
+        min-height: 300px;
+      }
+
+      /* Source Document */
+      .source-document {
+        flex: 1;
+      }
+
+      .document-frame {
+        background: #fafafa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 20px;
+        height: 200px;
+        position: relative;
+      }
+
+      .document-content {
+        background: white;
+        height: 100%;
+        border: 1px solid #eee;
+        border-radius: 2px;
+        padding: 20px;
+        position: relative;
+      }
+
+      .document-signature {
+        position: absolute;
+        bottom: 15px;
+        right: 20px;
+        font-family: 'Dancing Script', cursive;
+        font-size: 1.8rem;
+        color: #333;
+        opacity: 0;
+        animation: fadeInSignature 1s ease-in 2s forwards;
+      }
+
+      @keyframes fadeInSignature {
+        to {
+          opacity: 1;
+        }
+      }
+
+      .label {
+        text-align: center;
+        margin-top: 10px;
+        font-size: 14px;
+        color: #666;
+      }
+
+      /* Processing Animation */
+      .processing-section {
+        flex: 0 0 120px;
+        text-align: center;
+      }
+
+      .processing-icon {
+        width: 60px;
+        height: 60px;
+        border: 3px solid #ccc;
+        border-top: 3px solid #333;
+        border-radius: 50%;
+        margin: 0 auto;
+        animation: rotate 2s linear infinite;
+      }
+
+      @keyframes rotate {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .processing-text {
+        margin-top: 15px;
+        font-size: 14px;
+        color: #666;
+        animation: textPulse 1s ease-in-out infinite;
+      }
+
+      @keyframes textPulse {
+        0%,
+        100% {
+          opacity: 0.5;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      /* Extracted Signature */
+      .extracted-signature {
+        flex: 1;
+      }
+
+      .signature-container {
+        position: relative;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .signature-bg {
+        position: absolute;
+        width: 180px;
+        height: 80px;
+        border: 1px dashed #ccc;
+        border-radius: 4px;
+        opacity: 0;
+        animation: showBg 0.5s ease-out 3s forwards;
+      }
+
+      @keyframes showBg {
+        to {
+          opacity: 1;
+        }
+      }
+
+      .extracted-signature-text {
+        font-family: 'Dancing Script', cursive;
+        font-size: 2.2rem;
+        color: #333;
+        opacity: 0;
+        transform: scale(0.5);
+        animation: signatureReveal 1.5s ease-out 3.5s forwards;
+      }
+
+      @keyframes signatureReveal {
+        0% {
+          opacity: 0;
+          transform: scale(0.5);
+        }
+        50% {
+          opacity: 0.8;
+          transform: scale(1.1);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* PDF Document */
+      .pdf-document {
+        margin-top: 40px;
+        opacity: 0;
+        animation: pdfSlideIn 1s ease-out 5s forwards;
+      }
+
+      @keyframes pdfSlideIn {
+        to {
+          opacity: 1;
+        }
+      }
+
+      .pdf-frame {
+        background: #fafafa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 15px;
+        height: 150px;
+        position: relative;
+      }
+
+      .pdf-content {
+        background: white;
+        height: 100%;
+        border: 1px solid #eee;
+        border-radius: 2px;
+        padding: 15px;
+        position: relative;
+      }
+
+      .signature-placeholder {
+        position: absolute;
+        bottom: 15px;
+        right: 20px;
+        width: 80px;
+        height: 40px;
+        border: 1px dashed #ccc;
+        border-radius: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        color: #999;
+      }
+
+      /* Flowing Signature Animation */
+      .floating-signature {
+        position: absolute;
+        font-family: 'Dancing Script', cursive;
+        font-size: 1.5rem;
+        color: #333;
+        opacity: 0;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      .floating-signature.fly {
+        animation: flowToPDF 2s ease-in-out 5s forwards;
+      }
+
+      @keyframes flowToPDF {
+        0% {
+          opacity: 1;
+          transform: translate(0, 0);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(150px, -80px);
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .extraction-process {
+          flex-direction: column;
+          gap: 30px;
+        }
+
+        .processing-section {
+          order: 2;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <div class="extraction-process">
+        <!-- Source Document -->
+        <div class="source-document">
+          <div class="document-frame">
+            <div class="document-content">
+              <div class="document-signature">John Smith</div>
+            </div>
+          </div>
+          <div class="label">Original Document</div>
+        </div>
+
+        <!-- Processing Section -->
+        <div class="processing-section">
+          <div class="processing-icon"></div>
+          <div class="processing-text">Processing</div>
+        </div>
+
+        <!-- Extracted Signature -->
+        <div class="extracted-signature">
+          <div class="signature-container">
+            <div class="signature-bg"></div>
+            <div class="extracted-signature-text">John Smith</div>
+            <div class="floating-signature">John Smith</div>
+          </div>
+          <div class="label">Extracted Signature</div>
+        </div>
+      </div>
+
+      <!-- PDF Document -->
+      <div class="pdf-document">
+        <div class="pdf-frame">
+          <div class="pdf-content">
+            <div class="signature-placeholder">Signature</div>
+          </div>
+        </div>
+        <div class="label">PDF Document</div>
+      </div>
+    </div>
+
+    <script>
+      // Trigger the flying signature animation
+      document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(() => {
+          const floatingSignature = document.querySelector(
+            '.floating-signature'
+          );
+          if (floatingSignature) {
+            floatingSignature.classList.add('fly');
+          }
+        }, 7000);
+      });
+    </script>
+  </body>
+</html>
+``` Clean and simple! No purple gradients, no complex styling - just the pure
+animation flow. Much cleaner and more professional looking. The signature flows
+from the extracted side to the PDF document at the bottom.

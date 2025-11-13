@@ -513,6 +513,12 @@ class PdfTabMixin:
     
     def on_pdf_save(self):
         """Save the signed PDF."""
+        # Check license before allowing PDF save operations
+        from desktop_app.license.restrictions import check_and_enforce_pdf_operations_license
+        if not check_and_enforce_pdf_operations_license(self):
+            self.statusBar().showMessage("PDF operations require a license", 2000)
+            return
+        
         if not self.session.pdf_state or not self.session.pdf_state.current_pdf_path:
             QMessageBox.warning(self, "No PDF", "No PDF is currently open")
             return
@@ -672,6 +678,12 @@ class PdfTabMixin:
     
     def _on_pdf_tab_save(self):
         """Save signed PDF from the PDF tab."""
+        # Check license before allowing PDF save operations
+        from desktop_app.license.restrictions import check_and_enforce_pdf_operations_license
+        if not check_and_enforce_pdf_operations_license(self):
+            self.statusBar().showMessage("PDF operations require a license", 2000)
+            return
+        
         if not self._current_pdf_path:
             QMessageBox.warning(self, "No PDF", "No PDF is currently open")
             return
@@ -803,6 +815,12 @@ class PdfTabMixin:
         """Paste signature from clipboard for placement."""
         import tempfile
         import uuid
+        
+        # Check license before allowing PDF paste operations
+        from desktop_app.license.restrictions import check_and_enforce_pdf_operations_license
+        if not check_and_enforce_pdf_operations_license(self):
+            self.statusBar().showMessage("PDF operations require a license", 2000)
+            return
         
         # Check if PDF is open
         if not self.pdf_viewer or not self.pdf_viewer.renderer:

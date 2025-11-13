@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signature Extraction Demo - Pure CSS Animation</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Great+Vibes&display=swap');
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .demo-container {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 1200px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      .demo-title {
+        text-align: center;
+        margin-bottom: 40px;
+        color: #2c3e50;
+      }
+
+      .demo-title h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .demo-title p {
+        font-size: 1.2rem;
+        color: #7f8c8d;
+      }
+
+      .extraction-process {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 40px;
+        min-height: 400px;
+      }
+
+      /* Source Document */
+      .source-document {
+        flex: 1;
+        position: relative;
+      }
+
+      .document-frame {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 20px;
+        height: 300px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .document-content {
+        background: white;
+        height: 100%;
+        border-radius: 4px;
+        padding: 30px;
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .document-lines {
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        right: 30px;
+        bottom: 60px;
+      }
+
+      .line {
+        height: 4px;
+        background: #e9ecef;
+        margin-bottom: 15px;
+        border-radius: 2px;
+      }
+
+      .line:nth-child(3) {
+        width: 60%;
+      }
+      .line:nth-child(4) {
+        width: 80%;
+      }
+      .line:nth-child(5) {
+        width: 70%;
+      }
+
+      /* Signature on document */
+      .document-signature {
+        position: absolute;
+        bottom: 20px;
+        right: 40px;
+        font-family: 'Dancing Script', cursive;
+        font-size: 2rem;
+        color: #2c3e50;
+        opacity: 0;
+        animation: fadeInSignature 1s ease-in 2s forwards;
+      }
+
+      @keyframes fadeInSignature {
+        to {
+          opacity: 1;
+        }
+      }
+
+      .label {
+        text-align: center;
+        margin-top: 15px;
+        font-weight: 600;
+        color: #495057;
+      }
+
+      /* Processing Animation */
+      .processing-section {
+        flex: 0 0 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .processing-container {
+        position: relative;
+        width: 120px;
+        height: 120px;
+      }
+
+      .processing-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border-radius: 50%;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        animation: processingGlow 2s ease-in-out infinite;
+      }
+
+      @keyframes processingGlow {
+        0%,
+        100% {
+          box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+          transform: scale(1);
+        }
+        50% {
+          box-shadow: 0 0 40px rgba(102, 126, 234, 0.6);
+          transform: scale(1.05);
+        }
+      }
+
+      .processing-icon::before {
+        content: '⚙️';
+        font-size: 2rem;
+        animation: rotate 2s linear infinite;
+      }
+
+      @keyframes rotate {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .processing-particles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+
+      .particle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: #667eea;
+        border-radius: 50%;
+        opacity: 0;
+        animation: particleFloat 2s ease-in-out infinite;
+      }
+
+      .particle:nth-child(1) {
+        top: 20%;
+        left: 20%;
+        animation-delay: 0s;
+      }
+
+      .particle:nth-child(2) {
+        top: 20%;
+        right: 20%;
+        animation-delay: 0.3s;
+      }
+
+      .particle:nth-child(3) {
+        bottom: 20%;
+        left: 20%;
+        animation-delay: 0.6s;
+      }
+
+      .particle:nth-child(4) {
+        bottom: 20%;
+        right: 20%;
+        animation-delay: 0.9s;
+      }
+
+      .particle:nth-child(5) {
+        top: 50%;
+        left: 10%;
+        animation-delay: 1.2s;
+      }
+
+      .particle:nth-child(6) {
+        top: 50%;
+        right: 10%;
+        animation-delay: 1.5s;
+      }
+
+      @keyframes particleFloat {
+        0% {
+          opacity: 0;
+          transform: translateY(0) scale(0);
+        }
+        50% {
+          opacity: 1;
+          transform: translateY(-20px) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-40px) scale(0);
+        }
+      }
+
+      .processing-text {
+        text-align: center;
+        margin-top: 20px;
+        font-weight: 600;
+        color: #495057;
+        animation: textPulse 1s ease-in-out infinite;
+      }
+
+      @keyframes textPulse {
+        0%,
+        100% {
+          opacity: 0.6;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      /* Extracted Signature */
+      .extracted-signature {
+        flex: 1;
+        position: relative;
+      }
+
+      .signature-container {
+        position: relative;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .signature-bg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px;
+        height: 150px;
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        opacity: 0;
+        animation: showBg 0.5s ease-out 3s forwards;
+      }
+
+      @keyframes showBg {
+        to {
+          opacity: 1;
+        }
+      }
+
+      .extracted-signature-text {
+        font-family: 'Dancing Script', cursive;
+        font-size: 3rem;
+        font-weight: 700;
+        color: #2c3e50;
+        opacity: 0;
+        transform: scale(0.5) rotate(-10deg);
+        animation: signatureReveal 1.5s ease-out 3.5s forwards;
+      }
+
+      @keyframes signatureReveal {
+        0% {
+          opacity: 0;
+          transform: scale(0.5) rotate(-10deg) translateY(20px);
+        }
+        50% {
+          opacity: 0.8;
+          transform: scale(1.1) rotate(2deg) translateY(0);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) rotate(0deg) translateY(0);
+        }
+      }
+
+      .signature-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 250px;
+        height: 100px;
+        background: radial-gradient(
+          circle,
+          rgba(102, 126, 234, 0.2) 0%,
+          transparent 70%
+        );
+        border-radius: 50%;
+        opacity: 0;
+        animation: signatureGlow 2s ease-in-out 4s infinite;
+      }
+
+      @keyframes signatureGlow {
+        0%,
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.8);
+        }
+        50% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1.2);
+        }
+      }
+
+      /* PDF Document */
+      .pdf-document {
+        margin-top: 40px;
+        opacity: 0;
+        animation: pdfSlideIn 1s ease-out 5s forwards;
+      }
+
+      @keyframes pdfSlideIn {
+        to {
+          opacity: 1;
+        }
+      }
+
+      .pdf-frame {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 15px;
+        height: 200px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .pdf-content {
+        background: white;
+        height: 100%;
+        border-radius: 4px;
+        padding: 20px;
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .pdf-lines {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        bottom: 50px;
+      }
+
+      .pdf-line {
+        height: 3px;
+        background: #e9ecef;
+        margin-bottom: 12px;
+        border-radius: 2px;
+      }
+
+      .pdf-line:nth-child(2) {
+        width: 40%;
+      }
+      .pdf-line:nth-child(3) {
+        width: 70%;
+      }
+      .pdf-line:nth-child(4) {
+        width: 50%;
+      }
+
+      .signature-placeholder {
+        position: absolute;
+        bottom: 20px;
+        right: 30px;
+        width: 100px;
+        height: 60px;
+        border: 2px dashed #dee2e6;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        color: #6c757d;
+      }
+
+      /* Flowing Signature Animation */
+      .floating-signature {
+        position: absolute;
+        font-family: 'Dancing Script', cursive;
+        font-size: 1.8rem;
+        color: #2c3e50;
+        opacity: 0;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      .floating-signature.fly {
+        animation: flowToPDF 2s ease-in-out 5s forwards;
+      }
+
+      @keyframes flowToPDF {
+        0% {
+          opacity: 1;
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          opacity: 0.8;
+          transform: translate(100px, -50px) scale(0.9);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(200px, -100px) scale(0.8);
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .extraction-process {
+          flex-direction: column;
+          gap: 30px;
+        }
+
+        .processing-section {
+          order: 2;
+          margin: 20px 0;
+        }
+
+        .source-document {
+          order: 1;
+        }
+
+        .extracted-signature {
+          order: 3;
+        }
+
+        .demo-title h1 {
+          font-size: 2rem;
+        }
+      }
+
+      /* Call to Action */
+      .cta-section {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 40px;
+        border-top: 1px solid #e9ecef;
+      }
+
+      .cta-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        border-radius: 50px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+      }
+
+      .features-list {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .feature {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #495057;
+        font-size: 0.9rem;
+      }
+
+      .feature::before {
+        content: '✓';
+        color: #28a745;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <div class="demo-title">
+        <h1>Extract Signatures in Seconds</h1>
+        <p>Watch our AI-powered signature extraction in action</p>
+      </div>
+
+      <div class="extraction-process">
+        <!-- Source Document -->
+        <div class="source-document">
+          <div class="document-frame">
+            <div class="document-content">
+              <div class="document-lines">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+              </div>
+              <div class="document-signature">John Smith</div>
+            </div>
+          </div>
+          <div class="label">Original Document</div>
+        </div>
+
+        <!-- Processing Section -->
+        <div class="processing-section">
+          <div class="processing-container">
+            <div class="processing-icon"></div>
+            <div class="processing-particles">
+              <div class="particle"></div>
+              <div class="particle"></div>
+              <div class="particle"></div>
+              <div class="particle"></div>
+              <div class="particle"></div>
+              <div class="particle"></div>
+            </div>
+          </div>
+          <div class="processing-text">Processing...</div>
+        </div>
+
+        <!-- Extracted Signature -->
+        <div class="extracted-signature">
+          <div class="signature-container">
+            <div class="signature-bg"></div>
+            <div class="extracted-signature-text">John Smith</div>
+            <div class="signature-glow"></div>
+            <div class="floating-signature">John Smith</div>
+          </div>
+          <div class="label">Clean Signature</div>
+        </div>
+      </div>
+
+      <!-- PDF Document with placed signature -->
+      <div class="pdf-document">
+        <div class="pdf-frame">
+          <div class="pdf-content">
+            <div class="pdf-lines">
+              <div class="pdf-line"></div>
+              <div class="pdf-line"></div>
+              <div class="pdf-line"></div>
+              <div class="pdf-line"></div>
+            </div>
+            <div class="signature-placeholder">Signature Placed Here</div>
+          </div>
+        </div>
+        <div class="label" style="text-align: center; margin-top: 15px">
+          PDF Document
+        </div>
+      </div>
+
+      <!-- Call to Action -->
+      <div class="cta-section">
+        <h3>Ready to extract signatures with precision?</h3>
+        <div class="features-list">
+          <div class="feature">Precision extraction</div>
+          <div class="feature">PDF signing</div>
+          <div class="feature">Privacy-first</div>
+          <div class="feature">30-day guarantee</div>
+        </div>
+        <br />
+        <a href="#" class="cta-button">Get Signature Extractor - $29</a>
+      </div>
+    </div>
+
+    <script>
+      // Add flying signature animation trigger
+      document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(() => {
+          const floatingSignature = document.querySelector(
+            '.floating-signature'
+          );
+          if (floatingSignature) {
+            floatingSignature.classList.add('fly');
+          }
+        }, 7000); // Trigger after all other animations
+      });
+    </script>
+  </body>
+</html>
+``` This creates a beautiful, professional animation that shows: 1. **Left
+side**: Document with signature (fades in at 2s) 2. **Center**: Processing
+animation with rotating gear and floating particles (2s) 3. **Right side**:
+Clean signature reveal with glow effect (3.5s) 4. **Flow animation**: Signature
+flies from right to PDF document (5s) 5. **PDF placement**: Signature gets
+placed in PDF (7s) The animation is completely **pure CSS** with some minimal
+JavaScript to trigger the final flow animation. You can easily integrate this
+into your landing page or use it as a standalone demo. **Key features:** - Uses
+beautiful Dancing Script font for realistic signatures - Smooth animations with
+proper timing - Responsive design for mobile - Professional color scheme
+matching your app - No external dependencies except Google Fonts - Can be easily
+customized with your actual branding Want me to adjust any part of the animation
+or create variations?
