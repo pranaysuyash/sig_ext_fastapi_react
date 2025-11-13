@@ -11,6 +11,7 @@ Build for your current architecture:
 ```
 
 **Result:**
+
 - ✅ Works on your Mac (Apple Silicon)
 - ❌ Won't work on Intel Macs
 - **Use for:** Personal testing, friends with similar Macs
@@ -20,6 +21,7 @@ Build for your current architecture:
 Build both versions automatically using GitHub Actions:
 
 1. **Create a release tag:**
+
    ```bash
    git tag -a v1.0.0 -m "Release v1.0.0"
    git push origin v1.0.0
@@ -32,6 +34,7 @@ Build both versions automatically using GitHub Actions:
    - Attach them to GitHub Release
 
 **Result:**
+
 - ✅ Works on ALL Macs (Intel + Apple Silicon)
 - ✅ Professional CI/CD pipeline
 - ✅ Reproducible builds
@@ -40,6 +43,7 @@ Build both versions automatically using GitHub Actions:
 ### Option 3: Cloud Build Service
 
 Use services like:
+
 - **CircleCI** - Has Intel and ARM64 macOS runners
 - **Travis CI** - macOS build support
 - **Bitrise** - Mobile/desktop app CI/CD
@@ -49,6 +53,7 @@ Use services like:
 ### Phase 1: Local Testing (Today)
 
 1. Build ARM64 version locally:
+
    ```bash
    ./build-tools/build_macos.sh
    ```
@@ -64,6 +69,7 @@ Use services like:
 1. **Set up GitHub Actions** (already configured in `.github/workflows/build-macos.yml`)
 
 2. **Create a release tag:**
+
    ```bash
    git tag -a v1.0.0-beta -m "Beta release"
    git push origin v1.0.0-beta
@@ -97,14 +103,15 @@ Not sure? Check: Apple menu  → About This Mac
 
 ## Current Build Status
 
-| Architecture | Can Build Locally | Needs CI/CD | Compatible Macs |
-|--------------|-------------------|-------------|-----------------|
-| ARM64 | ✅ Yes (your Mac) | ❌ No | M1/M2/M3/M4 Macs |
-| Intel | ❌ No | ✅ Yes | Intel Macs 2019 and older |
+| Architecture | Can Build Locally | Needs CI/CD | Compatible Macs           |
+| ------------ | ----------------- | ----------- | ------------------------- |
+| ARM64        | ✅ Yes (your Mac) | ❌ No       | M1/M2/M3/M4 Macs          |
+| Intel        | ❌ No             | ✅ Yes      | Intel Macs 2019 and older |
 
 ## Quick Decision Guide
 
 **For Today (Local Testing):**
+
 ```bash
 # Build ARM64 version
 ./build-tools/build_macos.sh
@@ -116,6 +123,7 @@ open dist/SignatureExtractor.app
 ```
 
 **For Launch (Next Week):**
+
 ```bash
 # Push a release tag
 git tag -a v1.0.0 -m "Release v1.0.0"
@@ -128,10 +136,12 @@ git push origin v1.0.0
 ## Market Coverage
 
 **Apple Silicon only (current local build):**
+
 - ✅ Covers ~70% of Mac users (2020 or newer)
 - ❌ Misses ~30% of Mac users (Intel Macs)
 
 **Both versions (GitHub Actions):**
+
 - ✅ Covers 100% of Mac users
 - ✅ Professional product offering
 - ✅ Future-proof
@@ -139,11 +149,13 @@ git push origin v1.0.0
 ## Recommendation
 
 ### For Friends Testing (This Week)
+
 - ✅ Build ARM64 locally
 - ✅ Test with 3-5 friends with Apple Silicon Macs
 - ✅ Gather feedback and fix issues
 
 ### For Product Launch (Next Week)
+
 - ✅ Use GitHub Actions to build both versions
 - ✅ Upload both DMGs to Gumroad
 - ✅ Provide clear download instructions
@@ -152,6 +164,7 @@ git push origin v1.0.0
 ## Files You Need
 
 ### Already Created ✅
+
 - `build-tools/SignatureExtractor_macOS.spec` - ARM64 build config
 - `build-tools/SignatureExtractor_Intel.spec` - Intel build config
 - `build-tools/build_macos.sh` - Local ARM64 builder
@@ -160,6 +173,7 @@ git push origin v1.0.0
 - `TESTING_GUIDE.md` - Testing instructions
 
 ### Next Steps
+
 1. Build ARM64 version locally (5 minutes)
 2. Test thoroughly (1-2 hours)
 3. Share with friends (2-3 days)
@@ -169,6 +183,7 @@ git push origin v1.0.0
 ---
 
 **TL;DR:**
+
 - **Today:** Build ARM64 locally, test with friends
 - **Launch:** Use GitHub Actions for both Intel + ARM64
 - **Simple command:** `git tag v1.0.0 && git push origin v1.0.0`

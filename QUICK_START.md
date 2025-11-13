@@ -3,13 +3,15 @@
 ## ✅ What We Just Created
 
 ### Build Files
+
 1. **`SignatureExtractor_macOS.spec`** - ARM64 (Apple Silicon) build config
-2. **`SignatureExtractor_Intel.spec`** - Intel build config  
+2. **`SignatureExtractor_Intel.spec`** - Intel build config
 3. **`build_macos.sh`** - Simple local builder (ARM64 only)
 4. **`build_distribution.sh`** - Advanced multi-arch builder
 5. **`.github/workflows/build-macos.yml`** - CI/CD for both architectures
 
 ### Documentation
+
 - **`TESTING_GUIDE.md`** - Comprehensive testing instructions
 - **`DISTRIBUTION_STRATEGY.md`** - Launch strategy guide
 - **This file** - Quick reference
@@ -19,6 +21,7 @@
 The build is currently creating an **ARM64 app** for your Mac (Apple Silicon).
 
 **What's happening:**
+
 - PyInstaller is bundling all dependencies
 - Creating a standalone .app bundle
 - This takes 3-5 minutes
@@ -50,10 +53,12 @@ If all pass → **Ready for friends!**
 ### 3. Share with Friends (This Week)
 
 **Who can test:**
+
 - Friends with **Apple Silicon Macs** (M1/M2/M3/M4)
 - Anyone with Mac from 2020 or newer
 
 **How to share:**
+
 ```bash
 # Option A: Send the .app directly
 # Zip it first:
@@ -72,6 +77,7 @@ hdiutil create \
 ```
 
 **Tell friends:**
+
 > "Right-click the app → Open (first time only)"
 > "Test license: pranay@example.com"
 > "Let me know if anything breaks!"
@@ -79,6 +85,7 @@ hdiutil create \
 ### 4. Gather Feedback (2-3 days)
 
 Questions to ask:
+
 - Did it launch without issues?
 - Was anything confusing?
 - Did you find any bugs?
@@ -97,6 +104,7 @@ git push origin v1.0.0
 ```
 
 **GitHub Actions will automatically:**
+
 1. Build ARM64 version (Apple Silicon)
 2. Build Intel version (Intel Macs)
 3. Create DMG files for both
@@ -106,16 +114,17 @@ Then: Download both DMGs → Upload to Gumroad → Launch! 🎉
 
 ## 🎯 Current Build Status
 
-| What | Status | For Whom |
-|------|--------|----------|
-| ARM64 build | 🔄 In Progress | Your Mac, friends with M-series |
-| Intel build | ⏳ Not yet (need CI/CD) | Intel Mac users |
-| Testing | ⏳ After build | You + friends |
-| Launch | ⏳ After testing | Everyone |
+| What        | Status                  | For Whom                        |
+| ----------- | ----------------------- | ------------------------------- |
+| ARM64 build | 🔄 In Progress          | Your Mac, friends with M-series |
+| Intel build | ⏳ Not yet (need CI/CD) | Intel Mac users                 |
+| Testing     | ⏳ After build          | You + friends                   |
+| Launch      | ⏳ After testing        | Everyone                        |
 
 ## 🔧 Troubleshooting
 
 ### If build fails:
+
 ```bash
 # Clean and retry
 rm -rf build dist
@@ -123,6 +132,7 @@ rm -rf build dist
 ```
 
 ### If app won't open:
+
 ```bash
 # Remove quarantine attribute
 xattr -cr dist/SignatureExtractor.app
@@ -130,6 +140,7 @@ open dist/SignatureExtractor.app
 ```
 
 ### If missing dependencies:
+
 ```bash
 source venv/bin/activate
 pip install -r desktop_app/requirements.txt
@@ -139,12 +150,14 @@ pip install pyinstaller
 ## 📊 What You'll Have After This
 
 ### Today
+
 - ✅ Working ARM64 app
 - ✅ Tested on your Mac
 - ✅ Shared with 3-5 Apple Silicon friends
 - ✅ Initial feedback collected
 
 ### Next Week
+
 - ✅ Both ARM64 + Intel builds (via GitHub Actions)
 - ✅ Both uploaded to Gumroad
 - ✅ Ready for public launch
@@ -171,6 +184,7 @@ pip install pyinstaller
 ## 🎉 You're Almost There!
 
 The hard part (coding, testing, building) is done. Now it's just:
+
 1. Wait for build (2 min)
 2. Test (5 min)
 3. Share with friends
@@ -179,6 +193,7 @@ The hard part (coding, testing, building) is done. Now it's just:
 ---
 
 **Current Time Estimate to Launch:** 5-7 days
+
 - Testing: 2-3 days
 - Fixes: 1-2 days
 - CI/CD build: 15 minutes

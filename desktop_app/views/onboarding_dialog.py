@@ -131,6 +131,45 @@ class OnboardingDialog(QDialog):
 
         layout.addLayout(health_section)
 
+        # License section
+        license_section = QVBoxLayout()
+        license_section.setSpacing(8)
+        
+        license_label = QLabel("<b>🔑 License & Activation:</b>")
+        license_label.setStyleSheet("font-size: 14px;")
+        license_section.addWidget(license_label)
+        
+        license_info = QLabel(
+            "Test license for full access: <b>pranay@example.com</b><br>"
+            "For production use, purchase a license and activate it via Help → Enter License Key"
+        )
+        license_info.setStyleSheet("font-size: 12px; color: gray; margin-left: 16px;")
+        license_info.setWordWrap(True)
+        license_info.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        license_section.addWidget(license_info)
+        
+        license_btn_layout = QHBoxLayout()
+        license_btn_layout.setContentsMargins(16, 4, 0, 0)
+        
+        enter_license_btn = _create_button("Enter License", self, primary=True, color='green')
+        enter_license_btn.clicked.connect(self._open_license_dialog)
+        license_btn_layout.addWidget(enter_license_btn)
+        
+        buy_license_btn = _create_button("Buy License", self)
+        buy_license_btn.clicked.connect(self._open_purchase_page)
+        license_btn_layout.addWidget(buy_license_btn)
+        
+        license_btn_layout.addStretch()
+        license_section.addLayout(license_btn_layout)
+        
+        layout.addLayout(license_section)
+        
+        # Separator
+        separator2 = QFrame()
+        separator2.setFrameShape(QFrame.Shape.HLine)
+        separator2.setFrameShadow(QFrame.Shadow.Sunken)
+        layout.addWidget(separator2)
+
         # Help links section
         links_section = QHBoxLayout()
         links_section.setSpacing(16)
@@ -248,6 +287,24 @@ class OnboardingDialog(QDialog):
         else:
             self.health_status_label.setText(f"❌ Backend offline: {message}")
             self.health_status_label.setStyleSheet("font-size: 13px; color: #c62828;")
+
+    def _open_license_dialog(self) -> None:
+        """Open the license entry dialog in parent window."""
+        parent_window = self.parent()
+        if parent_window and hasattr(parent_window, "_open_license_dialog"):
+            parent_window._open_license_dialog()
+        else:
+            from desktop_app.views.license_entry_dialog import LicenseEntryDialog
+            dialog = LicenseEntryDialog(self)
+            if dialog.exec():
+                self.health_status_label.setText("✅ License activated successfully")
+                self.health_status_label.setStyleSheet("font-size: 13px; color: #2e7d32;")
+
+    def _open_purchase_page(self) -> None:
+        """Open the Gumroad purchase page in browser."""
+        # TODO: Replace with actual Gumroad URL once product is set up
+        purchase_url = "https://gumroad.com/pranaysuyash/signature-extractor"  # Placeholder
+        QDesktopServices.openUrl(QUrl(purchase_url))
 
     def _open_document(self, doc_path: str) -> None:
         """Open documentation file (delegates to parent window if available)."""

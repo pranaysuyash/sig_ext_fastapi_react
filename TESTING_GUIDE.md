@@ -13,6 +13,7 @@ open dist/SignatureExtractor.app
 ```
 
 **First Launch Note:** macOS may block the app because it's not signed. To allow it:
+
 1. Right-click the app → Select "Open"
 2. Click "Open" in the security dialog
 3. Or: System Preferences → Security & Privacy → Click "Open Anyway"
@@ -43,6 +44,7 @@ The app includes a **test license** for testing all features:
 #### A. Image Upload & Processing
 
 **Test Case 1: Upload JPG Image**
+
 ```
 1. Click "Upload" or drag-drop a JPG file
 2. Verify image displays in source pane
@@ -52,6 +54,7 @@ The app includes a **test license** for testing all features:
 ```
 
 **Test Case 2: Upload PNG Image**
+
 ```
 1. Upload a PNG with transparency
 2. Verify transparency is preserved
@@ -60,6 +63,7 @@ The app includes a **test license** for testing all features:
 ```
 
 **Test Case 3: EXIF Rotation (Mobile Photos)**
+
 ```
 1. Upload a photo taken with phone (rotated)
 2. Verify auto-rotation works correctly
@@ -69,6 +73,7 @@ The app includes a **test license** for testing all features:
 #### B. Rotation
 
 **Test Case 4: Rotate Source Image**
+
 ```
 1. Upload an image
 2. Click rotate clockwise (90°)
@@ -82,6 +87,7 @@ The app includes a **test license** for testing all features:
 #### C. Threshold Adjustment
 
 **Test Case 5: Threshold Control**
+
 ```
 1. Process a signature
 2. Adjust threshold slider (0-255)
@@ -93,6 +99,7 @@ The app includes a **test license** for testing all features:
 #### D. Color Selection
 
 **Test Case 6: Custom Colors**
+
 ```
 1. Process a signature
 2. Try different colors:
@@ -106,6 +113,7 @@ The app includes a **test license** for testing all features:
 #### E. Export Functionality
 
 **Test Case 7: Export PNG**
+
 ```
 1. Process a signature
 2. Click "Export PNG"
@@ -115,6 +123,7 @@ The app includes a **test license** for testing all features:
 ```
 
 **Test Case 8: Export JPG**
+
 ```
 1. Process a signature
 2. Click "Export JPG"
@@ -125,6 +134,7 @@ The app includes a **test license** for testing all features:
 #### F. Library Management
 
 **Test Case 9: Save to Library**
+
 ```
 1. Process a signature
 2. Click "Add to Library"
@@ -135,6 +145,7 @@ The app includes a **test license** for testing all features:
 ```
 
 **Test Case 10: Load from Library**
+
 ```
 1. Double-click library item
 2. Verify signature loads
@@ -143,6 +154,7 @@ The app includes a **test license** for testing all features:
 ```
 
 **Test Case 11: Delete from Library**
+
 ```
 1. Right-click library item
 2. Select "Delete"
@@ -153,6 +165,7 @@ The app includes a **test license** for testing all features:
 #### G. PDF Operations
 
 **Test Case 12: Open PDF**
+
 ```
 1. Click "PDF" tab
 2. Click "Open PDF"
@@ -162,6 +175,7 @@ The app includes a **test license** for testing all features:
 ```
 
 **Test Case 13: Paste Signature on PDF**
+
 ```
 1. Open a PDF
 2. Process a signature (on Extraction tab)
@@ -173,6 +187,7 @@ The app includes a **test license** for testing all features:
 ```
 
 **Test Case 14: Save Signed PDF**
+
 ```
 1. Place signature on PDF
 2. Click "Save PDF"
@@ -184,6 +199,7 @@ The app includes a **test license** for testing all features:
 ### 4. Error Handling Tests
 
 #### Test Case 15: Invalid File Format
+
 ```
 1. Try to upload .txt file
 2. Verify appropriate error message
@@ -192,6 +208,7 @@ The app includes a **test license** for testing all features:
 ```
 
 #### Test Case 16: Very Large Image
+
 ```
 1. Upload very large image (>50MB)
 2. Verify size validation works
@@ -199,6 +216,7 @@ The app includes a **test license** for testing all features:
 ```
 
 #### Test Case 17: Corrupted Image
+
 ```
 1. Try to upload corrupted/incomplete image
 2. Verify graceful error handling
@@ -208,6 +226,7 @@ The app includes a **test license** for testing all features:
 ### 5. Performance Tests
 
 #### Test Case 18: Large Image Processing
+
 ```
 1. Upload 20MB image (high resolution)
 2. Time: Should process < 5 seconds
@@ -216,6 +235,7 @@ The app includes a **test license** for testing all features:
 ```
 
 #### Test Case 19: Multiple Operations
+
 ```
 1. Upload, process, rotate, adjust threshold
 2. Do this 10 times in a row
@@ -226,6 +246,7 @@ The app includes a **test license** for testing all features:
 ### 6. UI/UX Tests
 
 #### Test Case 20: Window Resize
+
 ```
 1. Resize window to various sizes
 2. Verify layout adapts
@@ -234,6 +255,7 @@ The app includes a **test license** for testing all features:
 ```
 
 #### Test Case 21: Dark Mode (macOS)
+
 ```
 1. Switch macOS to dark mode
 2. Verify app UI updates
@@ -242,6 +264,7 @@ The app includes a **test license** for testing all features:
 ```
 
 #### Test Case 22: Zoom and Pan
+
 ```
 1. Upload large image
 2. Use mouse wheel to zoom
@@ -253,6 +276,7 @@ The app includes a **test license** for testing all features:
 ### 7. Session Persistence
 
 #### Test Case 23: App Restart
+
 ```
 1. Process signature
 2. Quit app (Cmd+Q)
@@ -267,6 +291,7 @@ The app includes a **test license** for testing all features:
 The app works **offline-first** but has optional backend features.
 
 #### Test Case 24: Offline Operation
+
 ```
 1. Disconnect from internet
 2. Upload and process signatures
@@ -276,6 +301,7 @@ The app works **offline-first** but has optional backend features.
 ```
 
 #### Test Case 25: Backend Auto-Start
+
 ```
 1. Launch app with internet
 2. Check status bar for backend status
@@ -302,6 +328,7 @@ Ask them to complete this checklist:
 ## What to Watch For
 
 ### Critical Issues (Blockers)
+
 - ❌ App won't launch
 - ❌ App crashes frequently
 - ❌ License system doesn't work
@@ -309,12 +336,14 @@ Ask them to complete this checklist:
 - ❌ Can't export results
 
 ### Important Issues (Should Fix)
+
 - ⚠️ Performance is slow (>10s for processing)
 - ⚠️ UI is confusing
 - ⚠️ Error messages are unclear
 - ⚠️ Features are hard to discover
 
 ### Nice to Fix (Post-Launch)
+
 - 💡 UI could be prettier
 - 💡 Could use keyboard shortcuts
 - 💡 Feature requests
@@ -351,6 +380,7 @@ All steps should complete without errors.
 ## Test Images
 
 You can create test images or use:
+
 - Scanned documents with signatures
 - Photos of signatures
 - Digital signatures
@@ -359,6 +389,7 @@ You can create test images or use:
 ## Expected Behavior
 
 ### ✅ Should Work
+
 - All image formats (PNG, JPG, JPEG)
 - Images with transparency
 - High-resolution images
@@ -370,6 +401,7 @@ You can create test images or use:
 - PDF signing
 
 ### ⚠️ Known Limitations
+
 - Maximum file size: 50MB
 - Maximum dimensions: 10000x10000px
 - Backend features may require internet (optional)
@@ -378,6 +410,7 @@ You can create test images or use:
 ## Success Criteria
 
 The app is ready if:
+
 - ✅ No critical crashes
 - ✅ License system works
 - ✅ Core extraction works reliably
