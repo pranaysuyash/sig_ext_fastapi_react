@@ -9,18 +9,22 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 1. First-Time User Experience (FTUE)
 
 ### Onboarding Flow
+
 - [ ] **Welcome dialog is clear and helpful**
+
   - Does it explain the value proposition immediately?
   - Are the 4 steps easy to understand?
   - Is the test license (pranay@example.com) prominently displayed?
   - Can users easily purchase/enter a license from onboarding?
 
 - [ ] **First image upload is smooth**
+
   - Is it obvious where to click to start?
   - Does drag-and-drop work intuitively?
   - Are supported formats mentioned upfront?
 
 - [ ] **Initial selection guidance**
+
   - Is it clear that users need to draw a rectangle?
   - Visual feedback when hovering/selecting?
   - Error states handled gracefully?
@@ -30,6 +34,7 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Clear next steps after first success?
 
 ### Questions to Ask:
+
 - Can a complete novice complete their first extraction in < 2 minutes?
 - What's the "aha moment" and does it happen quickly enough?
 - Are there any confusing moments where users might get stuck?
@@ -39,25 +44,30 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 2. Core Feature: Signature Extraction
 
 ### Workflow Evaluation
+
 - [ ] **Image loading**
+
   - Button placement logical?
   - Drag-and-drop discoverable?
   - Recent files would improve workflow?
   - Library integration smooth?
 
 - [ ] **Selection tool**
+
   - Drawing rectangle intuitive?
   - Can users easily adjust selection?
   - Clear visual feedback?
   - Keyboard shortcuts for precision?
 
 - [ ] **Threshold controls**
+
   - "Auto" button works well?
   - Slider range appropriate?
   - Real-time preview?
   - Clear explanation of what threshold does?
 
 - [ ] **Preview quality**
+
   - Extracted signature looks professional?
   - Transparency handled correctly?
   - Zoom/pan controls intuitive?
@@ -68,6 +78,7 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Save location predictable?
 
 ### Questions to Ask:
+
 - What's the most common user error in this flow?
 - Are there any unnecessary steps?
 - What would make this 2x faster to use?
@@ -78,13 +89,16 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 3. User Interface & Visual Design
 
 ### Layout & Information Architecture
+
 - [ ] **Main window organization**
+
   - Three-pane layout (source → controls → preview) intuitive?
   - Panes properly labeled?
   - Visual hierarchy clear?
   - Adequate spacing and breathing room?
 
 - [ ] **Control panel design**
+
   - Logical grouping of controls?
   - Progressive disclosure (advanced hidden)?
   - Consistent styling?
@@ -97,12 +111,15 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Progress indicators for long operations?
 
 ### Visual Polish
+
 - [ ] **Icons and imagery**
+
   - System icons used consistently?
   - Emoji usage appropriate or excessive?
   - File type icons recognizable?
 
 - [ ] **Colors and contrast**
+
   - Dark mode works properly?
   - Sufficient contrast for accessibility?
   - Color coding meaningful?
@@ -114,6 +131,7 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Line lengths comfortable?
 
 ### Questions to Ask:
+
 - Does it look like a $29 product or a $9 product?
 - Any elements that look "amateur" or unpolished?
 - Is it visually appealing enough for screenshots/marketing?
@@ -123,7 +141,9 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 4. User Experience Flows
 
 ### Happy Path (Everything Works)
+
 - [ ] **Open → Select → Process → Export**
+
   - Number of clicks reasonable?
   - Any unnecessary confirmation dialogs?
   - Smooth transitions between states?
@@ -135,12 +155,15 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Re-opening signatures smooth?
 
 ### Error Paths
+
 - [ ] **File format errors**
+
   - Clear error messages?
   - Actionable guidance?
   - Link to supported formats?
 
 - [ ] **License restrictions**
+
   - Trial limitations explained upfront?
   - Upgrade prompts helpful not annoying?
   - Easy path to purchase?
@@ -151,12 +174,15 @@ This comprehensive checklist covers all aspects of the product that should be re
   - No confusing error messages?
 
 ### Edge Cases
+
 - [ ] **Very large images**
+
   - Performance acceptable?
   - Memory usage reasonable?
   - Progress feedback?
 
 - [ ] **Tiny selections**
+
   - Handled gracefully?
   - Warning about quality?
 
@@ -165,6 +191,7 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Suggestion to fix?
 
 ### Questions to Ask:
+
 - Where do users most commonly abandon the flow?
 - What errors cause the most frustration?
 - Are error messages actually helpful?
@@ -174,7 +201,9 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 5. Advanced Features
 
 ### Rotation Feature
+
 - [ ] **Rotation controls**
+
   - Buttons discoverable?
   - Keyboard shortcuts clear?
   - 90° increments appropriate?
@@ -186,7 +215,9 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Maintains image quality?
 
 ### Library Management
+
 - [ ] **Auto-save feature**
+
   - Users understand what's being saved?
   - Easy to find saved items?
   - Thumbnail quality good?
@@ -198,12 +229,14 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Bulk operations?
 
 ### PDF Signing (If Applicable)
+
 - [ ] **PDF tab**
   - Clear separation from extraction?
   - Workflow intuitive?
   - Signature preview quality?
 
 ### Questions to Ask:
+
 - Which advanced features are actually used?
 - Are there features that confuse more than help?
 - What's missing that power users would want?
@@ -213,7 +246,9 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 6. Performance & Technical
 
 ### Speed & Responsiveness
+
 - [ ] **Loading times**
+
   - App launch < 3 seconds?
   - Image loading < 1 second?
   - Processing < 2 seconds?
@@ -225,7 +260,9 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Responsive during processing?
 
 ### Reliability
+
 - [ ] **Crash resistance**
+
   - Handles malformed images?
   - Memory leaks tested?
   - Long sessions stable?
@@ -236,6 +273,7 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Session state preserved?
 
 ### System Integration
+
 - [ ] **macOS integration**
   - Drag-and-drop from Finder works?
   - Native file dialogs?
@@ -243,6 +281,7 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Recent items in dock?
 
 ### Questions to Ask:
+
 - What's the worst-case performance scenario?
 - Any operations that feel "slow"?
 - Does it feel native to macOS?
@@ -252,7 +291,9 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 7. Keyboard Shortcuts & Accessibility
 
 ### Shortcuts Coverage
+
 - [ ] **Essential actions have shortcuts**
+
   - Open, Export, Save, Copy
   - Zoom, Rotate
   - Undo/Redo
@@ -263,12 +304,15 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Help menu reference?
 
 ### Accessibility
+
 - [ ] **Keyboard navigation**
+
   - Tab order logical?
   - All controls reachable?
   - Visual focus indicators?
 
 - [ ] **Screen reader support**
+
   - Images have alt text?
   - Buttons labeled?
   - Announcements for status changes?
@@ -279,6 +323,7 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Color blindness considered?
 
 ### Questions to Ask:
+
 - Can power users work without a mouse?
 - Are shortcuts memorable or arbitrary?
 - Is this usable with disabilities?
@@ -288,7 +333,9 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 8. Help & Documentation
 
 ### In-App Help
+
 - [ ] **Contextual help**
+
   - Tooltips present and helpful?
   - Help links in right places?
   - Quick start guide accessible?
@@ -300,7 +347,9 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Report issue option?
 
 ### External Documentation
+
 - [ ] **User guide exists**
+
   - Covers all features?
   - Screenshots up to date?
   - Search/index?
@@ -311,6 +360,7 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Export formats?
 
 ### Questions to Ask:
+
 - Can users solve problems without contacting support?
 - What questions will support get most often?
 - Is documentation actually maintained?
@@ -320,12 +370,15 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 9. Business Model & Monetization
 
 ### License & Pricing
+
 - [ ] **Test license for evaluation**
+
   - Clearly communicated?
   - Easy to activate?
   - No friction for testing?
 
 - [ ] **Purchase flow**
+
   - Gumroad link works?
   - Price justified by value?
   - License delivery automated?
@@ -337,7 +390,9 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Upgrade prompts timely not spammy?
 
 ### Value Proposition
+
 - [ ] **$29 price point**
+
   - Competitive analysis done?
   - Feature set justifies price?
   - Cheaper/better than alternatives?
@@ -348,7 +403,9 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Market size realistic?
 
 ### Upgrade Path
+
 - [ ] **Version 1.x included**
+
   - Clearly communicated?
   - No surprise upgrade fees?
   - Lifetime updates for v1?
@@ -359,6 +416,7 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Transparent roadmap?
 
 ### Questions to Ask:
+
 - Would I pay $29 for this?
 - What makes this better than free tools?
 - Is the pricing model sustainable?
@@ -369,7 +427,9 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 10. Distribution & Installation
 
 ### Packaging
+
 - [ ] **DMG file quality**
+
   - Professional appearance?
   - Instructions clear?
   - Code signing (if applicable)?
@@ -380,7 +440,9 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Performance optimized?
 
 ### First Launch Experience
+
 - [ ] **Unsigned app handling**
+
   - Instructions for "Open Anyway"?
   - Quarantine attribute handled?
   - Gatekeeper bypass clear?
@@ -391,12 +453,14 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Graceful degradation?
 
 ### Updates
+
 - [ ] **Update notifications**
   - Check for updates in Help menu?
   - Notifications helpful not annoying?
   - Clear release notes?
 
 ### Questions to Ask:
+
 - How many users will fail at installation?
 - Is distribution strategy scalable?
 - What's the support burden?
@@ -406,7 +470,9 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 11. Marketing & Positioning
 
 ### Screenshots & Demos
+
 - [ ] **Marketing screenshots**
+
   - Show key features?
   - High quality?
   - Real-world examples?
@@ -417,7 +483,9 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Professional quality?
 
 ### Messaging
+
 - [ ] **Value proposition**
+
   - Clear and compelling?
   - Differentiation obvious?
   - Benefit-focused not feature-focused?
@@ -428,6 +496,7 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Clear CTA?
 
 ### Questions to Ask:
+
 - Can someone understand the product in 10 seconds?
 - What's the hook that makes people interested?
 - Are we targeting the right market?
@@ -437,10 +506,13 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 12. Competitive Analysis
 
 ### Feature Comparison
+
 - [ ] **vs Adobe Acrobat**
+
   - Cheaper? Simpler? Better extraction?
 
 - [ ] **vs Online tools (PDF.io, etc)**
+
   - Privacy advantage (offline)?
   - Better quality?
   - Worth paying for?
@@ -450,12 +522,14 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Time savings?
 
 ### Positioning
+
 - [ ] **Unique selling points**
   - What can't competitors do?
   - What do we do better?
   - Why choose us?
 
 ### Questions to Ask:
+
 - Why would someone pay $29 for this?
 - What's our moat/defensibility?
 - Are we positioning against the right competitors?
@@ -465,12 +539,15 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 13. Legal & Compliance
 
 ### Terms & Policies
+
 - [ ] **Privacy policy**
+
   - Exists and linked?
   - Accurate (offline processing)?
   - GDPR compliant if applicable?
 
 - [ ] **Terms of service**
+
   - License terms clear?
   - Refund policy (30 days)?
   - Liability limitations?
@@ -481,12 +558,14 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Icon attributions?
 
 ### Data & Security
+
 - [ ] **User data**
   - Nothing sent to cloud?
   - Local storage secure?
   - No telemetry by default?
 
 ### Questions to Ask:
+
 - Any legal risks we haven't addressed?
 - Refund policy sustainable?
 - International considerations?
@@ -496,13 +575,16 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 14. Analytics & Feedback
 
 ### Usage Tracking (Opt-In)
+
 - [ ] **Analytics if enabled**
   - User consent clear?
   - Data minimization?
   - Actually useful for product decisions?
 
 ### Feedback Mechanisms
+
 - [ ] **Bug reporting**
+
   - Easy to report issues?
   - Diagnostics included?
   - Response time commitment?
@@ -512,6 +594,7 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Voting/prioritization?
 
 ### Questions to Ask:
+
 - How will we know what's working?
 - What metrics matter for success?
 - Can we iterate based on data?
@@ -521,12 +604,15 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## 15. Launch Readiness
 
 ### Pre-Launch Checklist
+
 - [ ] **Testing coverage**
+
   - All features tested?
   - Edge cases covered?
   - Performance benchmarks?
 
 - [ ] **Beta feedback incorporated**
+
   - Friends tested it?
   - Critical issues fixed?
   - Nice-to-haves deferred?
@@ -537,7 +623,9 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Social posts drafted?
 
 ### Launch Day Plan
+
 - [ ] **Support ready**
+
   - Email monitored?
   - FAQ complete?
   - Quick response templates?
@@ -548,7 +636,9 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Payment flow tested?
 
 ### Post-Launch Plan
+
 - [ ] **Week 1 monitoring**
+
   - Bug reports triaged?
   - Payment issues resolved?
   - User feedback collected?
@@ -559,6 +649,7 @@ This comprehensive checklist covers all aspects of the product that should be re
   - Feature prioritization?
 
 ### Questions to Ask:
+
 - Are we actually ready to launch?
 - What could go catastrophically wrong?
 - What's the rollback plan if needed?
@@ -568,6 +659,7 @@ This comprehensive checklist covers all aspects of the product that should be re
 ## Review Score Framework
 
 For each section, rate 1-5:
+
 - **1** = Major issues, would prevent launch
 - **2** = Significant problems, needs work
 - **3** = Acceptable, some improvements needed
@@ -575,6 +667,7 @@ For each section, rate 1-5:
 - **5** = Excellent, ready to ship
 
 ### Target Scores for Launch:
+
 - Core features (Extraction): **4-5**
 - FTUE: **4-5**
 - UI/UX: **3-4**
@@ -614,16 +707,19 @@ These must have good answers before launch:
 ## Next Steps After Review
 
 ### High Priority (Must Fix)
+
 - List critical issues that block launch
 - Assign owners and deadlines
 - Retest after fixes
 
 ### Medium Priority (Should Fix)
+
 - Improvements for v1.1
 - UX enhancements
 - Polish items
 
 ### Low Priority (Nice to Have)
+
 - Future feature ideas
 - Advanced functionality
 - Market expansion
@@ -633,6 +729,7 @@ These must have good answers before launch:
 ## Where to Find DMGs Locally
 
 **Local builds:**
+
 ```bash
 # DMGs are created here (if you run hdiutil create):
 dist/SignatureExtractor_ARM64.dmg
@@ -652,6 +749,7 @@ hdiutil create \
 ```
 
 **CI/CD builds:**
+
 - GitHub Actions artifacts: Go to Actions tab → Select workflow run → Download artifacts
 - GitHub Releases: `https://github.com/pranaysuyash/sig_ext_fastapi_react/releases`
 
