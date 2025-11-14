@@ -390,15 +390,15 @@ Website: https://signkit.work
 ### 15.2 Legal Matters
 
 ```text
-Email: legal@signkit.work
+Email: support@signkit.work
 Address: [Your Legal Business Address]
 ```
 
 ### 15.3 Press and Media
 
-```
-Email: press@signkit.work
-Website: https://signkit.work/press
+```text
+Email: support@signkit.work
+Website: https://signkit.work
 ```
 
 ## 16. Modification of Terms
@@ -422,6 +422,6 @@ Continued use of the Application after modifications constitutes acceptance of t
 ---
 
 **Questions about these Terms?**  
-Contact us at: legal@signkit.work
+Contact us at: support@signkit.work
 
 These Terms of Service, together with our Privacy Policy, govern your use of Signature Extractor. By using the Application, you agree to these terms and conditions.

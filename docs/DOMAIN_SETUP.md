@@ -119,15 +119,14 @@ Once domain is verified:
 1. In Google Workspace Admin, go to **Directory** → **Users**
 2. Click on your account (founder@psrstech.com)
 3. Click **User information** → **Email aliases** → **Add an alias**
-4. Add these aliases one by one:
+4. Add these essential aliases:
 
 ```text
-support@signkit.work
-privacy@signkit.work
-legal@signkit.work
-dpo@signkit.work
-press@signkit.work
+support@signkit.work  (Essential - for customer support)
+founder@signkit.work  (Optional - for partnerships/outreach)
 ```
+
+**Note:** You can add more specialized emails later (privacy@, legal@, etc.) if needed, but these two are sufficient for launch.
 
 ### Email Benefits
 
@@ -417,7 +416,7 @@ Services that offer this:
 
 ---
 
-## ✅ Setup Checklist
+### Setup Checklist
 
 ### Domain & Redirect
 
@@ -428,13 +427,13 @@ Services that offer this:
 
 ### Email Setup
 
-- [ ] Add 5 MX records in Namecheap DNS
+- [ ] Add MX record in Namecheap DNS (SMTP.GOOGLE.COM)
 - [ ] Add SPF TXT record in Namecheap DNS
-- [ ] Add DMARC TXT record in Namecheap DNS
 - [ ] Add Google verification TXT record in Namecheap DNS
 - [ ] Wait 10 minutes for DNS propagation
 - [ ] Verify domain in Google Workspace Admin
-- [ ] Add 5 email aliases in Google Workspace
+- [ ] Add email alias: `support@signkit.work`
+- [ ] Add email alias: `founder@signkit.work` (optional)
 - [ ] Test: Send email to `support@signkit.work`
 - [ ] Test: Reply FROM `support@signkit.work` in Gmail
 

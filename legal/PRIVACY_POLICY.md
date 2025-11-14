@@ -170,7 +170,7 @@ We will notify you of material changes that affect your rights or choices throug
 For privacy-related questions or to exercise your rights:
 
 ```text
-Email: privacy@signkit.work
+Email: support@signkit.work
 Website: https://signkit.work/privacy
 ```
 
@@ -179,7 +179,7 @@ Website: https://signkit.work/privacy
 For formal data protection inquiries:
 
 ```text
-Email: dpo@signkit.work
+Email: support@signkit.work
 Address: [Your Business Address]
 ```
 
@@ -265,6 +265,6 @@ We believe in transparency about our privacy practices:
 ---
 
 **Questions about this privacy policy?**  
-Contact us at: privacy@signkit.work
+Contact us at: support@signkit.work
 
 This privacy policy is part of our commitment to transparency and user privacy in the Signature Extractor application.
