@@ -1,0 +1,361 @@
+name: Build All Platforms
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: false
+        default: 'manual-build'
+
+jobs:
+  build-macos-intel:
+    name: macOS Intel (x86_64)
+    runs-on: macos-13
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          architecture: 'x64'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r desktop_app/requirements.txt
+          pip install pyinstaller
+
+      - name: Build Intel app
+        run: |
+          python -m PyInstaller --clean --noconfirm build-tools/SignatureExtractor_Intel.spec
+
+      - name: Verify build
+        run: |
+          if [ ! -d "dist/SignatureExtractor_Intel.app" ]; then
+            echo "Build failed - app not found"
+            exit 1
+          fi
+          ls -lh dist/
+
+      - name: Create DMG
+        run: |
+          hdiutil create \
+            -volname "SignKit (Intel)" \
+            -srcfolder dist/SignatureExtractor_Intel.app \
+            -ov \
+            -format UDZO \
+            dist/SignKit_macOS_Intel.dmg
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SignKit-macOS-Intel
+          path: dist/SignKit_macOS_Intel.dmg
+          retention-days: 30
+
+  build-macos-arm64:
+    name: macOS Apple Silicon (ARM64)
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r desktop_app/requirements.txt
+          pip install pyinstaller
+
+      - name: Build ARM64 app
+        run: |
+          python -m PyInstaller --clean --noconfirm build-tools/SignatureExtractor_macOS.spec
+
+      - name: Rename app
+        run: |
+          mv dist/SignatureExtractor.app dist/SignatureExtractor_ARM64.app
+
+      - name: Verify build
+        run: |
+          if [ ! -d "dist/SignatureExtractor_ARM64.app" ]; then
+            echo "Build failed - app not found"
+            exit 1
+          fi
+          ls -lh dist/
+
+      - name: Create DMG
+        run: |
+          hdiutil create \
+            -volname "SignKit (Apple Silicon)" \
+            -srcfolder dist/SignatureExtractor_ARM64.app \
+            -ov \
+            -format UDZO \
+            dist/SignKit_macOS_ARM64.dmg
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SignKit-macOS-ARM64
+          path: dist/SignKit_macOS_ARM64.dmg
+          retention-days: 30
+
+  build-windows:
+    name: Windows (x64)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          architecture: 'x64'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r desktop_app/requirements.txt
+          pip install pyinstaller
+
+      - name: Build Windows executable
+        run: |
+          python -m PyInstaller --clean --noconfirm build-tools/SignatureExtractor_Windows.spec
+
+      - name: Rename executable
+        run: |
+          if (Test-Path "dist/SignatureExtractor.exe") {
+            Move-Item "dist/SignatureExtractor.exe" "dist/SignKit_Windows.exe"
+          } else {
+            Write-Error "Build failed - exe not found"
+            exit 1
+          }
+
+      - name: Create ZIP
+        run: |
+          Compress-Archive -Path dist/SignKit_Windows.exe -DestinationPath dist/SignKit_Windows.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SignKit-Windows
+          path: dist/SignKit_Windows.zip
+          retention-days: 30
+
+  build-linux:
+    name: Linux (x64)
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libxcb-xinerama0 \
+            libxcb-cursor0 \
+            libxkbcommon-x11-0 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-shape0 \
+            libgl1-mesa-glx \
+            libegl1-mesa \
+            libdbus-1-3
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r desktop_app/requirements.txt
+          pip install pyinstaller
+
+      - name: Build Linux executable
+        run: |
+          python -m PyInstaller --clean --noconfirm build-tools/SignatureExtractor_Linux.spec
+
+      - name: Rename and make executable
+        run: |
+          if [ -f "dist/SignatureExtractor" ]; then
+            mv dist/SignatureExtractor dist/SignKit_Linux
+            chmod +x dist/SignKit_Linux
+          else
+            echo "Build failed - executable not found"
+            exit 1
+          fi
+
+      - name: Create tar.gz
+        run: |
+          cd dist
+          tar -czf SignKit_Linux.tar.gz SignKit_Linux
+          cd ..
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SignKit-Linux
+          path: dist/SignKit_Linux.tar.gz
+          retention-days: 30
+
+  create-release:
+    name: Create GitHub Release
+    needs: [build-macos-intel, build-macos-arm64, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Display structure
+        run: ls -R ./artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./artifacts/SignKit-macOS-Intel/SignKit_macOS_Intel.dmg
+            ./artifacts/SignKit-macOS-ARM64/SignKit_macOS_ARM64.dmg
+            ./artifacts/SignKit-Windows/SignKit_Windows.zip
+            ./artifacts/SignKit-Linux/SignKit_Linux.tar.gz
+          body: |
+            # SignKit ${{ github.ref_name }}
+
+            Professional signature extraction tool with complete privacy.
+
+            ## 📥 Downloads
+
+            ### macOS
+            - **Apple Silicon (M1/M2/M3/M4)**: `SignKit_macOS_ARM64.dmg`
+            - **Intel**: `SignKit_macOS_Intel.dmg`
+
+            ### Windows
+            - **Windows 10/11 (64-bit)**: `SignKit_Windows.zip`
+
+            ### Linux
+            - **Ubuntu 20.04+ (64-bit)**: `SignKit_Linux.tar.gz`
+
+            ## 🚀 Installation
+
+            ### macOS
+            1. Download the appropriate DMG for your Mac
+            2. Open the DMG file
+            3. Drag SignKit to Applications
+            4. Right-click and select "Open" (first launch only)
+
+            ### Windows
+            1. Download `SignKit_Windows.zip`
+            2. Extract the ZIP file
+            3. Run `SignKit_Windows.exe`
+            4. Windows may show a security warning - click "More info" → "Run anyway"
+
+            ### Linux
+            1. Download `SignKit_Linux.tar.gz`
+            2. Extract: `tar -xzf SignKit_Linux.tar.gz`
+            3. Make executable: `chmod +x SignKit_Linux`
+            4. Run: `./SignKit_Linux`
+
+            ## ✨ Features
+
+            - Extract signatures from photos with precision controls
+            - Sign PDFs directly in the app
+            - 100% offline - complete privacy
+            - Library management for saved signatures
+            - Export to PNG/JPG
+
+            ## 🔑 License
+
+            Purchase a license at: https://signkit.work
+
+            ## 📖 Documentation
+
+            - Quick Start Guide: https://docs.signkit.work
+            - Support: support@signkit.work
+
+            ---
+
+            **System Requirements:**
+            - macOS: 10.15 (Catalina) or later
+            - Windows: Windows 10 or later
+            - Linux: Ubuntu 20.04 or equivalent
+            - RAM: 4GB minimum (8GB recommended)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  summary:
+    name: Build Summary
+    needs: [build-macos-intel, build-macos-arm64, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Generate summary
+        run: |
+          echo "# Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Artifacts Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f "./artifacts/SignKit-macOS-Intel/SignKit_macOS_Intel.dmg" ]; then
+            SIZE=$(du -h "./artifacts/SignKit-macOS-Intel/SignKit_macOS_Intel.dmg" | cut -f1)
+            echo "✅ macOS Intel: $SIZE" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ macOS Intel: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f "./artifacts/SignKit-macOS-ARM64/SignKit_macOS_ARM64.dmg" ]; then
+            SIZE=$(du -h "./artifacts/SignKit-macOS-ARM64/SignKit_macOS_ARM64.dmg" | cut -f1)
+            echo "✅ macOS ARM64: $SIZE" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ macOS ARM64: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f "./artifacts/SignKit-Windows/SignKit_Windows.zip" ]; then
+            SIZE=$(du -h "./artifacts/SignKit-Windows/SignKit_Windows.zip" | cut -f1)
+            echo "✅ Windows: $SIZE" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Windows: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f "./artifacts/SignKit-Linux/SignKit_Linux.tar.gz" ]; then
+            SIZE=$(du -h "./artifacts/SignKit-Linux/SignKit_Linux.tar.gz" | cut -f1)
+            echo "✅ Linux: $SIZE" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Linux: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download artifacts from this workflow run" >> $GITHUB_STEP_SUMMARY
+          echo "2. Test each build on its respective platform" >> $GITHUB_STEP_SUMMARY
+          echo "3. Upload to Gumroad product page" >> $GITHUB_STEP_SUMMARY
+          echo "4. Create release notes" >> $GITHUB_STEP_SUMMARY
