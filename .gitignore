@@ -132,6 +132,7 @@ desktop_app/tests/*.pyc
 # PyInstaller / App Bundling
 dist/
 build/
+build-artifacts/
 # Keep spec files for reproducible builds
 !build-tools/*.spec
 
@@ -198,8 +199,15 @@ screenshots_debug/
 !build-tools/**/*.sh
 !build-tools/**/*.spec
 
-# DMG installers (generated artifacts)
+# DMG installers and distribution packages (generated artifacts)
 *.dmg
+*.zip
+*.tar.gz
+*.exe
+# Except for release packages in specific locations if needed
+!releases/*.dmg
+!releases/*.zip
+!releases/*.tar.gz
 
 # Code signing artifacts
 *.provisionprofile
