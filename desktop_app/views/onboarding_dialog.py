@@ -291,19 +291,18 @@ class OnboardingDialog(QDialog):
     def _open_license_dialog(self) -> None:
         """Open the license entry dialog in parent window."""
         parent_window = self.parent()
-        if parent_window and hasattr(parent_window, "_open_license_dialog"):
-            parent_window._open_license_dialog()
+        if parent_window and hasattr(parent_window, "on_enter_license"):
+            parent_window.on_enter_license()
         else:
-            from desktop_app.views.license_entry_dialog import LicenseEntryDialog
-            dialog = LicenseEntryDialog(self)
+            from desktop_app.views.license_dialog import LicenseDialog
+            dialog = LicenseDialog(self)
             if dialog.exec():
                 self.health_status_label.setText("✅ License activated successfully")
                 self.health_status_label.setStyleSheet("font-size: 13px; color: #2e7d32;")
 
     def _open_purchase_page(self) -> None:
         """Open the Gumroad purchase page in browser."""
-        # TODO: Replace with actual Gumroad URL once product is set up
-        purchase_url = "https://gumroad.com/pranaysuyash/signature-extractor"  # Placeholder
+        purchase_url = "https://pranaysuyash.gumroad.com/l/signkit-v1"
         QDesktopServices.openUrl(QUrl(purchase_url))
 
     def _open_document(self, doc_path: str) -> None:

@@ -1,89 +1,80 @@
-# Python
+# Python bytecode
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 .Python
+
+# Virtual environments
 venv/
 .venv/
 env/
 ENV/
+
+# Python packages
 *.egg
 *.egg-info/
-*.so
+dist-packages/
+
+# Testing
 .pytest_cache/
 .mypy_cache/
-.dmypy.json
-.ruff_cache/
+.coverage
+htmlcov/
+.tox/
 
-# Environment and secrets
+# Environment files
 .env
-.env.*
-!.env.example
+.env.local
+.env.*.local
 
 # Logs
-logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-app.log
+logs/*.log
 mcp-shell.log
+app.log
 
-# Database files
+# Databases
 *.db
 *.sqlite
 *.sqlite3
-alembic.db
+signature_extractor.db
 backend/data/*.db
 
-# Backend uploads and temporary files
-backend/uploads/**/*
-!backend/uploads/.gitkeep
-backend/uploads/images/
-backend/uploads/original_images/
-
-# Desktop app uploads and library
+# Uploads and temporary files
 uploads/**/*
 !uploads/.gitkeep
+backend/uploads/**/*
+!backend/uploads/.gitkeep
+
+# Desktop app library
 desktop_app/library/**/*
 !desktop_app/library/.gitkeep
 
-# Generated/processed images
+# Build artifacts
+build/
+build-artifacts/
+build-artifacts-final/
+dist/
+*.spec.bak
+
+# Screenshots (generated)
+screenshots/
+screenshots_final/
+screenshots_debug/
+screenshots_*/
+
+# Test images (keep sample assets)
 *.png
 *.jpg
 *.jpeg
 *.gif
-*.bmp
-*.tiff
+!assets/**/*
+!marketing/**/*
 !docs/**/*.png
 !docs/**/*.jpg
-!docs/**/*.jpeg
 !.github/**/*.png
-
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-*.ipynb
-
-# Development artifacts
-.vscode/settings.json
-.vscode/launch.json
-*.code-workspace
-.claude/
-.kiro/
-
-# Pre-commit hooks
-.pre-commit-config.yaml.backup
-
-# Local development databases (additional patterns)
-local.db
-local.sqlite
-dev.db
-dev.sqlite
-development.db
-development.sqlite
+!512px-Mohammad_Rafiquzzaman_signature.jpg
 
 # macOS
 .DS_Store
@@ -99,117 +90,49 @@ ehthumbs.db
 # Linux
 *~
 
-# Test files and artifacts
-.pytest_cache/
-.coverage
-coverage.xml
-htmlcov/
-.tox/
-.nox/
-test-results/
-test_output/
-test_screenshots/
-test_*.log
-*.test
-*_test.db
-*_test.sqlite
-*_test.sqlite3
-
-# Backend test artifacts
-backend/test_*.db
-backend/test_*.sqlite
-backend/test_*.sqlite3
-backend/test_output/
-backend/test_logs/
-
-# Desktop app test artifacts
-desktop_app/test_output/
-desktop_app/test_logs/
-desktop_app/test_screenshots/
-desktop_app/tests/__pycache__/
-desktop_app/tests/*.pyc
-
-# PyInstaller / App Bundling
-dist/
-build/
-build-artifacts/
-# Keep spec files for reproducible builds
-!build-tools/*.spec
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.bak
+# IDEs
+.vscode/settings.json
+.vscode/launch.json
+*.code-workspace
+.idea/
 *.swp
 *.swo
-*~
-.cache/
-*.cache
 
-# Debug files
-debug.log
-debug_*.log
-*.debug
-*.dump
+# Kiro and Claude
+.kiro/
+.claude/
 
-# Profile files
-*.prof
-*.lprof
-profile_*.txt
+# Trash
+.trash/
 
-# Session files
-.session
-*.session
+# Distribution packages
+*.dmg
+*.zip
+*.tar.gz
+*.exe
+!releases/*.dmg
+!releases/*.zip
+!releases/*.tar.gz
 
-# Node (legacy, may be removed if fully migrated to desktop)
+# Temporary documentation (moved to docs/)
+COMPREHENSIVE_SCREENSHOTS_READY.md
+FIXES_APPLIED.md
+MANUAL_SCREENSHOT_CHECKLIST.md
+RUN_THIS_FOR_SCREENSHOTS.md
+SCREENSHOT_AUTOMATION_COMPLETE.md
+SCREENSHOTS_COMPLETE.md
+VIDEO_RECORDING_GUIDE.md
+CLEANUP_COMPLETE.md
+
+# Node (if any legacy files)
 node_modules/
-dist-ssr/
-out/
 package-lock.json
 yarn.lock
 
 # Alembic
 alembic/versions/*.pyc
-alembic/*.log
-alembic/*.tmp
 
-# Trash directory
-.trash/
-
-# Debug artifacts
-screenshots_debug/
-
-# Documentation (keep in repo but ignore large generated assets)
-!docs/**/*.md
-!docs/**/*.png
-!docs/**/*.jpg
-!docs/**/*.jpeg
-
-# Marketing assets (keep tracked)
-!marketing/**/*
-!web/**/*
-!assets/**/*
-
-# Legal documents (keep tracked)
-!legal/**/*
-
-# Build tools (keep tracked for reproducibility)
-!build-tools/**/*.py
-!build-tools/**/*.sh
-!build-tools/**/*.spec
-
-# DMG installers and distribution packages (generated artifacts)
-*.dmg
-*.zip
-*.tar.gz
-*.exe
-# Except for release packages in specific locations if needed
-!releases/*.dmg
-!releases/*.zip
-!releases/*.tar.gz
-
-# Code signing artifacts
+# Code signing
 *.provisionprofile
 *.mobileprovision
 *.cer

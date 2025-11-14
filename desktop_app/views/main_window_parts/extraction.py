@@ -2714,7 +2714,7 @@ class ExtractionTabMixin:
 
     def on_buy_license(self):
         # Open Gumroad product page (set GUMROAD_PRODUCT_URL in environment or .env)
-        url = os.getenv("GUMROAD_PRODUCT_URL", "https://gumroad.com/l/signature-extractor")
+        url = os.getenv("GUMROAD_PRODUCT_URL", "https://pranaysuyash.gumroad.com/l/signkit-v1")
         QDesktopServices.openUrl(url)
 
     # No activation prompt; purchase is optional and handled via menu link.
