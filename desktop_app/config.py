@@ -13,7 +13,7 @@ class AppConfig:
     debug: bool = False
     log_level: str = "INFO"
     enable_analytics: bool = False
-    updates_url: str = "https://cdn.signatureextractor.app/updates.json"
+    updates_url: str = "https://cdn.signkit.work/updates.json"
 
 
 def load_config() -> AppConfig:
@@ -27,7 +27,7 @@ def load_config() -> AppConfig:
     debug = os.getenv("DEBUG", "false").lower() in ("true", "1", "yes")
     log_level = os.getenv("LOG_LEVEL", "INFO").upper()
     enable_analytics = os.getenv("ENABLE_ANALYTICS", "false").lower() in ("true", "1", "yes")
-    updates_url = os.getenv("UPDATES_URL", "https://cdn.signatureextractor.app/updates.json")
+    updates_url = os.getenv("UPDATES_URL", "https://cdn.signkit.work/updates.json")
     
     # Validate configuration
     _validate_config(api_base_url, log_level, updates_url)

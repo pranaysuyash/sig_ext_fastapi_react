@@ -324,7 +324,7 @@ class MainWindow(
             pass  # Use default version if file doesn't exist or can't be read
         
         # Define the updates URL - this should be configured via environment or config
-        updates_url = os.getenv("UPDATES_URL", "https://cdn.signatureextractor.app/updates.json")
+        updates_url = os.getenv("UPDATES_URL", "https://cdn.signkit.work/updates.json")
         
         try:
             response = requests.get(updates_url, timeout=10)

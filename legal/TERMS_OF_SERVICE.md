@@ -20,12 +20,14 @@ Subject to these Terms, we grant you a **limited, non-exclusive, non-transferabl
 ### 2.2 License Types
 
 **Free Trial License**:
+
 - **Duration**: Unlimited trial period
 - **Features**: Image processing, preview, basic functionality
 - **Restrictions**: Export and PDF operations disabled
 - **Cost**: Free
 
 **Paid License**:
+
 - **Duration**: Perpetual (for the purchased version)
 - **Features**: All features unlocked
 - **Restrictions**: None (subject to these Terms)
@@ -55,12 +57,14 @@ You may NOT:
 ### 3.2 Refund Policy
 
 **30-Day Money-Back Guarantee**:
+
 - **Full refund** within 30 days of purchase
 - **No questions asked** - satisfaction guaranteed
 - **Process**: Request refund through Gumroad
 - **License Deactivation**: Refunded licenses will be deactivated
 
 **Refund Conditions**:
+
 - Must be requested within 30 days of purchase
 - No usage limits or restrictions during refund period
 - One refund per customer
@@ -70,6 +74,7 @@ You may NOT:
 **No Subscriptions**: Signature Extractor uses a one-time payment model. There are no recurring charges or automatic renewals.
 
 **Major Updates**:
+
 - **Minor Updates**: Free within the purchased major version
 - **Major Updates**: May require additional purchase
 - **Discretion**: We determine what constitutes a major update
@@ -101,6 +106,7 @@ You may NOT use Signature Extractor to:
 ### 4.3 Content Responsibility
 
 **You are solely responsible** for:
+
 - **Content** you process with the Application
 - **Compliance** with applicable laws and regulations
 - **Permissions** for documents you process
@@ -120,11 +126,13 @@ All rights to Signature Extractor are owned by us or our licensors:
 ### 5.2 User Content
 
 **You retain ownership** of:
+
 - **Original documents** you process
 - **Extracted signatures** you create
 - **Modifications** you make to your content
 
 **License Grant to Us**:
+
 - **No rights** to your original content
 - **No access** to your files or processing results
 - **No use** of your content for any purpose
@@ -132,6 +140,7 @@ All rights to Signature Extractor are owned by us or our licensors:
 ### 5.3 Feedback and Suggestions
 
 **Voluntary Feedback**: If you provide feedback or suggestions:
+
 - **License Grant**: Non-exclusive, royalty-free license to use feedback
 - **No Obligation**: No obligation to implement suggestions
 - **No Compensation**: No payment for unsolicited feedback
@@ -141,6 +150,7 @@ All rights to Signature Extractor are owned by us or our licensors:
 ### 6.1 Application Warranty
 
 **We warrant** that Signature Extractor will:
+
 - **Function as described** in our documentation
 - **Process files** using standard image processing algorithms
 - **Maintain reasonable security** for local processing
@@ -158,6 +168,7 @@ All rights to Signature Extractor are owned by us or our licensors:
 ### 6.3 Professional Use
 
 **Important Notice**: If using for professional, legal, medical, or financial purposes:
+
 - **Verify Results**: Manually verify all extracted signatures
 - **Professional Review**: Have signatures reviewed by qualified professionals
 - **Compliance**: Ensure compliance with industry standards and regulations
@@ -180,6 +191,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 7.3 Indemnification
 
 **You agree to indemnify** us against:
+
 - **Claims** arising from your use of the Application
 - **Violations** of these Terms or applicable laws
 - **Third-party rights** infringements related to your content
@@ -196,11 +208,12 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 8.2 License Information
 
 **We collect minimal license information**:
+
 - **Email address**: For license delivery and support
 - **License key**: For product activation and validation
 - **Purchase data**: Processed by Gumroad, not directly by us
 
-**Review our Privacy Policy**: https://signatureextractor.app/privacy
+**Review our Privacy Policy**: https://signkit.work/privacy
 
 ## 9. Term and Termination
 
@@ -211,6 +224,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 9.2 Termination by You
 
 **You may terminate** by:
+
 - **Uninstalling** the Application
 - **Deleting** your license file
 - **Ceasing to use** the Application
@@ -218,6 +232,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 9.3 Termination by Us
 
 **We may terminate** your license if you:
+
 - **Materially breach** these Terms
 - **Use the Application** for illegal purposes
 - **Circumvent license restrictions**
@@ -226,6 +241,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 9.4 Effect of Termination
 
 **Upon termination**:
+
 - **License ends** for all future use
 - **Delete** the Application from all your devices
 - **Continue to comply** with these Terms for prior use
@@ -235,6 +251,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 10.1 Updates
 
 **We may provide**:
+
 - **Bug fixes** and security patches
 - **Feature improvements** and enhancements
 - **Compatibility updates** for new operating systems
@@ -243,6 +260,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 10.2 Automatic Updates
 
 **The Application may**:
+
 - **Check for updates** periodically
 - **Notify you** of available updates
 - **Download updates** with your permission
@@ -251,6 +269,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 10.3 Discontinuation
 
 **If we discontinue** the Application:
+
 - **Notice**: 90 days advance notice
 - **Support**: 30 days continued support
 - **License**: Continued use of last version
@@ -261,7 +280,8 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 11.1 Support Services
 
 **We provide support** through:
-- **Email**: support@signatureextractor.app
+
+- **Email**: support@signkit.work
 - **Documentation**: Online help and tutorials
 - **FAQ**: Answers to common questions
 - **Community**: User forums and discussions
@@ -269,6 +289,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 11.2 Support Limitations
 
 **Support does not include**:
+
 - **Training** on signature extraction techniques
 - **Professional advice** on signature use
 - **Customization** or custom development
@@ -277,6 +298,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 11.3 Response Times
 
 **Best efforts** to respond within:
+
 - **Critical issues**: 24-48 hours
 - **Technical support**: 2-3 business days
 - **General inquiries**: 3-5 business days
@@ -286,6 +308,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 12.1 Governing Law
 
 **These Terms are governed** by:
+
 - **Jurisdiction**: [Your State/Country] law
 - **Federal Law**: United States federal law (where applicable)
 - **International**: Applicable international laws
@@ -293,6 +316,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 12.2 Dispute Resolution
 
 **We aim to resolve** disputes informally:
+
 - **Direct Contact**: Email us with your concerns
 - **Good Faith**: We'll work in good faith to resolve issues
 - **Response**: We'll respond within 5 business days
@@ -300,6 +324,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 ### 12.3 Formal Disputes
 
 **If informal resolution fails**:
+
 - **Mediation**: Agree to mediation before litigation
 - **Jurisdiction**: Courts in [Your City/State]
 - **Attorney's Fees**: Prevailing party entitled to reasonable fees
@@ -325,6 +350,7 @@ These Terms constitute the entire agreement between us regarding the Application
 ### 13.5 Notices
 
 **Legal notices** should be sent to:
+
 ```
 Email: legal@signatureextractor.app
 Address: [Your Business Address]
@@ -339,6 +365,7 @@ You acknowledge and agree to comply with all applicable export laws and regulati
 ### 14.2 Government Use
 
 If used by government entities:
+
 - **Additional Terms**: Additional government-specific terms may apply
 - **Compliance**: Compliance with government regulations required
 - **No Warranty**: No warranties for government use
@@ -346,6 +373,7 @@ If used by government entities:
 ### 14.3 Third-Party Software
 
 The Application includes third-party software with their own licenses:
+
 - **Open Source**: Various open source libraries
 - **Commercial**: Commercial components with appropriate licenses
 - **Attribution**: Proper attribution provided in documentation
@@ -355,22 +383,22 @@ The Application includes third-party software with their own licenses:
 ### 15.1 General Inquiries
 
 ```
-Email: support@signatureextractor.app
-Website: https://signatureextractor.app
+Email: support@signkit.work
+Website: https://signkit.work
 ```
 
 ### 15.2 Legal Matters
 
-```
-Email: legal@signatureextractor.app
+```text
+Email: legal@signkit.work
 Address: [Your Legal Business Address]
 ```
 
 ### 15.3 Press and Media
 
 ```
-Email: press@signatureextractor.app
-Website: https://signatureextractor.app/press
+Email: press@signkit.work
+Website: https://signkit.work/press
 ```
 
 ## 16. Modification of Terms
@@ -382,6 +410,7 @@ We reserve the right to modify these Terms at any time.
 ### 16.2 Notification
 
 **Material changes** will be communicated through:
+
 - **Email notification** to registered users
 - **In-application notification**
 - **Website announcement**
@@ -392,7 +421,7 @@ Continued use of the Application after modifications constitutes acceptance of t
 
 ---
 
-**Questions about these Terms?**
-Contact us at: legal@signatureextractor.app
+**Questions about these Terms?**  
+Contact us at: legal@signkit.work
 
 These Terms of Service, together with our Privacy Policy, govern your use of Signature Extractor. By using the Application, you agree to these terms and conditions.

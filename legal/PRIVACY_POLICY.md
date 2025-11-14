@@ -24,16 +24,19 @@ Signature Extractor is designed to work **offline-first** and does **NOT** colle
 ### 2.2 Information We May Collect (Minimal)
 
 **License Information**:
+
 - Email address (when you activate a license)
 - License key for product activation
 - Purchase information from Gumroad (processed by Gumroad)
 
 **Optional Crash Reports** (if enabled):
+
 - Application error logs
 - System information (OS version, hardware specs)
 - No personal data or file contents
 
 **Support Communications**:
+
 - Information you provide when contacting support
 - Email address for support responses
 
@@ -57,6 +60,7 @@ Some features may require internet connectivity:
 ### 3.3 Third-Party Services
 
 **Gumroad** (Payment Processing):
+
 - Handles payment processing and license key delivery
 - Their privacy policy applies to purchase transactions
 - We do not receive your payment information
@@ -165,17 +169,17 @@ We will notify you of material changes that affect your rights or choices throug
 
 For privacy-related questions or to exercise your rights:
 
-```
-Email: privacy@signatureextractor.app
-Website: https://signatureextractor.app/privacy
+```text
+Email: privacy@signkit.work
+Website: https://signkit.work/privacy
 ```
 
 ### 11.2 Data Protection Officer
 
 For formal data protection inquiries:
 
-```
-Email: dpo@signatureextractor.app
+```text
+Email: dpo@signkit.work
 Address: [Your Business Address]
 ```
 
@@ -260,7 +264,7 @@ We believe in transparency about our privacy practices:
 
 ---
 
-**Questions about this privacy policy?**
-Contact us at: privacy@signatureextractor.app
+**Questions about this privacy policy?**  
+Contact us at: privacy@signkit.work
 
 This privacy policy is part of our commitment to transparency and user privacy in the Signature Extractor application.

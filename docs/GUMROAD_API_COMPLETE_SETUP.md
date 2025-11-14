@@ -25,6 +25,7 @@
 ### Gumroad API Capabilities
 
 **What You Can Do:**
+
 - ✅ Verify license keys in real-time
 - ✅ Check refund status
 - ✅ Receive webhook notifications for sales/refunds
@@ -33,6 +34,7 @@
 - ✅ Manage products programmatically
 
 **API Endpoints:**
+
 ```
 Base URL: https://api.gumroad.com
 
@@ -47,10 +49,12 @@ POST /v2/resource_subscriptions    # Webhooks
 ### Rate Limits
 
 **Free Plan:**
+
 - 1,000 requests/day
 - 10 requests/minute
 
 **Premium Plan ($10/month):**
+
 - 10,000 requests/day
 - 100 requests/minute
 
@@ -73,11 +77,13 @@ POST /v2/resource_subscriptions    # Webhooks
 
 1. **Navigate to:** Settings → Advanced → Application
 2. **Create Application:**
+
    - Name: "SignKit License Validator"
    - Description: "License verification for SignKit desktop app"
    - Redirect URI: `https://your-domain.com/oauth/callback` (if using OAuth)
 
 3. **Get API Keys:**
+
    ```
    Application ID: app_xxxxxxxxxxxxx
    Application Secret: xxxxxxxxxxxxxxxxxxxxxxxx
@@ -96,10 +102,11 @@ POST /v2/resource_subscriptions    # Webhooks
 
 1. **Create product** on Gumroad
 2. **Get Product ID** from URL:
+
    ```
    URL: https://gumroad.com/l/signkit-v1
    Product ID: signkit-v1
-   
+
    OR from API:
    Product ID: prod_xxxxxxxxxxxxx
    ```
@@ -111,6 +118,7 @@ POST /v2/resource_subscriptions    # Webhooks
 ### Complete Product Configuration
 
 **Basic Information:**
+
 ```
 Title: SignKit v1 - Professional Signature Extraction
 URL: gumroad.com/l/signkit-v1
@@ -119,6 +127,7 @@ Category: Software → Productivity
 ```
 
 **Product Description (Copy-Paste Ready):**
+
 ```markdown
 # SignKit - Extract Signatures with Complete Privacy
 
@@ -139,18 +148,21 @@ Category: Software → Productivity
 All processing happens locally on your computer. Your documents never leave your device. No cloud uploads, no tracking, no data collection.
 
 🎯 **Precision Control**
+
 - Zoom and pan for pixel-perfect selection
 - Adjustable threshold and color replacement
 - Real-time preview of extracted signatures
 - Rotation-aware coordinate mapping
 
 📄 **PDF Workflow**
+
 - Interactive PDF viewer with zoom controls
 - Place signatures directly into documents
 - Comprehensive audit logging for compliance
 - Save signed documents with embedded signatures
 
 🖥️ **Professional Desktop App**
+
 - Native performance on all platforms
 - Intuitive interface designed for efficiency
 - Keyboard shortcuts for power users
@@ -174,16 +186,19 @@ All processing happens locally on your computer. Your documents never leave your
 ## What's Included
 
 📥 **Instant Download**
+
 - macOS app (ARM64 + Intel)
 - Windows executable
 - Linux AppImage
 
 📚 **Documentation**
+
 - Quick Start Guide
 - User Manual
 - Video Tutorials
 
 🔑 **License Key**
+
 - Instant delivery via email
 - Activate on up to 3 computers
 - Lifetime validity
@@ -194,8 +209,8 @@ Download the free trial to test all features. Export and PDF operations require 
 
 ## Support
 
-📧 **Email Support:** support@signkit.app
-📖 **Documentation:** docs.signkit.app
+📧 **Email Support:** support@signkit.work
+📖 **Documentation:** docs.signkit.work
 💬 **Response Time:** Within 24-48 hours
 
 ## Refund Policy
@@ -208,22 +223,25 @@ Download the free trial to test all features. Export and PDF operations require 
 ```
 
 **SEO Keywords:**
-```
-signature extraction, PDF signature, document signing, privacy software, 
-desktop app, signature tool, extract signature, digital signature, 
+
+```text
+signature extraction, PDF signature, document signing, privacy software,
+desktop app, signature tool, extract signature, digital signature,
 business software, productivity tool, offline software, local processing
 ```
 
-**Tags:**
-```
-signature-extraction, pdf-tools, privacy-software, desktop-app, 
+**Tags (suggested):**
+
+```text
+signature-extraction, pdf-tools, privacy-software, desktop-app,
 productivity, business-tools, document-processing, macos, windows, linux
 ```
 
 ### File Uploads
 
 **Upload These Files:**
-```
+
+```text
 1. SignatureExtractor-macOS-ARM64.dmg (200-300MB)
 2. SignatureExtractor-macOS-Intel.dmg (200-300MB)
 3. SignatureExtractor-Windows.zip (150-250MB)
@@ -236,13 +254,15 @@ productivity, business-tools, document-processing, macos, windows, linux
 ### License Key Configuration
 
 **Enable in Gumroad:**
+
 1. Product Settings → License Keys
 2. **Enable:** "Generate a unique license key for each sale"
 3. **Format:** Use Gumroad's default or custom format
 4. **Delivery:** Automatic via email
 
 **Custom License Format (Optional):**
-```
+
+```text
 Format: SIGNKIT-V1-XXXX-XXXX-XXXX
 Example: SIGNKIT-V1-A3F2-9B7E-C4D1
 
@@ -266,26 +286,26 @@ from datetime import datetime, timedelta
 
 class GumroadLicenseValidator:
     """Validate licenses using Gumroad API."""
-    
+
     def __init__(self, product_id: str, access_token: str):
         self.product_id = product_id
         self.access_token = access_token
         self.api_base = "https://api.gumroad.com"
         self.cache = {}
         self.cache_duration = timedelta(hours=24)
-    
+
     def verify_license(
-        self, 
-        license_key: str, 
+        self,
+        license_key: str,
         email: Optional[str] = None
     ) -> Dict:
         """
         Verify license key with Gumroad API.
-        
+
         Args:
             license_key: The license key to verify
             email: Optional email for additional validation
-            
+
         Returns:
             Dict with verification result:
             {
@@ -303,18 +323,18 @@ class GumroadLicenseValidator:
             cached_result, cached_time = self.cache[cache_key]
             if datetime.now() - cached_time < self.cache_duration:
                 return cached_result
-        
+
         # Call Gumroad API
         url = f"{self.api_base}/v2/licenses/verify"
-        
+
         payload = {
             "product_id": self.product_id,
             "license_key": license_key,
         }
-        
+
         if email:
             payload["email"] = email
-        
+
         try:
             response = requests.post(
                 url,
@@ -322,12 +342,12 @@ class GumroadLicenseValidator:
                 headers={"Authorization": f"Bearer {self.access_token}"},
                 timeout=10
             )
-            
+
             result = response.json()
-            
+
             if result.get("success"):
                 purchase = result.get("purchase", {})
-                
+
                 verification_result = {
                     "valid": True,
                     "refunded": purchase.get("refunded", False),
@@ -340,25 +360,25 @@ class GumroadLicenseValidator:
                     "sale_id": purchase.get("sale_id", ""),
                     "subscription_id": purchase.get("subscription_id"),
                 }
-                
+
                 # Check if license is actually valid (not refunded/disputed)
                 if verification_result["refunded"] or \
                    verification_result["disputed"] or \
                    verification_result["chargebacked"]:
                     verification_result["valid"] = False
                     verification_result["error"] = "License has been refunded or disputed"
-                
+
             else:
                 verification_result = {
                     "valid": False,
                     "error": result.get("message", "Invalid license key")
                 }
-            
+
             # Cache result
             self.cache[cache_key] = (verification_result, datetime.now())
-            
+
             return verification_result
-            
+
         except requests.exceptions.RequestException as e:
             # Network error - allow offline grace period
             return {
@@ -371,12 +391,12 @@ class GumroadLicenseValidator:
                 "valid": False,
                 "error": f"Validation error: {str(e)}"
             }
-    
+
     def _get_cache_key(self, license_key: str, email: Optional[str]) -> str:
         """Generate cache key for license verification."""
         data = f"{license_key}:{email or ''}"
         return hashlib.sha256(data.encode()).hexdigest()
-    
+
     def clear_cache(self):
         """Clear verification cache."""
         self.cache = {}
@@ -386,26 +406,26 @@ class GumroadLicenseValidator:
 def validate_license_online(license_key: str, email: str) -> bool:
     """
     Validate license key with Gumroad API.
-    
+
     Returns:
         True if valid, False if invalid, None if offline
     """
     import os
-    
+
     product_id = os.getenv("GUMROAD_PRODUCT_ID", "signkit-v1")
     access_token = os.getenv("GUMROAD_ACCESS_TOKEN")
-    
+
     if not access_token:
         # Fallback to offline validation
         return None
-    
+
     validator = GumroadLicenseValidator(product_id, access_token)
     result = validator.verify_license(license_key, email)
-    
+
     if result.get("offline"):
         # Network error - allow grace period
         return None
-    
+
     return result.get("valid", False)
 ```
 
@@ -419,26 +439,26 @@ from .gumroad_validator import validate_license_online
 def save_license(license_key: str, email: str = None) -> bool:
     """
     Save and validate license key.
-    
+
     Args:
         license_key: License key to save
         email: Optional email for validation
-        
+
     Returns:
         True if license is valid and saved
     """
     # First, try online validation
     online_result = validate_license_online(license_key, email)
-    
+
     if online_result is False:
         # Definitely invalid
         return False
-    
+
     if online_result is None:
         # Offline - use local validation
         if not _validate_license_format(license_key):
             return False
-    
+
     # Save license
     license_data = {
         "key": license_key,
@@ -446,7 +466,7 @@ def save_license(license_key: str, email: str = None) -> bool:
         "validated_at": datetime.now().isoformat(),
         "online_validated": online_result is True
     }
-    
+
     _save_to_storage(license_data)
     return True
 
@@ -454,41 +474,42 @@ def save_license(license_key: str, email: str = None) -> bool:
 def is_licensed() -> bool:
     """
     Check if application is licensed.
-    
+
     Performs periodic online validation (every 7 days).
     """
     license_data = _load_from_storage()
-    
+
     if not license_data:
         return False
-    
+
     # Check if we need to revalidate online
     last_validated = datetime.fromisoformat(license_data.get("validated_at", ""))
     days_since_validation = (datetime.now() - last_validated).days
-    
+
     if days_since_validation > 7:
         # Revalidate online
         online_result = validate_license_online(
             license_data["key"],
             license_data.get("email")
         )
-        
+
         if online_result is False:
             # License is no longer valid (refunded?)
             _clear_storage()
             return False
-        
+
         if online_result is True:
             # Update validation timestamp
             license_data["validated_at"] = datetime.now().isoformat()
             _save_to_storage(license_data)
-    
+
     return True
 ```
 
 ### Offline Grace Period
 
 **Strategy:**
+
 - Online validation on first activation
 - Revalidate every 7 days
 - Allow 30-day grace period if offline
@@ -498,7 +519,7 @@ def is_licensed() -> bool:
 def check_license_status() -> Dict:
     """
     Check license status with grace period handling.
-    
+
     Returns:
         {
             "licensed": bool,
@@ -508,17 +529,17 @@ def check_license_status() -> Dict:
         }
     """
     license_data = _load_from_storage()
-    
+
     if not license_data:
         return {
             "licensed": False,
             "status": "invalid",
             "message": "No license found"
         }
-    
+
     last_validated = datetime.fromisoformat(license_data["validated_at"])
     days_offline = (datetime.now() - last_validated).days
-    
+
     if days_offline <= 7:
         return {
             "licensed": True,
@@ -576,7 +597,7 @@ WEBHOOK_SECRET = os.getenv("GUMROAD_WEBHOOK_SECRET")
 def gumroad_webhook():
     """
     Handle Gumroad webhook events.
-    
+
     Events:
     - sale: New purchase
     - refund: Refund processed
@@ -586,10 +607,10 @@ def gumroad_webhook():
     # Verify webhook signature
     if not verify_webhook_signature(request):
         return jsonify({"error": "Invalid signature"}), 401
-    
+
     data = request.json
     event = data.get('event')
-    
+
     try:
         if event == 'sale':
             handle_sale(data)
@@ -601,9 +622,9 @@ def gumroad_webhook():
             handle_dispute_won(data)
         else:
             print(f"Unknown event: {event}")
-        
+
         return jsonify({"status": "success"}), 200
-        
+
     except Exception as e:
         print(f"Webhook error: {e}")
         return jsonify({"error": str(e)}), 500
@@ -612,23 +633,23 @@ def gumroad_webhook():
 def verify_webhook_signature(request) -> bool:
     """Verify Gumroad webhook signature."""
     signature = request.headers.get('X-Gumroad-Signature')
-    
+
     if not signature or not WEBHOOK_SECRET:
         return False
-    
+
     expected_signature = hmac.new(
         WEBHOOK_SECRET.encode(),
         request.data,
         hashlib.sha256
     ).hexdigest()
-    
+
     return hmac.compare_digest(signature, expected_signature)
 
 
 def handle_sale(data: dict):
     """
     Handle new sale event.
-    
+
     Data includes:
     - email: Customer email
     - license_key: Generated license key
@@ -641,11 +662,11 @@ def handle_sale(data: dict):
     license_key = data.get('license_key')
     sale_id = data.get('sale_id')
     product_id = data.get('product_id')
-    
+
     print(f"New sale: {sale_id}")
     print(f"Email: {email}")
     print(f"License: {license_key}")
-    
+
     # Store in database
     store_license_purchase(
         email=email,
@@ -655,7 +676,7 @@ def handle_sale(data: dict):
         purchase_date=datetime.now(),
         status='active'
     )
-    
+
     # Send welcome email (optional - Gumroad handles this)
     # send_welcome_email(email, license_key)
 
@@ -663,20 +684,20 @@ def handle_sale(data: dict):
 def handle_refund(data: dict):
     """
     Handle refund event.
-    
+
     Deactivate license key when refund is processed.
     """
     email = data.get('email')
     license_key = data.get('license_key')
     sale_id = data.get('sale_id')
-    
+
     print(f"Refund processed: {sale_id}")
     print(f"Email: {email}")
     print(f"License: {license_key}")
-    
+
     # Deactivate license in database
     deactivate_license(license_key, reason='refund')
-    
+
     # Send refund confirmation (optional)
     # send_refund_confirmation(email)
 
@@ -684,15 +705,15 @@ def handle_refund(data: dict):
 def handle_dispute(data: dict):
     """
     Handle payment dispute event.
-    
+
     Temporarily suspend license until dispute is resolved.
     """
     email = data.get('email')
     license_key = data.get('license_key')
     sale_id = data.get('sale_id')
-    
+
     print(f"Dispute opened: {sale_id}")
-    
+
     # Suspend license
     suspend_license(license_key, reason='dispute')
 
@@ -700,15 +721,15 @@ def handle_dispute(data: dict):
 def handle_dispute_won(data: dict):
     """
     Handle dispute won event.
-    
+
     Reactivate license after winning dispute.
     """
     email = data.get('email')
     license_key = data.get('license_key')
     sale_id = data.get('sale_id')
-    
+
     print(f"Dispute won: {sale_id}")
-    
+
     # Reactivate license
     reactivate_license(license_key)
 
@@ -741,7 +762,8 @@ if __name__ == '__main__':
 
 ### Deploy Webhook Handler
 
-**Option 1: Heroku (Free Tier)**
+#### Option 1: Heroku (Free Tier)
+
 ```bash
 # Install Heroku CLI
 brew install heroku/brew/heroku
@@ -760,7 +782,8 @@ heroku info
 # Use: https://signkit-webhooks.herokuapp.com/gumroad/webhook
 ```
 
-**Option 2: Vercel (Serverless)**
+#### Option 2: Vercel (Serverless)
+
 ```bash
 # Install Vercel CLI
 npm install -g vercel
@@ -775,7 +798,8 @@ vercel env add GUMROAD_WEBHOOK_SECRET
 vercel --prod
 ```
 
-**Option 3: AWS Lambda (Scalable)**
+#### Option 3: AWS Lambda (Scalable)
+
 ```python
 # lambda_function.py
 import json
@@ -785,29 +809,29 @@ import os
 
 def lambda_handler(event, context):
     """AWS Lambda handler for Gumroad webhooks."""
-    
+
     # Verify signature
     signature = event['headers'].get('X-Gumroad-Signature')
     body = event['body']
-    
+
     expected = hmac.new(
         os.environ['GUMROAD_WEBHOOK_SECRET'].encode(),
         body.encode(),
         hashlib.sha256
     ).hexdigest()
-    
+
     if not hmac.compare_digest(signature, expected):
         return {
             'statusCode': 401,
             'body': json.dumps({'error': 'Invalid signature'})
         }
-    
+
     # Process webhook
     data = json.loads(body)
     event_type = data.get('event')
-    
+
     # Handle events...
-    
+
     return {
         'statusCode': 200,
         'body': json.dumps({'status': 'success'})
@@ -824,7 +848,7 @@ def lambda_handler(event, context):
 def check_refund_status(license_key: str) -> bool:
     """
     Check if license has been refunded.
-    
+
     Returns:
         True if refunded, False if active
     """
@@ -832,9 +856,9 @@ def check_refund_status(license_key: str) -> bool:
         product_id=os.getenv("GUMROAD_PRODUCT_ID"),
         access_token=os.getenv("GUMROAD_ACCESS_TOKEN")
     )
-    
+
     result = validator.verify_license(license_key)
-    
+
     return result.get("refunded", False) or \
            result.get("disputed", False) or \
            result.get("chargebacked", False)
@@ -849,7 +873,7 @@ import time
 def periodic_license_check():
     """Check all active licenses for refunds."""
     active_licenses = get_all_active_licenses()
-    
+
     for license_data in active_licenses:
         if check_refund_status(license_data['key']):
             deactivate_license(
@@ -876,28 +900,28 @@ while True:
 def get_sales_analytics(days: int = 30) -> Dict:
     """
     Get sales analytics from Gumroad API.
-    
+
     Args:
         days: Number of days to analyze
-        
+
     Returns:
         Analytics data including revenue, sales count, etc.
     """
     url = f"{api_base}/v2/sales"
-    
+
     params = {
         "access_token": access_token,
         "after": (datetime.now() - timedelta(days=days)).isoformat(),
         "before": datetime.now().isoformat()
     }
-    
+
     response = requests.get(url, params=params)
     sales = response.json().get("sales", [])
-    
+
     total_revenue = sum(float(sale.get("price", 0)) for sale in sales)
     total_sales = len(sales)
     refund_count = sum(1 for sale in sales if sale.get("refunded"))
-    
+
     return {
         "total_revenue": total_revenue,
         "total_sales": total_sales,
@@ -914,20 +938,22 @@ def get_sales_analytics(days: int = 30) -> Dict:
 ### Test License Keys
 
 **Gumroad Test Mode:**
+
 1. Enable test mode in Gumroad settings
 2. Use test credit card: `4242 4242 4242 4242`
 3. Any future expiry date
 4. Any CVC
 
 **Test License Validation:**
+
 ```python
 def test_license_validation():
     """Test license validation with test key."""
     test_key = "TEST-LICENSE-KEY"
     test_email = "test@example.com"
-    
+
     result = validate_license_online(test_key, test_email)
-    
+
     assert result is not None
     print(f"Validation result: {result}")
 
@@ -965,18 +991,21 @@ GUMROAD_PRODUCT_URL=https://gumroad.com/l/signkit-v1
 ### Common Issues
 
 **License Validation Fails:**
+
 - Check API token is valid
 - Verify product ID is correct
 - Ensure license key format matches
 - Check network connectivity
 
 **Webhook Not Receiving Events:**
+
 - Verify webhook URL is accessible
 - Check webhook secret matches
 - Ensure HTTPS is enabled
 - Test with Gumroad webhook tester
 
 **Refund Not Detected:**
+
 - Check webhook is configured for refund events
 - Verify webhook handler processes refunds
 - Test refund flow in test mode
@@ -984,8 +1013,10 @@ GUMROAD_PRODUCT_URL=https://gumroad.com/l/signkit-v1
 ---
 
 **This completes the Gumroad API integration. You now have:**
+
 - ✅ License verification
 - ✅ Webhook handling
 - ✅ Refund detection
 - ✅ Analytics tracking
+- ✅ Production-ready code
 - ✅ Production-ready code

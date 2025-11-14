@@ -19,6 +19,7 @@
 ## 2. LICENSE RESTRICTIONS
 
 **2.1 You MAY NOT**:
+
 - Reverse engineer, decompile, or disassemble the software
 - Distribute copies of the software to third parties
 - Create derivative works based on the software
@@ -60,7 +61,7 @@
 
 **7.2 License Information**: Only license key and email address are stored for validation purposes.
 
-**7.3 Privacy Policy**: Our complete Privacy Policy is available at: https://signatureextractor.app/privacy
+**7.3 Privacy Policy**: Our complete Privacy Policy is available at: https://signkit.work/privacy
 
 ## 8. TERM AND TERMINATION
 
@@ -80,7 +81,7 @@
 
 **10.1 Updates**: Licensor may provide software updates from time to time.
 
-**10.2 Support**: Email support is available at support@signatureextractor.app
+**10.2 Support**: Email support is available at support@signkit.work
 
 ## 11. COMPLIANCE
 
@@ -98,8 +99,8 @@
 
 **SIGNATURE TOOLS LLC**
 [Your Company Address]
-support@signatureextractor.app
-https://signatureextractor.app
+support@signkit.work
+https://signkit.work
 
 **EULA Version**: 1.0
 **Date**: November 7, 2025

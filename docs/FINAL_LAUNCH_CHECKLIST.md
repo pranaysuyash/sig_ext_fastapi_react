@@ -160,7 +160,7 @@
 
 ### Support Channels
 
-- **Primary**: Email (support@signatureextractor.app)
+- **Primary**: Email (support@signkit.work)
 - **Backup**: Gumroad messages
 - **Documentation**: Comprehensive FAQ in place
 

@@ -13,6 +13,7 @@ Your analysis is spot-on. Here's the detailed breakdown:
 ### Psychological Pricing Reality
 
 **$29 - The Sweet Spot** ✅
+
 - **Under $30 Barrier**: Massively important psychological threshold
 - **Impulse Buy Territory**: $20-30 range triggers immediate purchase decisions
 - **"Lunch Money" Justification**: Easy for professionals to expense or justify
@@ -20,6 +21,7 @@ Your analysis is spot-on. Here's the detailed breakdown:
 - **Low Friction**: Customers don't overthink purchases under $30
 
 **$39 - The Danger Zone** ❌
+
 - **Mental Rounding**: Customers perceive as "$40"
 - **Analysis Paralysis**: Triggers "I need to think about this" response
 - **Lost Impulse Buyers**: 30%+ of potential buyers lost at this price point
@@ -28,6 +30,7 @@ Your analysis is spot-on. Here's the detailed breakdown:
 ### Market Data Analysis
 
 **Desktop Software Pricing Benchmarks**:
+
 - **Entry-level tools**: $19-29 (high volume)
 - **Professional tools**: $49-99 (lower volume, higher value)
 - **Enterprise tools**: $199+ (B2B sales model)
@@ -45,6 +48,7 @@ Launch Price: $29.00
 ```
 
 **Future Pricing**:
+
 - **6 months**: Review sales data and market response
 - **If demand > supply**: Consider $34-39 price increase
 - **If volume low**: Keep $29 or even test $24
@@ -63,6 +67,7 @@ Your current Gumroad setup assumes **pay-first** model, but your messaging promi
 ### Option A: Free Download Model (RECOMMENDED)
 
 **User Flow**:
+
 ```
 1. Website Visitor → Downloads app (FREE, no payment)
 2. Uses app fully except export/PDF save
@@ -74,6 +79,7 @@ Your current Gumroad setup assumes **pay-first** model, but your messaging promi
 ```
 
 **Advantages**:
+
 - ✅ **True "try before you buy"** - builds trust
 - ✅ **No purchase friction** for evaluation
 - ✅ **Higher conversion** (qualified buyers)
@@ -81,6 +87,7 @@ Your current Gumroad setup assumes **pay-first** model, but your messaging promi
 - ✅ **Viral distribution** - easy to share trial
 
 **Website Structure**:
+
 ```
 Signature Extractor - Professional Signature Extraction
 
@@ -103,6 +110,7 @@ Ready to unlock everything?
 ### Option B: Pay-First Model (NOT RECOMMENDED)
 
 **Problems**:
+
 - ❌ **High friction** - requires payment before trying
 - ❌ **Trust issues** - customers skeptical without trial
 - ❌ **Lower conversion** - many won't pay without testing
@@ -111,18 +119,21 @@ Ready to unlock everything?
 ### Implementation Plan
 
 **Phase 1: Website Setup** (Week 1)
+
 1. Create simple landing page with download buttons
 2. Host app files on your server/cloud storage
 3. Add clear "Try Free" messaging
 4. Install Google Analytics (anonymous only)
 
 **Phase 2: Gumroad Configuration** (Week 1)
+
 1. Change product to "License Key Only"
 2. Remove software files from Gumroad
 3. Update description: "Already downloaded? Buy your license key here"
 4. Set up license key delivery
 
 **Phase 3: App Integration** (Week 2)
+
 1. Add prominent "Buy License" button in trial mode
 2. Link directly to Gumroad product page
 3. Make license entry streamlined
@@ -141,6 +152,7 @@ You promised "no tracking" but need product intelligence. Solution: **transparen
 ### Implementation Strategy
 
 **First-Launch Dialog**:
+
 ```
 Help Improve Signature Extractor
 
@@ -163,6 +175,7 @@ You can change this anytime in Settings.
 ```
 
 **Technical Implementation**:
+
 ```python
 # In desktop_app/config.py
 class AnalyticsConfig:
@@ -185,17 +198,20 @@ class AnalyticsConfig:
 ### What You CAN Collect (Opt-In Only)
 
 **Crash Reports**:
+
 - Error types and stack traces
 - App version and OS version
 - Feature/module that crashed
 - Hardware specs (anonymized)
 
 **Support-Based Intelligence**:
+
 - "What were you trying to do when this happened?"
 - "Which features do you use most?"
 - "What's missing from the app?"
 
 **Voluntary Feedback**:
+
 - In-app feedback form
 - Email support interactions
 - Public reviews and testimonials
@@ -203,12 +219,14 @@ class AnalyticsConfig:
 ### What You CANNOT Collect (Privacy Promise)
 
 **Usage Tracking**:
+
 - ❌ How many signatures extracted
 - ❌ Which file formats used
 - ❌ Time spent in app
 - ❌ Feature usage patterns
 
 **Personal Data**:
+
 - ❌ Document contents
 - ❌ File names or paths
 - ❌ User identification
@@ -217,6 +235,7 @@ class AnalyticsConfig:
 ### Alternative Intelligence Strategy
 
 **Support Email Analysis**:
+
 ```python
 # Template for support intelligence
 def analyze_support_request(email):
@@ -230,6 +249,7 @@ def analyze_support_request(email):
 ```
 
 **Quarterly User Surveys**:
+
 - Send to all active users
 - Optional participation
 - Ask about usage patterns and needs
@@ -244,6 +264,7 @@ def analyze_support_request(email):
 ### Complete Distribution Strategy
 
 **Website (Primary Distribution)**:
+
 ```
 signatureextractor.app
 
@@ -257,6 +278,7 @@ signatureextractor.app
 ```
 
 **Gumroad (License Sales Only)**:
+
 ```
 Product: Signature Extractor License Key
 Price: $29.00
@@ -265,6 +287,7 @@ Files: None (license only)
 ```
 
 **In-App Purchase Flow**:
+
 ```
 Trial Mode Interface:
 ┌─────────────────────────────┐
@@ -281,6 +304,7 @@ Trial Mode Interface:
 ### Technical Implementation
 
 **Website Download Setup**:
+
 ```html
 <!-- Download page structure -->
 <div class="download-section">
@@ -294,7 +318,10 @@ Trial Mode Interface:
     <a href="/downloads/SignatureExtractor-Windows.zip" class="btn btn-windows">
       🪟 Download for Windows
     </a>
-    <a href="/downloads/SignatureExtractor-Linux.AppImage" class="btn btn-linux">
+    <a
+      href="/downloads/SignatureExtractor-Linux.AppImage"
+      class="btn btn-linux"
+    >
       🐧 Download for Linux
     </a>
   </div>
@@ -328,6 +355,7 @@ Trial Mode Interface:
 ```
 
 **App Integration**:
+
 ```python
 # desktop_app/views/license_restriction_dialog.py
 def show_trial_upgrade_prompt():
@@ -378,18 +406,21 @@ class TrialUpgradeDialog(QDialog):
 ### Week 1: Foundation Setup
 
 **Day 1-2: Website Infrastructure**
-- [ ] Register domain (signatureextractor.app)
+
+- [x] Register domain (signkit.work)
 - [ ] Set up simple landing page
 - [ ] Upload trial downloads to cloud storage
 - [ ] Create download page with clear messaging
 
 **Day 3-4: Gumroad Reconfiguration**
+
 - [ ] Change product to "License Key Only"
 - [ ] Remove software files from Gumroad
 - [ ] Update product description and pricing
 - [ ] Test license key delivery
 
 **Day 5-7: App Integration**
+
 - [ ] Add "Buy License" buttons to trial interface
 - [ ] Update license restriction dialogs
 - [ ] Test complete user flow
@@ -398,18 +429,21 @@ class TrialUpgradeDialog(QDialog):
 ### Week 2: Launch Preparation
 
 **Day 8-10: Final Testing**
+
 - [ ] Test complete download → trial → purchase flow
 - [ ] Verify all platforms work correctly
 - [ ] Test license key validation
 - [ ] Verify email delivery and formatting
 
 **Day 11-12: Marketing Materials**
+
 - [ ] Create product screenshots
 - [ ] Write social media announcements
 - [ ] Prepare launch email sequence
 - [ ] Set up basic analytics (page views only)
 
 **Day 13-14: LAUNCH**
+
 - [ ] Make website live
 - [ ] Announce on social channels
 - [ ] Monitor initial downloads and conversions
@@ -422,11 +456,13 @@ class TrialUpgradeDialog(QDialog):
 ### Week 1 Targets
 
 **Website Metrics**:
+
 - **Downloads**: 200-500 trial downloads
 - **Conversion Rate**: 3-5% (6-25 license sales)
 - **Revenue**: $174-725 (6-25 × $29)
 
 **Engagement Metrics**:
+
 - **Trial to Purchase Time**: 2-7 days average
 - **Support Requests**: <5% of users
 - **Crash Reports**: <2% of users (if opt-in enabled)
@@ -434,11 +470,13 @@ class TrialUpgradeDialog(QDialog):
 ### Month 1 Targets
 
 **Conservative Goals**:
+
 - **Trial Downloads**: 1,000-2,000
 - **License Sales**: 50-100
 - **Revenue**: $1,450-2,900
 
 **Ambitious Goals**:
+
 - **Trial Downloads**: 5,000+
 - **License Sales**: 250+
 - **Revenue**: $7,250+
@@ -450,28 +488,34 @@ class TrialUpgradeDialog(QDialog):
 ### Technical Risks
 
 **Download Infrastructure**:
+
 - **Risk**: Server crashes, high bandwidth costs
 - **Mitigation**: Use CDN (CloudFront/R2), unlimited bandwidth plan
 
 **License Validation**:
+
 - **Risk**: Pirates crack license system
 - **Mitigation**: Keep validation simple, focus on honest customers
 
 **Platform Compatibility**:
+
 - **Risk**: Apps don't work on all systems
 - **Mitigation**: Thorough testing, clear system requirements
 
 ### Business Risks
 
 **Low Conversion Rate**:
+
 - **Risk**: Many downloads, few purchases
 - **Mitigation**: Optimize trial experience, clear value proposition
 
 **Support Overload**:
+
 - **Risk**: Too many support requests
 - **Mitigation**: Clear documentation, automated responses, FAQ
 
 **Competition**:
+
 - **Risk**: Competitors lower prices
 - **Mitigation**: Focus on unique value (privacy, features, UX)
 

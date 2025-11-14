@@ -5,6 +5,7 @@ This guide covers installing Signature Extractor on different platforms and prov
 ## System Requirements
 
 ### Minimum Requirements
+
 - **Operating System**:
   - macOS 10.15 (Catalina) or later
   - Windows 10 (64-bit) or later
@@ -14,6 +15,7 @@ This guide covers installing Signature Extractor on different platforms and prov
 - **Processor**: 64-bit processor (ARM64 or x86_64)
 
 ### Recommended Requirements
+
 - **Operating System**: Latest stable version
 - **Memory**: 8GB RAM or more
 - **Storage**: 1GB available disk space
@@ -100,11 +102,13 @@ python build.py --create-scripts
 ### Configuration Setup
 
 1. **Environment Configuration**:
+
    - Copy `.env.example` to `.env` in the installation directory
    - Generate a secure JWT secret: `openssl rand -hex 32`
    - Update the `.env` file with your JWT secret
 
 2. **Backend Configuration**:
+
    - The application will attempt to start the backend automatically
    - If running in offline mode, core features will still work
    - Check the status bar for backend availability
@@ -118,12 +122,14 @@ python build.py --create-scripts
 ### Testing Your Installation
 
 1. **Basic Test**:
+
    - Open an image file (PNG or JPEG)
    - Make a selection using the rectangle tool
    - Preview the extracted signature
    - Try the basic image processing features
 
 2. **License Test**:
+
    - Test export functionality (PNG, JPG export)
    - Test PDF operations if you have PDF files
    - Verify all features are unlocked
@@ -140,10 +146,12 @@ python build.py --create-scripts
 #### macOS Issues
 
 **"App can't be opened because Apple cannot check it for malicious software"**
+
 - Solution: Right-click the app → "Open" → "Open" in the dialog
 - Alternative: Go to System Preferences → Security & Privacy → General → "Allow apps downloaded from: App Store and identified developers" → Click "Allow Anyway"
 
 **App crashes on launch**
+
 - Check System Console.app for crash logs
 - Try running from Terminal: `/Applications/SignatureExtractor.app/Contents/MacOS/SignatureExtractor`
 - Ensure macOS is up to date
@@ -151,14 +159,17 @@ python build.py --create-scripts
 #### Windows Issues
 
 **"Windows protected your PC" warning**
+
 - Click "More info" → "Run anyway"
 - Add exception to Windows Defender if needed
 
 **Missing DLL errors**
+
 - Install Microsoft Visual C++ Redistributable
 - Ensure all Windows updates are installed
 
 **Application won't start**
+
 - Run as Administrator
 - Check Event Viewer for error logs
 - Try compatibility mode (Windows 8)
@@ -166,11 +177,13 @@ python build.py --create-scripts
 #### Linux Issues
 
 **Permission denied**
+
 ```bash
 chmod +x SignatureExtractor.AppImage
 ```
 
 **Missing libraries**
+
 ```bash
 # Ubuntu/Debian
 sudo apt-get update
@@ -184,6 +197,7 @@ sudo pacman -S mesa libxinerama
 ```
 
 **AppImage doesn't run**
+
 ```bash
 # Extract and run
 ./SignatureExtractor.AppImage --appimage-extract
@@ -193,12 +207,14 @@ sudo pacman -S mesa libxinerama
 ### Performance Issues
 
 **Slow performance with large images**
+
 - Reduce image size before processing
 - Close other applications
 - Increase RAM if possible
 - Use the "Fit" view instead of "100%" zoom
 
 **Memory errors**
+
 - The application automatically limits memory usage
 - Restart the application if it becomes slow
 - Check available disk space for temporary files
@@ -206,6 +222,7 @@ sudo pacman -S mesa libxinerama
 ### Network Issues
 
 **Backend won't start**
+
 - Check if port 8001 is available
 - Try running backend manually:
   ```bash
@@ -214,6 +231,7 @@ sudo pacman -S mesa libxinerama
 - Check firewall settings
 
 **License validation fails**
+
 - Ensure internet connection is active
 - Check license key spelling
 - Contact support if issues persist
@@ -239,6 +257,7 @@ ENABLE_ANALYTICS=false
 ### Backend Configuration
 
 **Manual Backend Start**:
+
 ```bash
 cd /path/to/signature-extractor-app
 source .venv/bin/activate
@@ -246,17 +265,20 @@ uvicorn backend.app.main:app --host 127.0.0.1 --port 8001
 ```
 
 **Database Configuration**:
+
 - Default: SQLite database in application directory
 - PostgreSQL: Set `DATABASE_URL=postgresql://user:pass@localhost:5432/dbname`
 
 ### Custom Installation Paths
 
 **Portable Installation**:
+
 - Extract the application to any folder
 - All data is stored in the application directory
 - No registry entries or system files are modified
 
 **Network Installation**:
+
 - Share the application folder on network drive
 - Multiple users can run from same installation
 - Each user gets separate data directory
@@ -273,11 +295,13 @@ uvicorn backend.app.main:app --host 127.0.0.1 --port 8001
 ### Data Backup
 
 **Backup Location**:
+
 - macOS: `~/Library/Application Support/SignatureExtractor/`
 - Windows: `%APPDATA%/SignatureExtractor/`
 - Linux: `~/.local/share/SignatureExtractor/`
 
 **Backup Files**:
+
 - `license.json` - Your license information
 - `signature_extractor.db` - Application database (if using SQLite)
 - `library/` - Your saved signatures and documents
@@ -285,14 +309,17 @@ uvicorn backend.app.main:app --host 127.0.0.1 --port 8001
 ### Uninstallation
 
 **macOS**:
+
 - Drag SignatureExtractor.app to Trash
 - Remove data folder: `~/Library/Application Support/SignatureExtractor/`
 
 **Windows**:
+
 - Delete the application folder
 - Remove data folder: `%APPDATA%/SignatureExtractor/`
 
 **Linux**:
+
 - Delete the AppImage or application folder
 - Remove data folder: `~/.local/share/SignatureExtractor/`
 
@@ -302,12 +329,13 @@ uvicorn backend.app.main:app --host 127.0.0.1 --port 8001
 
 - **Documentation**: https://signatureextractor.app/docs
 - **FAQ**: https://signatureextractor.app/faq
-- **Email Support**: support@signatureextractor.app
+- **Email Support**: support@signkit.work
 - **Community Forum**: https://community.signatureextractor.app
 
 ### Reporting Issues
 
 When reporting issues, please include:
+
 - Operating system and version
 - Application version
 - Step-by-step reproduction steps
@@ -317,6 +345,7 @@ When reporting issues, please include:
 ### Diagnostic Information
 
 The application can generate diagnostic information:
+
 1. Go to **Help** → **Generate Diagnostic Report**
 2. Save the report file
 3. Include it when contacting support
