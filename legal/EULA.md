@@ -1,16 +1,16 @@
-# Signature Extractor - End User License Agreement (EULA)
+# SignKit - End User License Agreement (EULA)
 
-**IMPORTANT: READ CAREFULLY** - This End User License Agreement ("EULA") is a legal agreement between you ("Licensee") and Signature Tools LLC ("Licensor") for the Signature Extractor software application.
+**IMPORTANT: READ CAREFULLY** - This End User License Agreement ("EULA") is a legal agreement between you ("Licensee") and Signature Tools LLC ("Licensor") for the SignKit software application.
 
-**By installing and using Signature Extractor, you agree to be bound by the terms of this EULA.** If you do not agree to these terms, do not install or use the software.
+**By installing and using SignKit, you agree to be bound by the terms of this EULA.** If you do not agree to these terms, do not install or use the software.
 
 ---
 
 ## 1. LICENSE GRANT
 
-**1.1 License Type**: Signature Extractor is licensed, not sold. Licensor grants you a non-exclusive, non-transferable license to use the software in accordance with these terms.
+**1.1 License Type**: SignKit is licensed, not sold. Licensor grants you a non-exclusive, non-transferable license to use the software in accordance with these terms.
 
-**1.2 Permitted Use**: You may install and use Signature Extractor on computers you own or control for personal or professional use.
+**1.2 Permitted Use**: You may install and use SignKit on computers you own or control for personal or professional use.
 
 **1.3 Trial License**: The free trial version allows evaluation of the software with certain features disabled (export and PDF operations).
 
@@ -31,7 +31,7 @@
 
 ## 3. INTELLECTUAL PROPERTY
 
-**3.1 Ownership**: All rights, title, and interest in Signature Extractor remain with Licensor.
+**3.1 Ownership**: All rights, title, and interest in SignKit remain with Licensor.
 
 **3.2 User Content**: You retain all rights to your original documents and extracted signatures.
 
@@ -98,11 +98,10 @@
 ---
 
 **SIGNATURE TOOLS LLC**
-[Your Company Address]
 support@signkit.work
 https://signkit.work
 
 **EULA Version**: 1.0
-**Date**: November 7, 2025
+**Date**: November 15, 2025
 
-**BY CLICKING "I ACCEPT" OR BY INSTALLING AND USING SIGNATURE EXTRACTOR, YOU ACKNOWLEDGE THAT YOU HAVE READ THIS EULA, UNDERSTAND IT, AND AGREE TO BE BOUND BY ITS TERMS AND CONDITIONS.**
+**BY CLICKING "I ACCEPT" OR BY INSTALLING AND USING SIGNKIT, YOU ACKNOWLEDGE THAT YOU HAVE READ THIS EULA, UNDERSTAND IT, AND AGREE TO BE BOUND BY ITS TERMS AND CONDITIONS.**

@@ -1,17 +1,17 @@
-# Terms of Service - Signature Extractor
+# Terms of Service - SignKit
 
-**Last Updated:** November 7, 2025  
-**Effective Date:** November 7, 2025
+**Last Updated:** November 15, 2025  
+**Effective Date:** November 15, 2025
 
 ## Agreement
 
-By using Signature Extractor, you agree to these terms. If you don't agree, don't use the software.
+By using SignKit, you agree to these terms. If you don't agree, don't use the software.
 
 ## The Software
 
 ### What It Is
 
-**Signature Extractor is:**
+**SignKit is:**
 - Desktop application for signature extraction
 - Local processing software (runs on your computer)
 - Licensed software (not open source)
@@ -19,7 +19,7 @@ By using Signature Extractor, you agree to these terms. If you don't agree, don'
 
 ### What It's Not
 
-**Signature Extractor is NOT:**
+**SignKit is NOT:**
 - A cloud service or SaaS
 - A subscription product
 - A guaranteed service
@@ -366,14 +366,14 @@ By using Signature Extractor, you agree to these terms. If you don't agree, don'
 ### Questions?
 
 **Contact us:**
-- Email: support@signatureextractor.app
-- Website: https://signatureextractor.app
+- Email: support@signkit.work
+- Website: https://signkit.work
 - Response: Within 24-48 hours
 
 ### Legal Notices
 
 **Send to:**
-- Email: legal@signatureextractor.app
+- Email: legal@signkit.work
 - Must include: Your name, contact info, issue description
 
 ## Summary
@@ -389,10 +389,10 @@ By using Signature Extractor, you agree to these terms. If you don't agree, don'
 ✅ **Privacy-first** - All processing is local  
 ✅ **Fair terms** - We're reasonable people  
 
-**Questions?** Email support@signatureextractor.app
+**Questions?** Email support@signkit.work
 
 ---
 
-**By using Signature Extractor, you agree to these terms.**
+**By using SignKit, you agree to these terms.**
 
-**Last Updated:** November 7, 2025
+**Last Updated:** November 15, 2025

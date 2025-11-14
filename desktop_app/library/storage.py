@@ -51,6 +51,97 @@ def save_png_to_library(png_bytes: bytes, metadata: Optional[Dict[str, Any]] = N
     return path
 
 
+def save_image_to_library(
+    image_path: str,
+    metadata: Optional[Dict[str, Any]] = None,
+    custom_filename: Optional[str] = None
+) -> str:
+    """Copy an image file to the library with optional metadata.
+    
+    Args:
+        image_path: Path to source image file
+        metadata: Optional metadata dict (will be augmented with file info)
+        custom_filename: Optional custom filename (otherwise auto-generated)
+    
+    Returns:
+        Path to saved file in library
+    
+    Raises:
+        ValueError: If image file is invalid or cannot be read
+        IOError: If file operations fail
+    """
+    import shutil
+    from PIL import Image
+    
+    # Validate that file exists
+    if not os.path.exists(image_path):
+        raise ValueError(f"Image file not found: {image_path}")
+    
+    # Validate that it's a readable image
+    try:
+        with Image.open(image_path) as img:
+            img.verify()  # Verify it's a valid image
+        
+        # Re-open to get metadata (verify() closes the file)
+        with Image.open(image_path) as img:
+            width, height = img.size
+            image_format = img.format
+            image_mode = img.mode
+    except Exception as e:
+        raise ValueError(f"Invalid or corrupted image file: {e}")
+    
+    # Ensure library directory exists
+    ensure_library_dir()
+    
+    # Generate filename
+    if custom_filename:
+        fname = custom_filename
+    else:
+        # Use original extension
+        ext = os.path.splitext(image_path)[1].lower()
+        if ext not in ['.png', '.jpg', '.jpeg']:
+            ext = '.png'  # Default to PNG
+        fname = auto_filename(ext=ext)
+    
+    # Destination path
+    dest_path = os.path.join(LIB_DIR, fname)
+    
+    # Copy file to library
+    try:
+        shutil.copy2(image_path, dest_path)
+    except Exception as e:
+        raise IOError(f"Failed to copy image to library: {e}")
+    
+    # Build metadata
+    file_metadata = {
+        "source": "loaded_file",
+        "original_filename": os.path.basename(image_path),
+        "original_path": os.path.abspath(image_path),
+        "loaded_at": datetime.now().isoformat(),
+        "image_size": {
+            "width": width,
+            "height": height
+        },
+        "image_format": image_format,
+        "image_mode": image_mode,
+        "file_size_bytes": os.path.getsize(image_path)
+    }
+    
+    # Merge with provided metadata
+    if metadata:
+        file_metadata.update(metadata)
+    
+    # Save metadata as JSON sidecar
+    json_path = dest_path.rsplit(".", 1)[0] + ".json"
+    try:
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(file_metadata, f, indent=2)
+    except Exception:
+        pass  # Non-critical, continue even if metadata save fails
+    
+    return dest_path
+
+
 @dataclass
 class LibraryItem:
     path: str

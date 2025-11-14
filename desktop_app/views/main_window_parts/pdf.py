@@ -368,6 +368,13 @@ class PdfTabMixin:
         pdf_controls.addWidget(self.pdf_sig_list)
 
         lib_buttons = QHBoxLayout()
+        
+        load_sig_btn = _create_button("Load...", parent_widget)
+        set_button_icon(load_sig_btn, "open", "Load signature from file", use_emoji=False)
+        load_sig_btn.setToolTip("Load signature image from file (Ctrl+Shift+L)")
+        load_sig_btn.clicked.connect(self._on_load_signature_clicked)
+        lib_buttons.addWidget(load_sig_btn)
+        
         refresh_sig_btn = _create_button("Refresh", parent_widget)
         set_button_icon(refresh_sig_btn, "refresh", "Refresh", use_emoji=False)
         refresh_sig_btn.clicked.connect(self._refresh_pdf_signature_library)
@@ -442,6 +449,12 @@ class PdfTabMixin:
         pdf_menu.addAction(close_pdf_act)
         
         pdf_menu.addSeparator()
+        
+        load_sig_act = QAction("&Load Signature...", self)
+        load_sig_act.setShortcut(QKeySequence("Ctrl+Shift+L"))
+        load_sig_act.setStatusTip("Load signature image from file")
+        load_sig_act.triggered.connect(self._on_load_signature_clicked)
+        pdf_menu.addAction(load_sig_act)
         
         paste_sig_act = QAction("&Paste Signature from Clipboard", self)
         paste_sig_act.setShortcut(QKeySequence("Ctrl+Shift+V"))
@@ -902,6 +915,256 @@ class PdfTabMixin:
             item.setData(Qt.ItemDataRole.UserRole, lib_item.path)
             item.setToolTip(lib_item.tooltip_text)  # Show coordinates in tooltip
             self.pdf_sig_list.addItem(item)
+    
+    def _load_signature_file(
+        self,
+        source_path: str,
+        handle_duplicate: str = "ask"
+    ) -> tuple[bool, str, Optional[str]]:
+        """Load a single signature file into the library.
+        
+        Args:
+            source_path: Path to source image file
+            handle_duplicate: How to handle duplicates - "ask", "replace", "copy", "skip"
+        
+        Returns:
+            Tuple of (success: bool, message: str, loaded_path: Optional[str])
+        """
+        try:
+            filename = os.path.basename(source_path)
+            
+            # Check for duplicate
+            existing_path = self._check_duplicate_signature(filename)
+            
+            if existing_path and handle_duplicate == "ask":
+                action, _ = self._show_duplicate_dialog(filename, apply_to_all=False)
+                handle_duplicate = action
+            
+            if handle_duplicate == "cancel":
+                return False, "Cancelled", None
+            
+            if handle_duplicate == "skip":
+                return False, f"Skipped: {filename}", None
+            
+            # Determine custom filename for "copy" action
+            custom_filename = None
+            if existing_path and handle_duplicate == "copy":
+                # Generate unique filename with timestamp
+                name, ext = os.path.splitext(filename)
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                custom_filename = f"{name}_{timestamp}{ext}"
+            elif existing_path and handle_duplicate == "replace":
+                # Use original filename to replace
+                custom_filename = filename
+            
+            # Load the signature
+            loaded_path = lib.save_image_to_library(
+                source_path,
+                metadata=None,
+                custom_filename=custom_filename
+            )
+            
+            return True, f"Loaded: {os.path.basename(loaded_path)}", loaded_path
+            
+        except ValueError as e:
+            return False, f"Invalid image: {filename} - {str(e)}", None
+        except IOError as e:
+            return False, f"Failed to load: {filename} - {str(e)}", None
+        except Exception as e:
+            return False, f"Error: {filename} - {str(e)}", None
+    
+    def _on_load_signature_clicked(self):
+        """Handle Load Signature button click - open file dialog and load signatures."""
+        from PySide6.QtWidgets import QFileDialog
+        
+        # Open file dialog with multi-select
+        file_dialog = QFileDialog(self)
+        file_dialog.setWindowTitle("Load Signature Image(s)")
+        file_dialog.setNameFilter("Image Files (*.png *.jpg *.jpeg)")
+        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)  # Multi-select
+        file_dialog.setViewMode(QFileDialog.ViewMode.Detail)
+        
+        if not file_dialog.exec():
+            return
+        
+        selected_files = file_dialog.selectedFiles()
+        if not selected_files:
+            return
+        
+        # Process files
+        loaded_count = 0
+        failed_count = 0
+        first_loaded_path = None
+        duplicate_action = "ask"
+        apply_to_all = False
+        failed_messages = []
+        
+        for i, file_path in enumerate(selected_files):
+            # Update status for batch operations
+            if len(selected_files) > 1:
+                self.statusBar().showMessage(
+                    f"Loading signatures... ({i + 1}/{len(selected_files)})"
+                )
+                QApplication.processEvents()
+            
+            # Handle duplicate action
+            if apply_to_all and duplicate_action != "ask":
+                handle_dup = duplicate_action
+            else:
+                handle_dup = "ask"
+            
+            # Check for duplicate and show dialog if needed
+            if handle_dup == "ask":
+                filename = os.path.basename(file_path)
+                existing = self._check_duplicate_signature(filename)
+                if existing:
+                    action, apply_checked = self._show_duplicate_dialog(
+                        filename,
+                        apply_to_all=(len(selected_files) > 1 and i < len(selected_files) - 1)
+                    )
+                    
+                    if action == "cancel":
+                        self.statusBar().showMessage("Loading cancelled")
+                        return
+                    
+                    handle_dup = action
+                    if apply_checked:
+                        duplicate_action = action
+                        apply_to_all = True
+            
+            # Load the file
+            success, message, loaded_path = self._load_signature_file(file_path, handle_dup)
+            
+            if success:
+                loaded_count += 1
+                if first_loaded_path is None:
+                    first_loaded_path = loaded_path
+            else:
+                failed_count += 1
+                if message and not message.startswith("Skipped"):
+                    failed_messages.append(message)
+        
+        # Refresh library
+        self._refresh_pdf_signature_library()
+        
+        # Select first loaded signature
+        if first_loaded_path:
+            for i in range(self.pdf_sig_list.count()):
+                item = self.pdf_sig_list.item(i)
+                item_path = item.data(Qt.ItemDataRole.UserRole)
+                if item_path == first_loaded_path:
+                    self.pdf_sig_list.setCurrentItem(item)
+                    self._on_pdf_signature_selected(item)
+                    break
+        
+        # Display summary message
+        if loaded_count > 0 and failed_count == 0:
+            self.statusBar().showMessage(f"Loaded {loaded_count} signature(s)")
+        elif loaded_count > 0 and failed_count > 0:
+            msg = f"Loaded {loaded_count}, failed {failed_count}"
+            if failed_messages:
+                msg += f"\nErrors:\n" + "\n".join(failed_messages[:3])
+                if len(failed_messages) > 3:
+                    msg += f"\n... and {len(failed_messages) - 3} more"
+            QMessageBox.warning(self, "Partial Success", msg)
+            self.statusBar().showMessage(f"Loaded {loaded_count} signature(s)")
+        elif failed_count > 0:
+            msg = f"Failed to load {failed_count} file(s)"
+            if failed_messages:
+                msg += f"\n\n" + "\n".join(failed_messages[:5])
+            QMessageBox.critical(self, "Load Failed", msg)
+            self.statusBar().showMessage("Failed to load signatures")
+        else:
+            self.statusBar().showMessage("No signatures loaded")
+    
+    def _check_duplicate_signature(self, filename: str) -> Optional[str]:
+        """Check if a signature with the same filename exists in library.
+        
+        Args:
+            filename: Filename to check (without path)
+        
+        Returns:
+            Path to existing file if duplicate found, None otherwise
+        """
+        library_path = os.path.join(lib.library_dir(), filename)
+        if os.path.exists(library_path):
+            return library_path
+        return None
+    
+    def _show_duplicate_dialog(self, filename: str, apply_to_all: bool = False) -> tuple[str, bool]:
+        """Show dialog for handling duplicate signature files.
+        
+        Args:
+            filename: Name of the duplicate file
+            apply_to_all: Whether to show "Apply to all" checkbox
+        
+        Returns:
+            Tuple of (action, apply_to_all_checked) where action is:
+            - "replace": Overwrite existing file
+            - "copy": Create new copy with unique name
+            - "skip": Don't load this file
+            - "cancel": Cancel entire operation
+        """
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Duplicate Signature")
+        dialog.setModal(True)
+        dialog.resize(450, 200)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Message
+        message = QLabel(
+            f"A signature named <b>{filename}</b> already exists in your library.\n\n"
+            "What would you like to do?"
+        )
+        message.setWordWrap(True)
+        layout.addWidget(message)
+        
+        # Apply to all checkbox (if batch operation)
+        apply_to_all_cb = None
+        if apply_to_all:
+            apply_to_all_cb = QCheckBox("Apply this choice to all remaining duplicates")
+            layout.addWidget(apply_to_all_cb)
+        
+        layout.addSpacing(10)
+        
+        # Buttons
+        button_layout = QHBoxLayout()
+        
+        replace_btn = QPushButton("Replace")
+        replace_btn.setToolTip("Overwrite the existing signature")
+        replace_btn.clicked.connect(lambda: dialog.done(1))
+        button_layout.addWidget(replace_btn)
+        
+        copy_btn = QPushButton("Create Copy")
+        copy_btn.setToolTip("Save as a new file with a unique name")
+        copy_btn.clicked.connect(lambda: dialog.done(2))
+        copy_btn.setDefault(True)
+        button_layout.addWidget(copy_btn)
+        
+        skip_btn = QPushButton("Skip")
+        skip_btn.setToolTip("Don't load this file")
+        skip_btn.clicked.connect(lambda: dialog.done(3))
+        button_layout.addWidget(skip_btn)
+        
+        cancel_btn = QPushButton("Cancel")
+        cancel_btn.setToolTip("Cancel loading all files")
+        cancel_btn.clicked.connect(lambda: dialog.done(0))
+        button_layout.addWidget(cancel_btn)
+        
+        layout.addLayout(button_layout)
+        
+        result = dialog.exec()
+        apply_checked = apply_to_all_cb.isChecked() if apply_to_all_cb else False
+        
+        action_map = {
+            0: "cancel",
+            1: "replace",
+            2: "copy",
+            3: "skip"
+        }
+        
+        return action_map.get(result, "cancel"), apply_checked
     
     def _on_bulk_sign_clicked(self):
         """Handle bulk signature placement across multiple pages."""

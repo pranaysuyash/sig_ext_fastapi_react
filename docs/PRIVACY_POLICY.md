@@ -1,11 +1,11 @@
-# Privacy Policy - Signature Extractor
+# Privacy Policy - SignKit
 
-**Last Updated:** November 7, 2025  
-**Effective Date:** November 7, 2025
+**Last Updated:** November 15, 2025  
+**Effective Date:** November 15, 2025
 
 ## Overview
 
-Signature Extractor is designed with privacy as a core principle. This policy explains how we handle your data (spoiler: we barely collect any).
+SignKit is designed with privacy as a core principle. This policy explains how we handle your data (spoiler: we barely collect any).
 
 ## The Short Version
 
@@ -31,9 +31,9 @@ Signature Extractor is designed with privacy as a core principle. This policy ex
 - License activation timestamp
 
 **Stored Locally on Your Computer:**
-- License information (in `~/.signature_extractor/license.json`)
-- Your signature library (in `~/.signature_extractor/library/`)
-- Application preferences (in `~/.signature_extractor/config.json`)
+- License information (in `~/.signkit/license.json`)
+- Your signature library (in `~/.signkit/library/`)
+- Application preferences (in `~/.signkit/config.json`)
 
 **Note:** All of the above is stored ONLY on your computer. We never see it.
 
@@ -99,7 +99,7 @@ We don't use:
 ### On Your Computer
 
 All application data is stored locally:
-- **Location:** `~/.signature_extractor/` (macOS/Linux) or `%USERPROFILE%\.signature_extractor\` (Windows)
+- **Location:** `~/.signkit/` (macOS/Linux) or `%USERPROFILE%\.signkit\` (Windows)
 - **Contents:** License info, signature library, preferences
 - **Control:** You can delete this folder anytime to remove all data
 
@@ -125,14 +125,14 @@ We will never:
 ### Access and Deletion
 
 Since all data is stored locally on your computer:
-- **Access:** You can view all data in `~/.signature_extractor/`
+- **Access:** You can view all data in `~/.signkit/`
 - **Deletion:** Delete the folder to remove all application data
 - **Export:** Copy the folder to backup your data
 
 ### License Information
 
 To request deletion of your email from our records:
-- Email: support@signatureextractor.app
+- Email: support@signkit.work
 - We'll delete your email within 7 days
 - Your license will continue to work (it's validated locally)
 
@@ -180,8 +180,8 @@ Signature Extractor works the same everywhere because:
 ## Contact
 
 Questions about privacy?
-- **Email:** privacy@signatureextractor.app
-- **Website:** https://signatureextractor.app
+- **Email:** privacy@signkit.work
+- **Website:** https://signkit.work
 - **Response time:** Within 7 days
 
 ## Summary
