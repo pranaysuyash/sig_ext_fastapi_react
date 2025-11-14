@@ -26,6 +26,10 @@ jobs:
           python-version: '3.13'
           architecture: 'x64'
 
+      - name: Install system dependencies
+        run: |
+          brew install qpdf
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
