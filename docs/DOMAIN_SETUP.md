@@ -228,6 +228,7 @@ Services that offer this:
 **Setup Steps:**
 
 1. **Add Domain to Cloudflare:**
+
    - Sign up at [cloudflare.com](https://cloudflare.com)
    - Add `signkit.work`
    - Change nameservers in Namecheap to Cloudflare's (provided after signup)
@@ -237,30 +238,31 @@ Services that offer this:
    Go to Workers → Create a Service → Quick Edit
 
    ```javascript
-   addEventListener('fetch', event => {
-     event.respondWith(handleRequest(event.request))
-   })
+   addEventListener('fetch', (event) => {
+     event.respondWith(handleRequest(event.request));
+   });
 
    async function handleRequest(request) {
      // Your two Gumroad landing pages
      const variants = [
-       'https://gum.new/gum/cmhyha3rs001h04l7ccem2nkj',  // Version A
-       'https://gum.new/gum/cmhyh0is2000s04l7glct4xtb'   // Version B
-     ]
-     
+       'https://gum.new/gum/cmhyha3rs001h04l7ccem2nkj', // Version A
+       'https://gum.new/gum/cmhyh0is2000s04l7glct4xtb', // Version B
+     ];
+
      // 50/50 random split
-     const variantIndex = Math.random() < 0.5 ? 0 : 1
-     
+     const variantIndex = Math.random() < 0.5 ? 0 : 1;
+
      // Optional: Track which variant was shown
-     const headers = new Headers()
-     headers.set('X-AB-Variant', variantIndex === 0 ? 'A' : 'B')
-     
+     const headers = new Headers();
+     headers.set('X-AB-Variant', variantIndex === 0 ? 'A' : 'B');
+
      // Redirect to chosen variant
-     return Response.redirect(variants[variantIndex], 302)
+     return Response.redirect(variants[variantIndex], 302);
    }
    ```
 
 3. **Add Route:**
+
    - Workers → Routes → Add route
    - Route: `signkit.work/*`
    - Service: Your worker name
@@ -294,80 +296,87 @@ Services that offer this:
    ```html
    <!DOCTYPE html>
    <html lang="en">
-   <head>
-     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>SignKit - Redirecting...</title>
-     <meta name="robots" content="noindex">
-     <style>
-       body {
-         margin: 0;
-         padding: 0;
-         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         height: 100vh;
-         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-         color: white;
-       }
-       .loader {
-         text-align: center;
-       }
-       .spinner {
-         border: 4px solid rgba(255,255,255,0.3);
-         border-radius: 50%;
-         border-top: 4px solid white;
-         width: 40px;
-         height: 40px;
-         animation: spin 1s linear infinite;
-         margin: 0 auto 20px;
-       }
-       @keyframes spin {
-         0% { transform: rotate(0deg); }
-         100% { transform: rotate(360deg); }
-       }
-     </style>
-     <script>
-       // Your two Gumroad landing pages
-       const variants = [
-         'https://gum.new/gum/cmhyha3rs001h04l7ccem2nkj',  // Version A
-         'https://gum.new/gum/cmhyh0is2000s04l7glct4xtb'   // Version B
-       ];
-       
-       // 50/50 random redirect
-       const randomVariant = variants[Math.random() < 0.5 ? 0 : 1];
-       
-       // Optional: Track variant in localStorage for consistency
-       if (!sessionStorage.getItem('variant')) {
-         const chosen = Math.random() < 0.5 ? 0 : 1;
-         sessionStorage.setItem('variant', chosen);
-       }
-       
-       const chosenVariant = variants[sessionStorage.getItem('variant')];
-       
-       // Redirect immediately
-       window.location.replace(chosenVariant);
-     </script>
-   </head>
-   <body>
-     <div class="loader">
-       <div class="spinner"></div>
-       <p>Loading SignKit...</p>
-     </div>
-   </body>
+     <head>
+       <meta charset="UTF-8" />
+       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+       <title>SignKit - Redirecting...</title>
+       <meta name="robots" content="noindex" />
+       <style>
+         body {
+           margin: 0;
+           padding: 0;
+           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+             sans-serif;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           height: 100vh;
+           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           color: white;
+         }
+         .loader {
+           text-align: center;
+         }
+         .spinner {
+           border: 4px solid rgba(255, 255, 255, 0.3);
+           border-radius: 50%;
+           border-top: 4px solid white;
+           width: 40px;
+           height: 40px;
+           animation: spin 1s linear infinite;
+           margin: 0 auto 20px;
+         }
+         @keyframes spin {
+           0% {
+             transform: rotate(0deg);
+           }
+           100% {
+             transform: rotate(360deg);
+           }
+         }
+       </style>
+       <script>
+         // Your two Gumroad landing pages
+         const variants = [
+           'https://gum.new/gum/cmhyha3rs001h04l7ccem2nkj', // Version A
+           'https://gum.new/gum/cmhyh0is2000s04l7glct4xtb', // Version B
+         ];
+
+         // 50/50 random redirect
+         const randomVariant = variants[Math.random() < 0.5 ? 0 : 1];
+
+         // Optional: Track variant in localStorage for consistency
+         if (!sessionStorage.getItem('variant')) {
+           const chosen = Math.random() < 0.5 ? 0 : 1;
+           sessionStorage.setItem('variant', chosen);
+         }
+
+         const chosenVariant = variants[sessionStorage.getItem('variant')];
+
+         // Redirect immediately
+         window.location.replace(chosenVariant);
+       </script>
+     </head>
+     <body>
+       <div class="loader">
+         <div class="spinner"></div>
+         <p>Loading SignKit...</p>
+       </div>
+     </body>
    </html>
    ```
 
 2. **Host Page (Choose One):**
 
    **GitHub Pages (Free):**
+
    - Create repo: `signkit-landing`
    - Add `index.html`
    - Settings → Pages → Deploy from main branch
    - Get URL: `https://yourusername.github.io/signkit-landing`
 
    **Netlify (Free):**
+
    - Drag folder with `index.html` to [netlify.com/drop](https://netlify.com/drop)
    - Get URL: `https://random-name.netlify.app`
    - Can add custom domain later
@@ -584,15 +593,15 @@ nslookup -type=mx signkit.work
 
 ## 💰 Cost Summary
 
-| Item | Year 1 | Renewal (Year 2+) |
-|------|--------|-------------------|
-| Domain (signkit.work) | ₹264 | ₹928/year |
-| Google Workspace | $0* | $0* |
-| Email hosting | $0* | $0* |
-| A/B testing (manual) | $0 | $0 |
-| **Total** | **₹264** | **₹928/year** |
+| Item                  | Year 1   | Renewal (Year 2+) |
+| --------------------- | -------- | ----------------- |
+| Domain (signkit.work) | ₹264     | ₹928/year         |
+| Google Workspace      | $0\*     | $0\*              |
+| Email hosting         | $0\*     | $0\*              |
+| A/B testing (manual)  | $0       | $0                |
+| **Total**             | **₹264** | **₹928/year**     |
 
-*Using existing Google Workspace license (psrstech.com)
+\*Using existing Google Workspace license (psrstech.com)
 
 ### Optional A/B Testing Costs
 
@@ -638,10 +647,10 @@ nslookup -type=mx signkit.work
 
 ## 📝 Change Log
 
-| Date | Change | By |
-|------|--------|-----|
-| Nov 14, 2025 | Initial setup documentation | Copilot |
-| Nov 14, 2025 | Domain registered (signkit.work) | Pranay |
+| Date         | Change                           | By      |
+| ------------ | -------------------------------- | ------- |
+| Nov 14, 2025 | Initial setup documentation      | Copilot |
+| Nov 14, 2025 | Domain registered (signkit.work) | Pranay  |
 
 ---
 
