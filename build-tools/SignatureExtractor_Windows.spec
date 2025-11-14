@@ -15,25 +15,30 @@ SRC_DIR = PROJ_DIR
 # Main application entry point
 MAIN_SCRIPT = SRC_DIR / "desktop_app" / "main.py"
 
+# Prepare datas list (filter out None entries)
+datas_list = [
+    # Include configuration files
+    (str(SRC_DIR / "backend" / ".env"), "backend") if (SRC_DIR / "backend" / ".env").exists() else None,
+
+    # Include legal documents
+    (str(SRC_DIR / "legal"), "legal") if (SRC_DIR / "legal").exists() else None,
+
+    # Include license dialog assets if they exist
+    (str(SRC_DIR / "desktop_app" / "resources"), "desktop_app/resources") if (SRC_DIR / "desktop_app" / "resources").exists() else None,
+
+    # Include backend files (optional component)
+    (str(SRC_DIR / "backend" / "app"), "backend/app"),
+    (str(SRC_DIR / "backend" / "alembic.ini"), "backend") if (SRC_DIR / "backend" / "alembic.ini").exists() else None,
+]
+# Filter out None entries
+datas_list = [d for d in datas_list if d is not None]
+
 # Analysis configuration
 a = Analysis(
     [str(MAIN_SCRIPT)],
     pathex=[str(SRC_DIR)],
     binaries=[],
-    datas=[
-        # Include configuration files
-        (str(SRC_DIR / "backend" / ".env"), "backend") if (SRC_DIR / "backend" / ".env").exists() else None,
-
-        # Include legal documents
-        (str(SRC_DIR / "legal"), "legal") if (SRC_DIR / "legal").exists() else None,
-
-        # Include license dialog assets if they exist
-        (str(SRC_DIR / "desktop_app" / "resources"), "desktop_app/resources") if (SRC_DIR / "desktop_app" / "resources").exists() else None,
-
-        # Include backend files (optional component)
-        (str(SRC_DIR / "backend" / "app"), "backend/app"),
-        (str(SRC_DIR / "backend" / "alembic.ini"), "backend") if (SRC_DIR / "backend" / "alembic.ini").exists() else None,
-    ],
+    datas=datas_list,
     hiddenimports=[
         # PySide6 modules
         "PySide6.QtCore",
@@ -170,9 +175,6 @@ a = Analysis(
     cipher=None,
     noarchive=False,
 )
-
-# Remove None entries from datas
-a.datas = [entry for entry in a.datas if entry is not None]
 
 # PYZ configuration
 pyz = PYZ(a.pure, a.zipped_data, cipher=None)
