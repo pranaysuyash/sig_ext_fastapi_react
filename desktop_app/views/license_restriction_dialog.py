@@ -17,7 +17,7 @@ from desktop_app.widgets.modern_mac_button import ModernMacButton
 
 
 # Configuration
-PURCHASE_URL = "https://gumroad.com/l/signature-extractor"  # Example URL
+PURCHASE_URL = "https://signkit.work"  # Redirects to Gumroad product page
 
 # Restriction messages
 RESTRICTION_MESSAGES = {

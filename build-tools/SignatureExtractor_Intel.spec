@@ -103,7 +103,7 @@ app = BUNDLE(
     coll,
     name='SignatureExtractor_Intel.app',
     icon=None,
-    bundle_identifier='com.signatureextractor.app',
+    bundle_identifier='work.signkit.app',
     version='1.0.0',
     info_plist={
         'NSPrincipalClass': 'NSApplication',

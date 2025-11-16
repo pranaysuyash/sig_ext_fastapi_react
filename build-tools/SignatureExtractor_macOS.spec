@@ -213,7 +213,7 @@ app = BUNDLE(
     coll,
     name='SignatureExtractor.app',
     icon=None,  # Add icon path here when available
-    bundle_identifier='com.signatureextractor.app',
+    bundle_identifier='work.signkit.app',
     version='1.0.0',
     info_plist={
         'NSPrincipalClass': 'NSApplication',

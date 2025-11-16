@@ -352,7 +352,7 @@ These Terms constitute the entire agreement between us regarding the Application
 **Legal notices** should be sent to:
 
 ```
-Email: legal@signatureextractor.app
+Email: support@signkit.work
 Address: [Your Business Address]
 ```
 
