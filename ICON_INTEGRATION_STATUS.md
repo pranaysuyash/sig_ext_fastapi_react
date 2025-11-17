@@ -3,11 +3,13 @@
 ## ✅ Completed
 
 1. **Icon Assets Created**
+
    - All PNG sizes (16x16 to 1024x1024) ✅
    - Windows .ico file ✅
    - Located in `assets/files/`
 
 2. **Runtime Icon Loading**
+
    - `desktop_app/main.py` loads icons at runtime ✅
    - Sets both QApplication and window icons ✅
    - Proper fallback chain for different sizes ✅
@@ -24,6 +26,7 @@
 **Status:** Created and integrated ✅
 
 **Action Required:**
+
 ```bash
 # Run these commands on a Mac:
 cd assets/files
@@ -72,12 +75,12 @@ All branding aligned with ARM64 spec ✅
 
 ## 📊 Platform Status
 
-| Platform | Icon Asset | Build Config | Runtime Loading | Status |
-|----------|-----------|--------------|-----------------|--------|
-| **Windows** | ✅ .ico | ✅ Configured | ✅ Working | **READY** |
-| **macOS ARM64** | ✅ .icns | ✅ Configured | ✅ Working | **READY** |
-| **macOS Intel** | ✅ .icns | ✅ Configured | ✅ Working | **READY** |
-| **Linux** | ✅ PNGs | ✅ .desktop bundled | ✅ Working | **READY (menu install optional)** |
+| Platform        | Icon Asset | Build Config        | Runtime Loading | Status                            |
+| --------------- | ---------- | ------------------- | --------------- | --------------------------------- |
+| **Windows**     | ✅ .ico    | ✅ Configured       | ✅ Working      | **READY**                         |
+| **macOS ARM64** | ✅ .icns   | ✅ Configured       | ✅ Working      | **READY**                         |
+| **macOS Intel** | ✅ .icns   | ✅ Configured       | ✅ Working      | **READY**                         |
+| **Linux**       | ✅ PNGs    | ✅ .desktop bundled | ✅ Working      | **READY (menu install optional)** |
 
 ## 🎯 Priority Order
 

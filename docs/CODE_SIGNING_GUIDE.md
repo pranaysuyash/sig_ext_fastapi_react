@@ -3,6 +3,7 @@
 ## Overview
 
 Code signing and notarization are **optional** but recommended for macOS builds to:
+
 - Remove "unidentified developer" warnings
 - Enable Gatekeeper approval
 - Build user trust
@@ -15,21 +16,27 @@ Code signing and notarization are **optional** but recommended for macOS builds 
 ## Prerequisites
 
 ### 1. Apple Developer Account
+
 - **Cost:** $99/year
 - **Sign up:** https://developer.apple.com/programs/
 
 ### 2. Developer Certificates
+
 You need two certificates from Apple:
+
 1. **Developer ID Application** (for code signing)
 2. **Developer ID Installer** (optional, for .pkg installers)
 
 ### 3. App-Specific Password
+
 For notarization, create an app-specific password:
+
 1. Go to https://appleid.apple.com/account/manage
 2. Sign in with your Apple ID
 3. Generate app-specific password under Security section
 
 ### 4. Tools
+
 - **Xcode Command Line Tools** (already installed on macOS)
 - **notarytool** (included with Xcode 13+)
 
@@ -50,6 +57,7 @@ security find-identity -v -p codesigning
 ```
 
 Should show something like:
+
 ```
 1) ABC123DEF456... "Developer ID Application: Your Name (TEAM_ID)"
 ```
@@ -86,29 +94,29 @@ Create `build-tools/entitlements.plist`:
     <!-- Allow JIT compilation for Python runtime -->
     <key>com.apple.security.cs.allow-jit</key>
     <true/>
-    
+
     <!-- Allow unsigned executable memory (needed for PyInstaller) -->
     <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
     <true/>
-    
+
     <!-- Disable library validation (needed for bundled libraries) -->
     <key>com.apple.security.cs.disable-library-validation</key>
     <true/>
-    
+
     <!-- Hardened runtime -->
     <key>com.apple.security.cs.allow-dyld-environment-variables</key>
     <true/>
-    
+
     <!-- Network access (for backend server) -->
     <key>com.apple.security.network.server</key>
     <true/>
     <key>com.apple.security.network.client</key>
     <true/>
-    
+
     <!-- File access -->
     <key>com.apple.security.files.user-selected.read-write</key>
     <true/>
-    
+
     <!-- Printing -->
     <key>com.apple.security.print</key>
     <true/>
@@ -180,6 +188,7 @@ xcrun notarytool log <submission-id> --keychain-profile "signkit-notary"
 ### GitHub Actions Integration
 
 Add secrets to your GitHub repository:
+
 - `APPLE_CERTIFICATE_BASE64` (Developer ID cert exported as base64)
 - `APPLE_CERTIFICATE_PASSWORD` (cert password)
 - `APPLE_ID` (your Apple ID email)
@@ -266,17 +275,21 @@ rm developer_id.p12 developer_id_base64.txt
 ### Common Issues
 
 **"The application is damaged and can't be opened"**
+
 - Solution: Quarantine attribute. Run: `xattr -cr SignKit.app`
 
 **"resource fork, Finder information, or similar detritus not allowed"**
+
 - Solution: Clean extended attributes: `xattr -cr SignKit.app` before signing
 
 **Notarization fails with "invalid signature"**
+
 - Ensure you signed with `--options runtime`
 - Check entitlements are properly configured
 - Verify all nested binaries are signed
 
 **"The executable does not have the hardened runtime enabled"**
+
 - Add `--options runtime` to codesign command
 - Check entitlements file is valid
 
@@ -295,6 +308,7 @@ find SignKit.app -type f -exec file {} \; | grep Mach-O | cut -d: -f1 | xargs co
 ## Cost-Benefit Analysis
 
 ### Benefits
+
 ✅ No "unidentified developer" warning  
 ✅ Users can double-click to open immediately  
 ✅ Increased trust and professionalism  
@@ -302,6 +316,7 @@ find SignKit.app -type f -exec file {} \; | grep Mach-O | cut -d: -f1 | xargs co
 ✅ Required for Mac App Store (if you go that route)
 
 ### Costs
+
 ❌ $99/year for Apple Developer account  
 ❌ Additional build complexity  
 ❌ Notarization adds ~10-15 minutes per build  
@@ -311,11 +326,13 @@ find SignKit.app -type f -exec file {} \; | grep Mach-O | cut -d: -f1 | xargs co
 ### Recommendation for SignKit
 
 **For MVP/Early Launch:** Skip it. Current approach works fine:
+
 - Users right-click → Open (one time)
 - Saves $99/year + complexity
 - Focus on product and users first
 
 **When to Add Signing:**
+
 - Revenue > $5k/month (justify $99 cost)
 - User complaints about security warnings
 - Enterprise customers requiring signed apps
@@ -337,6 +354,7 @@ Instead of signing, provide clear instructions:
 4. App will open and remember this choice
 
 **Or use terminal:**
+
 ```bash
 xattr -cr /Applications/SignKit.app
 open /Applications/SignKit.app
@@ -346,15 +364,15 @@ open /Applications/SignKit.app
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Sign app | `codesign --force --deep --sign "Developer ID" --options runtime SignKit.app` |
-| Verify signature | `codesign --verify --verbose=4 SignKit.app` |
-| Remove quarantine | `xattr -cr SignKit.app` |
-| Check Gatekeeper | `spctl --assess --verbose=4 --type execute SignKit.app` |
-| Submit notarization | `xcrun notarytool submit SignKit.dmg --keychain-profile "profile"` |
-| Staple ticket | `xcrun stapler staple SignKit.dmg` |
-| Validate notarization | `xcrun stapler validate SignKit.dmg` |
+| Task                  | Command                                                                       |
+| --------------------- | ----------------------------------------------------------------------------- |
+| Sign app              | `codesign --force --deep --sign "Developer ID" --options runtime SignKit.app` |
+| Verify signature      | `codesign --verify --verbose=4 SignKit.app`                                   |
+| Remove quarantine     | `xattr -cr SignKit.app`                                                       |
+| Check Gatekeeper      | `spctl --assess --verbose=4 --type execute SignKit.app`                       |
+| Submit notarization   | `xcrun notarytool submit SignKit.dmg --keychain-profile "profile"`            |
+| Staple ticket         | `xcrun stapler staple SignKit.dmg`                                            |
+| Validate notarization | `xcrun stapler validate SignKit.dmg`                                          |
 
 ---
 
