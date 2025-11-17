@@ -62,7 +62,7 @@ iconutil -c icns SignKit.iconset
 All branding aligned with ARM64 spec ✅
 
 - App name: SignKit ✅
-- Bundle identifier: `work.signkit.app` ✅
+- Bundle identifier: `work.signkit.work` ✅
 - Display name: SignKit ✅
 
 ### 3. Linux Desktop Entry (LOW PRIORITY)

@@ -134,7 +134,7 @@ Here's why:
 Since you need to decide, here are my top 3 with reasoning:
 
 ### 1. **SignKit** ⭐ (My #1 pick)
-- **Domain:** `signkit.app` or `getsignkit.com`
+- **Domain:** `signkit.work` or `getsignkit.com`
 - **Why:** Short, memorable, room to grow
 - **Tagline:** "Your signature toolkit"
 - **Logo:** Pen + toolbox

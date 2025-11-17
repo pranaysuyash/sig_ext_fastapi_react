@@ -196,7 +196,7 @@ def get_version_info():
 # Check for updates within same major version
 def check_for_updates():
     current = get_version_info()
-    response = requests.get(f"https://api.signkit.app/updates/v{current['major']}")
+    response = requests.get(f"https://api.signkit.work/updates/v{current['major']}")
     
     latest = response.json()
     if latest['version'] > current['version']:
@@ -210,7 +210,7 @@ def check_for_updates():
     
     # Check for major version upgrade
     next_major = current['major'] + 1
-    v2_response = requests.get(f"https://api.signkit.app/updates/v{next_major}")
+    v2_response = requests.get(f"https://api.signkit.work/updates/v{next_major}")
     
     if v2_response.status_code == 200:
         v2_info = v2_response.json()

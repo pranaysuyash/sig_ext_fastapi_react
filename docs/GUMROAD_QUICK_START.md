@@ -218,9 +218,9 @@ We're confident you'll love SignKit. If not, get a full refund within 30 days - 
 
 ## 📧 Support
 
-**Email:** support@signkit.app  
+**Email:** support@signkit.work  
 **Response Time:** Within 24-48 hours  
-**Documentation:** docs.signkit.app  
+**Documentation:** docs.signkit.work  
 
 ---
 
@@ -252,7 +252,7 @@ A: Yes! SignKit works completely offline.
 A: Your license works on up to 3 computers.
 
 **Q: What if I need help?**  
-A: Email support@signkit.app - we respond within 24-48 hours.
+A: Email support@signkit.work - we respond within 24-48 hours.
 
 **Q: What about updates?**  
 A: All v1.x updates are FREE. Future major versions (v2.0) available at upgrade pricing.
@@ -341,13 +341,13 @@ TROUBLESHOOTING
 - Make sure you copy the entire license key
 - Check for extra spaces before/after the key
 - License works on up to 3 computers
-- If issues persist, email: support@signkit.app
+- If issues persist, email: support@signkit.work
 
 SUPPORT
 -------
-Email: support@signkit.app
+Email: support@signkit.work
 Response time: 24-48 hours
-Documentation: docs.signkit.app
+Documentation: docs.signkit.work
 
 Thank you for choosing SignKit!
 ```
@@ -442,11 +442,11 @@ Keep this key safe - you'll need it to activate SignKit.
 
 📖 DOCUMENTATION
 Quick Start Guide: [included in download]
-Full Documentation: docs.signkit.app
+Full Documentation: docs.signkit.work
 Video Tutorials: youtube.com/@signkit
 
 💬 NEED HELP?
-Email: support@signkit.app
+Email: support@signkit.work
 Response time: 24-48 hours
 
 Thank you for choosing SignKit!

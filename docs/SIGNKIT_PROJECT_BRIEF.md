@@ -93,7 +93,7 @@
 
 ### Distribution
 - **Primary**: Gumroad (digital distribution)
-- **Website**: signkit.app (landing page)
+- **Website**: signkit.work (landing page)
 - **Marketing**: Product Hunt, Reddit, SEO
 
 ---
@@ -459,9 +459,9 @@ signature-extractor-app/
 
 ### Important URLs
 - **Repository**: (local development)
-- **Landing Page**: signkit.app (planned)
+- **Landing Page**: signkit.work (planned)
 - **Distribution**: gumroad.com/l/signkit (planned)
-- **Verification**: verify.signkit.app (future)
+- **Verification**: verify.signkit.work (future)
 
 ### Key Contacts
 - **Product Owner**: Pranay
