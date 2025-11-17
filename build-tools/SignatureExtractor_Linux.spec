@@ -26,6 +26,9 @@ datas_list = [
     # Include license dialog assets if they exist
     (str(SRC_DIR / "desktop_app" / "resources"), "desktop_app/resources") if (SRC_DIR / "desktop_app" / "resources").exists() else None,
 
+    # Include app assets (icons)
+    (str(SRC_DIR / "assets" / "files"), "assets/files") if (SRC_DIR / "assets" / "files").exists() else None,
+
     # Include backend files (optional component)
     (str(SRC_DIR / "backend" / "app"), "backend/app"),
     (str(SRC_DIR / "backend" / "alembic.ini"), "backend") if (SRC_DIR / "backend" / "alembic.ini").exists() else None,

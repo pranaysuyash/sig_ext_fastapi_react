@@ -34,7 +34,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r desktop_app/requirements.txt
-          pip install pyinstaller
+          pip install -r build-tools/requirements-build.txt
 
       - name: Build Intel app
         run: |
@@ -42,7 +42,7 @@ jobs:
 
       - name: Verify build
         run: |
-          if [ ! -d "dist/SignatureExtractor_Intel.app" ]; then
+          if [ ! -d "dist/SignKit.app" ]; then
             echo "Build failed - app not found"
             exit 1
           fi
@@ -52,7 +52,7 @@ jobs:
         run: |
           hdiutil create \
             -volname "SignKit (Intel)" \
-            -srcfolder dist/SignatureExtractor_Intel.app \
+            -srcfolder dist/SignKit.app \
             -ov \
             -format UDZO \
             dist/SignKit_macOS_Intel.dmg
@@ -81,19 +81,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r desktop_app/requirements.txt
-          pip install pyinstaller
+          pip install -r build-tools/requirements-build.txt
 
       - name: Build ARM64 app
         run: |
           python -m PyInstaller --clean --noconfirm build-tools/SignatureExtractor_macOS.spec
 
-      - name: Rename app
-        run: |
-          mv dist/SignatureExtractor.app dist/SignatureExtractor_ARM64.app
-
       - name: Verify build
         run: |
-          if [ ! -d "dist/SignatureExtractor_ARM64.app" ]; then
+          if [ ! -d "dist/SignKit.app" ]; then
             echo "Build failed - app not found"
             exit 1
           fi
@@ -103,7 +99,7 @@ jobs:
         run: |
           hdiutil create \
             -volname "SignKit (Apple Silicon)" \
-            -srcfolder dist/SignatureExtractor_ARM64.app \
+            -srcfolder dist/SignKit.app \
             -ov \
             -format UDZO \
             dist/SignKit_macOS_ARM64.dmg
@@ -133,7 +129,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r desktop_app/requirements.txt
-          pip install pyinstaller
+          pip install -r build-tools/requirements-build.txt
 
       - name: Build Windows executable
         run: |
@@ -141,7 +137,9 @@ jobs:
 
       - name: Rename executable
         run: |
-          if (Test-Path "dist/SignatureExtractor.exe") {
+          if (Test-Path "dist/SignKit.exe") {
+            Move-Item "dist/SignKit.exe" "dist/SignKit_Windows.exe"
+          } elseif (Test-Path "dist/SignatureExtractor.exe") {
             Move-Item "dist/SignatureExtractor.exe" "dist/SignKit_Windows.exe"
           } else {
             Write-Error "Build failed - exe not found"
@@ -193,7 +191,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r desktop_app/requirements.txt
-          pip install pyinstaller
+          pip install -r build-tools/requirements-build.txt
 
       - name: Build Linux executable
         run: |
@@ -209,10 +207,18 @@ jobs:
             exit 1
           fi
 
+      - name: Bundle Linux assets
+        run: |
+          mkdir -p dist/SignKit_Linux_bundle/icons
+          mv dist/SignKit_Linux dist/SignKit_Linux_bundle/SignKit_Linux
+          cp assets/signkit.desktop dist/SignKit_Linux_bundle/
+          cp assets/LINUX_INSTALLATION.md dist/SignKit_Linux_bundle/
+          cp assets/files/signkit_icon_*.png dist/SignKit_Linux_bundle/icons/
+
       - name: Create tar.gz
         run: |
           cd dist
-          tar -czf SignKit_Linux.tar.gz SignKit_Linux
+          tar -czf SignKit_Linux.tar.gz SignKit_Linux_bundle
           cd ..
 
       - name: Upload artifact

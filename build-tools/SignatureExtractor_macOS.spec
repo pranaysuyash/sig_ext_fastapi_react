@@ -224,7 +224,7 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='SignKit.app',
-    icon=None,  # Use runtime icon from assets/files; .icns can be added later
+    icon=str(SRC_DIR / "assets" / "files" / "SignKit.icns") if (SRC_DIR / "assets" / "files" / "SignKit.icns").exists() else None,
     bundle_identifier='work.signkit.app',
     version='1.0.0',
     info_plist={

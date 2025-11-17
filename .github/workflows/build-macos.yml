@@ -25,7 +25,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r desktop_app/requirements.txt
-          pip install pyinstaller
+          pip install -r build-tools/requirements-build.txt
 
       - name: Build Intel app
         run: |
@@ -34,17 +34,17 @@ jobs:
       - name: Create DMG
         run: |
           hdiutil create \
-            -volname "Signature Extractor (Intel)" \
+            -volname "SignKit (Intel)" \
             -srcfolder dist/SignatureExtractor_Intel.app \
             -ov \
             -format UDZO \
-            dist/SignatureExtractor_Intel.dmg
+            dist/SignKit_macOS_Intel.dmg
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SignatureExtractor-Intel-macOS
-          path: dist/SignatureExtractor_Intel.dmg
+          name: SignKit-Intel-macOS
+          path: dist/SignKit_macOS_Intel.dmg
 
   build-apple-silicon:
     name: Build Apple Silicon (ARM64)
@@ -64,30 +64,26 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r desktop_app/requirements.txt
-          pip install pyinstaller
+          pip install -r build-tools/requirements-build.txt
 
       - name: Build ARM64 app
         run: |
           python -m PyInstaller --clean --noconfirm build-tools/SignatureExtractor_macOS.spec
 
-      - name: Rename app
-        run: |
-          mv dist/SignatureExtractor.app dist/SignatureExtractor_ARM64.app
-
       - name: Create DMG
         run: |
           hdiutil create \
-            -volname "Signature Extractor (Apple Silicon)" \
-            -srcfolder dist/SignatureExtractor_ARM64.app \
+            -volname "SignKit (Apple Silicon)" \
+            -srcfolder dist/SignKit.app \
             -ov \
             -format UDZO \
-            dist/SignatureExtractor_ARM64.dmg
+            dist/SignKit_macOS_ARM64.dmg
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SignatureExtractor-ARM64-macOS
-          path: dist/SignatureExtractor_ARM64.dmg
+          name: SignKit-ARM64-macOS
+          path: dist/SignKit_macOS_ARM64.dmg
 
   create-release:
     name: Create Release
@@ -112,20 +108,20 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ./artifacts/SignatureExtractor_Intel.dmg
-            ./artifacts/SignatureExtractor_ARM64.dmg
+            ./artifacts/SignKit_macOS_Intel.dmg
+            ./artifacts/SignKit_macOS_ARM64.dmg
           body: |
-            ## Signature Extractor ${{ github.ref_name }}
+            ## SignKit ${{ github.ref_name }}
 
             ### Download the right version for your Mac:
 
             **Apple Silicon (M1/M2/M3/M4)**
-            - Download: `SignatureExtractor_ARM64.dmg`
+            - Download: `SignKit_macOS_ARM64.dmg`
             - For: Mac with Apple M1, M2, M3, or M4 chip
             - To check: Apple menu  → About This Mac → Look for "Apple M" chip
 
             **Intel**
-            - Download: `SignatureExtractor_Intel.dmg`
+            - Download: `SignKit_macOS_Intel.dmg`
             - For: Mac with Intel processor
             - To check: Apple menu  → About This Mac → Look for "Intel" processor
 

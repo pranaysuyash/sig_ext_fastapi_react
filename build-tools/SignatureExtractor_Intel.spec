@@ -20,6 +20,10 @@ datas_list = [
     (str(SRC_DIR / "backend" / ".env"), "backend") if (SRC_DIR / "backend" / ".env").exists() else None,
     (str(SRC_DIR / "legal"), "legal") if (SRC_DIR / "legal").exists() else None,
     (str(SRC_DIR / "desktop_app" / "resources"), "desktop_app/resources") if (SRC_DIR / "desktop_app" / "resources").exists() else None,
+    
+    # Include app assets (icons)
+    (str(SRC_DIR / "assets" / "files"), "assets/files") if (SRC_DIR / "assets" / "files").exists() else None,
+    
     (str(SRC_DIR / "backend" / "app"), "backend/app"),
     (str(SRC_DIR / "backend" / "alembic.ini"), "backend") if (SRC_DIR / "backend" / "alembic.ini").exists() else None,
 ]
@@ -80,7 +84,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='SignatureExtractor',
+    name='SignKit',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -101,20 +105,20 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='SignatureExtractor_Intel',
+    name='SignKit',
 )
 
 app = BUNDLE(
     coll,
-    name='SignatureExtractor_Intel.app',
-    icon=None,
-    bundle_identifier='com.signatureextractor.app',
+    name='SignKit.app',
+    icon=str(SRC_DIR / "assets" / "files" / "SignKit.icns") if (SRC_DIR / "assets" / "files" / "SignKit.icns").exists() else None,
+    bundle_identifier='work.signkit.app',
     version='1.0.0',
     info_plist={
         'NSPrincipalClass': 'NSApplication',
         'NSHighResolutionCapable': 'True',
-        'CFBundleName': 'Signature Extractor',
-        'CFBundleDisplayName': 'Signature Extractor',
+        'CFBundleName': 'SignKit',
+        'CFBundleDisplayName': 'SignKit',
         'CFBundleVersion': '1.0.0',
         'CFBundleShortVersionString': '1.0.0',
         'NSHumanReadableCopyright': 'Copyright © 2025. All rights reserved.',
