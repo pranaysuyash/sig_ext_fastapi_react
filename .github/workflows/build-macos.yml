@@ -95,13 +95,13 @@ jobs:
       - name: Download Intel artifact
         uses: actions/download-artifact@v4
         with:
-          name: SignatureExtractor-Intel-macOS
+          name: SignKit-Intel-macOS
           path: ./artifacts
 
       - name: Download ARM64 artifact
         uses: actions/download-artifact@v4
         with:
-          name: SignatureExtractor-ARM64-macOS
+          name: SignKit-ARM64-macOS
           path: ./artifacts
 
       - name: Create Release
