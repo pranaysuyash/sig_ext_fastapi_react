@@ -263,9 +263,9 @@ class BackendManager:
             
             LOG.info(f"Backend process started with PID {self.process.pid}")
             
-            # Wait for backend to become available
-            max_wait = 10  # seconds
-            wait_interval = 0.5
+            # Wait for backend to become available (shorter timeout for better UX)
+            max_wait = 3  # seconds - reduced from 10 for faster startup
+            wait_interval = 0.2
             waited: float = 0.0
             
             while waited < max_wait:
@@ -434,10 +434,10 @@ class BackendManager:
             t.start()
             self._server_thread = t
 
-            # Wait up to 10s for availability
-            max_wait = 10
+            # Wait up to 3s for availability (reduced for faster startup)
+            max_wait = 3
             waited = 0.0
-            interval = 0.5
+            interval = 0.2
             while waited < max_wait:
                 if self.is_available():
                     self._available = True

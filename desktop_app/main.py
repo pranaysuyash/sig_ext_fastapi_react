@@ -93,14 +93,22 @@ def main():
     # Initialize backend manager for hybrid architecture
     backend_manager = BackendManager(port=8001, auto_start=True)
     
-    # Try to start backend (non-blocking)
-    backend_available = backend_manager.start()
-    if backend_available:
-        # Point client to the dynamically selected backend port
-        client.base_url = f"http://127.0.0.1:{backend_manager.port}"
-        print(f"Backend started successfully at {client.base_url} - cloud features enabled")
-    else:
-        print("Running in offline mode - core features available")
+    # Start backend in background thread to not block UI
+    from threading import Thread
+    def _start_backend():
+        try:
+            if backend_manager.start():
+                # Point client to the dynamically selected backend port
+                client.base_url = f"http://127.0.0.1:{backend_manager.port}"
+                print(f"Backend started successfully at {client.base_url} - cloud features enabled")
+            else:
+                print("Backend not available - running in offline mode")
+        except Exception as e:
+            print(f"Backend startup failed: {e} - running in offline mode")
+    
+    backend_thread = Thread(target=_start_backend, name="BackendStartup", daemon=True)
+    backend_thread.start()
+    # Don't wait for backend - let UI show immediately
 
     # By default, skip login dialog and go straight to main window
     win = MainWindow(client, session, backend_manager)

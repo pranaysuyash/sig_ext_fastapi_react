@@ -99,10 +99,12 @@ class MainWindow(
         self._setup_menus()
 
         self._backend_online = False
-        try:
-            QTimer.singleShot(10, self._check_backend_health)
-        except Exception:
-            LOG.debug("Backend health check scheduling failed", exc_info=True)
+        # Set up periodic backend health checks
+        self._backend_check_timer = QTimer()
+        self._backend_check_timer.timeout.connect(self._check_backend_health)
+        self._backend_check_timer.start(2000)  # Check every 2 seconds
+        # Do first check after 500ms (let UI fully load first)
+        QTimer.singleShot(500, self._check_backend_health)
 
         # Initialize responsive mode flags
         self._is_compact: bool = False
@@ -113,6 +115,31 @@ class MainWindow(
 
         # Show onboarding dialog on first run
         QTimer.singleShot(500, self._maybe_show_onboarding)
+
+    # ----- Backend Health Monitoring -----
+    def _check_backend_health(self) -> None:
+        """Check if backend is available and update status indicator."""
+        try:
+            is_available = self.backend_manager.is_available()
+            
+            if is_available and not self._backend_online:
+                # Backend just came online
+                self._backend_online = True
+                self.extraction_view.backend_status_label.setText("Backend: Online")
+                self.extraction_view.backend_status_label.setStyleSheet("color: #00cc00; padding: 2px 8px;")
+                LOG.info("Backend is now online")
+            elif not is_available and self._backend_online:
+                # Backend went offline
+                self._backend_online = False
+                self.extraction_view.backend_status_label.setText("Backend: Offline")
+                self.extraction_view.backend_status_label.setStyleSheet("color: #cc0000; padding: 2px 8px;")
+                LOG.warning("Backend is now offline")
+            elif not is_available and not self._backend_online:
+                # Still waiting for backend to start
+                self.extraction_view.backend_status_label.setText("Backend: Starting...")
+                self.extraction_view.backend_status_label.setStyleSheet("color: #a37f00; padding: 2px 8px;")
+        except Exception as e:
+            LOG.debug(f"Backend health check failed: {e}")
 
     # ----- Onboarding -----
     def _maybe_show_onboarding(self) -> None:
