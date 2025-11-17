@@ -14,6 +14,28 @@ While Gumroad is great for launch, diversifying distribution channels can:
 - Test different pricing models
 - Increase overall revenue
 
+## 📝 Important Distinctions
+
+### Marketplace vs Payment Processor
+
+**Marketplaces (like Gumroad):**
+- You list your product on THEIR platform
+- They host your product page
+- They handle checkout, delivery, and customer support
+- They have built-in traffic/discovery
+- Examples: Gumroad, Whop, Payhip, AppSumo
+
+**Payment Processors (like Stripe):**
+- You build your OWN website/store
+- You handle hosting, product pages, delivery
+- They ONLY process payments
+- No built-in traffic
+- Examples: Stripe, PayPal, LemonSqueezy (hybrid)
+
+**Whop = Marketplace** (like Gumroad, not just a payment processor)  
+**Shopify = E-commerce platform** (you build your store)  
+**Shopify App Store = App marketplace** (for Shopify merchant tools, NOT desktop software)
+
 ---
 
 ## 📊 Distribution Channel Comparison
@@ -29,8 +51,9 @@ While Gumroad is great for launch, diversifying distribution channels can:
 ## 🚀 Alternative Platforms
 
 ### 1. **Whop** (whop.com)
-**Type:** Digital products & memberships platform  
-**Best For:** Software, courses, communities, digital products
+**Type:** Digital products marketplace (like Gumroad)  
+**Best For:** Software, courses, communities, digital products  
+**Model:** You create a product page on Whop, they handle payments & delivery
 
 **Fees:**
 - 3% + $0.30 per transaction
@@ -42,20 +65,29 @@ While Gumroad is great for launch, diversifying distribution channels can:
 - **You Keep: $27.83** (96% vs Gumroad's 84%)
 - **$3.37 more per sale than Gumroad!**
 
+**How It Works:**
+- Similar to Gumroad - you list your product on their marketplace
+- They host your product page
+- Built-in checkout and payment processing
+- Automatic file delivery
+- Has discovery traffic (like Gumroad Discover)
+
 **Pros:**
 - ✅ Very low fees (3% vs Gumroad's 10%)
-- ✅ Built-in community features
+- ✅ Built-in community features (Discord integration)
 - ✅ Membership/subscription support
-- ✅ Discord integration
 - ✅ Growing platform with tech-savvy audience
+- ✅ Some discovery traffic
 - ✅ Good for building recurring revenue
+- ✅ Can bundle with community access
 
 **Cons:**
 - ❌ Smaller audience than Gumroad
 - ❌ More focused on memberships/communities
-- ❌ Less discovery traffic
+- ❌ Less discovery traffic than Gumroad
+- ❌ Newer platform (less established)
 
-**Recommendation:** **Highly Recommended** - Much better fees, great for building a community around SignKit
+**Recommendation:** **Highly Recommended** - Much better fees, great for building a community around SignKit. Use it LIKE Gumroad (marketplace listing), not as a payment processor.
 
 **Setup Effort:** Medium (2-3 hours)
 
@@ -157,6 +189,48 @@ While Gumroad is great for launch, diversifying distribution channels can:
 **Recommendation:** **Not Recommended for Launch** - Too complex and expensive for a single product. Consider later if you expand product line.
 
 **Setup Effort:** High (8-12 hours)
+
+---
+
+### 4b. **Shopify App Store** (apps.shopify.com)
+**Type:** App marketplace for Shopify merchants  
+**Best For:** Tools that integrate with Shopify stores  
+**Model:** Build a Shopify app that merchants install
+
+**⚠️ IMPORTANT:** This is NOT for selling desktop software! This is for building apps that integrate WITH Shopify stores.
+
+**Fees:**
+- Free to list
+- If you charge: Shopify takes 0% for first $1M revenue
+- After $1M: 15% revenue share
+- OR use Shopify Billing API (various plans)
+
+**How It Works:**
+- You build an app that integrates with Shopify
+- Merchants install your app in their Shopify store
+- Your app adds functionality to their store
+- Examples: Inventory management, email marketing, shipping tools
+
+**Why SignKit Doesn't Fit:**
+- ❌ SignKit is a desktop app, not a Shopify integration
+- ❌ Shopify App Store is for merchant tools, not end-user software
+- ❌ Would need to completely rebuild as web-based Shopify app
+- ❌ Different use case (merchants vs. general users)
+
+**Could You Build a Shopify Version?**
+- Theoretically yes - "Signature Extractor for Shopify Merchants"
+- Would need to be web-based, run in browser
+- Help merchants extract signatures from documents
+- But this is a completely different product
+
+**Recommendation:** **Not Applicable** - Shopify App Store is for merchant tools, not desktop software. SignKit doesn't fit this model.
+
+**Alternative:** If you wanted to reach Shopify merchants, you could:
+1. Build a web-based version as a Shopify app
+2. Market SignKit directly to Shopify merchants (they're a target audience!)
+3. Partner with Shopify app developers who need signature extraction
+
+**Setup Effort:** N/A (wrong platform for desktop software)
 
 ---
 
