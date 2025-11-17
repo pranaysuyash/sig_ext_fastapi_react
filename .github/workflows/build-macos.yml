@@ -35,7 +35,7 @@ jobs:
         run: |
           hdiutil create \
             -volname "SignKit (Intel)" \
-            -srcfolder dist/SignatureExtractor_Intel.app \
+            -srcfolder dist/SignKit.app \
             -ov \
             -format UDZO \
             dist/SignKit_macOS_Intel.dmg
