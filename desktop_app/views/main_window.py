@@ -131,13 +131,13 @@ class MainWindow(
             elif not is_available and self._backend_online:
                 # Backend went offline
                 self._backend_online = False
-                self.extraction_view.backend_status_label.setText("Backend: Offline")
-                self.extraction_view.backend_status_label.setStyleSheet("color: #cc0000; padding: 2px 8px;")
-                LOG.warning("Backend is now offline")
+                self.extraction_view.backend_status_label.setText("Backend: Checking...")
+                self.extraction_view.backend_status_label.setStyleSheet("color: #666666; padding: 2px 8px;")
+                LOG.info("Backend connection lost, will keep checking")
             elif not is_available and not self._backend_online:
                 # Still waiting for backend to start
                 self.extraction_view.backend_status_label.setText("Backend: Starting...")
-                self.extraction_view.backend_status_label.setStyleSheet("color: #a37f00; padding: 2px 8px;")
+                self.extraction_view.backend_status_label.setStyleSheet("color: #0066cc; padding: 2px 8px;")
         except Exception as e:
             LOG.debug(f"Backend health check failed: {e}")
 
