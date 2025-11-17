@@ -26,6 +26,9 @@ datas_list = [
     # Include license dialog assets if they exist
     (str(SRC_DIR / "desktop_app" / "resources"), "desktop_app/resources") if (SRC_DIR / "desktop_app" / "resources").exists() else None,
 
+    # Include app assets (icons)
+    (str(SRC_DIR / "assets" / "files"), "assets/files") if (SRC_DIR / "assets" / "files").exists() else None,
+
     # Include backend files (optional component)
     (str(SRC_DIR / "backend" / "app"), "backend/app"),
     (str(SRC_DIR / "backend" / "alembic.ini"), "backend") if (SRC_DIR / "backend" / "alembic.ini").exists() else None,
@@ -74,6 +77,11 @@ a = Analysis(
         "starlette",
         "starlette.middleware",
         "starlette.middleware.cors",
+        # Uvicorn HTTP dependencies
+        "h11",
+        "anyio",
+        "sniffio",
+        "click",
         "sqlalchemy",
         "sqlalchemy.ext.declarative",
         "pydantic",
@@ -187,7 +195,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='SignatureExtractor',
+    name='SignKit',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -209,21 +217,21 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='SignatureExtractor',
+    name='SignKit',
 )
 
 # BUNDLE creates the .app
 app = BUNDLE(
     coll,
-    name='SignatureExtractor.app',
-    icon=None,  # Add icon path here when available
-    bundle_identifier='com.signatureextractor.app',
+    name='SignKit.app',
+    icon=None,  # Use runtime icon from assets/files; .icns can be added later
+    bundle_identifier='work.signkit.app',
     version='1.0.0',
     info_plist={
         'NSPrincipalClass': 'NSApplication',
         'NSHighResolutionCapable': 'True',
-        'CFBundleName': 'Signature Extractor',
-        'CFBundleDisplayName': 'Signature Extractor',
+        'CFBundleName': 'SignKit',
+        'CFBundleDisplayName': 'SignKit',
         'CFBundleVersion': '1.0.0',
         'CFBundleShortVersionString': '1.0.0',
         'NSHumanReadableCopyright': 'Copyright © 2025. All rights reserved.',

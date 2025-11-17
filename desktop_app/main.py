@@ -5,11 +5,12 @@ import sys
 
 # CRITICAL: Set macOS environment variables BEFORE importing QApplication
 # This ensures Qt picks them up during initialization
-os.environ.setdefault("QT_MAC_APPLICATION_NAME", "Signature Extractor")
+os.environ.setdefault("QT_MAC_APPLICATION_NAME", "SignKit")
 os.environ.setdefault("QT_MAC_WANTS_LAYER", "1")  # Enable layer-backed views
 
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
 
 from desktop_app.config import load_config
 from desktop_app.state.session import SessionState
@@ -21,10 +22,19 @@ from desktop_app.views.main_window import MainWindow
 
 def _configure_app_identity() -> None:
     """Configure application metadata for macOS menubar and About dialog."""
-    QApplication.setOrganizationName("Signature Tools")
-    QApplication.setOrganizationDomain("signature-tools.local")
-    QApplication.setApplicationName("Signature Extractor")
-    QApplication.setApplicationDisplayName("Signature Extractor")
+    QApplication.setOrganizationName("SignKit")
+    QApplication.setOrganizationDomain("signkit.work")
+    QApplication.setApplicationName("SignKit")
+    QApplication.setApplicationDisplayName("SignKit")
+
+
+def _resource_path(relative: str) -> str:
+    """Get absolute path to resource, works for dev and PyInstaller bundle."""
+    try:
+        base_path = sys._MEIPASS  # type: ignore[attr-defined]
+    except Exception:
+        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    return os.path.join(base_path, relative)
 
 
 def main():
@@ -55,14 +65,26 @@ def main():
         app.setStyleSheet("")  # Clear any forced styles to allow system palette
 
     # Reinforce metadata after QApplication construction (Qt caches some values)
-    app.setOrganizationName("Signature Tools")
-    app.setOrganizationDomain("signature-tools.local")
-    app.setApplicationName("Signature Extractor")
-    app.setApplicationDisplayName("Signature Extractor")
+    app.setOrganizationName("SignKit")
+    app.setOrganizationDomain("signkit.work")
+    app.setApplicationName("SignKit")
+    app.setApplicationDisplayName("SignKit")
     try:
-        app.setDesktopFileName("Signature Extractor")
+        app.setDesktopFileName("SignKit")
     except AttributeError:
         pass
+
+    # Set application/dock icon from assets if available
+    icon_paths = [
+        "assets/files/signkit_icon_512x512.png",
+        "assets/files/signkit_icon_256x256.png",
+        "assets/files/signkit_icon_128x128.png",
+    ]
+    for rel in icon_paths:
+        p = _resource_path(rel)
+        if os.path.exists(p):
+            app.setWindowIcon(QIcon(p))
+            break
 
     cfg = load_config()
     session = SessionState()
@@ -74,12 +96,20 @@ def main():
     # Try to start backend (non-blocking)
     backend_available = backend_manager.start()
     if backend_available:
-        print("Backend started successfully - cloud features enabled")
+        # Point client to the dynamically selected backend port
+        client.base_url = f"http://127.0.0.1:{backend_manager.port}"
+        print(f"Backend started successfully at {client.base_url} - cloud features enabled")
     else:
         print("Running in offline mode - core features available")
 
     # By default, skip login dialog and go straight to main window
     win = MainWindow(client, session, backend_manager)
+    # Also set window icon explicitly
+    for rel in icon_paths:
+        p = _resource_path(rel)
+        if os.path.exists(p):
+            win.setWindowIcon(QIcon(p))
+            break
     win.setMinimumSize(1000, 700)
     win.resize(1200, 800)
     win.show()

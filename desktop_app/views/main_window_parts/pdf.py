@@ -358,6 +358,14 @@ class PdfTabMixin:
         pdf_controls.addWidget(self._make_section_label("Signature Library", section_color_hex))
         pdf_controls.addWidget(QLabel("Click a signature, then click on PDF to place:"))
 
+        # Subtle note about where to manage signatures
+        note_lbl = QLabel(
+            "<i>Signatures are managed in the <b>Signature Extraction</b> tab (add/remove).</i>"
+        )
+        note_lbl.setWordWrap(True)
+        note_lbl.setStyleSheet("font-size: 11px; color: rgba(128,128,128,0.9);")
+        pdf_controls.addWidget(note_lbl)
+
         self.pdf_sig_list = QListWidget()
         if sys.platform == "darwin":
             self.pdf_sig_list.setSpacing(3)

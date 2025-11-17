@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from typing import Optional, cast
+from typing import Optional, cast, TYPE_CHECKING
 
 from PySide6.QtCore import QSettings, QTimer
 from PySide6.QtGui import QAction
@@ -27,6 +27,9 @@ from desktop_app.views.main_window_parts import (
 
 LOG = logging.getLogger(__name__)
 
+if TYPE_CHECKING:
+    from desktop_app.backend_manager import BackendManager
+
 
 class MainWindow(
     QMainWindow,
@@ -48,7 +51,7 @@ class MainWindow(
         # Initialize local processing engine
         self.local_extractor = SignatureExtractor()
 
-        self.setWindowTitle("Signature Extractor (Desktop)")
+        self.setWindowTitle("SignKit")
         app_icon = get_icon("file")
         if not app_icon.isNull():
             self.setWindowIcon(app_icon)
@@ -114,7 +117,7 @@ class MainWindow(
     # ----- Onboarding -----
     def _maybe_show_onboarding(self) -> None:
         """Show onboarding dialog if this is the first run."""
-        settings = QSettings("SignatureExtractor", "DesktopApp")
+        settings = QSettings("SignKit", "DesktopApp")
         should_show = settings.value("onboarding/show_on_startup", True, type=bool)
 
         if should_show:
@@ -145,7 +148,7 @@ class MainWindow(
     # ----- Window State Persistence -----
     def _restore_window_state(self) -> None:
         """Restore window geometry and last active tab from previous session."""
-        settings = QSettings("SignatureExtractor", "DesktopApp")
+        settings = QSettings("SignKit", "DesktopApp")
 
         # Restore window geometry (size and position)
         geometry = settings.value("window/geometry")
@@ -171,8 +174,13 @@ class MainWindow(
         # Restore last active tab
         last_tab_value = settings.value("window/last_tab", 0)
         try:
-            last_tab = cast(int, int(last_tab_value))  # ensure QVariant/object converts cleanly
-        except (TypeError, ValueError):
+            if isinstance(last_tab_value, int):
+                last_tab = last_tab_value
+            elif isinstance(last_tab_value, str):
+                last_tab = int(last_tab_value)
+            else:
+                last_tab = int(str(last_tab_value)) if last_tab_value is not None else 0
+        except Exception:
             last_tab = 0
 
         if 0 <= last_tab < self.tab_widget.count():

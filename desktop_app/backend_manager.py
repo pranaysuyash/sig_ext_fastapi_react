@@ -13,6 +13,7 @@ import socket
 import subprocess
 import sys
 import time
+from threading import Thread
 from pathlib import Path
 from typing import Optional
 
@@ -35,6 +36,9 @@ class BackendManager:
         self._available = False
         self._startup_attempts = 0
         self._max_startup_attempts = 3
+        self._server_thread: Optional[Thread] = None
+        from typing import Any as _Any
+        self._server: _Any = None
         
         # Register cleanup on exit
         atexit.register(self.shutdown)
@@ -55,6 +59,21 @@ class BackendManager:
                 return result != 0  # Port is available if connection fails
         except Exception:
             return True  # Assume available if we can't check
+
+    def _find_available_port(self, start: int = 8001, end: int = 8100) -> Optional[int]:
+        """Find an available TCP port in the given range.
+
+        Args:
+            start: Starting port number (inclusive)
+            end: Ending port number (inclusive)
+
+        Returns:
+            First available port number, or None if none found
+        """
+        for p in range(start, end + 1):
+            if self.is_port_available(p):
+                return p
+        return None
     
     def find_backend_executable(self) -> Optional[str]:
         """Find the backend executable or script.
@@ -121,21 +140,31 @@ class BackendManager:
                 LOG.warning("Backend process running but not responding, restarting")
                 self.shutdown()
         
-        # Check if port is available
+        # Check if port is available; if not, try dynamic selection
         if not self.is_port_available(self.port):
             LOG.info(f"Port {self.port} is already in use, checking if it's our backend")
             if self.is_available():
                 LOG.info("Backend already running on port, using existing instance")
                 return True
             else:
-                LOG.error(f"Port {self.port} is occupied by another service")
-                return False
+                alt = self._find_available_port(self.port + 1, self.port + 100)
+                if alt is not None:
+                    LOG.info(f"Selected alternate backend port: {alt}")
+                    self.port = alt
+                else:
+                    LOG.error(f"No available ports found near {self.port}")
+                    return False
         
-        # Find backend executable
+        # For packaged apps, prefer in-process server for reliability
+        if getattr(sys, "frozen", False):
+            LOG.info("Detected packaged app (frozen). Starting backend in-process thread.")
+            return self._start_inprocess_server()
+
+        # Find backend executable for development environment
         backend_path = self.find_backend_executable()
         if not backend_path:
-            LOG.warning("Backend executable not found, running in offline mode")
-            return False
+            LOG.warning("Backend executable not found; attempting in-process server fallback")
+            return self._start_inprocess_server()
         
         # Increment startup attempts
         self._startup_attempts += 1
@@ -171,15 +200,65 @@ class BackendManager:
                 # Executable
                 cmd = [backend_path, "--port", str(self.port)]
                 cwd = None
+
+            # Prepare environment for subprocess with sane defaults in packaged app
+            env = os.environ.copy()
+
+            def _user_data_dir() -> str:
+                app_name = "SignKit"
+                if sys.platform == "darwin":
+                    base = os.path.expanduser(f"~/Library/Application Support/{app_name}")
+                elif sys.platform == "win32":
+                    base = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), app_name)
+                else:
+                    base = os.path.expanduser(f"~/.local/share/{app_name}")
+                os.makedirs(base, exist_ok=True)
+                return base
+
+            base_dir = _user_data_dir()
+
+            # Ensure a writable SQLite database if DATABASE_URL not provided
+            if not env.get("DATABASE_URL"):
+                data_dir = os.path.join(base_dir, "data")
+                os.makedirs(data_dir, exist_ok=True)
+                env["DATABASE_URL"] = f"sqlite:///{os.path.join(data_dir, 'app.db')}"
+
+            # Persist and provide a JWT secret if missing
+            if not env.get("JWT_SECRET"):
+                secrets_dir = os.path.join(base_dir, "secrets")
+                os.makedirs(secrets_dir, exist_ok=True)
+                secret_file = os.path.join(secrets_dir, "jwt_secret")
+                try:
+                    if os.path.exists(secret_file):
+                        with open(secret_file, "r", encoding="utf-8") as f:
+                            secret = f.read().strip()
+                    else:
+                        # Generate a 32-byte hex secret
+                        import secrets as _secrets
+                        secret = _secrets.token_hex(32)
+                        with open(secret_file, "w", encoding="utf-8") as f:
+                            f.write(secret)
+                    env["JWT_SECRET"] = secret
+                except Exception as e:
+                    LOG.warning(f"Failed to persist JWT secret, generating ephemeral one: {e}")
+                    try:
+                        import secrets as _secrets
+                        env["JWT_SECRET"] = _secrets.token_hex(32)
+                    except Exception:
+                        pass
             
             # Start process
+            creation_flags = 0
+            if sys.platform == "win32":
+                creation_flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
             self.process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 cwd=cwd,
-                # Prevent process from inheriting parent's console on Windows
-                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
+                env=env,
+                creationflags=creation_flags
             )
             
             LOG.info(f"Backend process started with PID {self.process.pid}")
@@ -187,7 +266,7 @@ class BackendManager:
             # Wait for backend to become available
             max_wait = 10  # seconds
             wait_interval = 0.5
-            waited = 0
+            waited: float = 0.0
             
             while waited < max_wait:
                 if self.is_available():
@@ -238,6 +317,24 @@ class BackendManager:
     
     def shutdown(self) -> None:
         """Gracefully shutdown backend process."""
+        # Stop in-process server first, if running
+        if self._server is not None:
+            try:
+                LOG.info("Shutting down in-process backend server")
+                # Signal server to exit and wait for thread
+                try:
+                    self._server.should_exit = True
+                except Exception:
+                    pass
+                if self._server_thread and self._server_thread.is_alive():
+                    self._server_thread.join(timeout=5)
+                LOG.info("In-process backend server stopped")
+            except Exception as e:
+                LOG.error(f"Error stopping in-process server: {e}")
+            finally:
+                self._server = None
+                self._server_thread = None
+
         if self.process:
             try:
                 LOG.info("Shutting down backend process")
@@ -286,6 +383,74 @@ class BackendManager:
             "startup_attempts": self._startup_attempts,
             "pid": self.process.pid if self.process else None
         }
+
+    def _start_inprocess_server(self) -> bool:
+        """Start the FastAPI backend within the current process in a background thread.
+
+        This approach is robust inside packaged apps where launching external
+        interpreters or scripts may fail. We rely on bundled modules.
+        """
+        # If already started and healthy
+        if self._server_thread and self._server_thread.is_alive():
+            if self.is_available():
+                return True
+
+        try:
+            import uvicorn  # type: ignore
+
+            # Prepare a user-writable environment (same as subprocess branch)
+            env = os.environ
+            if not env.get("DATABASE_URL"):
+                base_dir = os.path.expanduser("~/Library/Application Support/SignKit") if sys.platform == "darwin" else (
+                    os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), "SignKit") if sys.platform == "win32" else os.path.expanduser("~/.local/share/SignKit")
+                )
+                os.makedirs(os.path.join(base_dir, "data"), exist_ok=True)
+                env["DATABASE_URL"] = f"sqlite:///{os.path.join(base_dir, 'data', 'app.db')}"
+            if not env.get("JWT_SECRET"):
+                try:
+                    import secrets as _secrets
+                    env["JWT_SECRET"] = _secrets.token_hex(32)
+                except Exception:
+                    pass
+
+            config = uvicorn.Config(
+                "backend.app.main:app",
+                host="127.0.0.1",
+                port=self.port,
+                log_level="warning",
+                workers=1,
+                reload=False,
+            )
+            server = uvicorn.Server(config)
+            self._server = server
+
+            def _run_server():
+                try:
+                    server.run()
+                except Exception as e:
+                    LOG.error(f"In-process backend server error: {e}")
+
+            t = Thread(target=_run_server, name="BackendServerThread", daemon=True)
+            t.start()
+            self._server_thread = t
+
+            # Wait up to 10s for availability
+            max_wait = 10
+            waited = 0.0
+            interval = 0.5
+            while waited < max_wait:
+                if self.is_available():
+                    self._available = True
+                    LOG.info("In-process backend started successfully")
+                    return True
+                time.sleep(interval)
+                waited += interval
+
+            LOG.warning("In-process backend did not become available within timeout")
+            return False
+        except Exception as e:
+            LOG.error(f"Failed to start in-process backend: {e}")
+            return False
 
 
 def ensure_backend_available(backend_manager: BackendManager) -> str:

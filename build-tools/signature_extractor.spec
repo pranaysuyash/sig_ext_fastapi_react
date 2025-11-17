@@ -132,7 +132,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='SignatureExtractor',
+    name='SignKit',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -147,8 +147,8 @@ exe = EXE(
     entitlements_file=None,
     # Application metadata
     version="1.0.0",
-    description="Signature Extractor - Extract signatures from documents with precision",
-    icon=str(SRC_DIR / "desktop_app" / "assets" / "icon.ico") if (SRC_DIR / "desktop_app" / "assets" / "icon.ico").exists() else None,
+    description="SignKit - Extract signatures from documents with precision",
+    icon=str(SRC_DIR / "assets" / "files" / "signkit_icon.ico") if (SRC_DIR / "assets" / "files" / "signkit_icon.ico").exists() else None,
 )
 
 # Optional: Create directory-based distribution for development
@@ -160,5 +160,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='SignatureExtractor',
+    name='SignKit',
 )

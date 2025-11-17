@@ -857,6 +857,8 @@ class ExtractionTabMixin:
         controls.addWidget(self._library_section_label)
         self.library_list = QListWidget()
         self.library_list.setObjectName("libraryList")
+        # Make selection more evident and allow multi-selection for deletion
+        self.library_list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
         self.library_list.itemDoubleClicked.connect(self.on_library_item_open)
         self.library_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.library_list.customContextMenuRequested.connect(self.on_library_context_menu)
@@ -864,17 +866,24 @@ class ExtractionTabMixin:
         self.library_list.setMinimumHeight(80)  # Reduced from 120 for better flexibility on small screens
         self.library_list.setTextElideMode(Qt.TextElideMode.ElideRight)  # Elide long filenames
         self.library_list.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        if sys.platform == "darwin":
-            self.library_list.setStyleSheet(
-                "QListWidget#libraryList {"
-                "background-color: rgba(255, 255, 255, 20);"
-                "border: 1px solid rgba(255, 255, 255, 30);"
-                "border-radius: 8px;"
-                "padding: 6px;"
-                "}"
-                "QListWidget#libraryList::item { height: 24px; border-radius: 8px; }"
-                "QListWidget#libraryList::item:selected { background-color: rgba(255,255,255,46); }"
-            )
+        # Enhance selection visibility across platforms
+        selection_style = (
+            "QListWidget#libraryList {"
+            "background-color: rgba(255, 255, 255, 20);"
+            "border: 1px solid rgba(255, 255, 255, 30);"
+            "border-radius: 8px;"
+            "padding: 6px;"
+            "}"
+            "QListWidget#libraryList::item { height: 26px; border-radius: 8px; margin: 2px; padding: 2px 6px; }"
+            "QListWidget#libraryList::item:selected {"
+            " background-color: rgba(0,122,255,0.25);"
+            " color: white;"
+            " outline: none;"
+            " border: 1px solid rgba(0,122,255,0.6);"
+            "}"
+            "QListWidget#libraryList::item:hover { background-color: rgba(255,255,255,0.12); }"
+        )
+        self.library_list.setStyleSheet(selection_style)
         controls.addWidget(self.library_list)
 
         self.delete_from_library_btn = _create_button("Delete Selected", parent_widget)
@@ -1154,6 +1163,9 @@ class ExtractionTabMixin:
         self._health_timer.setInterval(15000)  # 15 seconds
         self._health_timer.timeout.connect(self._check_backend_health)
         self._health_timer.start()
+        # Initialize health check retry counters
+        self._health_check_attempt = 0
+        self._max_health_check_attempts = 5
         # Initial health check
         self._check_backend_health()
 

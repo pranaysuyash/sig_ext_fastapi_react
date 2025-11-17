@@ -1,7 +1,7 @@
 # Build-time requirements for packaging Signature Extractor
 
-# PyInstaller for creating distributable packages
-pyinstaller>=5.0.0,<6.0.0
+# PyInstaller for creating distributable packages (Python 3.13 requires 6.10+)
+pyinstaller>=6.14.0,<7.0.0
 
 # Optional: For better icon handling on Windows
 pillow>=9.0.0

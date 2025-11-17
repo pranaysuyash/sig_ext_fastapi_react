@@ -12,13 +12,31 @@ import time
 # Create the database tables
 Base.metadata.create_all(bind=engine)
 
-# Set up logging with local timezone timestamps
+# Set up logging with local timezone timestamps to a user-writable location
 
 class LocalTimeFormatter(logging.Formatter):
     """Formatter that renders asctime in the user's local timezone."""
 
     converter = time.localtime
 
+
+def _get_user_data_dir() -> str:
+    """Return a user-writable base directory for app data/logs/uploads."""
+    app_name = "SignKit"
+    if sys.platform == "darwin":
+        base = os.path.expanduser(f"~/Library/Application Support/{app_name}")
+    elif sys.platform == "win32":
+        base = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), app_name)
+    else:
+        base = os.path.expanduser(f"~/.local/share/{app_name}")
+    os.makedirs(base, exist_ok=True)
+    return base
+
+
+USER_DATA_DIR = _get_user_data_dir()
+LOG_DIR = os.path.join(USER_DATA_DIR, "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+LOG_PATH = os.path.join(LOG_DIR, "app.log")
 
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
@@ -28,24 +46,30 @@ _formatter = LocalTimeFormatter(LOG_FORMAT, DATE_FORMAT)
 _stream_handler = logging.StreamHandler(sys.stdout)
 _stream_handler.setFormatter(_formatter)
 
-_file_handler = logging.FileHandler("app.log")
-_file_handler.setFormatter(_formatter)
+handlers = [_stream_handler]
+try:
+    _file_handler = logging.FileHandler(LOG_PATH)
+    _file_handler.setFormatter(_formatter)
+    handlers.append(_file_handler)
+except Exception:
+    # If file logging fails, continue with stream-only logging
+    pass
 
 logging.basicConfig(
     level=logging.DEBUG,
-    handlers=[_stream_handler, _file_handler],
+    handlers=handlers,
 )
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="Signature Extraction App",
+    title="SignKit Backend",
     description="API for user authentication and signature extraction from images.",
     version="1.0.0"
 )
 
-# Ensure uploads directory exists
-UPLOADS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "uploads", "images"))
+# Ensure uploads directory exists in a user-writable location
+UPLOADS_DIR = os.path.join(USER_DATA_DIR, "uploads", "images")
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 logger.info(f"Uploads directory configured at: {UPLOADS_DIR}")
 
@@ -89,4 +113,4 @@ app.include_router(extraction.router, prefix="/extraction", tags=["Extraction"])
 
 @app.get("/")
 async def read_root():
-    return {"message": "Welcome to the Signature Extraction App API"}
+    return {"message": "Welcome to the SignKit API"}
