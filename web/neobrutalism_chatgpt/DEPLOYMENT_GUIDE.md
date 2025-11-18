@@ -32,6 +32,56 @@ assets/files/
 
 ---
 
+## ☁️ Simpler Option: Cloudflare-only (No CloudFront)
+
+If you're already using Cloudflare as your DNS and CDN, you can skip CloudFront entirely and point Cloudflare directly to your S3 static website. This is the fastest to set up and lowest complexity/cost for a static single-page site.
+
+### Quick Steps (10–15 minutes)
+
+1. S3 Static Website
+
+- Create S3 bucket `signkit.work` (or any bucket) and enable Static website hosting with `index.html`.
+- Add a public read bucket policy (as shown below in Phase 2.2).
+- Upload the files (Phase 2.3 commands work the same).
+
+1. Cloudflare DNS
+
+- Add a CNAME record:
+  - Name: `@` (apex) → Target: your S3 website endpoint, e.g. `signkit.work.s3-website-us-east-1.amazonaws.com`
+  - Proxy status: Proxied (orange cloud ON)
+- Add another CNAME for `www` → target the same S3 website endpoint; Proxy: ON.
+- Cloudflare automatically flattens CNAME at apex.
+
+1. Cloudflare SSL/TLS
+
+- Set SSL/TLS mode to Flexible (HTTPS between visitor and Cloudflare; HTTP from Cloudflare to S3 website endpoint).
+- Enable HTTP Strict Transport Security (HSTS) only if you are certain HTTPS works everywhere and you won’t switch back.
+
+1. Cache and Performance
+
+- Rules → Cache Rules: Cache Everything for `signkit.work/*`, Edge TTL 1 day (or as you prefer). HTML can be 1h for quick updates.
+- Turn on Brotli compression and Early Hints (Speed → Optimization).
+
+1. Redirects (Optional)
+
+- If you prefer redirecting `www` → apex, use Cloudflare Rules → Redirect Rules: `www.signkit.work/*` → `https://signkit.work/$1` (301).
+
+1. Purge Cache after updates
+
+- Cloudflare → Caching → Purge Cache → Purge Everything (or specific paths).
+
+That’s it: `https://signkit.work` will be served by Cloudflare globally without CloudFront.
+
+### When to choose CloudFront instead
+
+- You want AWS-native features like Origin Access Control/private S3 origin, Lambda@Edge, signed URLs, or granular cache behaviors per path.
+- You want HTTPS between CDN and origin for S3 website endpoints (CloudFront can use S3 REST endpoint with HTTPS; Cloudflare Flexible uses HTTP to website endpoint).
+- You prefer all infra to stay within AWS.
+
+If none of the above are required, Cloudflare-only is perfectly fine and simpler.
+
+---
+
 ## 🚀 Step-by-Step Deployment
 
 ### **Phase 1: Prepare Files for Upload**

@@ -54,6 +54,16 @@
       content="https://signkit.work/screenshots/screenshot-2.png"
     />
 
+    <!-- Google Analytics (GA4) - replace G-XXXXXXXXXX with your Measurement ID -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);} 
+      gtag('js', new Date());
+      // Anonymize IP to respect privacy-first positioning
+      gtag('config', 'G-XXXXXXXXXX', { anonymize_ip: true });
+    </script>
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
