@@ -1,8 +1,8 @@
 # Cloudflare Pages routing configuration
 # https://developers.cloudflare.com/pages/configuration/redirects/
 
-# Direct routes should serve index.html or purchase.html without redirecting
-/root           /index.html       200
-/buy            /index.html       200
-/gum            /index.html       200
+# A/B test variants - each route serves its specific HTML file
+/root           /root.html        200
+/buy            /buy.html         200
+/gum            /gum.html         200
 /purchase       /purchase.html    200
