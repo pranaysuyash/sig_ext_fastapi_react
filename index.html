@@ -943,13 +943,38 @@
     <!-- Gumroad Embed Script -->
     <script src="https://gumroad.com/js/gumroad-embed.js"></script>
     <script>
-      // A/B Test Variants:
-      // Main page: Regular landing page with external CTA
-      // /buy: gum.new embedded checkout (A/B v2)
-      // /purchase: Claude v2 variant (A/B v3) - to be created
-      // /gum: Direct Gumroad product link (A/B v4)
+      // A/B Test Configuration
+      // Set AUTO_SPLIT to true for automatic random traffic splitting
+      // Set to false to manually control via URLs
+      const AUTO_SPLIT = false; // Change to true to enable auto A/B testing
 
       const path = window.location.pathname;
+      
+      // Automatic traffic splitting (only on root path)
+      if (AUTO_SPLIT && path === '/') {
+        const existingVariant = localStorage.getItem('ab_variant');
+        let variant;
+        
+        if (existingVariant) {
+          // Keep user on same variant
+          variant = existingVariant;
+        } else {
+          // Randomly assign variant (25% each)
+          const rand = Math.random();
+          if (rand < 0.25) variant = 'control';
+          else if (rand < 0.5) variant = 'buy';
+          else if (rand < 0.75) variant = 'purchase';
+          else variant = 'gum';
+          
+          localStorage.setItem('ab_variant', variant);
+        }
+        
+        // Redirect to assigned variant
+        if (variant === 'buy') window.location.href = '/buy';
+        else if (variant === 'purchase') window.location.href = '/purchase';
+        else if (variant === 'gum') window.location.href = '/gum';
+        // control stays on root
+      }
 
       // Variant 2: /buy with gum.new embedded checkout
       if (path === '/buy') {

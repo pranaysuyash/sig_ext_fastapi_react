@@ -1,5 +1,35 @@
 # SignKit Landing Page A/B Test Variants
 
+## Traffic Distribution
+
+### Option 1: Manual URLs (Default)
+Share different URLs for different audiences:
+- `signkit.work` → Control
+- `signkit.work/buy` → Embedded checkout
+- `signkit.work/purchase` → Claude design
+- `signkit.work/gum` → Direct redirect
+
+**Use when:** Testing different channels (Twitter vs Reddit vs Email)
+
+### Option 2: Automatic Random Split
+Enable `AUTO_SPLIT = true` in `index.html` to automatically redirect visitors to random variants.
+
+**How it works:**
+1. User visits `signkit.work`
+2. JavaScript randomly assigns variant (25% each)
+3. User is redirected to assigned route
+4. Variant stored in `localStorage` for consistency
+
+**Enable automatic split:**
+```javascript
+// In index.html, change this line:
+const AUTO_SPLIT = true; // Change from false to true
+```
+
+**Use when:** Sending all traffic to one URL and want automatic split testing
+
+---
+
 ## Overview
 
 Four checkout flow variants to test conversion rates:
