@@ -6,6 +6,3 @@
 /buy            /index.html       200
 /gum            /index.html       200
 /purchase       /purchase.html    200
-
-# Fallback: serve index.html for root and any other path (SPA-style)
-/*              /index.html       200
