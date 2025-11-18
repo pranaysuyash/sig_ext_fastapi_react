@@ -1,11 +1,11 @@
-# Cloudflare Pages redirects and rewrites
-# https://developers.cloudflare.com/pages/platform/redirects/
+# Cloudflare Pages routing configuration
+# https://developers.cloudflare.com/pages/configuration/redirects/
 
-# A/B Test Variants - these are actual pages, not redirects
-/root    /root.html    200
-/buy     /buy.html     200
-/purchase /purchase.html 200
-/gum     /gum.html     200
+# Direct routes should serve index.html or purchase.html without redirecting
+/root           /index.html       200
+/buy            /index.html       200
+/gum            /index.html       200
+/purchase       /purchase.html    200
 
-# Root path serves index.html (control or A/B split logic)
-/        /index.html   200
+# Fallback: serve index.html for root and any other path (SPA-style)
+/*              /index.html       200
