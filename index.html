@@ -55,10 +55,15 @@
     />
 
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PCJDGBMRRN"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-PCJDGBMRRN"
+    ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      function gtag() {
+        dataLayer.push(arguments);
+      }
       gtag('js', new Date());
 
       gtag('config', 'G-PCJDGBMRRN');
@@ -938,56 +943,56 @@
     <!-- Gumroad Embed Script -->
     <script src="https://gumroad.com/js/gumroad-embed.js"></script>
     <script>
-      // Check if /buy route and show Gumroad inline
-      if (window.location.pathname === '/buy') {
-        // Create container for inline embed
+      // A/B Test Variants:
+      // Main page: Regular landing page with external CTA
+      // /buy: gum.new embedded checkout (A/B v2)
+      // /purchase: Claude v2 variant (A/B v3) - to be created
+      // /gum: Direct Gumroad product link (A/B v4)
+
+      const path = window.location.pathname;
+
+      // Variant 2: /buy with gum.new embedded checkout
+      if (path === '/buy') {
+        // Create container for gum.new embed
         const embedContainer = document.createElement('div');
         embedContainer.id = 'gumroad-embed';
-        embedContainer.style.cssText = 'margin: 40px auto; max-width: 800px; padding: 0 20px;';
-        
+        embedContainer.style.cssText =
+          'margin: 40px auto; max-width: 800px; padding: 0 20px;';
+
         // Insert after hero section
         const heroSection = document.querySelector('.hero');
-        heroSection.parentNode.insertBefore(embedContainer, heroSection.nextSibling);
-        
-        // Create Gumroad embed
-        const embed = document.createElement('div');
-        embed.className = 'gumroad-product-embed';
-        embed.setAttribute('data-gumroad-product-id', 'signkit');
-        embedContainer.appendChild(embed);
-        
+        heroSection.parentNode.insertBefore(
+          embedContainer,
+          heroSection.nextSibling
+        );
+
+        // Create iframe for gum.new
+        const iframe = document.createElement('iframe');
+        iframe.src = 'https://gum.new/gum/cmhyha3rs001h04l7ccem2nkj';
+        iframe.style.cssText =
+          'width: 100%; height: 800px; border: none; border-radius: 8px;';
+        iframe.title = 'SignKit Checkout';
+        embedContainer.appendChild(iframe);
+
         // Scroll to embed
         setTimeout(() => {
           embedContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 500);
       }
-      
-      // Also handle CTA button click to show inline embed
-      document.addEventListener('DOMContentLoaded', () => {
-        const ctaButton = document.querySelector('.cta-button');
-        if (ctaButton && window.location.pathname !== '/buy') {
-          ctaButton.addEventListener('click', (e) => {
-            // Optional: prevent default and show embed inline instead
-            // Uncomment if you want inline on main page too:
-            /*
-            e.preventDefault();
-            if (!document.getElementById('gumroad-embed')) {
-              const embedContainer = document.createElement('div');
-              embedContainer.id = 'gumroad-embed';
-              embedContainer.style.cssText = 'margin: 40px auto; max-width: 800px; padding: 0 20px;';
-              const heroSection = document.querySelector('.hero');
-              heroSection.parentNode.insertBefore(embedContainer, heroSection.nextSibling);
-              const embed = document.createElement('div');
-              embed.className = 'gumroad-product-embed';
-              embed.setAttribute('data-gumroad-product-id', 'signkit');
-              embedContainer.appendChild(embed);
-              setTimeout(() => {
-                embedContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }, 300);
-            }
-            */
-          });
-        }
-      });
+
+      // Variant 4: /gum with direct Gumroad redirect
+      if (path === '/gum') {
+        // Redirect to Gumroad product page
+        window.location.href = 'https://pranaysuyash.gumroad.com/l/signkit';
+      }
+
+      // Track variant impressions in GA4
+      if (path === '/buy' || path === '/purchase' || path === '/gum') {
+        gtag('event', 'ab_test_impression', {
+          variant: path.substring(1), // buy, purchase, or gum
+          experiment_id: 'checkout_flow_test',
+        });
+      }
     </script>
   </body>
 </html>
