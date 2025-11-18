@@ -1,0 +1,56 @@
+# Cloudflare Pages ignore file
+# Files and directories to exclude from deployment
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+
+# Desktop app
+desktop_app/
+backend/
+build/
+build-artifacts/
+build-artifacts-final/
+build-tools/
+dist/
+SignKit-*/
+
+# Development
+.vscode/
+.mypy_cache/
+.pytest_cache/
+.trash/
+logs/
+uploads/
+screenshots_debug/
+screenshots_final/
+
+# Testing and scripts
+tests/
+scripts/
+tools/
+flows/
+
+# Documentation (keep only deployment docs)
+docs/
+legal/
+marketing/
+
+# Git
+.git/
+.github/
+.gitignore
+
+# Misc
+*.log
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+Thumbs.db

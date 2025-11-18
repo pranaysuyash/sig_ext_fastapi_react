@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecting to SignKit Checkout...</title>
+    
+    <!-- Favicons -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="assets/files/signkit_icon_32x32.png"
+    />
+    
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-PCJDGBMRRN"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-PCJDGBMRRN');
+      
+      // Track gum variant impression
+      gtag('event', 'ab_test_impression', {
+        variant: 'gum',
+        experiment_id: 'checkout_flow_test',
+      });
+      
+      // Redirect to Gumroad
+      window.location.href = 'https://pranaysuyash.gumroad.com/l/signkit-v1';
+    </script>
+    
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        color: white;
+      }
+      
+      .redirect-message {
+        text-align: center;
+        padding: 40px;
+      }
+      
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 24px;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+      }
+      
+      p {
+        font-size: 1rem;
+        opacity: 0.9;
+      }
+      
+      a {
+        color: white;
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="redirect-message">
+      <div class="spinner"></div>
+      <h1>Redirecting to checkout...</h1>
+      <p>If you're not redirected automatically, <a href="https://pranaysuyash.gumroad.com/l/signkit-v1">click here</a>.</p>
+    </div>
+  </body>
+</html>

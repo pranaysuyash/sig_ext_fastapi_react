@@ -1,0 +1,15 @@
+name = "signkit-landing"
+compatibility_date = "2024-01-01"
+
+[site]
+bucket = "."
+
+# Pages configuration
+pages_build_output_dir = "."
+
+# Environment variables (if needed)
+[env.production]
+name = "signkit-landing"
+
+[env.preview]
+name = "signkit-landing-preview"

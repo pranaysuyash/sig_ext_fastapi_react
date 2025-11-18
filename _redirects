@@ -1,0 +1,11 @@
+# Cloudflare Pages redirects and rewrites
+# https://developers.cloudflare.com/pages/platform/redirects/
+
+# A/B Test Variants - these are actual pages, not redirects
+/root    /root.html    200
+/buy     /buy.html     200
+/purchase /purchase.html 200
+/gum     /gum.html     200
+
+# Root path serves index.html (control or A/B split logic)
+/        /index.html   200
