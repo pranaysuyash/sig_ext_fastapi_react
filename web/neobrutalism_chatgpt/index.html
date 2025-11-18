@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SignKit - Extract & Sign PDFs Offline</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="SignKit is a fast offline desktop app to extract signatures and sign PDFs without sending your files to the cloud."
+    />
+
+    <!-- Favicons -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="../../assets/files/signkit_icon_32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="../../assets/files/signkit_icon_16x16.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="../../assets/files/signkit_icon_256x256.png"
+    />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="SignKit - Extract & Sign PDFs Offline" />
+    <meta
+      property="og:description"
+      content="Desktop app to extract signatures and sign PDFs offline. No cloud upload. $29 - own it forever."
+    />
+    <meta property="og:url" content="https://signkit.work" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://signkit.work/screenshots/screenshot-2.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="SignKit - Extract & Sign PDFs Offline"
+    />
+    <meta
+      name="twitter:description"
+      content="Desktop app to extract signatures and sign PDFs offline. No cloud upload. $29 - own it forever."
+    />
+    <meta
+      name="twitter:image"
+      content="https://signkit.work/screenshots/screenshot-2.png"
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg-main: #f5f5f5;
+        --accent-1: #ffb800;
+        --accent-2: #4f46e5;
+        --accent-3: #00c2a8;
+        --accent-danger: #ff3366;
+        --card-bg: #ffffff;
+        --text-main: #111827;
+        --text-muted: #4b5563;
+        --border-strong: 3px;
+        --radius-lg: 20px;
+        --shadow-strong: 8px 8px 0 #111827;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        font-family: 'Space Grotesk', system-ui, -apple-system,
+          BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: var(--bg-main);
+        color: var(--text-main);
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .page {
+        max-width: 1100px;
+        width: 100%;
+        margin: auto;
+      }
+
+      .shell {
+        background: #fefefe;
+        border-radius: 26px;
+        border: var(--border-strong) solid #111827;
+        box-shadow: 12px 12px 0 #111827;
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Neo brutal top bar */
+      .top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        gap: 12px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+        border: var(--border-strong) solid #111827;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 4px 4px 0 #111827;
+        overflow: hidden;
+        background: #fff;
+      }
+
+      .logo-badge img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .brand-text-main {
+        font-weight: 700;
+        font-size: 1.3rem;
+        letter-spacing: 0.02em;
+      }
+
+      .brand-text-sub {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+
+      .price-pill {
+        padding: 10px 18px;
+        border-radius: 999px;
+        border: var(--border-strong) solid #111827;
+        background: var(--accent-1);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+        box-shadow: 4px 4px 0 #111827;
+        white-space: nowrap;
+      }
+
+      .price-pill span.tag {
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: #111827;
+        color: #fefefe;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+      }
+
+      .price-pill span.amount {
+        font-size: 1.2rem;
+      }
+
+      /* Main layout */
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+        gap: 24px;
+      }
+
+      @media (max-width: 840px) {
+        .grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        body {
+          padding: 16px;
+        }
+        .shell {
+          padding: 18px;
+        }
+        .top-bar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+
+      .hero-main h1 {
+        font-size: clamp(2.1rem, 3vw, 2.6rem);
+        line-height: 1.1;
+        margin-bottom: 12px;
+      }
+
+      .hero-highlight {
+        display: inline-block;
+        background: var(--accent-3);
+        padding: 2px 8px 4px;
+        border-radius: 10px;
+        border: var(--border-strong) solid #111827;
+        transform: rotate(-1.5deg);
+        box-shadow: 4px 4px 0 #111827;
+        margin-bottom: 10px;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+
+      .hero-main p.lead {
+        font-size: 0.98rem;
+        color: var(--text-muted);
+        max-width: 480px;
+        margin-bottom: 16px;
+      }
+
+      .hero-main ul {
+        list-style: none;
+        margin-bottom: 18px;
+      }
+
+      .hero-main li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+      }
+
+      .hero-bullet-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 6px;
+        background: #fff;
+        border: var(--border-strong) solid #111827;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .btn-primary {
+        padding: 13px 22px;
+        border-radius: 999px;
+        border: var(--border-strong) solid #111827;
+        background: var(--accent-2);
+        color: #ffffff;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 6px 6px 0 #111827;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: transform 0.08s ease, box-shadow 0.08s ease;
+      }
+
+      .btn-primary:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 8px 8px 0 #111827;
+      }
+
+      .btn-ghost {
+        padding: 10px 16px;
+        border-radius: 999px;
+        border: var(--border-strong) solid #111827;
+        background: #fefefe;
+        color: #111827;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 4px 4px 0 #111827;
+        transition: transform 0.08s ease, box-shadow 0.08s ease;
+      }
+
+      .btn-ghost:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0 #111827;
+      }
+
+      .tiny-note {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      /* Right side mock card */
+      .preview-card {
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        border: var(--border-strong) solid #111827;
+        box-shadow: var(--shadow-strong);
+        padding: 18px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .preview-tag {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #111827;
+        color: #fefefe;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+
+      .preview-heading {
+        font-size: 0.98rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      .preview-sub {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+      }
+
+      .preview-window {
+        background: #fdf2ff;
+        border-radius: 18px;
+        border: var(--border-strong) solid #111827;
+        padding: 10px 10px 12px;
+        margin-bottom: 14px;
+        position: relative;
+      }
+
+      .preview-window-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      .traffic-dots {
+        display: flex;
+        gap: 4px;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        border: 2px solid #111827;
+      }
+
+      .dot.red {
+        background: var(--accent-danger);
+      }
+
+      .dot.yellow {
+        background: var(--accent-1);
+      }
+
+      .dot.green {
+        background: var(--accent-3);
+      }
+
+      .preview-lines {
+        font-size: 0.78rem;
+        line-height: 1.6;
+      }
+
+      .line {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+
+      .line span.label {
+        font-weight: 600;
+        min-width: 70px;
+      }
+
+      .pill {
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 2px solid #111827;
+        font-size: 0.7rem;
+        background: #ffffff;
+      }
+
+      .pill.person {
+        background: #fee2e2;
+      }
+
+      .pill.place {
+        background: #dbeafe;
+      }
+
+      .pill.date {
+        background: #dcfce7;
+      }
+
+      .preview-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-top: 6px;
+      }
+
+      .preview-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .badge {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 2px solid #111827;
+        background: #ffffff;
+      }
+
+      .badge.offline {
+        background: #bbf7d0;
+      }
+
+      .badge.privacy {
+        background: #e0f2fe;
+      }
+
+      .badge.one-time {
+        background: #fef3c7;
+      }
+
+      .preview-price {
+        text-align: right;
+        font-size: 0.9rem;
+      }
+
+      .preview-price span {
+        display: block;
+      }
+
+      .preview-price .amount {
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      /* Floating accents */
+      .accent-shape {
+        position: absolute;
+        width: 120px;
+        height: 120px;
+        border-radius: 32px;
+        border: var(--border-strong) solid #111827;
+        background: rgba(79, 70, 229, 0.04);
+        transform: rotate(-10deg);
+        top: -40px;
+        left: -40px;
+        z-index: -1;
+      }
+
+      .accent-shape-2 {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        border-radius: 24px;
+        border: var(--border-strong) solid #111827;
+        background: rgba(255, 184, 0, 0.08);
+        bottom: -30px;
+        right: 20px;
+        transform: rotate(8deg);
+        z-index: -1;
+      }
+
+      /* Footer */
+      .footer {
+        text-align: center;
+        margin-top: 48px;
+        padding-top: 24px;
+        border-top: var(--border-strong) solid #111827;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .footer a {
+        color: var(--accent-2);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* Platform badges */
+      .platform-badges {
+        margin-top: 16px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .platform-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="shell">
+        <div class="accent-shape"></div>
+        <div class="accent-shape-2"></div>
+
+        <!-- Top bar -->
+        <div class="top-bar">
+          <div class="brand">
+            <div class="logo-badge">
+              <img
+                src="../../assets/files/signkit_icon_64x64.png"
+                alt="SignKit logo"
+              />
+            </div>
+            <div>
+              <div class="brand-text-main">SignKit</div>
+              <div class="brand-text-sub">PDF signature toolkit</div>
+            </div>
+          </div>
+
+          <div class="price-pill">
+            <span class="tag">Own Forever</span>
+            <span class="amount">$29</span>
+            <span>one time</span>
+          </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="grid">
+          <!-- Left: hero -->
+          <div class="hero-main">
+            <div class="hero-highlight">Privacy-first • No subscriptions</div>
+            <h1>
+              Extract signatures and sign PDFs offline. Your files never leave
+              your computer.
+            </h1>
+            <p class="lead">
+              SignKit is a privacy-first desktop app that captures signatures
+              from documents, builds your signature library, and signs PDFs—all
+              without cloud upload or monthly fees.
+            </p>
+
+            <ul>
+              <li>
+                <div class="hero-bullet-icon">🔐</div>
+                <span
+                  >100% offline - your PDFs and signatures stay on your
+                  device.</span
+                >
+              </li>
+              <li>
+                <div class="hero-bullet-icon">💰</div>
+                <span
+                  >$29 one-time purchase. No subscriptions. No monthly
+                  fees.</span
+                >
+              </li>
+              <li>
+                <div class="hero-bullet-icon">⚡</div>
+                <span
+                  >Extract signatures from documents and reuse across
+                  PDFs.</span
+                >
+              </li>
+            </ul>
+
+            <div class="hero-actions">
+              <a
+                href="https://pranaysuyash.gumroad.com/l/signkit-v1"
+                class="btn-primary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span>Get SignKit for $29</span>
+                <span>↗</span>
+              </a>
+
+              <a
+                href="https://pranaysuyash.gumroad.com/l/signkit-v1"
+                class="btn-ghost"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span>View product details</span>
+              </a>
+            </div>
+
+            <!-- Platform badges -->
+            <div
+              style="
+                margin-top: 12px;
+                display: flex;
+                gap: 8px;
+                align-items: center;
+              "
+            >
+              <span style="font-size: 0.8rem; color: #4b5563"
+                >Available for:</span
+              >
+              <div style="display: flex; gap: 6px">
+                <span
+                  class="badge"
+                  style="
+                    font-size: 0.7rem;
+                    padding: 4px 8px;
+                    border-radius: 999px;
+                    border: 2px solid #111827;
+                    background: #ffffff;
+                  "
+                  >🍎 macOS</span
+                >
+                <span
+                  class="badge"
+                  style="
+                    font-size: 0.7rem;
+                    padding: 4px 8px;
+                    border-radius: 999px;
+                    border: 2px solid #111827;
+                    background: #ffffff;
+                  "
+                  >🪟 Windows</span
+                >
+                <span
+                  class="badge"
+                  style="
+                    font-size: 0.7rem;
+                    padding: 4px 8px;
+                    border-radius: 999px;
+                    border: 2px solid #111827;
+                    background: #ffffff;
+                  "
+                  >🐧 Linux</span
+                >
+              </div>
+            </div>
+
+            <div class="tiny-note" style="margin-top: 8px">
+              One-time payment. Own it forever. Your data never touches our
+              servers.
+            </div>
+          </div>
+
+          <!-- Right: product preview card -->
+          <div class="preview-card">
+            <div class="preview-tag">Live preview</div>
+            <div class="preview-heading">Signature extraction in SignKit</div>
+            <div class="preview-sub">
+              Upload a photo of your signature, adjust the threshold, and export
+              a clean transparent version in seconds.
+            </div>
+
+            <div
+              class="preview-window"
+              style="
+                border-radius: 18px;
+                border: var(--border-strong) solid #111827;
+                overflow: hidden;
+                margin-bottom: 10px;
+                background: #000;
+              "
+            >
+              <img
+                src="screenshots/screenshot-2.png"
+                alt="SignKit signature extraction screen"
+                style="display: block; width: 100%; height: auto"
+              />
+            </div>
+
+            <div class="preview-footer">
+              <div class="preview-badges">
+                <div class="badge offline">Offline app</div>
+                <div class="badge privacy">No cloud storage</div>
+                <div class="badge one-time">Own forever</div>
+              </div>
+              <div class="preview-price">
+                <span class="amount" style="font-weight: 800; font-size: 1.3rem"
+                  >$29</span
+                >
+                <span>One-time payment</span>
+              </div>
+            </div>
+
+            <div class="tiny-note" style="margin-top: 6px">
+              Purchase is handled securely via Gumroad. Downloads and updates
+              are managed through your Gumroad account.
+            </div>
+          </div>
+        </div>
+
+        <!-- Screenshots section -->
+        <div class="screenshots-section" style="margin-top: 48px">
+          <h2 style="text-align: center; font-size: 2rem; margin-bottom: 24px">
+            See SignKit in action
+          </h2>
+          <div
+            class="screenshot-grid"
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+              gap: 20px;
+            "
+          >
+            <img
+              src="screenshots/screenshot-1.png"
+              alt="SignKit signature extraction interface"
+              style="
+                width: 100%;
+                border-radius: 16px;
+                border: 3px solid #111827;
+                box-shadow: 6px 6px 0 #111827;
+              "
+            />
+            <img
+              src="screenshots/screenshot-2.png"
+              alt="Signature extraction workflow"
+              style="
+                width: 100%;
+                border-radius: 16px;
+                border: 3px solid #111827;
+                box-shadow: 6px 6px 0 #111827;
+              "
+            />
+            <img
+              src="screenshots/screenshot-3.png"
+              alt="PDF signing with signature library"
+              style="
+                width: 100%;
+                border-radius: 16px;
+                border: 3px solid #111827;
+                box-shadow: 6px 6px 0 #111827;
+              "
+            />
+          </div>
+        </div>
+
+        <!-- FAQ section -->
+        <div class="faq-section" style="margin-top: 48px">
+          <h2 style="text-align: center; font-size: 2rem; margin-bottom: 24px">
+            Frequently Asked Questions
+          </h2>
+          <div style="max-width: 700px; margin: 0 auto">
+            <div
+              class="faq-item"
+              style="
+                margin-bottom: 20px;
+                padding: 16px;
+                background: #fff;
+                border-radius: 16px;
+                border: 3px solid #111827;
+                box-shadow: 4px 4px 0 #111827;
+              "
+            >
+              <h3 style="font-size: 1.1rem; margin-bottom: 8px">
+                What platforms does SignKit support?
+              </h3>
+              <p style="color: #4b5563; font-size: 0.9rem">
+                SignKit runs on macOS (Intel and ARM64), Windows, and Linux.
+                Download the version for your platform from Gumroad after
+                purchase.
+              </p>
+            </div>
+
+            <div
+              class="faq-item"
+              style="
+                margin-bottom: 20px;
+                padding: 16px;
+                background: #fff;
+                border-radius: 16px;
+                border: 3px solid #111827;
+                box-shadow: 4px 4px 0 #111827;
+              "
+            >
+              <h3 style="font-size: 1.1rem; margin-bottom: 8px">
+                Is there a subscription or is it really one time?
+              </h3>
+              <p style="color: #4b5563; font-size: 0.9rem">
+                It is truly one time payment. $29 and you own it forever, with
+                future minor updates included. No recurring charges.
+              </p>
+            </div>
+
+            <div
+              class="faq-item"
+              style="
+                margin-bottom: 20px;
+                padding: 16px;
+                background: #fff;
+                border-radius: 16px;
+                border: 3px solid #111827;
+                box-shadow: 4px 4px 0 #111827;
+              "
+            >
+              <h3 style="font-size: 1.1rem; margin-bottom: 8px">
+                Does it work completely offline?
+              </h3>
+              <p style="color: #4b5563; font-size: 0.9rem">
+                Yes. SignKit is a desktop app that runs 100 percent offline.
+                Your PDFs and signatures never leave your machine. No internet
+                connection is required after installation.
+              </p>
+            </div>
+
+            <div
+              class="faq-item"
+              style="
+                margin-bottom: 20px;
+                padding: 16px;
+                background: #fff;
+                border-radius: 16px;
+                border: 3px solid #111827;
+                box-shadow: 4px 4px 0 #111827;
+              "
+            >
+              <h3 style="font-size: 1.1rem; margin-bottom: 8px">
+                What if I need a refund?
+              </h3>
+              <p style="color: #4b5563; font-size: 0.9rem">
+                All purchases are processed through Gumroad which offers buyer
+                protection. Contact
+                <a href="mailto:support@signkit.work" style="color: #4f46e5"
+                  >support@signkit.work</a
+                >
+                if you have any issues.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonials placeholder (post launch) -->
+        <div
+          class="testimonials-section"
+          style="margin-top: 48px; text-align: center"
+        >
+          <h2 style="font-size: 2rem; margin-bottom: 24px">
+            What users are saying
+          </h2>
+          <p style="font-size: 0.9rem; color: #4b5563">
+            Coming soon. Early customer quotes and case studies will be added
+            here.
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div
+          class="footer"
+          style="
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 3px solid #111827;
+            font-size: 0.85rem;
+            color: #4b5563;
+          "
+        >
+          <p>
+            © 2025 SignKit •
+            <a
+              href="mailto:support@signkit.work"
+              style="color: #4f46e5; text-decoration: none"
+              >support@signkit.work</a
+            >
+            •
+            <a
+              href="https://signkit.work"
+              style="color: #4f46e5; text-decoration: none"
+              >signkit.work</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics (Plausible) -->
+    <script
+      defer
+      data-domain="signkit.work"
+      src="https://plausible.io/js/script.js"
+    ></script>
+  </body>
+</html>

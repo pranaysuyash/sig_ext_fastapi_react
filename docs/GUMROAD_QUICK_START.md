@@ -61,17 +61,21 @@
 ### 2.2 Basic Information
 
 **Product Name:**
+
 ```
 SignKit v1 - Professional Signature Extraction
 ```
 
 **URL Slug:**
+
 ```
 signkit-v1
 ```
+
 (Your product will be at: gumroad.com/l/signkit-v1)
 
 **Short Description (160 characters):**
+
 ```
 Extract signatures from documents with complete privacy. Local processing, PDF signing, one-time payment. No subscriptions.
 ```
@@ -90,6 +94,7 @@ Extract signatures from documents with complete privacy. Local processing, PDF s
 🎯 **Professional signature extraction tool for desktop**
 
 ## 🎉 Black Friday Special: $19 (35% OFF)
+
 Regular price: $29 | You save: $10  
 **Limited time offer - ends December 1st**
 
@@ -103,7 +108,7 @@ Regular price: $29 | You save: $10
 ✅ **Privacy-First** - 100% local processing  
 ✅ **PDF Signing** - Place signatures directly on PDFs  
 ✅ **Email Support** - Priority technical assistance  
-✅ **30-Day Guarantee** - Full refund if not satisfied  
+✅ **30-Day Guarantee** - Full refund if not satisfied
 
 ---
 
@@ -123,24 +128,28 @@ Perfect for sensitive documents: contracts, medical forms, financial records.
 ## ✨ Features
 
 ### Precision Control
+
 - Zoom and pan for pixel-perfect selection
 - Adjustable threshold and color replacement
 - Real-time preview of extracted signatures
 - Rotation-aware coordinate mapping
 
 ### PDF Workflow
+
 - Interactive PDF viewer with zoom controls
 - Place signatures directly into documents
 - Comprehensive audit logging for compliance
 - Save signed documents with embedded signatures
 
 ### Professional Desktop App
+
 - Native performance on all platforms
 - Intuitive interface designed for efficiency
 - Keyboard shortcuts for power users
 - Status bar with detailed processing information
 
 ### Library Management
+
 - Save unlimited signatures
 - Tag and categorize
 - Quick search and filter
@@ -154,7 +163,7 @@ Perfect for sensitive documents: contracts, medical forms, financial records.
 • **Real Estate Agents** - Transaction processing and document signing  
 • **Healthcare Providers** - Medical form digitization and EMR integration  
 • **Business Owners** - General document processing and workflow automation  
-• **Designers** - Creating signature assets for branding  
+• **Designers** - Creating signature assets for branding
 
 ---
 
@@ -181,16 +190,19 @@ No subscriptions. No recurring fees. Own it forever.
 ## 📦 What's Included
 
 **Instant Download:**
+
 - macOS app (ARM64 for M1/M2/M3 + Intel)
 - Windows executable
 - Linux AppImage
 
 **Documentation:**
+
 - Quick Start Guide (PDF)
 - User Manual (PDF)
 - Video Tutorials (YouTube)
 
 **License Key:**
+
 - Instant delivery via email
 - Activate on up to 3 computers
 - Lifetime validity
@@ -201,6 +213,7 @@ No subscriptions. No recurring fees. Own it forever.
 ## 🆓 Try Before You Buy
 
 Download the free trial to test all features:
+
 - Full functionality
 - No time limit
 - Export and PDF operations require license
@@ -220,7 +233,7 @@ We're confident you'll love SignKit. If not, get a full refund within 30 days - 
 
 **Email:** support@signkit.work  
 **Response Time:** Within 24-48 hours  
-**Documentation:** docs.signkit.work  
+**Documentation:** docs.signkit.work
 
 ---
 
@@ -265,6 +278,7 @@ A: Yes! 30-day money-back guarantee, no questions asked.
 ## 🎁 Black Friday Bonus
 
 **Purchase during Black Friday weekend and get:**
+
 - Priority email support
 - Early access to v1.1 features
 - Exclusive upgrade pricing for v2.0
@@ -275,7 +289,7 @@ A: Yes! 30-day money-back guarantee, no questions asked.
 
 🔒 Secure payment via Gumroad  
 ⚡ Instant download  
-💯 30-day guarantee  
+💯 30-day guarantee
 
 **Get SignKit now for $19 (35% off) - Limited time!**
 ```
@@ -287,6 +301,7 @@ A: Yes! 30-day money-back guarantee, no questions asked.
 ### 4.1 Prepare Your Files
 
 **Files to Upload:**
+
 1. `SignatureExtractor-macOS-ARM64.dmg` (200-300MB)
 2. `SignatureExtractor-macOS-Intel.dmg` (200-300MB)
 3. `SignatureExtractor-Windows.zip` (150-250MB) [if ready]
@@ -367,6 +382,7 @@ Thank you for choosing SignKit!
 ### 5.2 Create Black Friday Coupons
 
 **Coupon 1: Black Friday**
+
 1. Go to **Offer codes** → **+ New offer code**
 2. Settings:
    - **Code:** `BLACKFRIDAY2025`
@@ -377,6 +393,7 @@ Thank you for choosing SignKit!
    - **Max uses:** Unlimited
 
 **Coupon 2: Weekend**
+
 1. Create another offer code:
    - **Code:** `BFWEEKEND`
    - **Discount:** 25% off
@@ -386,6 +403,7 @@ Thank you for choosing SignKit!
    - **Max uses:** Unlimited
 
 **Coupon 3: Cyber Monday**
+
 1. Create another offer code:
    - **Code:** `CYBERMONDAY2025`
    - **Discount:** 17% off
@@ -463,7 +481,8 @@ This email contains your license information. Please save it for your records.
 
 1. Go to **Product settings**
 2. **Category:** Software → Productivity
-3. **Tags:** 
+3. **Tags:**
+
 ```
 signature-extraction, pdf-tools, privacy-software, desktop-app, productivity, business-tools, document-processing, macos, windows, linux, one-time-payment, no-subscription
 ```
@@ -471,11 +490,13 @@ signature-extraction, pdf-tools, privacy-software, desktop-app, productivity, bu
 ### 7.2 SEO Settings
 
 **Meta Title:**
+
 ```
 SignKit - Professional Signature Extraction Software | $29 One-Time
 ```
 
 **Meta Description:**
+
 ```
 Extract signatures from documents with complete privacy. Desktop app with local processing, PDF signing, and professional features. One-time payment, no subscriptions. macOS, Windows, Linux.
 ```
@@ -483,6 +504,7 @@ Extract signatures from documents with complete privacy. Desktop app with local 
 ### 7.3 Social Sharing
 
 1. Upload **Cover Image** (1200x630px)
+
    - Create in Canva with SignKit logo
    - Text: "SignKit - Extract Signatures with Privacy"
    - Professional, clean design
@@ -514,6 +536,7 @@ Extract signatures from documents with complete privacy. Desktop app with local 
 ### 8.3 Verify Everything
 
 Check that you receive:
+
 - [ ] Purchase confirmation email
 - [ ] License key in email
 - [ ] Download links work
@@ -546,11 +569,13 @@ Check that you receive:
 ### 9.3 Get Your Links
 
 **Product Page:**
+
 ```
 https://gumroad.com/l/signkit-v1
 ```
 
 **With Black Friday Coupon:**
+
 ```
 https://gumroad.com/l/signkit-v1?wanted=true&code=BLACKFRIDAY2025
 ```
@@ -598,6 +623,7 @@ Upload the updated build to Gumroad (with correct purchase URL)
 Before launch, verify:
 
 **Product Setup:**
+
 - [ ] Product description is complete and compelling
 - [ ] All files uploaded and tested
 - [ ] License keys enabled and tested
@@ -608,6 +634,7 @@ Before launch, verify:
 - [ ] Cover image uploaded
 
 **Testing:**
+
 - [ ] Test purchase completed successfully
 - [ ] License key received via email
 - [ ] Download links work
@@ -615,11 +642,13 @@ Before launch, verify:
 - [ ] All platforms tested (if available)
 
 **App Updates:**
+
 - [ ] Purchase URL updated in app
 - [ ] App rebuilt with new URL
 - [ ] Updated build uploaded to Gumroad
 
 **Ready to Launch:**
+
 - [ ] Test mode disabled
 - [ ] Product published
 - [ ] Product page looks professional
@@ -637,6 +666,7 @@ https://gumroad.com/l/signkit-v1
 https://gumroad.com/l/signkit-v1?wanted=true&code=BLACKFRIDAY2025
 
 **Next Steps:**
+
 1. Share your product link
 2. Activate Black Friday coupon on Nov 28
 3. Monitor sales and support requests
@@ -647,11 +677,13 @@ https://gumroad.com/l/signkit-v1?wanted=true&code=BLACKFRIDAY2025
 ## 📞 NEED HELP?
 
 **Gumroad Support:**
+
 - Help Center: help.gumroad.com
 - Email: support@gumroad.com
 - Twitter: @gumroad
 
 **Common Issues:**
+
 - **Files won't upload:** Check file size (max 4GB per file)
 - **License keys not working:** Verify format in email template
 - **Payment issues:** Check Stripe/PayPal connection
