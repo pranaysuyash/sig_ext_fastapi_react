@@ -1,0 +1,6 @@
+# Cloudflare Pages - No redirects needed
+# Cloudflare automatically serves extensionless URLs
+# /root → root.html
+# /buy → buy.html
+# /gum → gum.html
+# /purchase → purchase.html

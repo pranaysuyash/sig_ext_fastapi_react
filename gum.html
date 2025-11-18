@@ -26,14 +26,20 @@
       gtag('js', new Date());
       gtag('config', 'G-PCJDGBMRRN');
       
-      // Track gum variant impression
+      // Track gum variant impression, then redirect after analytics fires
       gtag('event', 'ab_test_impression', {
         variant: 'gum',
         experiment_id: 'checkout_flow_test',
+        event_callback: function() {
+          window.location.href = 'https://pranaysuyash.gumroad.com/l/signkit-v1';
+        },
+        event_timeout: 2000 // Fallback: redirect after 2s even if callback doesn't fire
       });
       
-      // Redirect to Gumroad
-      window.location.href = 'https://pranaysuyash.gumroad.com/l/signkit-v1';
+      // Fallback redirect in case gtag doesn't load
+      setTimeout(function() {
+        window.location.href = 'https://pranaysuyash.gumroad.com/l/signkit-v1';
+      }, 2500);
     </script>
     
     <style>
