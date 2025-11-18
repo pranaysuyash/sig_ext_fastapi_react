@@ -120,6 +120,15 @@ SignKit-Windows/
 SignKit-macOS-ARM64/
 SignKit-macOS-Intel/
 
+# Desktop app files (not part of landing page branch)
+backend/
+desktop_app/
+scripts/
+tests/
+build-tools/
+legal/
+.env.example
+
 # Temporary documentation (moved to docs/)
 COMPREHENSIVE_SCREENSHOTS_READY.md
 FIXES_APPLIED.md
