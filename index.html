@@ -933,12 +933,13 @@
       </div>
     </div>
 
-    <!-- Analytics (Plausible) -->
-    <script
-      defer
-      data-domain="signkit.work"
-      src="https://plausible.io/js/script.js"
-    ></script>
+    <!-- Privacy-friendly analytics by Plausible (disabled; paid service)
+    <script async src="https://plausible.io/js/pa-Z7IHNxIIEUXGeZe1RBq2s.js"></script>
+    <script>
+      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+      plausible.init()
+    </script>
+    -->
 
     <!-- Gumroad Embed Script -->
     <script src="https://gumroad.com/js/gumroad-embed.js"></script>
@@ -949,12 +950,15 @@
       const AUTO_SPLIT = false; // Change to true to enable auto A/B testing
 
       const path = window.location.pathname;
-      
+      const params = new URLSearchParams(window.location.search);
+      const variantParam = params.get('variant') || params.get('v');
+      const hash = window.location.hash.replace('#', '');
+
       // Automatic traffic splitting (only on root path)
       if (AUTO_SPLIT && path === '/') {
         const existingVariant = localStorage.getItem('ab_variant');
         let variant;
-        
+
         if (existingVariant) {
           // Keep user on same variant
           variant = existingVariant;
@@ -965,10 +969,10 @@
           else if (rand < 0.5) variant = 'buy';
           else if (rand < 0.75) variant = 'purchase';
           else variant = 'gum';
-          
+
           localStorage.setItem('ab_variant', variant);
         }
-        
+
         // Redirect to assigned variant
         if (variant === 'buy') window.location.href = '/buy';
         else if (variant === 'purchase') window.location.href = '/purchase';
@@ -976,47 +980,59 @@
         // control stays on root
       }
 
-      // Variant 2: /buy with gum.new embedded checkout
-      if (path === '/buy') {
-        // Create container for gum.new embed
+      // Variant 2: /buy with gum.new embedded checkout iframe
+      if (path === '/buy' || variantParam === 'buy' || hash === 'buy') {
+        // Create container for gum.new iframe embed
         const embedContainer = document.createElement('div');
         embedContainer.id = 'gumroad-embed';
         embedContainer.style.cssText =
           'margin: 40px auto; max-width: 800px; padding: 0 20px;';
 
         // Insert after hero section
-        const heroSection = document.querySelector('.hero');
-        heroSection.parentNode.insertBefore(
-          embedContainer,
-          heroSection.nextSibling
-        );
+        const heroSection = document.querySelector('.hero-main');
+        if (heroSection) {
+          heroSection.parentNode.insertBefore(
+            embedContainer,
+            heroSection.nextSibling
+          );
 
-        // Create iframe for gum.new
-        const iframe = document.createElement('iframe');
-        iframe.src = 'https://gum.new/gum/cmhyha3rs001h04l7ccem2nkj';
-        iframe.style.cssText =
-          'width: 100%; height: 800px; border: none; border-radius: 8px;';
-        iframe.title = 'SignKit Checkout';
-        embedContainer.appendChild(iframe);
+          // Create iframe for gum.new checkout
+          const iframe = document.createElement('iframe');
+          iframe.src = 'https://gum.new/gum/cmhyha3rs001h04l7ccem2nkj';
+          iframe.style.cssText =
+            'width: 100%; height: 800px; border: none; border-radius: 8px;';
+          iframe.title = 'SignKit Checkout';
+          iframe.allow = 'payment';
+          embedContainer.appendChild(iframe);
 
-        // Scroll to embed
-        setTimeout(() => {
-          embedContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 500);
+          // Scroll to embed
+          setTimeout(() => {
+            embedContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 500);
+        } else {
+          console.error('Hero section (.hero-main) not found - cannot insert iframe');
+        }
       }
 
       // Variant 4: /gum with direct Gumroad redirect
-      if (path === '/gum') {
+      if (path === '/gum' || variantParam === 'gum' || hash === 'gum') {
         // Redirect to Gumroad product page
-        window.location.href = 'https://pranaysuyash.gumroad.com/l/signkit';
+        window.location.href = 'https://pranaysuyash.gumroad.com/l/signkit-v1';
       }
 
       // Track variant impressions in GA4
-      if (path === '/buy' || path === '/purchase' || path === '/gum') {
-        gtag('event', 'ab_test_impression', {
-          variant: path.substring(1), // buy, purchase, or gum
-          experiment_id: 'checkout_flow_test',
-        });
+      if (
+        path === '/buy' || path === '/purchase' || path === '/gum' ||
+        variantParam === 'buy' || variantParam === 'purchase' || variantParam === 'gum' ||
+        hash === 'buy' || hash === 'purchase' || hash === 'gum'
+      ) {
+        const v = (path !== '/' ? path.substring(1) : '') || variantParam || hash;
+        if (window.gtag) {
+          gtag('event', 'ab_test_impression', {
+            variant: v,
+            experiment_id: 'checkout_flow_test',
+          });
+        }
       }
     </script>
   </body>
