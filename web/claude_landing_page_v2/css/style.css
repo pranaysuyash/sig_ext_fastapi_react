@@ -1,7 +1,8 @@
 /* ============================================
    Font Awesome Icon Enhancements
    ============================================ */
-.fa-solid, .fa-brands {
+.fa-solid,
+.fa-brands {
     width: auto;
     text-align: center;
 }
@@ -233,7 +234,8 @@ ul {
     gap: var(--space-2xl);
 }
 
-.nav-link, .nav-link-demo {
+.nav-link,
+.nav-link-demo {
     font-size: 0.9375rem;
     font-weight: 500;
     color: var(--dark-gray);
@@ -287,6 +289,7 @@ ul {
 }
 
 @media (max-width: 768px) {
+
     .nav-links,
     .btn-nav {
         display: none;
@@ -430,12 +433,16 @@ ul {
 }
 
 @keyframes float {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translate(0, 0) scale(1);
     }
+
     33% {
         transform: translate(30px, -30px) scale(1.1);
     }
+
     66% {
         transform: translate(-20px, 20px) scale(0.9);
     }
@@ -528,7 +535,8 @@ ul {
     color: var(--medium-gray);
 }
 
-.trust-badge svg, .trust-badge .fa-solid {
+.trust-badge svg,
+.trust-badge .fa-solid {
     color: var(--green);
 }
 
@@ -687,10 +695,13 @@ ul {
 }
 
 @keyframes scroll {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 1;
         transform: translate(-50%, 0);
     }
+
     50% {
         opacity: 0.3;
         transform: translate(-50%, 10px);
@@ -878,9 +889,12 @@ ul {
 }
 
 @keyframes bounce-right {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateX(0);
     }
+
     50% {
         transform: translateX(10px);
     }
@@ -1001,7 +1015,8 @@ ul {
     gap: var(--space-lg);
 }
 
-.before, .after {
+.before,
+.after {
     text-align: center;
     flex: 1;
 }
@@ -1395,7 +1410,8 @@ ul {
 .footer {
     background: var(--almost-black);
     color: rgba(255, 255, 255, 0.8);
-    padding: var(--space-4xl) 0 var(--space-2xl);
+    /* Reduce excessive vertical spacing */
+    padding: var(--space-3xl) 0 var(--space-xl);
 }
 
 .footer-content {
@@ -1403,6 +1419,20 @@ ul {
     grid-template-columns: 2fr 1fr 1fr 1fr;
     gap: var(--space-3xl);
     margin-bottom: var(--space-3xl);
+}
+
+/* Make the Product / Support / Legal columns sit side-by-side as one row */
+.footer-links {
+    grid-column: 2 / 5;
+    /* span the three right columns */
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2xl);
+    flex-wrap: nowrap;
+}
+
+.footer-column {
+    min-width: 160px;
 }
 
 .footer-brand p {
@@ -1456,6 +1486,7 @@ ul {
 
 .footer-column a {
     display: block;
+    /* keep links stacked vertically within each column */
     padding: var(--space-xs) 0;
     color: rgba(255, 255, 255, 0.6);
     transition: color var(--transition-base);

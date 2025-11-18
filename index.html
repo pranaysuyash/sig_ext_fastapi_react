@@ -941,12 +941,10 @@
     </script>
     -->
 
-    <!-- Gumroad Embed Script -->
-    <script src="https://gumroad.com/js/gumroad-embed.js"></script>
     <script>
       // A/B Test Configuration
-      // Set AUTO_SPLIT to true for automatic random traffic splitting
-      // Set to false to manually control via URLs
+      // Set AUTO_SPLIT to true for automatic random traffic splitting from root
+      // Direct paths (/root, /buy, /purchase, /gum) always work regardless of AUTO_SPLIT
       const AUTO_SPLIT = false; // Change to true to enable auto A/B testing
 
       const path = window.location.pathname;
@@ -954,8 +952,9 @@
       const variantParam = params.get('variant') || params.get('v');
       const hash = window.location.hash.replace('#', '');
 
-      // Automatic traffic splitting (only on root path)
-      if (AUTO_SPLIT && path === '/') {
+      // Automatic traffic splitting ONLY on root path '/'
+      // Paths like /root, /buy, /purchase, /gum will NEVER auto-redirect
+      if (AUTO_SPLIT && (path === '/' || path === '/index.html')) {
         const existingVariant = localStorage.getItem('ab_variant');
         let variant;
 
@@ -965,7 +964,7 @@
         } else {
           // Randomly assign variant (25% each)
           const rand = Math.random();
-          if (rand < 0.25) variant = 'control';
+          if (rand < 0.25) variant = 'root'; // control on /root
           else if (rand < 0.5) variant = 'buy';
           else if (rand < 0.75) variant = 'purchase';
           else variant = 'gum';
@@ -974,13 +973,16 @@
         }
 
         // Redirect to assigned variant
-        if (variant === 'buy') window.location.href = '/buy';
+        if (variant === 'root') window.location.href = '/root';
+        else if (variant === 'buy') window.location.href = '/buy';
         else if (variant === 'purchase') window.location.href = '/purchase';
         else if (variant === 'gum') window.location.href = '/gum';
-        // control stays on root
       }
 
-      // Variant 2: /buy with gum.new embedded checkout iframe
+      // Variant 1 (Control): /root - always shows control, no iframe
+      // This route exists but doesn't need special handling (just shows the page as-is)
+
+      // Variant 2: /buy - ALWAYS shows gum.new embedded checkout iframe
       if (path === '/buy' || variantParam === 'buy' || hash === 'buy') {
         // Create container for gum.new iframe embed
         const embedContainer = document.createElement('div');
@@ -988,12 +990,12 @@
         embedContainer.style.cssText =
           'margin: 40px auto; max-width: 800px; padding: 0 20px;';
 
-        // Insert after hero section
-        const heroSection = document.querySelector('.hero-main');
-        if (heroSection) {
-          heroSection.parentNode.insertBefore(
+        // Insert after the main grid (not inside it)
+        const grid = document.querySelector('.grid');
+        if (grid) {
+          grid.parentNode.insertBefore(
             embedContainer,
-            heroSection.nextSibling
+            grid.nextSibling
           );
 
           // Create iframe for gum.new checkout
@@ -1007,10 +1009,15 @@
 
           // Scroll to embed
           setTimeout(() => {
-            embedContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            embedContainer.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+            });
           }, 500);
         } else {
-          console.error('Hero section (.hero-main) not found - cannot insert iframe');
+          console.error(
+            'Grid section (.grid) not found - cannot insert iframe'
+          );
         }
       }
 
@@ -1022,14 +1029,24 @@
 
       // Track variant impressions in GA4
       if (
-        path === '/buy' || path === '/purchase' || path === '/gum' ||
-        variantParam === 'buy' || variantParam === 'purchase' || variantParam === 'gum' ||
-        hash === 'buy' || hash === 'purchase' || hash === 'gum'
+        path === '/root' ||
+        path === '/buy' ||
+        path === '/purchase' ||
+        path === '/gum' ||
+        variantParam === 'buy' ||
+        variantParam === 'purchase' ||
+        variantParam === 'gum' ||
+        hash === 'buy' ||
+        hash === 'purchase' ||
+        hash === 'gum'
       ) {
-        const v = (path !== '/' ? path.substring(1) : '') || variantParam || hash;
+        const v =
+          (path !== '/' ? path.substring(1) : 'control') ||
+          variantParam ||
+          hash;
         if (window.gtag) {
           gtag('event', 'ab_test_impression', {
-            variant: v,
+            variant: v === 'root' ? 'control' : v,
             experiment_id: 'checkout_flow_test',
           });
         }
