@@ -990,13 +990,10 @@
         embedContainer.style.cssText =
           'margin: 40px auto; max-width: 800px; padding: 0 20px;';
 
-        // Insert after the main grid (not inside it)
-        const grid = document.querySelector('.grid');
-        if (grid) {
-          grid.parentNode.insertBefore(
-            embedContainer,
-            grid.nextSibling
-          );
+        // Insert at root body level after .page container
+        const page = document.querySelector('.page');
+        if (page) {
+          page.parentNode.insertBefore(embedContainer, page.nextSibling);
 
           // Create iframe for gum.new checkout
           const iframe = document.createElement('iframe');
@@ -1016,7 +1013,7 @@
           }, 500);
         } else {
           console.error(
-            'Grid section (.grid) not found - cannot insert iframe'
+            'Page container (.page) not found - cannot insert iframe'
           );
         }
       }
