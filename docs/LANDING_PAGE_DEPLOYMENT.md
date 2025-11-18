@@ -122,15 +122,42 @@ All should return `HTTP/2 200`.
 
 ## Google Analytics Tracking
 
+### Event Tracking
 Each variant tracks impressions:
 - Event: `ab_test_impression`
 - Experiment ID: `checkout_flow_test`
-- Variants: `control`, `buy`, `gum`, `purchase`
+- Variants: `control`, `root`, `buy`, `gum`, `purchase`
 
 View results in Google Analytics:
 - Property ID: G-PCJDGBMRRN
 - Events → ab_test_impression
 - Filter by variant dimension
+
+### Analytics Fix (Nov 18, 2025)
+**Issue**: The `/gum` variant was redirecting immediately before GA4 could fire tracking events.
+
+**Solution**: Updated `gum.html` to use GA4's `event_callback` feature:
+- Tracks the `ab_test_impression` event
+- Waits for callback confirmation (~100-500ms)
+- Then redirects to Gumroad
+- Includes fallback timeout to ensure redirect happens
+
+**Testing**: Use `test-analytics.html` (in landing-page branch) to verify all variants track correctly:
+```bash
+# Start local server
+python3 -m http.server 8001
+
+# Open test suite
+open http://localhost:8001/test-analytics.html
+```
+
+**Verification**: 
+- Open DevTools Network tab
+- Filter by "collect"
+- Each variant should send `collect?v=2&...&en=ab_test_impression`
+- One request may show "(canceled)" - this is normal, the 204 response is what matters
+
+See `ANALYTICS_FIX_SUMMARY.md` (in landing-page branch) for complete details.
 
 ## Troubleshooting
 

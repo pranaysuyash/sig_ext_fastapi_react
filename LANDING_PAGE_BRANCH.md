@@ -190,9 +190,55 @@ if (path === '/buy' || variantParam === 'buy' || hash === 'buy') {
 - **Active**: Yes (free)
 - **Events**:
   - `ab_test_impression` - Fires when variant is shown
-    - `variant`: 'control', 'buy', 'purchase', 'gum'
+    - `variant`: 'control', 'root', 'buy', 'gum', 'purchase'
     - `experiment_id`: 'checkout_flow_test'
   - `purchase` - Sent by Gumroad via integration
+
+### Analytics Fix (November 18, 2025)
+
+**Problem**: The `/gum` variant was redirecting to Gumroad immediately, before GA4 could fire the tracking event. This resulted in lost pageview and impression data.
+
+**Root Cause**: JavaScript redirect (`window.location.href`) executed in the same script block as GA4 initialization, causing the page to navigate away before the async analytics script could send data.
+
+**Solution**: Implemented GA4's `event_callback` pattern in `gum.html`:
+
+```javascript
+gtag('event', 'ab_test_impression', {
+  variant: 'gum',
+  experiment_id: 'checkout_flow_test',
+  event_callback: function() {
+    // Redirect ONLY after analytics confirms event sent
+    window.location.href = 'https://pranaysuyash.gumroad.com/l/signkit-v1';
+  },
+  event_timeout: 2000 // Fallback: redirect after 2s even if callback doesn't fire
+});
+
+// Additional fallback in case gtag doesn't load
+setTimeout(function() {
+  window.location.href = 'https://pranaysuyash.gumroad.com/l/signkit-v1';
+}, 2500);
+```
+
+**Impact**: 
+- User sees brief loading screen (~100-500ms) before redirect
+- Analytics event fires successfully before navigation
+- Fallback timeouts ensure redirect happens even if analytics fails
+- All other variants (control, root, buy, purchase) were already working correctly
+
+**Testing**: Use `test-analytics.html` to verify tracking:
+```bash
+python3 -m http.server 8001
+open http://localhost:8001/test-analytics.html
+```
+
+**Verification in Production**:
+1. Open DevTools Network tab
+2. Filter by "collect"
+3. Visit each variant URL
+4. Look for `collect?v=2&...&en=ab_test_impression` requests
+5. Status 204 = success (canceled requests are normal, GA4 sends multiple)
+
+See `ANALYTICS_FIX_SUMMARY.md` in the landing-page branch for complete technical details.
 
 ### Plausible Analytics
 
