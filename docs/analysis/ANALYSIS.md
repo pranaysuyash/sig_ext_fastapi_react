@@ -1,9 +1,11 @@
 # Signature Extractor App - Analysis & Improvement Areas
 
 ## Overview
+
 The Signature Extractor App is a desktop-first tool for extracting signatures from documents with precision control. It features a PySide6 desktop application with a FastAPI backend for processing, offering zoom/pan controls, color customization, threshold adjustment, and EXIF auto-rotation.
 
 ## Current Architecture
+
 - **Frontend**: PySide6 desktop application (macOS, Windows, Linux)
 - **Backend**: FastAPI REST API (Python 3.9+)
 - **Database**: SQLite (default) or PostgreSQL (optional)
@@ -12,6 +14,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 ## UI/UX Improvements
 
 ### Visual Polish
+
 - [ ] Add application icon for better branding
 - [ ] Add icons to buttons (📁, 🔄, 🔍, 💾, etc.) instead of or alongside emojis
 - [ ] Implement a consistent color theme with improved styling
@@ -20,6 +23,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add progress indicators for long operations
 
 ### User Interface Enhancements
+
 - [ ] Add keyboard shortcuts (Ctrl+O for open, Ctrl+S for save, etc.)
 - [ ] Add status bar with current operation status
 - [ ] Improve layout organization and spacing
@@ -31,6 +35,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add welcome screen for first-time users
 
 ### Image View Improvements
+
 - [ ] Add grid overlay to assist with precise selections
 - [ ] Add crosshair cursor during selection mode
 - [ ] Improve visual feedback for selection rectangle (border style, transparency)
@@ -41,6 +46,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 ## Functionality Enhancements
 
 ### Image Processing Features
+
 - [ ] Add image rotation buttons (90° CW/CCW) with re-upload functionality
 - [ ] Add image adjustment controls (brightness, contrast, sharpen)
 - [ ] Implement adaptive thresholding
@@ -51,6 +57,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add multiple export options (JPEG, SVG)
 
 ### Selection Improvements
+
 - [ ] Add polygonal selection tool (not just rectangles)
 - [ ] Add lasso selection tool for complex shapes
 - [ ] Add selection refinement tools (expand/contract, smooth edges)
@@ -58,6 +65,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add selection templates for common signature shapes
 
 ### Export & Metadata Features
+
 - [ ] Add metadata export as JSON with bbox coordinates, timestamp, settings
 - [ ] Add clipboard copy functionality for quick paste
 - [ ] Add batch processing for multiple signatures in one document
@@ -66,6 +74,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add DPI control for export quality
 
 ### Auto-Detection Features
+
 - [ ] Add automatic signature detection using computer vision
 - [ ] Implement OCR for text-based signatures
 - [ ] Add contour detection for likely signature regions
@@ -75,6 +84,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 ## Backend Improvements
 
 ### API Enhancements
+
 - [ ] Add API documentation endpoints (Swagger/OpenAPI)
 - [ ] Implement proper error handling and detailed error messages
 - [ ] Add API rate limiting for cloud usage
@@ -83,6 +93,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add API client libraries (Python, JavaScript)
 
 ### Security & Authentication
+
 - [ ] Implement proper authentication for cloud deployment
 - [ ] Add role-based access control
 - [ ] Add JWT token refresh functionality
@@ -90,6 +101,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add request validation and sanitization
 
 ### Performance & Optimization
+
 - [ ] Add image caching to reduce processing time
 - [ ] Implement background task processing for large images
 - [ ] Add image compression for faster uploads
@@ -99,6 +111,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 ## Integration Features
 
 ### E-Signing Platforms
+
 - [ ] Add DocuSign integration for direct upload
 - [ ] Add Adobe Sign integration
 - [ ] Add HelloSign integration
@@ -106,12 +119,14 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add anchor-based placement options
 
 ### Browser Extension
+
 - [ ] Chrome extension for right-click image extraction
 - [ ] Firefox extension for right-click image extraction
 - [ ] Edge extension for right-click image extraction
 - [ ] Safari extension for right-click image extraction
 
 ### Third-Party Integrations
+
 - [ ] Zapier integration for automated workflows
 - [ ] Google Drive integration for batch processing
 - [ ] Dropbox integration for cloud processing
@@ -121,6 +136,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 ## Desktop App Distribution
 
 ### Packaging & Distribution
+
 - [ ] Create PyInstaller/Nuitka build scripts
 - [ ] Generate macOS DMG installer
 - [ ] Create Windows MSI installer
@@ -129,6 +145,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add installer with dependencies
 
 ### System Integration
+
 - [ ] Add file association for common image formats
 - [ ] Add context menu integration (right-click in file explorer)
 - [ ] Add system tray functionality
@@ -137,12 +154,14 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 ## Advanced Features
 
 ### Batch Processing
+
 - [ ] Folder processing for multiple documents
 - [ ] Apply same settings to multiple images
 - [ ] Progress tracking with cancel option
 - [ ] Bulk export with naming templates
 
 ### History & Organization
+
 - [ ] Add processing history with thumbnails
 - [ ] Add tagging system for signatures
 - [ ] Add search functionality
@@ -150,6 +169,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add project-based organization
 
 ### Advanced Export Options
+
 - [ ] Add vector export (SVG) via potrace
 - [ ] Add various background modes (pure alpha, grayscale)
 - [ ] Add multi-format export (PNG+JSON+SVG in one operation)
@@ -158,6 +178,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 ## Privacy & Compliance
 
 ### Data Protection
+
 - [ ] Add local-only processing mode (no cloud connectivity)
 - [ ] Add encryption for stored settings and history
 - [ ] Add GDPR compliance features
@@ -165,6 +186,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add privacy mode (no history tracking)
 
 ### Enterprise Features
+
 - [ ] Add SSO support for businesses
 - [ ] Add multi-user support
 - [ ] Add audit logging
@@ -174,6 +196,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 ## Technical Debt & Refactoring
 
 ### Code Quality
+
 - [ ] Add comprehensive unit tests
 - [ ] Add integration tests
 - [ ] Improve error handling throughout
@@ -183,6 +206,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add proper documentation strings
 
 ### Architecture Improvements
+
 - [ ] Implement plugin architecture for new features
 - [ ] Add configuration management system
 - [ ] Implement proper session management
@@ -192,6 +216,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 ## Business Features
 
 ### Pricing & Licensing
+
 - [ ] Add license key system for Pro features
 - [ ] Add trial period functionality
 - [ ] Add subscription management UI
@@ -199,6 +224,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add billing integration (Stripe)
 
 ### Marketing & Support
+
 - [ ] Add in-app feedback system
 - [ ] Add usage analytics (privacy-conscious)
 - [ ] Add help documentation integration
@@ -208,6 +234,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 ## Documentation
 
 ### User Documentation
+
 - [ ] Create comprehensive user guide
 - [ ] Add video tutorials
 - [ ] Create FAQ section
@@ -215,6 +242,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Create API documentation
 
 ### Developer Documentation
+
 - [ ] Add contribution guidelines
 - [ ] Create architecture documentation
 - [ ] Add deployment guides
@@ -224,6 +252,7 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 ## Testing & Quality Assurance
 
 ### Testing Framework
+
 - [ ] Add automated UI testing
 - [ ] Add image processing accuracy tests
 - [ ] Add performance benchmarking
@@ -232,12 +261,14 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add security penetration testing
 
 ## Internationalization
+
 - [ ] Add multi-language support
 - [ ] Add locale-specific features
 - [ ] Add RTL language support
 - [ ] Add cultural adaptation features
 
 ## Performance Monitoring
+
 - [ ] Add performance metrics collection
 - [ ] Add crash reporting system
 - [ ] Add user behavior analytics
@@ -258,11 +289,16 @@ Quick status summary
 
 - ✅ Architecture: Desktop app = PySide6; backend = FastAPI; SQLite default — see `desktop_app/main.py` and `backend/app/main.py`
 - ✅ Processing libs: OpenCV, NumPy, PIL/Pillow used — see `desktop_app/processing/extractor.py` and backend routes
-- ⚠️ UI/UX polish: proposals exist in doc; most are *not* implemented (icons, dark mode, keyboard shortcuts) — UI code in `desktop_app/views/main_window.py` does not implement these features yet
-- ⚠️ Otsu / adaptive threshold: feature referenced; implementation unclear — extractor has threshold controls but Otsu may only be documented or planned
+- ✅ UI/UX polish: many visual polish items are implemented — `desktop_app/resources/icons.py` provides consistent QIcon usage and `desktop_app/views/main_window_parts/theme.py` implements theming and system-aware dark mode.
+
+- ⚠️ Keyboard shortcuts: partially implemented — check `desktop_app/views/main_window_parts/toolbar.py` for shortcuts like Ctrl+O, Ctrl+E, etc.; more shortcuts and menu-level coverage recommended.
+
+- ⚠️ Progress indicators: partially implemented — `desktop_app/views/main_window_parts/extraction.py` contains `QProgressDialog` usage for long running operations; more consistent progress across all long ops is advised.
+- ✅ Otsu / adaptive threshold: implemented — the extraction UI supports an auto-threshold mode with Otsu (`desktop_app/views/main_window_parts/extraction.py::_otsu_threshold`). Update UI docs to highlight auto-threshold availability and add an API route if backend auto-threshold is needed.
 - ❌ Auto-detection: planned (see `docs/AUTO_DETECTION_ML.md`) but not wired to UI or backend endpoints — no reliable auto-detect function found in `desktop_app/processing`
 - ✅ Backend: routers and static mounts are present; FastAPI provides OpenAPI docs — see `backend/app/main.py`
-- ⚠️ API docs and examples: OpenAPI exists but we should add explicit sample requests and improved error handling in routers/backend
+
+- ⚠️ API docs and examples: OpenAPI exists but the routers lack example payloads in schema definitions and more explicit sample requests — add request examples in `backend/app/routers/extraction.py` and `backend/app/routers/auth.py`.
 - ❌ Tests: No full pytest suite; only small runnable scripts in `backend/` — create tests under `tests/`
 - ❌ Packaging/distribution: Packaging tasks (PyInstaller/Nuitka) are only partial; verify build scripts in `build-tools/` and `build/`/`build-artifacts`
 
