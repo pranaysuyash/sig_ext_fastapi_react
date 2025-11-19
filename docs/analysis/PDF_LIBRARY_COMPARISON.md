@@ -87,6 +87,10 @@ PyMuPDF Installation:
 pip install pypdfium2
 ```
 
+### Codebase check (Raptor mini)
+
+The project's build scripts and packaging specifications include `pypdfium2` and `pikepdf` which match the recommended hybrid approach. If choosing PyMuPDF, be aware of AGPL; packaging references to `fitz` exist in build specs but that may require a separate commercial license for distribution. (refs: `build-tools/`, `SignatureExtractor_macOS.spec`, `build/`)
+
 ### Basic Usage
 
 ```python
@@ -294,6 +298,10 @@ doc.close()
 
 **Winner**: pypdfium2 (cleaner API)
 
+## Status check — verified against codebase (Raptor mini)
+
+The project's build scripts and packaging specifications include `pypdfium2` and `pikepdf`, which aligns with the recommended hybrid approach (viewer: pypdfium2, editor: pikepdf). A number of spec files reference PDF libraries in `build-tools/` and `build/`, confirming inclusion for distribution builds. If choosing PyMuPDF, confirm license compliance for commercial distribution (AGPL); `build-tools/*` show `fitz` included in some builds. (refs: `build-tools/`, `build/`)
+
 ### Signature Overlay
 
 **pypdfium2 + pikepdf:**
@@ -346,7 +354,7 @@ doc.save("signed.pdf")
 - **Cons**: Larger (40 MB), AGPL license
 - **Best for**: If you'll buy commercial license anyway
 
-**Option C: Hybrid**
+### Option C: Hybrid
 
 - pypdfium2 for free tier
 - PyMuPDF for paid tier (where you can afford license)
@@ -404,7 +412,7 @@ This lets you switch libraries without changing your app code.
 
 ## Resources
 
-- pypdfium2: https://github.com/pypdfium2-team/pypdfium2
-- PyMuPDF docs: https://pymupdf.readthedocs.io/
-- pikepdf docs: https://pikepdf.readthedocs.io/
-- PDFium source: https://pdfium.googlesource.com/pdfium/
+- pypdfium2: [pypdfium2 GitHub](https://github.com/pypdfium2-team/pypdfium2)
+- PyMuPDF docs: [PyMuPDF docs](https://pymupdf.readthedocs.io/)
+- pikepdf docs: [pikepdf docs](https://pikepdf.readthedocs.io/)
+- PDFium source: [PDFium source](https://pdfium.googlesource.com/pdfium/)
