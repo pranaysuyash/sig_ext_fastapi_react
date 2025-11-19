@@ -243,3 +243,61 @@ The Signature Extractor App is a desktop-first tool for extracting signatures fr
 - [ ] Add user behavior analytics
 - [ ] Add system resource monitoring
 - [ ] Add performance alerts and notifications
+
+## Addendum — status review (2025-11-19) — GitHub Copilot
+
+Legend
+
+- ✅ Green: correct / present in codebase
+
+- ⚠️ Yellow: partially implemented or planned — doc needs clarification
+
+- ❌ Red: outdated / not implemented
+
+Quick status summary
+
+- ✅ Architecture: Desktop app = PySide6; backend = FastAPI; SQLite default — see `desktop_app/main.py` and `backend/app/main.py`
+- ✅ Processing libs: OpenCV, NumPy, PIL/Pillow used — see `desktop_app/processing/extractor.py` and backend routes
+- ⚠️ UI/UX polish: proposals exist in doc; most are *not* implemented (icons, dark mode, keyboard shortcuts) — UI code in `desktop_app/views/main_window.py` does not implement these features yet
+- ⚠️ Otsu / adaptive threshold: feature referenced; implementation unclear — extractor has threshold controls but Otsu may only be documented or planned
+- ❌ Auto-detection: planned (see `docs/AUTO_DETECTION_ML.md`) but not wired to UI or backend endpoints — no reliable auto-detect function found in `desktop_app/processing`
+- ✅ Backend: routers and static mounts are present; FastAPI provides OpenAPI docs — see `backend/app/main.py`
+- ⚠️ API docs and examples: OpenAPI exists but we should add explicit sample requests and improved error handling in routers/backend
+- ❌ Tests: No full pytest suite; only small runnable scripts in `backend/` — create tests under `tests/`
+- ❌ Packaging/distribution: Packaging tasks (PyInstaller/Nuitka) are only partial; verify build scripts in `build-tools/` and `build/`/`build-artifacts`
+
+Concrete updates (suggested) — mark docs and next steps
+
+- Replace or augment checklists with status markers (✅/⚠️/❌) and link to repo files for clarity
+- Add a short note near the top: "React/Vite web frontend removed; this is a desktop-first application" and link to the `web/` folder for landing pages intended as static content
+- Under "Auto-Detection Features" add status and link: "status: Not implemented — see `docs/AUTO_DETECTION_ML.md` and plan POC under `desktop_app/processing/`"
+- Under "Testing & Quality Assurance" mention: "Add unit tests for image processing (threshold/Otsu), API integration tests, and a CI workflow (pytest)"
+
+Diff perspective (doc-only changes)
+
+- Files to edit: `docs/analysis/ANALYSIS.md` (this addendum), `docs/AUTO_DETECTION_ML.md` (mark phase status), `README.md` (React removal), `backend/app/routers/extraction.py` (add sample payload comment), and create `tests/test_extractor.py` (a small starter test)
+- Small doc-only patch example: add `status:` and `ref:` fields next to checklist items that link directly to repo paths.
+
+Immediate suggested actions (no code changes)
+
+1. Update `docs/analysis/ANALYSIS.md` with status markers (this addendum) and assign owners.
+2. Add a small test skeleton in `tests/test_extractor.py` to validate thresholding behavior and create CI integration.
+3. Add an `Auto-detect` POC ticket; optionally create a small prototype function `auto_detect_signatures()` in `desktop_app/processing/` to be wired to the UI later.
+4. Add sample OpenAPI payloads to `backend/app/routers/extraction.py` for better inventor onboarding.
+
+Notes & references
+
+- Examples: `desktop_app/api/client.py` (desktop <> backend interactions)
+- Auto-detection design doc: `docs/AUTO_DETECTION_ML.md` (mark as prototype or 'not implemented')
+- Backend mount: `backend/app/main.py` serves `/uploads/images` (useful for testing uploads)
+
+My analysis
+
+- The docs provide an excellent product roadmap and are mostly accurate as architecture and goals.
+- Prioritize: (1) tests & CI; (2) auto-detection prototype; (3) API usage examples; (4) UI polish tasks.
+
+Addendum appended by
+
+- Name: GitHub Copilot
+
+- Date: 2025-11-19

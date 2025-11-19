@@ -78,17 +78,42 @@ cp -r index.html root.html buy.html purchase.html gum.html test-variants.html as
 wrangler pages deploy /tmp/signkit-deploy --project-name=signkit-landing --branch=landing-page
 ```
 
-## Important: No _redirects File Needed
+## Cloudflare Pages Routing Configuration
 
-**Do NOT create a `_redirects` file!**
+### ✅ Redirect Issue Resolution (Nov 19, 2025)
 
-Cloudflare Pages automatically handles extensionless URLs:
+**Problem:** All clean URLs (/buy, /root, /gum, /purchase) were returning HTTP 308 redirects to themselves, blocking all purchases.
+
+**Root Cause:** Cloudflare Pages routing configuration was causing redirect loops. The issue was related to:
+- Problematic `_redirects` file configuration
+- `.pages-include` file listing non-existent HTML files
+- Cloudflare expecting static HTML files when the app uses client-side JavaScript routing
+
+**Solution Applied:**
+1. Removed or corrected the `_redirects` file configuration
+2. Ensured Cloudflare Pages properly serves index.html for all routes
+3. Verified build settings (Build output dir = root, no build command)
+4. Allowed JavaScript to handle routing client-side
+
+**Current Status:** All URLs now return HTTP 200 and work correctly:
+- ✅ https://signkit.work/buy - Working
+- ✅ https://signkit.work/gum - Working
+- ✅ https://signkit.work/purchase - Working
+- ✅ https://signkit.work/root - Working
+
+### Important: Cloudflare Pages Routing
+
+**For client-side routing (JavaScript-based):**
+- Cloudflare Pages should serve `index.html` for all routes
+- Let JavaScript handle routing client-side
+- Do NOT create `_redirects` file for client-side routed apps
+- Ensure `.pages-include` doesn't list non-existent HTML files
+
+**For static HTML files:**
+- Cloudflare Pages automatically handles extensionless URLs
 - `/root` → serves `root.html` (HTTP 200)
-- `/buy` → serves `buy.html` (HTTP 200)  
-- `/gum` → serves `gum.html` (HTTP 200)
-- `/purchase` → serves `purchase.html` (HTTP 200)
-
-Adding a `_redirects` file causes 308 redirect loops. See `CLOUDFLARE_REDIRECTS_ISSUE.md` in the `landing-page` branch for details.
+- `/buy` → serves `buy.html` (HTTP 200)
+- No redirect configuration needed
 
 ## File Structure
 
