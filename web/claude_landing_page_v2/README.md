@@ -232,6 +232,29 @@ Cmd + Shift + 5    # Screenshot UI with options
 2. Set build directory to `web/claude_landing_page_v2`
 3. Deploy
 
+### Option 4: Cloudflare Pages via wrangler (CLI)
+If you prefer using the `wrangler` CLI to deploy your static site, follow the steps below:
+
+1. Install `wrangler` (if not installed):
+
+```bash
+npm install -g @cloudflare/wrangler
+# or
+brew install cloudflare/cloudflare/wrangler
+```
+
+2. Ensure `wrangler.toml` in this directory is populated with your `account_id` and `project` name.
+
+3. Run pages publish:
+
+```bash
+cd web/claude_landing_page_v2
+wrangler pages publish . --project-name signkit-pages-landing --branch landing-page
+```
+
+Note: `wrangler pages publish` can also accept a directory `dist` created by a build step. For simple static pages the site root `.` works fine.
+
+
 ### Option 4: GitHub Pages
 1. Create `docs` folder in repo root
 2. Copy all files from `claude_landing_page_v2` to `docs`
