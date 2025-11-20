@@ -3,6 +3,7 @@
 ## ✅ Pre-Deployment Verification
 
 ### Files Ready
+
 - [x] `index.html` - Main entry with A/B routing
 - [x] `root.html` - Control variant (neo-brutalism)
 - [x] `buy.html` - Full-page iframe checkout
@@ -14,6 +15,7 @@
 - [x] `.cfignore` - Deployment exclusions
 
 -### Assets Verified (Cloudflare Pages)
+
 - [x] `assets/files/signkit_icon_32x32.png`
 - [x] `assets/files/signkit_icon_16x16.png`
 - [x] `assets/files/signkit_icon_256x256.png`
@@ -24,12 +26,14 @@
 - [x] `web/claude_landing_page_v2/assets/screenshots/step4-sign.png`
 
 ### Dependencies (for purchase.html)
+
 - [x] `web/claude_landing_page_v2/css/style.css`
 - [x] `web/claude_landing_page_v2/css/animations.css`
 - [x] `web/claude_landing_page_v2/js/main.js`
 - [x] `web/claude_landing_page_v2/js/animations.js`
 
 ### Local Testing
+
 - [x] All pages load without errors
 - [x] All assets load correctly
 - [x] Iframe on `/buy` displays full-page
@@ -119,6 +123,7 @@ Visit each variant on the deployed URL:
 `AUTO_SPLIT = false` in `index.html`
 
 This means:
+
 - Root `/` shows the control page (no auto-redirect)
 - Users can manually access each variant via direct URLs
 - Good for testing and QA
@@ -133,6 +138,7 @@ When ready to start A/B testing:
 4. Cloudflare will auto-deploy
 
 This will:
+
 - Randomly assign visitors to one of 4 variants (25% each)
 - Store assignment in localStorage for consistency
 - Track impressions in GA4
@@ -159,11 +165,13 @@ This will:
 ### Cloudflare Settings to Review
 
 1. **Speed** → **Optimization**
+
    - [ ] Enable Auto Minify (HTML, CSS, JS)
    - [ ] Enable Brotli compression
    - [ ] Enable Rocket Loader (optional)
 
 2. **Caching** → **Configuration**
+
    - [ ] Browser Cache TTL: 4 hours (default is fine)
    - [ ] Always Online: Enabled
 
@@ -186,11 +194,13 @@ After custom domain setup, verify:
 ### Issue: Pages not loading
 
 **Check:**
+
 1. Deployment status in Cloudflare dashboard
 2. Browser console for errors
 3. Network tab for failed requests
 
 **Solution:**
+
 - Redeploy from Cloudflare dashboard
 - Clear browser cache
 - Check `_redirects` file syntax
@@ -198,24 +208,28 @@ After custom domain setup, verify:
 ### Issue: Assets not loading (404)
 
 **Check:**
+
 1. Asset paths in HTML files
 2. Files exist in repository
 3. `.cfignore` not excluding needed files
 
 **Solution:**
+
 - Verify asset paths are relative
 - Check file exists in repo
 - Review `.cfignore` exclusions
- - Ensure runtime `uploads/` files are NOT pushed to the repo. If uploads appear in the repo, remove them with `git rm -r --cached uploads` and add `uploads/**` to `.gitignore`.
+- Ensure runtime `uploads/` files are NOT pushed to the repo. If uploads appear in the repo, remove them with `git rm -r --cached uploads` and add `uploads/**` to `.gitignore`.
 
 ### Issue: Iframe not loading on /buy
 
 **Check:**
+
 1. Browser console for CSP errors
 2. Gumroad URL is correct
 3. Network tab shows iframe request
 
 **Solution:**
+
 - Verify Gumroad URL: `https://gum.new/gum/cmhyha3rs001h04l7ccem2nkj`
 - Check iframe `allow="payment"` attribute
 - Test in different browser
@@ -223,11 +237,13 @@ After custom domain setup, verify:
 ### Issue: A/B routing not working
 
 **Check:**
+
 1. `AUTO_SPLIT` value in `index.html`
 2. Browser console for JavaScript errors
 3. localStorage for `ab_variant` key
 
 **Solution:**
+
 - Verify `AUTO_SPLIT = true` if auto-routing desired
 - Clear localStorage: `localStorage.clear()`
 - Check browser console for errors
@@ -235,11 +251,13 @@ After custom domain setup, verify:
 ### Issue: GA4 not tracking
 
 **Check:**
+
 1. GA4 property ID: `G-PCJDGBMRRN`
 2. Browser console for gtag errors
 3. Ad blockers disabled
 
 **Solution:**
+
 - Verify GA4 script loads
 - Check property ID is correct
 - Test in incognito mode
@@ -277,14 +295,17 @@ Deployment is successful when:
 ## 🎉 Next Steps After Deployment
 
 1. **Monitor Analytics**
+
    - Check GA4 daily for traffic and conversions
    - Review A/B test performance
 
 2. **Enable Auto A/B Testing**
+
    - Once confident, set `AUTO_SPLIT = true`
    - Monitor variant performance
 
 3. **Optimize Based on Data**
+
    - Identify winning variant
    - Iterate on design
    - Test new variants
@@ -295,11 +316,11 @@ Deployment is successful when:
 
 ---
 
-**Deployment Date:** _____________
+**Deployment Date:** ******\_******
 
-**Deployed By:** _____________
+**Deployed By:** ******\_******
 
-**Deployment URL:** _____________
+**Deployment URL:** ******\_******
 
 **Custom Domain:** signkit.work
 

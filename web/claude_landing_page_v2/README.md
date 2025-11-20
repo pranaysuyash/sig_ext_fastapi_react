@@ -59,6 +59,7 @@ Take 4 screenshots of your app and save them as:
 - `assets/screenshots/step2-select.png` - Signature selection with zoom
 - `assets/screenshots/step3-clean.png` - Cleaned extracted signature
 - `assets/screenshots/step4-sign.png` - PDF signing interface
+  Note: Some common pages (`index.html`, `root.html`, `purchase.html`) reference the repo root `screenshots/` folder. Even if you add per-variant screenshots, keep the root `screenshots/screenshot-*.png` files in the repo or copy them during build so those variants continue to work.
 
 **Screenshot specs:**
 

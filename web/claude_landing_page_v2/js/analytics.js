@@ -70,6 +70,7 @@
       event_label: ((navigator && navigator.userAgent) || '').substr(0, 100),
     });
     // We exit early: avoid sending engagement events for suspected bots
+    return; // Prevent other engagement events from firing for bots
   }
 
   // ---- Real User Detection ----
@@ -194,6 +195,11 @@
           var href = el.getAttribute('data-href') || el.getAttribute('href');
           if (href && (href.includes('gumroad') || href.includes('gum.new'))) {
             e.preventDefault();
+            safeGtag('event', 'purchase_intent', {
+              event_category: 'conversion',
+              event_label: text,
+              value: 1,
+            });
             var newHref = appendUTM(href);
             // Open in new tab to preserve behavior
             window.open(newHref, '_blank');
@@ -215,6 +221,11 @@
           link_text: (a.textContent || '').trim(),
         });
         if (href && (href.includes('gumroad') || href.includes('gum.new'))) {
+          safeGtag('event', 'purchase_intent', {
+            event_category: 'conversion',
+            event_label: (a.textContent || '').trim() || href,
+            value: 1,
+          });
           a.href = appendUTM(href);
         }
       });

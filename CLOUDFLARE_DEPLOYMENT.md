@@ -32,6 +32,7 @@ This landing page is set up for deployment to Cloudflare Pages with A/B testing 
 ### Option 1: Deploy via Cloudflare Dashboard (Recommended)
 
 1. **Connect Repository**
+
    - Go to [Cloudflare Dashboard](https://dash.cloudflare.com/)
    - Navigate to Pages
    - Click "Create a project"
@@ -39,12 +40,14 @@ This landing page is set up for deployment to Cloudflare Pages with A/B testing 
    - Select the `landing-page` branch
 
 2. **Configure Build Settings**
+
    - Framework preset: `None`
    - Build command: (leave empty)
    - Build output directory: `/`
    - Root directory: `/`
 
 3. **Environment Variables** (if needed)
+
    - None required for static site
 
 4. **Deploy**
@@ -55,11 +58,13 @@ This landing page is set up for deployment to Cloudflare Pages with A/B testing 
 ### Option 2: Deploy via Wrangler CLI
 
 1. **Install Wrangler**
+
    ```bash
    npm install -g wrangler
    ```
 
 2. **Login to Cloudflare**
+
    ```bash
    wrangler login
    ```
@@ -72,6 +77,7 @@ This landing page is set up for deployment to Cloudflare Pages with A/B testing 
 ## Custom Domain Setup
 
 1. **Add Custom Domain**
+
    - In Cloudflare Pages dashboard, go to your project
    - Click "Custom domains"
    - Add `signkit.work`
@@ -85,7 +91,8 @@ This landing page is set up for deployment to Cloudflare Pages with A/B testing 
 
 ### How It Works
 
-1. **Root Path (`/`)**: 
+1. **Root Path (`/`)**:
+
    - Serves `index.html`
    - JavaScript checks `AUTO_SPLIT` flag
    - If `true`: randomly assigns user to one of 4 variants (25% each)
@@ -101,6 +108,7 @@ This landing page is set up for deployment to Cloudflare Pages with A/B testing 
 ### Enable Auto A/B Testing
 
 Edit `index.html` and change:
+
 ```javascript
 const AUTO_SPLIT = false; // Change to true
 ```
@@ -171,10 +179,10 @@ NOTE: Cloudflare Pages is our canonical deployment method. While older docs incl
 - `assets/files/signkit_icon_16x16.png`
 - `assets/files/signkit_icon_256x256.png`
 - `assets/files/signkit_icon_64x64.png`
-*Prefer placing your landing page images inside the variant folder.* For Cloudflare Pages deploys we recommend adding screenshots into each landing variant's asset folder, for example:
+  _Prefer placing your landing page images inside the variant folder._ For Cloudflare Pages deploys we recommend adding screenshots into each landing variant's asset folder, for example:
 
 - `web/claude_landing_page_v2/assets/screenshots/step1-upload.png`
-Note: Some landing variants reference the repo root `screenshots/` folder (e.g., `index.html`, `root.html`, `purchase.html`) whereas others (like `web/claude_landing_page_v2`) use per-variant `./assets/screenshots/`. For consistency, we recommend placing screenshots in both locations during a deployment or updating the HTML to use per-variant paths. This document prefers per-variant `web/<variant>/assets/screenshots/` as the canonical location for future variants.
+  Note: Some landing variants reference the repo root `screenshots/` folder (e.g., `index.html`, `root.html`, `purchase.html`) whereas others (like `web/claude_landing_page_v2`) use per-variant `./assets/screenshots/`. For consistency, we recommend placing screenshots in both locations during a deployment or updating the HTML to use per-variant paths. This document prefers per-variant `web/<variant>/assets/screenshots/` as the canonical location for future variants.
 - `web/claude_landing_page_v2/assets/screenshots/step2-select.png`
 - `web/claude_landing_page_v2/assets/screenshots/step3-clean.png`
 
@@ -199,7 +207,8 @@ If you keep images in the repo root `screenshots/`, make sure your build step co
 
 ### Issue: A/B routing not working
 
-**Solution**: 
+**Solution**:
+
 1. Check browser console for JavaScript errors
 2. Verify `AUTO_SPLIT` is set correctly in `index.html`
 3. Clear `localStorage` to reset variant assignment
@@ -207,6 +216,7 @@ If you keep images in the repo root `screenshots/`, make sure your build step co
 ### Issue: Iframe not loading on /buy
 
 **Solution**:
+
 1. Check browser console for CSP or iframe errors
 2. Verify Gumroad URL is correct
 3. Ensure `allow="payment"` attribute is present on iframe
@@ -223,10 +233,11 @@ If you keep images in the repo root `screenshots/`, make sure your build step co
 ### Manual Optimizations
 
 1. **Compress Images**
+
    ```bash
    # Install imagemagick
    brew install imagemagick
-   
+
    # Optimize screenshots
    mogrify -strip -quality 85 screenshots/*.png
    ```
@@ -239,6 +250,7 @@ If you keep images in the repo root `screenshots/`, make sure your build step co
 ### Headers
 
 Cloudflare Pages automatically adds security headers:
+
 - `X-Content-Type-Options: nosniff`
 - `X-Frame-Options: SAMEORIGIN`
 - `X-XSS-Protection: 1; mode=block`
@@ -246,6 +258,7 @@ Cloudflare Pages automatically adds security headers:
 ### Custom Headers (Optional)
 
 Create `_headers` file in root:
+
 ```
 /*
   X-Frame-Options: DENY
@@ -280,6 +293,7 @@ If you need to rollback to a previous deployment:
 ## Support
 
 For issues with:
+
 - **Cloudflare Pages**: [Cloudflare Community](https://community.cloudflare.com/)
 - **Landing Page**: Check GitHub issues or contact support@signkit.work
 - **Gumroad Integration**: [Gumroad Help](https://help.gumroad.com/)
