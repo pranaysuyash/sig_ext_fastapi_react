@@ -181,3 +181,4 @@ alembic/versions/*.pyc
 *.cer
 *.p12
 *.certSigningRequest
+deploy_dist/
