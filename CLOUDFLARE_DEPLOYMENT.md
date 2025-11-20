@@ -174,6 +174,7 @@ NOTE: Cloudflare Pages is our canonical deployment method. While older docs incl
 *Prefer placing your landing page images inside the variant folder.* For Cloudflare Pages deploys we recommend adding screenshots into each landing variant's asset folder, for example:
 
 - `web/claude_landing_page_v2/assets/screenshots/step1-upload.png`
+Note: Some landing variants reference the repo root `screenshots/` folder (e.g., `index.html`, `root.html`, `purchase.html`) whereas others (like `web/claude_landing_page_v2`) use per-variant `./assets/screenshots/`. For consistency, we recommend placing screenshots in both locations during a deployment or updating the HTML to use per-variant paths. This document prefers per-variant `web/<variant>/assets/screenshots/` as the canonical location for future variants.
 - `web/claude_landing_page_v2/assets/screenshots/step2-select.png`
 - `web/claude_landing_page_v2/assets/screenshots/step3-clean.png`
 
