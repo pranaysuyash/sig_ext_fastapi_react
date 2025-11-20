@@ -67,6 +67,56 @@
       gtag('js', new Date());
 
       gtag('config', 'G-PCJDGBMRRN');
+
+      // Track variant view
+      gtag('event', 'variant_view', {
+        variant: 'index',
+        send_to: 'G-PCJDGBMRRN',
+      });
+    </script>
+
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+      (function (c, l, a, r, i, t, y) {
+        c[a] =
+          c[a] ||
+          function () {
+            (c[a].q = c[a].q || []).push(arguments);
+          };
+        t = l.createElement(r);
+        t.async = 1;
+        t.src = 'https://www.clarity.ms/tag/' + i;
+        y = l.getElementsByTagName(r)[0];
+        y.parentNode.insertBefore(t, y);
+      })(window, document, 'clarity', 'script', 'u8zyh41jr0');
+    </script>
+
+    <!-- Analytics Helpers -->
+    <script>
+      // Scroll Depth
+      let marks = { 25: false, 50: false, 75: false, 90: false };
+      window.addEventListener('scroll', () => {
+        let scrollPercent =
+          ((window.scrollY + window.innerHeight) / document.body.scrollHeight) *
+          100;
+        for (let mark in marks) {
+          if (scrollPercent >= mark && !marks[mark]) {
+            marks[mark] = true;
+            gtag('event', 'scroll_depth', { depth: mark + '%' });
+          }
+        }
+      });
+
+      // Checkout Intent
+      document.addEventListener('DOMContentLoaded', () => {
+        document
+          .querySelectorAll('a[href*="gumroad"], .btn-primary')
+          .forEach((el) => {
+            el.addEventListener('click', () => {
+              gtag('event', 'checkout_intent', { location: 'index' });
+            });
+          });
+      });
     </script>
 
     <!-- Fonts -->
@@ -977,12 +1027,12 @@
       }
 
       // Track control variant impression (index.html is the control)
-      if (window.gtag && (path === '/' || path === '/index.html')) {
-        gtag('event', 'ab_test_impression', {
-          variant: 'control',
-          experiment_id: 'checkout_flow_test',
-        });
-      }
+      // if (window.gtag && (path === '/' || path === '/index.html')) {
+      //   gtag('event', 'ab_test_impression', {
+      //     variant: 'control',
+      //     experiment_id: 'checkout_flow_test',
+      //   });
+      // }
     </script>
   </body>
 </html>

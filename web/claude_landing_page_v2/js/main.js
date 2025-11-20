@@ -262,10 +262,10 @@ function initCTAButtons() {
         } else {
           // Handle purchase CTAs
           console.log('Purchase CTA clicked:', button.id);
-          // Add your purchase flow here
-          alert(
-            'Thank you for your interest! Purchase flow would be integrated here.'
-          );
+          // If data-href is present, let analytics.js or native behavior handle it
+          if (button.getAttribute('data-href')) return;
+          
+          window.location.href = 'https://pranaysuyash.gumroad.com/l/signkit-v1';
         }
 
         // Add ripple effect

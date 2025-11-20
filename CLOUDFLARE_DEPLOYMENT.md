@@ -195,6 +195,26 @@ If you keep images in the repo root `screenshots/`, make sure your build step co
 - `web/claude_landing_page_v2/js/main.js`
 - `web/claude_landing_page_v2/js/animations.js`
 
+## End-to-End Analytics Tests
+
+We've added a couple of Puppeteer-based E2E tests to validate event tracking on the deployed site:
+
+- `tests/e2e/analytics.deploy.test.js` - Simulates a real human session (mouse movement, scroll, CTA click) and verifies that gtag dataLayer pushes include `real_user_detected`, `cta_click`, and `purchase_intent`.
+- `tests/e2e/bot-check.js` - Simulates a bot user agent and verifies that `bot_detected` is fired and that engagement events are suppressed.
+
+Run these tests locally (requires Node.js and npm):
+
+```bash
+npm install
+npm run test:e2e:deploy
+npm run test:e2e:bot
+```
+
+Notes:
+
+- `scroll_depth` events can be flaky in headless browsers due to differences in viewport handling and CSS layout. In headful mode (non-headless), the scrolling may register more reliably. If the test doesn't consistently capture `scroll_depth`, it's still useful to validate other engagement events.
+- Tests capture the client-side `dataLayer` pushes but do not assert actual ingestion into GA servers. Use GA Debug view or the Realtime Dashboard in GA for end-to-end verification.
+
 ## Troubleshooting
 
 ### Issue: Redirects not working

@@ -66,14 +66,44 @@
       }
       gtag('js', new Date());
 
-      gtag('config', 'G-PCJDGBMRRN');
-      
-      // Track control variant impression
-      gtag('event', 'ab_test_impression', {
-        variant: 'control',
-        experiment_id: 'checkout_flow_test',
+      // Internal traffic exclusion
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('internal') === '1') {
+        document.cookie = 'ga_internal=true; path=/; max-age=31536000';
+      }
+      if (document.cookie.includes('ga_internal=true')) {
+        gtag('set', 'user_properties', { traffic_type: 'internal' });
+      }
+
+      gtag('config', 'G-PCJDGBMRRN', {
+        variant: 'root',
+      });
+
+      // Track variant view
+      gtag('event', 'variant_view', {
+        variant: 'root',
+        send_to: 'G-PCJDGBMRRN',
       });
     </script>
+
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+      (function (c, l, a, r, i, t, y) {
+        c[a] =
+          c[a] ||
+          function () {
+            (c[a].q = c[a].q || []).push(arguments);
+          };
+        t = l.createElement(r);
+        t.async = 1;
+        t.src = 'https://www.clarity.ms/tag/' + i;
+        y = l.getElementsByTagName(r)[0];
+        y.parentNode.insertBefore(t, y);
+      })(window, document, 'clarity', 'script', 'u8zyh41jr0');
+    </script>
+
+    <!-- Analytics Helpers -->
+    <script src="web/claude_landing_page_v2/js/analytics.js"></script>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

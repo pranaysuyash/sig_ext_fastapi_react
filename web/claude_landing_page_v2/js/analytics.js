@@ -146,6 +146,7 @@
           safeGtag('event', 'scroll_depth', {
             event_category: 'engagement',
             event_label: m + '%',
+            percent: m,
             value: m,
           });
         }
@@ -195,7 +196,7 @@
           var href = el.getAttribute('data-href') || el.getAttribute('href');
           if (href && (href.includes('gumroad') || href.includes('gum.new'))) {
             e.preventDefault();
-            safeGtag('event', 'purchase_intent', {
+            safeGtag('event', 'checkout_intent', {
               event_category: 'conversion',
               event_label: text,
               value: 1,
@@ -221,7 +222,7 @@
           link_text: (a.textContent || '').trim(),
         });
         if (href && (href.includes('gumroad') || href.includes('gum.new'))) {
-          safeGtag('event', 'purchase_intent', {
+          safeGtag('event', 'checkout_intent', {
             event_category: 'conversion',
             event_label: (a.textContent || '').trim() || href,
             value: 1,
