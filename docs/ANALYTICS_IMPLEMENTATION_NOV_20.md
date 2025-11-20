@@ -29,6 +29,7 @@ This document details the implementation of advanced analytics for the SignKit l
 - **Implementation**:
   - **Centralized**: Core logic moved to `web/claude_landing_page_v2/js/analytics.js`.
   - **Configurable**: HTML files only set configuration (Variant ID) and import the logic.
+  - **Consistency**: `buy.html` now imports `analytics.js` so CTA and external link tracking behave consistently across variants.
 - **Improvements**:
   - **Clean Data**: Cookie-based internal traffic exclusion ensures 100% clean metrics.
   - **Scalable**: Adding a new variant only requires copying the header script block.
@@ -71,7 +72,7 @@ We implemented a cookie-based override to exclude internal traffic reliably, byp
       ```
   4.  **GA4 Configuration**: A Data Filter in GA4 Admin excludes traffic with `traffic_type = 'internal'`.
 
-- **Code Location**: In the `<head>` of `root.html`, `buy.html`, `gum.html`, and `purchase.html`, immediately before the `gtag('config')` call.
+- **Code Location**: In the `<head>` of `index.html`, `root.html`, `buy.html`, `gum.html`, and `purchase.html`, immediately before the `gtag('config')` call.
 
 ### 2. A/B Testing Variants
 

@@ -66,7 +66,16 @@
       }
       gtag('js', new Date());
 
-      gtag('config', 'G-PCJDGBMRRN');
+      // Internal traffic exclusion (cookie + ?internal=1)
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('internal') === '1') {
+        document.cookie = 'ga_internal=true; path=/; max-age=31536000';
+      }
+      if (document.cookie.includes('ga_internal=true')) {
+        gtag('set', 'user_properties', { traffic_type: 'internal' });
+      }
+
+      gtag('config', 'G-PCJDGBMRRN', { variant: 'index' });
 
       // Track variant view
       gtag('event', 'variant_view', {
@@ -91,33 +100,8 @@
       })(window, document, 'clarity', 'script', 'u8zyh41jr0');
     </script>
 
-    <!-- Analytics Helpers -->
-    <script>
-      // Scroll Depth
-      let marks = { 25: false, 50: false, 75: false, 90: false };
-      window.addEventListener('scroll', () => {
-        let scrollPercent =
-          ((window.scrollY + window.innerHeight) / document.body.scrollHeight) *
-          100;
-        for (let mark in marks) {
-          if (scrollPercent >= mark && !marks[mark]) {
-            marks[mark] = true;
-            gtag('event', 'scroll_depth', { depth: mark + '%' });
-          }
-        }
-      });
-
-      // Checkout Intent
-      document.addEventListener('DOMContentLoaded', () => {
-        document
-          .querySelectorAll('a[href*="gumroad"], .btn-primary')
-          .forEach((el) => {
-            el.addEventListener('click', () => {
-              gtag('event', 'checkout_intent', { location: 'index' });
-            });
-          });
-      });
-    </script>
+    <!-- Use central analytics helper -->
+    <script src="web/claude_landing_page_v2/js/analytics.js"></script>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
