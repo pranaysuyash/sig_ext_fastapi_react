@@ -84,6 +84,9 @@ screenshots_*/
 !.github/**/*.png
 !512px-Mohammad_Rafiquzzaman_signature.jpg
 
+# Re-allow root-level screenshots after global image ignores
+!screenshots/**
+
 # macOS
 .DS_Store
 .AppleDouble
