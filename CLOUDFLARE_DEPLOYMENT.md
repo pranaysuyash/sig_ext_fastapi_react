@@ -152,7 +152,9 @@ Open `http://localhost:8080/test-variants.html` to access the testing dashboard 
 - Purchase: `http://localhost:8080/purchase`
 - Gum: `http://localhost:8080/gum`
 
-## File Dependencies
+## File Dependencies (Cloudflare Pages)
+
+NOTE: Cloudflare Pages is our canonical deployment method. While older docs include S3/CloudFront steps, most deploys use Cloudflare Pages with the built-in Pages CDN. If you prefer S3/CloudFront, see the `web/neobrutalism_chatgpt/DEPLOYMENT_GUIDE.md` for an example.
 
 ### Required Files
 
@@ -163,15 +165,19 @@ Open `http://localhost:8080/test-variants.html` to access the testing dashboard 
 - `gum.html` - Redirect variant
 - `_redirects` - Cloudflare routing rules
 
-### Required Assets
+### Required Assets (for Cloudflare Pages)
 
 - `assets/files/signkit_icon_32x32.png`
 - `assets/files/signkit_icon_16x16.png`
 - `assets/files/signkit_icon_256x256.png`
 - `assets/files/signkit_icon_64x64.png`
-- `screenshots/screenshot-1.png`
-- `screenshots/screenshot-2.png`
-- `screenshots/screenshot-3.png`
+*Prefer placing your landing page images inside the variant folder.* For Cloudflare Pages deploys we recommend adding screenshots into each landing variant's asset folder, for example:
+
+- `web/claude_landing_page_v2/assets/screenshots/step1-upload.png`
+- `web/claude_landing_page_v2/assets/screenshots/step2-select.png`
+- `web/claude_landing_page_v2/assets/screenshots/step3-clean.png`
+
+If you keep images in the repo root `screenshots/`, make sure your build step copies them to the variant folder prior to publishing.
 
 ### Required CSS/JS (for purchase.html)
 

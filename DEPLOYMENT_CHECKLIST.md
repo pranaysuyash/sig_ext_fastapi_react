@@ -13,14 +13,15 @@
 - [x] `wrangler.toml` - Cloudflare configuration
 - [x] `.cfignore` - Deployment exclusions
 
-### Assets Verified
+-### Assets Verified (Cloudflare Pages)
 - [x] `assets/files/signkit_icon_32x32.png`
 - [x] `assets/files/signkit_icon_16x16.png`
 - [x] `assets/files/signkit_icon_256x256.png`
 - [x] `assets/files/signkit_icon_64x64.png`
-- [x] `screenshots/screenshot-1.png`
-- [x] `screenshots/screenshot-2.png`
-- [x] `screenshots/screenshot-3.png`
+- [x] `web/claude_landing_page_v2/assets/screenshots/step1-upload.png`
+- [x] `web/claude_landing_page_v2/assets/screenshots/step2-select.png`
+- [x] `web/claude_landing_page_v2/assets/screenshots/step3-clean.png`
+- [x] `web/claude_landing_page_v2/assets/screenshots/step4-sign.png`
 
 ### Dependencies (for purchase.html)
 - [x] `web/claude_landing_page_v2/css/style.css`
@@ -205,6 +206,7 @@ After custom domain setup, verify:
 - Verify asset paths are relative
 - Check file exists in repo
 - Review `.cfignore` exclusions
+ - Ensure runtime `uploads/` files are NOT pushed to the repo. If uploads appear in the repo, remove them with `git rm -r --cached uploads` and add `uploads/**` to `.gitignore`.
 
 ### Issue: Iframe not loading on /buy
 

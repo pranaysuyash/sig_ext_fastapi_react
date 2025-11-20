@@ -3,6 +3,7 @@
 ## 🎯 What's New in V2
 
 This version improves upon the original Claude landing page with:
+
 - ✅ **Font Awesome icons** instead of emojis (professional look)
 - ✅ **Screenshot placeholders** ready for your actual app screenshots
 - ✅ **YouTube video embed** option for hero demo
@@ -53,12 +54,14 @@ cp ../claude_landing_page/js/animations.js ./js/
 ### Step 2: Add Your Screenshots
 
 Take 4 screenshots of your app and save them as:
+
 - `assets/screenshots/step1-upload.png` - Upload document screen
 - `assets/screenshots/step2-select.png` - Signature selection with zoom
 - `assets/screenshots/step3-clean.png` - Cleaned extracted signature
 - `assets/screenshots/step4-sign.png` - PDF signing interface
 
 **Screenshot specs:**
+
 - Format: PNG
 - Dimensions: 800x600px (or similar 4:3 ratio)
 - File size: < 500KB each (compress if needed)
@@ -82,12 +85,13 @@ Find all instances of button click handlers and update with your Gumroad product
 
 ```javascript
 // In js/main.js, add at the top:
-const GUMROAD_URL = "https://gumroad.com/l/your-product-id";
+const GUMROAD_URL = 'https://gumroad.com/l/your-product-id';
 
 // Then update all CTA buttons to use this URL
 ```
 
 Or manually update in HTML - search for all button IDs:
+
 - `#heroCTA`
 - `#navCTA`
 - `#pricingCTA`
@@ -115,6 +119,7 @@ Open http://localhost:8000 in your browser
 ### Change Brand Name
 
 Search and replace "SignKit" with your chosen name:
+
 - In `index.html` (appears ~15 times)
 - In page title, meta tags, and all text content
 
@@ -124,16 +129,17 @@ Edit `css/style.css` CSS variables:
 
 ```css
 :root {
-    --navy: #1a1f36;      /* Dark text color */
-    --blue: #3b82f6;      /* Primary brand color */
-    --orange: #f59e0b;    /* CTA buttons */
-    /* ... change any colors you want */
+  --navy: #1a1f36; /* Dark text color */
+  --blue: #3b82f6; /* Primary brand color */
+  --orange: #f59e0b; /* CTA buttons */
+  /* ... change any colors you want */
 }
 ```
 
 ### Update Pricing
 
 In `index.html`, find the pricing section and update:
+
 - Launch price (currently $29)
 - Regular price (currently $39)
 - Feature list
@@ -141,6 +147,7 @@ In `index.html`, find the pricing section and update:
 ### Update Social Proof Numbers
 
 Replace placeholder numbers:
+
 - "1,200+ Happy Customers" → Use real number or "Early Access"
 - "12,847 Signatures Extracted" → Remove if not accurate
 - "4.8/5 Average Rating" → Add when you have reviews
@@ -152,6 +159,7 @@ Replace placeholder numbers:
 Before deploying to production:
 
 ### Content
+
 - [ ] All 4 screenshots added to `assets/screenshots/`
 - [ ] YouTube video ID added (or carousel kept as default)
 - [ ] Brand name updated from "SignKit" to your choice
@@ -162,6 +170,7 @@ Before deploying to production:
 - [ ] OG image created and added (`assets/og-image.jpg`)
 
 ### Technical
+
 - [ ] All CTA buttons link to Gumroad
 - [ ] Responsive design tested on mobile
 - [ ] Page loads in < 3 seconds
@@ -170,6 +179,7 @@ Before deploying to production:
 - [ ] Analytics code added (Google Analytics, Plausible, etc.)
 
 ### Legal
+
 - [ ] Privacy Policy link updated
 - [ ] Terms of Service link updated
 - [ ] Refund Policy link updated
@@ -181,21 +191,25 @@ Before deploying to production:
 ### What to Capture
 
 **Step 1 - Upload:**
+
 - Show the file upload interface
 - Empty state or drag-and-drop area
 - Make it inviting and simple
 
 **Step 2 - Select:**
+
 - Show signature selection in progress
 - Highlight the zoom/pan controls
 - Show the precision tools
 
 **Step 3 - Clean:**
+
 - Show before/after comparison
 - Highlight the cleaned transparent result
 - Show export options
 
 **Step 4 - Sign PDF:**
+
 - Show PDF viewer with signature placed
 - Show library of saved signatures
 - Show the final signed document
@@ -218,21 +232,40 @@ Cmd + Shift + 5    # Screenshot UI with options
 ## 🌐 Deployment Options
 
 ### Option 1: Netlify (Recommended)
+
 1. Drag and drop the `claude_landing_page_v2` folder
 2. Done! You get a URL like `signkit-app.netlify.app`
 3. Add custom domain in settings
 
 ### Option 2: Vercel
+
 1. Push to GitHub repository
 2. Import to Vercel
 3. Deploy (auto-builds on every push)
 
 ### Option 3: Cloudflare Pages
+
 1. Connect GitHub repo
 2. Set build directory to `web/claude_landing_page_v2`
 3. Deploy
 
+Note: We expect most production deploys to use Cloudflare Pages (fast global CDN).
+
+To avoid confusion and ensure assets are included in the Pages build, add your screenshots and images under this variant's assets folder prior to publishing:
+
+- `web/claude_landing_page_v2/assets/screenshots/step1-upload.png`
+- `web/claude_landing_page_v2/assets/screenshots/step2-select.png`
+- `web/claude_landing_page_v2/assets/screenshots/step3-clean.png`
+
+Security note: The `uploads/` folder is a runtime-only folder and should never be committed. If uploads are tracked accidentally, remove them with:
+
+```bash
+git rm -r --cached uploads
+git commit -m "chore: remove runtime uploads from repository"
+```
+
 ### Option 4: Cloudflare Pages via wrangler (CLI)
+
 If you prefer using the `wrangler` CLI to deploy your static site, follow the steps below:
 
 1. Install `wrangler` (if not installed):
@@ -254,8 +287,8 @@ wrangler pages publish . --project-name signkit-pages-landing --branch landing-p
 
 Note: `wrangler pages publish` can also accept a directory `dist` created by a build step. For simple static pages the site root `.` works fine.
 
-
 ### Option 4: GitHub Pages
+
 1. Create `docs` folder in repo root
 2. Copy all files from `claude_landing_page_v2` to `docs`
 3. Enable GitHub Pages in repo settings
@@ -266,6 +299,7 @@ Note: `wrangler pages publish` can also accept a directory `dist` created by a b
 ## 🔧 Common Issues & Fixes
 
 ### Icons not showing
+
 **Problem:** Font Awesome CDN blocked  
 **Fix:** Download Font Awesome and host locally
 
@@ -282,22 +316,28 @@ cp -r node_modules/@fortawesome/fontawesome-free/webfonts assets/
 ```
 
 ### Screenshots not loading
+
 **Problem:** Wrong file paths or names  
 **Fix:** Check that files are exactly named:
+
 - `step1-upload.png` (not `Step1-Upload.PNG`)
 - Located in `assets/screenshots/` folder
 - File extensions match (png not jpg)
 
 ### Video not playing
+
 **Problem:** YouTube embed blocked or wrong video ID  
 **Fix:**
+
 - Check video is not private
 - Verify video ID is correct
 - Ensure embeds are allowed for the video
 
 ### Mobile layout broken
+
 **Problem:** CSS not loading properly  
 **Fix:**
+
 - Ensure `style.css` and `animations.css` are both in `css/` folder
 - Check browser console for 404 errors
 - Verify file paths are correct
@@ -309,19 +349,30 @@ cp -r node_modules/@fortawesome/fontawesome-free/webfonts assets/
 Add your analytics code before closing `</body>` tag:
 
 ### Google Analytics
+
 ```html
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script
+  async
+  src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+  function gtag() {
+    dataLayer.push(arguments);
+  }
   gtag('js', new Date());
   gtag('config', 'G-XXXXXXXXXX');
 </script>
 ```
 
 ### Plausible (Privacy-friendly)
+
 ```html
-<script defer data-domain="yourdomain.com" src="https://plausible.io/js/script.js"></script>
+<script
+  defer
+  data-domain="yourdomain.com"
+  src="https://plausible.io/js/script.js"
+></script>
 ```
 
 ---
@@ -350,6 +401,7 @@ Add your analytics code before closing `</body>` tag:
 ## 📞 Support
 
 If you run into issues:
+
 1. Check browser console for errors (F12 → Console)
 2. Verify all files are in correct locations
 3. Test with a simple Python server first
@@ -360,6 +412,7 @@ If you run into issues:
 ## 🚀 Ready to Launch?
 
 Final checklist:
+
 - ✅ Screenshots added
 - ✅ Gumroad URL updated
 - ✅ Brand name updated
