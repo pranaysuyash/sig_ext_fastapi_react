@@ -132,7 +132,7 @@ We are testing 4 variants to determine the optimal conversion flow.
   - Removed conflicting "alert" placeholders.
 
 - **HTML Files**:
-  - Removed redundant inline scroll tracking scripts.
+  - Removed redundant inline scroll tracking scripts (index.html now imports `analytics.js`, replacing its previous inline handlers).
   - Added Microsoft Clarity script to `<head>`.
 
 ## How to Verify
