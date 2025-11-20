@@ -1,0 +1,32 @@
+# Build artifacts and large binaries
+SignKit-Linux
+SignKit-Linux/**
+SignKit-macOS-ARM64
+SignKit-macOS-ARM64/**
+SignKit-macOS-Intel
+SignKit-macOS-Intel/**
+SignKit-Windows
+SignKit-Windows/**
+build-artifacts
+build-artifacts/**
+build-artifacts-final
+build-artifacts-final/**
+build
+build/**
+*.tar.gz
+*.dmg
+*.zip
+*.exe
+
+# Backend and Desktop App source (not needed for landing page)
+backend
+backend/**
+desktop_app
+desktop_app/**
+
+# Dependencies and Git
+node_modules
+node_modules/**
+.git
+.git/**
+.DS_Store
