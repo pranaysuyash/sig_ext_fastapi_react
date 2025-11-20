@@ -22,7 +22,7 @@ function initNavigation() {
   const navToggle = document.getElementById('navToggle');
   let lastScroll = 0;
 
-  // Navbar scroll effect
+          if (button.id === 'demoBtn') {
   window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
 
@@ -35,7 +35,12 @@ function initNavigation() {
 
     lastScroll = currentScroll;
   });
-
+            // if button has data-href open it
+            const href = button.getAttribute('data-href') || button.getAttribute('href');
+            if (href) {
+              // Open in new tab but allow analytics.js to append UTM if present
+              window.open(href, '_blank');
+            }
   // Mobile menu toggle
   if (navToggle) {
     navToggle.addEventListener('click', () => {

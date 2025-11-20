@@ -51,7 +51,7 @@
                 <a href="#demo" class="nav-link-demo">Watch Demo</a>
             </div>
 
-            <button class="btn btn-primary btn-nav" id="navCTA">
+            <button class="btn btn-primary btn-nav" id="navCTA" data-href="https://gumroad.com/l/YOUR_PRODUCT_ID">
                 Get Started - $29
             </button>
 
@@ -110,11 +110,11 @@
                 </div>
 
                 <div class="hero-cta animate-fade-up" style="animation-delay: 0.4s;">
-                    <button class="btn btn-primary btn-large" id="heroCTA">
+                    <button class="btn btn-primary btn-large" id="heroCTA" data-href="https://gumroad.com/l/YOUR_PRODUCT_ID">
                         <span>Get Lifetime Access - $29</span>
                         <span class="btn-strike">$39</span>
                     </button>
-                    <button class="btn btn-secondary btn-large" id="demoBtn">
+                    <button class="btn btn-secondary btn-large" id="demoBtn" data-href="#demo">
                         <i class="fa-solid fa-play"></i>
                         <span>Watch 45s Demo</span>
                     </button>
@@ -473,7 +473,7 @@
                     <li><i class="fa-solid fa-check"></i> 30-day money-back guarantee</li>
                 </ul>
 
-                <button class="btn btn-primary btn-large btn-full" id="pricingCTA">
+                <button class="btn btn-primary btn-large btn-full" id="pricingCTA" data-href="https://gumroad.com/l/YOUR_PRODUCT_ID">
                     <span>Get Lifetime Access - $29</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
@@ -571,7 +571,7 @@
                 <h2>Join 1,200+ professionals who've streamlined their signature workflow</h2>
                 <p class="final-subtitle">Extract signatures. Place on PDFs. Done.<br>One app. One price. Forever.</p>
 
-                <button class="btn btn-primary btn-xl" id="finalCTA">
+                <button class="btn btn-primary btn-xl" id="finalCTA" data-href="https://gumroad.com/l/YOUR_PRODUCT_ID">
                     Get Lifetime Access - $29
                 </button>
 
@@ -659,6 +659,16 @@
     </button>
 
     <!-- Scripts -->
+        <!-- Google Analytics (replace G-XXXXXXXXXX with your measurement ID) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);} 
+            gtag('js', new Date());
+            gtag('config', 'G-XXXXXXXXXX');
+        </script>
+        <!-- Landing page analytics helpers (real user detection, bot detection, scroll depth, CTA tracking) -->
+        <script src="./js/analytics.js"></script>
     <script src="./js/main.js"></script>
     <script src="./js/animations.js"></script>
 </body>
