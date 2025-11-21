@@ -120,6 +120,14 @@ SignKit-Windows/
 SignKit-macOS-ARM64/
 SignKit-macOS-Intel/
 
+# Landing page bundle and deploy dist (avoid accidental adds to main)
+deploy_dist/
+
+# Test artifacts and end-to-end tests (do not track heavy e2e test results)
+tests/e2e/
+tests/selenium/
+tests/**/e2e/
+
 # Temporary documentation (moved to docs/)
 COMPREHENSIVE_SCREENSHOTS_READY.md
 FIXES_APPLIED.md
