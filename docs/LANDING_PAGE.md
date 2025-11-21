@@ -55,9 +55,9 @@ Branch: landing-page
     ├── CLOUDFLARE_DEPLOYMENT.md    # Full deployment guide
     ├── DEPLOYMENT_CHECKLIST.md     # Step-by-step checklist
     ├── AB_TEST_STRUCTURE.md        # A/B test details
-    ├── DEPLOYMENT_SUMMARY.md       # Status summary
+    ├── moved_root_docs/DEPLOYMENT_SUMMARY.md       # Status summary
     ├── DEPLOYMENT_STATUS.md        # Current status
-    └── DOMAIN_SETUP_GUIDE.md       # DNS configuration
+    └── moved_root_docs/DOMAIN_SETUP_GUIDE.md       # DNS configuration
 ```
 
 ---
@@ -292,7 +292,7 @@ All documentation is in the `landing-page` branch:
 - `QUICK_START.md` - Quick deployment guide
 - `CLOUDFLARE_DEPLOYMENT.md` - Comprehensive guide
 - `AB_TEST_STRUCTURE.md` - A/B test details
-- `DOMAIN_SETUP_GUIDE.md` - DNS configuration
+- `moved_root_docs/DOMAIN_SETUP_GUIDE.md` - DNS configuration
 
 ---
 
