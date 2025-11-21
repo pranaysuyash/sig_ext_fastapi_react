@@ -8,7 +8,7 @@ Run these commands in your terminal:
 
 ```bash
 # Navigate to your V2 directory
-cd /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/claude_landing_page_v2
+cd /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/live
 
 # Copy the complete style.css from original
 cp ../claude_landing_page/css/style.css ./css/style.css
@@ -74,7 +74,7 @@ find /Users/pranay/Projects -name "style.css" -path "*/claude_landing_page/*"
 Or manually:
 1. Open `/web/claude_landing_page/css/style.css` in VS Code
 2. Copy all content
-3. Paste into `/web/claude_landing_page_v2/css/style.css`
+3. Paste into `/web/live/css/style.css`
 
 Do the same for JS files.
 

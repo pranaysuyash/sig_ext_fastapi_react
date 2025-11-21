@@ -181,19 +181,19 @@ NOTE: Cloudflare Pages is our canonical deployment method. While older docs incl
 - `assets/files/signkit_icon_64x64.png`
   _Prefer placing your landing page images inside the variant folder._ For Cloudflare Pages deploys we recommend adding screenshots into each landing variant's asset folder, for example:
 
-- `web/claude_landing_page_v2/assets/screenshots/step1-upload.png`
-  Note: Some landing variants reference the repo root `screenshots/` folder (e.g., `index.html`, `root.html`, `purchase.html`) whereas others (like `web/claude_landing_page_v2`) use per-variant `./assets/screenshots/`. For consistency, we recommend placing screenshots in both locations during a deployment or updating the HTML to use per-variant paths. This document prefers per-variant `web/<variant>/assets/screenshots/` as the canonical location for future variants.
-- `web/claude_landing_page_v2/assets/screenshots/step2-select.png`
-- `web/claude_landing_page_v2/assets/screenshots/step3-clean.png`
+`web/live/assets/screenshots/step1-upload.png`
+   Note: Some landing variants reference the repo root `screenshots/` folder (e.g., `index.html`, `root.html`, `purchase.html`) whereas others (like `web/live`) use per-variant `./assets/screenshots/`. For consistency, we recommend placing screenshots in both locations during a deployment or updating the HTML to use per-variant paths. This document prefers per-variant `web/<variant>/assets/screenshots/` as the canonical location for future variants.
+`web/live/assets/screenshots/step2-select.png`
+`web/live/assets/screenshots/step3-clean.png`
 
 If you keep images in the repo root `screenshots/`, make sure your build step copies them to the variant folder prior to publishing.
 
 ### Required CSS/JS (for purchase.html)
 
-- `web/claude_landing_page_v2/css/style.css`
-- `web/claude_landing_page_v2/css/animations.css`
-- `web/claude_landing_page_v2/js/main.js`
-- `web/claude_landing_page_v2/js/animations.js`
+`web/live/css/style.css`
+`web/live/css/animations.css`
+`web/live/js/main.js`
+`web/live/js/animations.js`
 
 ## End-to-End Analytics Tests
 

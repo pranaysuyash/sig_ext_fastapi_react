@@ -220,7 +220,7 @@ Gumroad's License Verification API provides refund status:
 
 #### Landing Page Changes
 
-**File:** `web/claude_landing_page_v2/index.html`
+**File:** `web/live/index.html`
 
 **Change 1: Hero Section (Line ~83)**
 ```html
@@ -743,7 +743,7 @@ The implementation uses "fail open" approach:
 - [Gumroad License API Documentation](https://help.gumroad.com/article/76-license-keys)
 - [Gumroad API Reference](https://gumroad.com/api)
 - Current codebase: `/Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app`
-- Landing page: `web/claude_landing_page_v2/index.html`
+- Landing page: `web/live/index.html`
 
 ---
 

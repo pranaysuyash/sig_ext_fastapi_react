@@ -5,7 +5,7 @@
 Open the page and verify these key features:
 
 ```bash
-open /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/claude_landing_page_v2/index.html
+open /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/live/index.html
 ```
 
 ### Visual Check ✓

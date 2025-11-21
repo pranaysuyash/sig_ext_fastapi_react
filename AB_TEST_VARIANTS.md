@@ -114,7 +114,7 @@ gtag('event', 'ab_test_impression', {
 Standalone page with Claude v2 design:
 
 - Updated meta tags and OG image
-- Fixed asset paths to `web/claude_landing_page_v2/`
+- Fixed asset paths to `web/live/`
 - Added GA4 tracking with variant: 'purchase'
 
 ---

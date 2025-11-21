@@ -41,7 +41,7 @@ You need to copy these from the original landing page:
 
 ```bash
 # From project root
-cd web/claude_landing_page_v2
+cd web/live
 
 # Copy animations CSS
 cp ../claude_landing_page/css/animations.css ./css/
@@ -247,16 +247,16 @@ Cmd + Shift + 5    # Screenshot UI with options
 ### Option 3: Cloudflare Pages
 
 1. Connect GitHub repo
-2. Set build directory to `web/claude_landing_page_v2`
+2. Set build directory to `web/live`
 3. Deploy
 
 Note: We expect most production deploys to use Cloudflare Pages (fast global CDN).
 
 To avoid confusion and ensure assets are included in the Pages build, add your screenshots and images under this variant's assets folder prior to publishing:
 
-- `web/claude_landing_page_v2/assets/screenshots/step1-upload.png`
-- `web/claude_landing_page_v2/assets/screenshots/step2-select.png`
-- `web/claude_landing_page_v2/assets/screenshots/step3-clean.png`
+- `web/live/assets/screenshots/step1-upload.png`
+- `web/live/assets/screenshots/step2-select.png`
+- `web/live/assets/screenshots/step3-clean.png`
 
 Security note: The `uploads/` folder is a runtime-only folder and should never be committed. If uploads are tracked accidentally, remove them with:
 
@@ -282,7 +282,7 @@ brew install cloudflare/cloudflare/wrangler
 3. Run pages publish:
 
 ```bash
-cd web/claude_landing_page_v2
+cd web/live
 wrangler pages publish . --project-name signkit-pages-landing --branch landing-page
 ```
 

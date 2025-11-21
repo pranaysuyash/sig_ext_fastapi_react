@@ -64,7 +64,7 @@
 
 1. **Open the page**:
    ```bash
-   open /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/claude_landing_page_v2/index.html
+   open /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/live/index.html
    ```
 
 2. **What to check**:
@@ -107,8 +107,8 @@ The V2 landing page uses:
 
 4. **Create Assets Folder**:
    ```bash
-   mkdir -p /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/claude_landing_page_v2/assets/screenshots
-   mkdir -p /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/claude_landing_page_v2/assets/icons
+   mkdir -p /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/live/assets/screenshots
+   mkdir -p /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/live/assets/icons
    ```
 
 5. **Test in Multiple Browsers**:
@@ -118,7 +118,7 @@ The V2 landing page uses:
 
 ## File Structure
 ```
-claude_landing_page_v2/
+live/
 ├── index.html          ✅ Complete
 ├── css/
 │   ├── style.css       ✅ Complete (1900+ lines)

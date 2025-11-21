@@ -27,7 +27,7 @@ This document details the implementation of advanced analytics for the SignKit l
 
 - **Tracking**: Full A/B test suite with granular events (`variant_view`, `checkout_intent`).
 - **Implementation**:
-  - **Centralized**: Core logic moved to `web/claude_landing_page_v2/js/analytics.js`.
+  **Centralized**: Core logic moved to `web/live/js/analytics.js`.
   - **Configurable**: HTML files only set configuration (Variant ID) and import the logic.
   - **Consistency**: `buy.html` now imports `analytics.js` so CTA and external link tracking behave consistently across variants.
 - **Improvements**:
@@ -110,7 +110,7 @@ We are testing 4 variants to determine the optimal conversion flow.
 
 - **Trigger**: Scrolling to 25%, 50%, 75%, 90%.
 - **Parameters**: `percent` (numeric), `depth` (string '25%'), `variant`.
-- **Implementation**: Centralized in `web/claude_landing_page_v2/js/analytics.js`.
+- **Implementation**: Centralized in `web/live/js/analytics.js`.
 
 #### `purchase`
 
@@ -120,13 +120,13 @@ We are testing 4 variants to determine the optimal conversion flow.
 
 ### 4. Code Structure & Cleanup
 
-- **`web/claude_landing_page_v2/js/analytics.js`**:
+- **`web/live/js/analytics.js`**:
 
   - Contains shared logic for Scroll Depth, Bot Detection, and CTA clicking.
   - Refactored to accept the global `variant` parameter set in the HTML.
   - Renamed `purchase_intent` to `checkout_intent` for consistency.
 
-- **`web/claude_landing_page_v2/js/main.js`**:
+- **`web/live/js/main.js`**:
 
   - Updated CTA button handlers to respect `data-href` attributes.
   - Removed conflicting "alert" placeholders.

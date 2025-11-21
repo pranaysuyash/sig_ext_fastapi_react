@@ -47,7 +47,7 @@ Branch: landing-page
 ├── Assets
 │   ├── assets/files/       # Icons (32x32, 64x64, 256x256)
 │   ├── screenshots/        # Product screenshots (1, 2, 3)
-│   └── web/claude_landing_page_v2/  # CSS/JS for purchase.html
+│   └── web/live/  # CSS/JS for purchase.html (canonical)
 │
 └── Documentation
     ├── README_LANDING_PAGE.md      # Project overview

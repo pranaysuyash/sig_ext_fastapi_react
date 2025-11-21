@@ -29,8 +29,8 @@ landing-page branch:
 ├── purchase.html (Claude v2 variant)
 ├── screenshots/ (3 product screenshots)
 ├── assets/files/ (icons)
-├── web/claude_landing_page_v2/css/ (CSS for purchase.html)
-└── web/claude_landing_page_v2/js/ (JS for purchase.html)
+├── web/live/css/ (CSS for purchase.html)
+└── web/live/js/ (JS for purchase.html)
 ```
 
 ### Local Testing

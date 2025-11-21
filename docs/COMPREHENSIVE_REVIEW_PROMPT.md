@@ -493,8 +493,8 @@ Please review these files from the codebase:
 - docs/PACKAGING_AND_VERSIONING_STRATEGY.md
 
 **Landing Page:**
-- web/claude_landing_page_v2/index.html
-- web/claude_landing_page_v2/README.md
+- web/live/index.html
+- web/live/README.md
 
 **Specs & Planning:**
 - .kiro/specs/SIGNKIT_LAUNCH_FINAL.md

@@ -45,7 +45,7 @@ landing-page/
 │   ├── signkit_icon_32x32.png
 │   ├── signkit_icon_64x64.png
 │   └── signkit_icon_256x256.png
-├── web/claude_landing_page_v2/     # Claude variant assets
+├── web/live/     # Claude (or current) variant assets (canonical)
 │   ├── css/style.css
 │   ├── css/animations.css
 │   └── js/main.js
@@ -402,9 +402,9 @@ No environment variables needed. Everything is client-side JavaScript and static
 ### purchase.html (Claude Variant)
 
 **Complete standalone page** with:
-- External CSS: `web/claude_landing_page_v2/css/style.css`
-- External JS: `web/claude_landing_page_v2/js/main.js`
-- Animations: `web/claude_landing_page_v2/css/animations.css`
+- External CSS: `web/live/css/style.css`
+- External JS: `web/live/js/main.js`
+- Animations: `web/live/css/animations.css`
 
 **Sections**:
 1. Navigation with progress bar

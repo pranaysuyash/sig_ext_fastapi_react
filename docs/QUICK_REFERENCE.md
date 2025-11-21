@@ -267,7 +267,7 @@ git push origin v1.0.0
 - docs/GUMROAD_API_COMPLETE_SETUP.md
 
 **Landing Page:**
-- web/claude_landing_page_v2/index.html
+web/live/index.html
 
 **Build Tools:**
 - build-tools/build_macos.sh

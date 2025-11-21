@@ -203,7 +203,7 @@ Documentation:
 Assets:
 ├── assets/files/           # Icons
 ├── screenshots/            # Product screenshots
-└── web/claude_landing_page_v2/  # CSS/JS for purchase.html
+└── web/live/  # CSS/JS for purchase.html
 ```
 
 ---

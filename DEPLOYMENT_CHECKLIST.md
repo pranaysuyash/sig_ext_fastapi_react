@@ -14,23 +14,23 @@
 - [x] `wrangler.toml` - Cloudflare configuration
 - [x] `.cfignore` - Deployment exclusions
 
--### Assets Verified (Cloudflare Pages)
-
-- [x] `assets/files/signkit_icon_32x32.png`
-- [x] `assets/files/signkit_icon_16x16.png`
-- [x] `assets/files/signkit_icon_256x256.png`
-- [x] `assets/files/signkit_icon_64x64.png`
-- [x] `web/claude_landing_page_v2/assets/screenshots/step1-upload.png`
-- [x] `web/claude_landing_page_v2/assets/screenshots/step2-select.png`
-- [x] `web/claude_landing_page_v2/assets/screenshots/step3-clean.png`
-- [x] `web/claude_landing_page_v2/assets/screenshots/step4-sign.png`
+### Assets Verified (Cloudflare Pages)
+ 
+ [x] `assets/files/signkit_icon_32x32.png`
+ [x] `assets/files/signkit_icon_16x16.png`
+ [x] `assets/files/signkit_icon_256x256.png`
+ [x] `assets/files/signkit_icon_64x64.png`
+ - [x] `web/live/assets/screenshots/step1-upload.png`
+ - [x] `web/live/assets/screenshots/step2-select.png`
+ - [x] `web/live/assets/screenshots/step3-clean.png`
+ - [x] `web/live/assets/screenshots/step4-sign.png`
 
 ### Dependencies (for purchase.html)
-
-- [x] `web/claude_landing_page_v2/css/style.css`
-- [x] `web/claude_landing_page_v2/css/animations.css`
-- [x] `web/claude_landing_page_v2/js/main.js`
-- [x] `web/claude_landing_page_v2/js/animations.js`
+ 
+ - [x] `web/live/css/style.css`
+ - [x] `web/live/css/animations.css`
+ - [x] `web/live/js/main.js`
+ - [x] `web/live/js/animations.js`
 
 ### Local Testing
 

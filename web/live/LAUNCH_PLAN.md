@@ -2,7 +2,7 @@
 
 ## What I Just Created For You
 
-✅ **New Landing Page V2** at: `web/claude_landing_page_v2/`
+✅ **New Landing Page V2** at: `web/live/`
 - All emojis replaced with Font Awesome icons
 - Screenshot placeholders ready for your actual app images
 - YouTube video embed option
@@ -24,7 +24,7 @@
 
 2. Save them as:
    ```
-   web/claude_landing_page_v2/assets/screenshots/
+   web/live/assets/screenshots/
    ├── step1-upload.png
    ├── step2-select.png
    ├── step3-clean.png
@@ -33,7 +33,7 @@
 
 3. Copy missing files from original:
    ```bash
-   cd web/claude_landing_page_v2
+   cd web/live
    cp ../claude_landing_page/css/animations.css ./css/
    cp ../claude_landing_page/js/*.js ./js/
    ```
@@ -55,7 +55,7 @@
 **Afternoon (1-2 hours):**
 5. Deploy to Netlify:
    - Go to netlify.com
-   - Drag & drop `claude_landing_page_v2` folder
+   - Drag & drop `web/live` folder
    - Done!
 6. Test on mobile device
 7. Fix any issues
@@ -162,7 +162,7 @@ Since you need to decide, here are my top 3 with reasoning:
 
 ## 🎯 What You Should Do RIGHT NOW
 
-1. **Read the README:** `/web/claude_landing_page_v2/README.md` (I wrote detailed instructions)
+1. **Read the README:** `/web/live/README.md` (I wrote detailed instructions)
 2. **Take 4 screenshots** of your app
 3. **Create Gumroad account:** https://gumroad.com/signup
 4. **Set up product** on Gumroad ($29 price)
@@ -180,7 +180,7 @@ Since you need to decide, here are my top 3 with reasoning:
 Your Project Root
 └── web/
     ├── claude_landing_page/          # ← Original (don't touch)
-    └── claude_landing_page_v2/       # ← YOUR VERSION (work here)
+   └── live/       # ← YOUR VERSION (work here)
         ├── index.html                # ← Updated with Font Awesome
         ├── README.md                 # ← Detailed instructions
         ├── css/
@@ -219,7 +219,7 @@ But you can't iterate on sales feedback until you have sales.
 
 ## 🎉 Next Steps
 
-1. Open `web/claude_landing_page_v2/README.md`
+1. Open `web/live/README.md`
 2. Follow the Quick Setup section
 3. Deploy to Netlify
 4. Link Gumroad product

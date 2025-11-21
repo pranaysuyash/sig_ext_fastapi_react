@@ -39,6 +39,11 @@ This document explains the recommended process to keep the `landing-page` branch
 
 4. If you use any deployment scripts or CI (e.g., Cloudflare pages), update them to use `web/live` or use `main` as the production branch as appropriate.
 
+### Auto-sync via GitHub Actions
+We provide a GitHub Action at `.github/workflows/landing_sync.yml` that automatically creates a PR against `main` whenever `landing-page` is updated (or when manually triggered). The action copies `web/live/` and the root-level landing pages (`index.html`, `buy.html`, `purchase.html`, `gum.html`, `root.html`) from `landing-page` into a PR for main. The PR allows for review and merging to safely update the `main` branch.
+
+Notes: This default action creates a PR rather than pushing directly to main; you can merge the PR automatically if desired by changing the action inputs or using `auto-merge` in the PR settings.
+
 
 
 ## Notes and Best Practices

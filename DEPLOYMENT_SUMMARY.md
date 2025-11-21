@@ -162,10 +162,10 @@ Change to: `const AUTO_SPLIT = true;`
 ✅ screenshots/screenshot-1.png
 ✅ screenshots/screenshot-2.png
 ✅ screenshots/screenshot-3.png
-✅ web/claude_landing_page_v2/css/style.css
-✅ web/claude_landing_page_v2/css/animations.css
-✅ web/claude_landing_page_v2/js/main.js
-✅ web/claude_landing_page_v2/js/animations.js
+✅ web/live/css/style.css
+✅ web/live/css/animations.css
+✅ web/live/js/main.js
+✅ web/live/js/animations.js
 ```
 
 ## 🔍 What Was Fixed
