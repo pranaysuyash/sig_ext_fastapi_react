@@ -182,7 +182,7 @@ open http://localhost:8001/test-analytics.html
 - Each variant should send `collect?v=2&...&en=ab_test_impression`
 - One request may show "(canceled)" - this is normal, the 204 response is what matters
 
-See `moved_root_docs/ANALYTICS_FIX_SUMMARY.md` (in landing-page branch) for complete details.
+See `moved_root_docs/moved_root_docs/ANALYTICS_FIX_SUMMARY.md` (in landing-page branch) for complete details.
 
 ## Troubleshooting
 
@@ -221,6 +221,6 @@ See `moved_root_docs/ANALYTICS_FIX_SUMMARY.md` (in landing-page branch) for comp
 - Adding tests
 
 ## Related Documentation
-- `moved_root_docs/CLOUDFLARE_REDIRECTS_ISSUE.md` (in landing-page branch) - Details on the 308 redirect issue
+- `moved_root_docs/moved_root_docs/CLOUDFLARE_REDIRECTS_ISSUE.md` (in landing-page branch) - Details on the 308 redirect issue
 - `AB_TEST_STRUCTURE.md` (in landing-page branch) - A/B testing implementation details
 - `DEPLOYMENT_CHECKLIST.md` (in landing-page branch) - Pre-deployment checklist
