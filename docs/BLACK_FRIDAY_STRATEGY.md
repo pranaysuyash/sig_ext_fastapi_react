@@ -4,6 +4,8 @@
 **Black Friday:** November 28, 2025 (15 days away)  
 **Cyber Monday:** December 1, 2025
 
+> See the detailed launch plan: `docs/BFCM_LAUNCH_PLAN.md` and quick checklist: `docs/BFCM_CHECKLIST.md`.
+
 ---
 
 ## 🎯 OPPORTUNITY ANALYSIS
