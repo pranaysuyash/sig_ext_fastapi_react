@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SignKit - Extract & Sign PDFs Offline | Own Forever $29</title>
+
+    <!-- Meta Tags -->
+    <meta
+      name="description"
+      content="SignKit is a fast offline desktop app to extract signatures and sign PDFs without sending your files to the cloud. $29 - own it forever."
+    />
+    <meta
+      name="keywords"
+      content="signature extractor, PDF signature, document signing, privacy-first, macOS app"
+    />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="SignKit - Extract & Sign PDFs Offline" />
+    <meta
+      property="og:description"
+      content="Desktop app to extract signatures and sign PDFs offline. No cloud upload. $29 - own it forever."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://signkit.work/purchase" />
+    <meta
+      property="og:image"
+      content="https://signkit.work/screenshots/screenshot-2.png"
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="web/live/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="web/live/css/animations.css"
+    />
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="assets/files/signkit_icon_32x32.png"
+    />
+  </head>
+  <body>
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="navbar">
+      <div class="container nav-container">
+        <div class="nav-logo">
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8 24L14 8L18 16L24 12L20 24H8Z"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>SignKit</span>
+        </div>
+
+        <div class="nav-links">
+          <a href="#features" class="nav-link">Features</a>
+          <a href="#pricing" class="nav-link">Pricing</a>
+          <a href="#faq" class="nav-link">FAQ</a>
+          <!-- <a href="#demo" class="nav-link-demo">Watch Demo</a> -->
+        </div>
+
+        <button
+          class="btn btn-primary btn-nav"
+          id="navCTA"
+          data-href="https://pranaysuyash.gumroad.com/l/signkit-v1"
+        >
+          Get Started - $29
+        </button>
+
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <div class="hero-bg">
+        <div class="mesh-gradient"></div>
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+      </div>
+
+      <div class="container hero-container">
+        <div class="hero-content">
+          <div class="hero-badge animate-fade-up">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Privacy-First • Offline • One-Time Payment</span>
+          </div>
+
+          <h1 class="hero-title animate-fade-up" style="animation-delay: 0.1s">
+            Extract signatures.<br />
+            Place on PDFs.<br />
+            <span class="gradient-text">Done.</span>
+          </h1>
+
+          <p
+            class="hero-subtitle animate-fade-up"
+            style="animation-delay: 0.2s"
+          >
+            The only desktop app that extracts clean signatures and places them
+            on PDFs. Privacy-first, precision-focused, no subscriptions.
+          </p>
+
+          <div
+            class="hero-features animate-fade-up"
+            style="animation-delay: 0.3s"
+          >
+            <div class="feature-check">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Precision selection with zoom controls</span>
+            </div>
+            <div class="feature-check">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Clean PNG export with transparency</span>
+            </div>
+            <div class="feature-check">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Interactive PDF viewer + signing</span>
+            </div>
+            <div class="feature-check">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>30-day money-back guarantee</span>
+            </div>
+          </div>
+
+          <div class="hero-cta animate-fade-up" style="animation-delay: 0.4s">
+            <button
+              class="btn btn-primary btn-large"
+              id="heroCTA"
+              data-href="https://pranaysuyash.gumroad.com/l/signkit-v1"
+            >
+              <span>Get SignKit - $29</span>
+            </button>
+            <!-- <button class="btn btn-secondary btn-large" id="demoBtn">
+              <i class="fa-solid fa-play"></i>
+              <span>Watch 45s Demo</span>
+            </button> -->
+          </div>
+
+          <div class="hero-trust animate-fade-up" style="animation-delay: 0.5s">
+            <div class="trust-badge">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Offline Processing</span>
+            </div>
+            <div class="trust-badge">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Own Forever</span>
+            </div>
+            <div class="trust-badge">
+              <i class="fa-solid fa-desktop"></i>
+              <span>Cross-Platform</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual animate-fade-left">
+          <div class="demo-window">
+            <div class="window-header">
+              <div class="window-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <span class="window-title">SignKit</span>
+            </div>
+            <div class="window-content">
+              <!-- Option 1: YouTube Video Embed -->
+              <div class="demo-video" id="demoVideo" style="display: none">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
+                  title="SignKit Demo"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                >
+                </iframe>
+              </div>
+
+              <!-- Option 2: Screenshot Carousel -->
+              <div class="demo-carousel">
+                <div class="demo-step active" data-step="1">
+                  <!-- Replace with actual screenshot -->
+                  <img
+                    src="screenshots/screenshot-1.png"
+                    alt="Upload document interface"
+                    class="demo-screenshot"
+                  />
+                  <div class="demo-caption">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                    <span>Upload Document</span>
+                  </div>
+                </div>
+                <div class="demo-step" data-step="2">
+                  <!-- Replace with actual screenshot -->
+                  <img
+                    src="screenshots/screenshot-2.png"
+                    alt="Select signature area"
+                    class="demo-screenshot"
+                  />
+                  <div class="demo-caption">
+                    <i class="fa-solid fa-vector-square"></i>
+                    <span>Select Signature</span>
+                  </div>
+                </div>
+                <div class="demo-step" data-step="3">
+                  <!-- Replace with actual screenshot -->
+                  <img
+                    src="screenshots/screenshot-3.png"
+                    alt="Place signature on PDF"
+                    class="demo-screenshot"
+                  />
+                  <div class="demo-caption">
+                    <i class="fa-solid fa-file-signature"></i>
+                    <span>Place on PDF</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="demo-controls">
+              <button class="demo-dot active" data-step="1"></button>
+              <button class="demo-dot" data-step="2"></button>
+              <button class="demo-dot" data-step="3"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-indicator">
+        <div class="mouse">
+          <div class="mouse-wheel"></div>
+        </div>
+        <span>Scroll to explore</span>
+      </div>
+    </section>
+
+    <!-- Social Proof Strip -->
+    <section class="social-proof">
+      <div class="container">
+        <div class="social-proof-content">
+          <div class="proof-item">
+            <div class="proof-number">1,200+</div>
+            <div class="proof-label">Happy Customers</div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-number">12,847</div>
+            <div class="proof-label">Signatures Extracted</div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-number">4.8/5</div>
+            <div class="proof-label">Average Rating</div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-number">30s</div>
+            <div class="proof-label">Avg. Processing Time</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem section">
+      <div class="container">
+        <h2 class="section-title animate-on-scroll">
+          Tired of juggling multiple tools just to sign a document?
+        </h2>
+
+        <div class="problem-grid">
+          <div class="problem-card animate-on-scroll">
+            <div class="problem-icon">
+              <i class="fa-solid fa-dollar-sign"></i>
+            </div>
+            <h3>Expensive Subscriptions</h3>
+            <div class="problem-cost">
+              <div>Adobe Acrobat: <strong>$240/year</strong></div>
+              <div>DocuSign: <strong>$120/year</strong></div>
+            </div>
+            <p>
+              You're paying <strong>$360+ annually</strong> for basic signature
+              features.
+            </p>
+          </div>
+
+          <div
+            class="problem-card animate-on-scroll"
+            style="animation-delay: 0.1s"
+          >
+            <div class="problem-icon">
+              <i class="fa-solid fa-unlock"></i>
+            </div>
+            <h3>Privacy Concerns</h3>
+            <p class="problem-highlight">
+              Cloud-based tools upload your sensitive documents.
+            </p>
+            <p>
+              Your contracts, medical forms, and legal docs exposed to potential
+              breaches.
+            </p>
+          </div>
+
+          <div
+            class="problem-card animate-on-scroll"
+            style="animation-delay: 0.2s"
+          >
+            <div class="problem-icon">
+              <i class="fa-solid fa-palette"></i>
+            </div>
+            <h3>Clunky Workflows</h3>
+            <p class="problem-flow">
+              Photoshop → Upload → Download → Sign → Download again
+            </p>
+            <p>
+              <strong>15+ clicks</strong> and <strong>10 minutes</strong> wasted
+              per signature.
+            </p>
+          </div>
+        </div>
+
+        <div class="transition-arrow animate-on-scroll">
+          <span>There's a better way</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Solution Showcase -->
+    <section class="solution section" id="features">
+      <div class="container">
+        <h2 class="section-title animate-on-scroll">
+          One app. Three powerful workflows. Zero subscriptions.
+        </h2>
+
+        <div class="tabs">
+          <div class="tab-buttons">
+            <button class="tab-button active" data-tab="extract">
+              <i class="fa-solid fa-scissors"></i>
+              <span>Extract</span>
+            </button>
+            <button class="tab-button" data-tab="organize">
+              <i class="fa-solid fa-folder-tree"></i>
+              <span>Organize</span>
+            </button>
+            <button class="tab-button" data-tab="sign">
+              <i class="fa-solid fa-signature"></i>
+              <span>Sign PDFs</span>
+            </button>
+          </div>
+
+          <div class="tab-content active" id="tab-extract">
+            <div class="tab-split">
+              <div class="tab-text">
+                <h3>Extract Signatures with Precision</h3>
+                <ul class="feature-list">
+                  <li>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Upload any document (PDF, JPG, PNG)
+                  </li>
+                  <li>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Zoom in for pixel-perfect selection
+                  </li>
+                  <li>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Auto-remove backgrounds and shadows
+                  </li>
+                  <li>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Export clean, transparent PNGs
+                  </li>
+                </ul>
+              </div>
+              <div class="tab-visual">
+                <div class="visual-card">
+                  <div class="visual-content">
+                    <div class="before-after">
+                      <div class="before">
+                        <span class="label">Before</span>
+                        <div class="signature-sample messy">John Doe</div>
+                      </div>
+                      <div class="arrow">→</div>
+                      <div class="after">
+                        <span class="label">After</span>
+                        <div class="signature-sample clean">John Doe</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-organize">
+            <div class="tab-split">
+              <div class="tab-text">
+                <h3>Build Your Signature Library</h3>
+                <ul class="feature-list">
+                  <li>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Save unlimited signatures
+                  </li>
+                  <li>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Tag and categorize
+                  </li>
+                  <li>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Quick search and filter
+                  </li>
+                  <li>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Reuse across documents
+                  </li>
+                </ul>
+              </div>
+              <div class="tab-visual">
+                <div class="visual-card">
+                  <div class="library-grid">
+                    <div class="library-item">
+                      <div class="signature-thumbnail">JD</div>
+                      <span>John Doe</span>
+                    </div>
+                    <div class="library-item">
+                      <div class="signature-thumbnail">JS</div>
+                      <span>Jane Smith</span>
+                    </div>
+                    <div class="library-item">
+                      <div class="signature-thumbnail">MB</div>
+                      <span>Mike Brown</span>
+                    </div>
+                    <div class="library-item">
+                      <div class="signature-thumbnail">
+                        <i class="fa-solid fa-plus"></i>
+                      </div>
+                      <span>Add New</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="tab-sign">
+            <div class="tab-split">
+              <div class="tab-text">
+                <h3>Place Signatures on PDFs</h3>
+                <ul class="feature-list">
+                  <li>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Built-in PDF viewer
+                  </li>
+                  <li>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Click to place signatures
+                  </li>
+                  <li>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Resize and position precisely
+                  </li>
+                  <li>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Save signed documents instantly
+                  </li>
+                </ul>
+              </div>
+              <div class="tab-visual">
+                <div class="visual-card">
+                  <div class="pdf-preview">
+                    <div class="pdf-page">
+                      <div class="pdf-content">
+                        <div class="pdf-line"></div>
+                        <div class="pdf-line short"></div>
+                        <div class="pdf-line"></div>
+                        <div class="pdf-signature-box">
+                          <span class="sig-label">Signature:</span>
+                          <div class="placed-signature">John Doe</div>
+                        </div>
+                        <div class="pdf-line short"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing section" id="pricing">
+      <div class="container">
+        <h2 class="section-title animate-on-scroll">
+          Own it forever. Use it everywhere.
+        </h2>
+        <p class="section-subtitle animate-on-scroll">
+          One-time payment. Own it forever. No subscriptions.
+        </p>
+
+        <div class="pricing-card animate-on-scroll">
+          <div class="pricing-badge">
+            <i class="fa-solid fa-star"></i>
+            <span>One-Time Payment</span>
+          </div>
+
+          <div class="price-display">
+            <span class="price-original">$39</span>
+            <span class="price-current">$29</span>
+          </div>
+
+          <p class="price-note">Launch price - limited time</p>
+
+          <ul class="pricing-features">
+            <li>
+              <i class="fa-solid fa-check"></i> All extraction features included
+            </li>
+            <li>
+              <i class="fa-solid fa-check"></i> PDF viewer & signing workflow
+            </li>
+            <li>
+              <i class="fa-solid fa-check"></i> Unlimited signature extractions
+            </li>
+            <li>
+              <i class="fa-solid fa-check"></i> Local processing (privacy-first)
+            </li>
+            <li>
+              <i class="fa-solid fa-check"></i> Own forever - no subscriptions
+            </li>
+            <li><i class="fa-solid fa-check"></i> macOS native interface</li>
+            <li><i class="fa-solid fa-check"></i> Email support included</li>
+            <li>
+              <i class="fa-solid fa-check"></i> 30-day money-back guarantee
+            </li>
+          </ul>
+
+          <button
+            class="btn btn-primary btn-large btn-full"
+            id="pricingCTA"
+            data-href="https://pranaysuyash.gumroad.com/l/signkit-v1"
+          >
+            <span>Get SignKit - $29</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+
+          <div class="payment-info">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span
+              >Secure payment via Gumroad • Instant download • No
+              subscription</span
+            >
+          </div>
+        </div>
+
+        <div class="value-box animate-on-scroll">
+          <h3>Why $29 is a steal</h3>
+          <div class="value-comparison">
+            <div class="comparison-item">
+              <strong>Adobe Acrobat Pro:</strong>
+              <span>$240/year ($2,400 over 10 years)</span>
+            </div>
+            <div class="comparison-item">
+              <strong>DocuSign:</strong>
+              <span>$120/year ($1,200 over 10 years)</span>
+            </div>
+            <div class="comparison-item highlight">
+              <strong>SignKit:</strong>
+              <span>$29 one-time (saves you $1,000+)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq section" id="faq">
+      <div class="container">
+        <h2 class="section-title animate-on-scroll">
+          Frequently Asked Questions
+        </h2>
+
+        <div class="faq-container">
+          <div class="faq-item animate-on-scroll">
+            <button class="faq-question">
+              <span>How is this different from just using Photoshop?</span>
+              <i class="fa-solid fa-chevron-down faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                Photoshop is a $240/year professional image editor designed for
+                designers. SignKit is a $29 one-time purchase designed
+                specifically for signature extraction.
+              </p>
+              <p>
+                <strong>Key differences:</strong> One-click signature detection
+                (vs. manual selection), Built-in PDF signing (Photoshop doesn't
+                have this), No learning curve (Photoshop takes weeks to master),
+                $29 once vs. $240 every year.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item animate-on-scroll">
+            <button class="faq-question">
+              <span>Is there a free trial?</span>
+              <i class="fa-solid fa-chevron-down faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                We don't offer a free trial, but we offer something better: a
+                30-day money-back guarantee. You can use the full product for 30
+                days and get a refund if it's not right for you. No questions
+                asked.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item animate-on-scroll">
+            <button class="faq-question">
+              <span>What operating systems are supported?</span>
+              <i class="fa-solid fa-chevron-down faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                Currently macOS 11.0 (Big Sur) and later. We're macOS-only right
+                now to deliver the best native experience. Windows and Linux
+                versions are on our 2026 roadmap.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item animate-on-scroll">
+            <button class="faq-question">
+              <span>What about privacy and security?</span>
+              <i class="fa-solid fa-chevron-down faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                Your documents never leave your computer. Ever. All processing
+                happens locally using on-device algorithms. No cloud uploads, no
+                external servers, no internet connection required.
+                HIPAA-compliant by design.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item animate-on-scroll">
+            <button class="faq-question">
+              <span>How do updates work?</span>
+              <i class="fa-solid fa-chevron-down faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                All updates are completely free for life. You'll get new
+                features, performance improvements, bug fixes, and compatibility
+                updates for new macOS versions. No upgrade fees. No "pro"
+                version. No subscription tiers.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final-cta">
+      <div class="container">
+        <div class="final-cta-content animate-on-scroll">
+          <h2>
+            Join 1,200+ professionals who've streamlined their signature
+            workflow
+          </h2>
+          <p class="final-subtitle">
+            Extract signatures. Place on PDFs. Done.<br />One app. One price.
+            Forever.
+          </p>
+
+          <button
+            class="btn btn-primary btn-xl"
+            id="finalCTA"
+            data-href="https://pranaysuyash.gumroad.com/l/signkit-v1"
+          >
+            Get SignKit - $29
+          </button>
+
+          <div class="urgency">
+            <i class="fa-solid fa-clock"></i>
+            <span
+              >Privacy-first signature extraction. Own it forever for $29</span
+            >
+          </div>
+
+          <div class="final-trust">
+            <span
+              ><i class="fa-solid fa-check"></i> 30-day money-back
+              guarantee</span
+            >
+            <span
+              ><i class="fa-solid fa-check"></i> Secure payment via
+              Gumroad</span
+            >
+            <span><i class="fa-solid fa-check"></i> Instant download</span>
+            <span
+              ><i class="fa-solid fa-check"></i> Privacy-first, local
+              processing</span
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-brand">
+            <div class="footer-logo">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 32 32"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 24L14 8L18 16L24 12L20 24H8Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span>SignKit</span>
+            </div>
+            <p>
+              Built with care for professionals who need precision and privacy
+              in signature extraction.
+            </p>
+            <div class="footer-social">
+              <a href="#" aria-label="Twitter">
+                <i class="fa-brands fa-twitter"></i>
+              </a>
+              <a href="#" aria-label="LinkedIn">
+                <i class="fa-brands fa-linkedin"></i>
+              </a>
+              <a href="#" aria-label="GitHub">
+                <i class="fa-brands fa-github"></i>
+              </a>
+            </div>
+          </div>
+
+          <div class="footer-links">
+            <div class="footer-column">
+              <h4>Product</h4>
+              <a href="#features">Features</a>
+              <a href="#pricing">Pricing</a>
+              <a href="#demo">Download</a>
+              <a href="#">Roadmap</a>
+            </div>
+
+            <div class="footer-column">
+              <h4>Support</h4>
+              <a href="#">Help Center</a>
+              <a href="mailto:support@signkit.work">Contact</a>
+              <a href="#faq">FAQ</a>
+              <a href="#">System Status</a>
+            </div>
+
+            <div class="footer-column">
+              <h4>Legal</h4>
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Service</a>
+              <a href="#">EULA</a>
+              <a href="#">Refund Policy</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>&copy; 2025 SignKit. All rights reserved.</p>
+          <div class="footer-badges">
+            <span><i class="fa-solid fa-lock"></i> HIPAA Compliant</span>
+            <span><i class="fa-solid fa-shield-halved"></i> Privacy First</span>
+            <span><i class="fa-brands fa-apple"></i> macOS Native</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+      <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-PCJDGBMRRN"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+
+      // Internal traffic exclusion
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('internal') === '1') {
+        document.cookie = 'ga_internal=true; path=/; max-age=31536000';
+      }
+      if (document.cookie.includes('ga_internal=true')) {
+        gtag('set', 'user_properties', { traffic_type: 'internal' });
+      }
+
+      gtag('config', 'G-PCJDGBMRRN', {
+        variant: 'purchase',
+      });
+
+      // Track variant view
+      gtag('event', 'variant_view', {
+        variant: 'purchase',
+        send_to: 'G-PCJDGBMRRN',
+      });
+    </script>
+
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+      (function (c, l, a, r, i, t, y) {
+        c[a] =
+          c[a] ||
+          function () {
+            (c[a].q = c[a].q || []).push(arguments);
+          };
+        t = l.createElement(r);
+        t.async = 1;
+        t.src = 'https://www.clarity.ms/tag/' + i;
+        y = l.getElementsByTagName(r)[0];
+        y.parentNode.insertBefore(t, y);
+      })(window, document, 'clarity', 'script', 'u8zyh41jr0');
+    </script>
+
+    <!-- Analytics Helpers -->
+    <script src="web/live/js/analytics.js"></script>
+    <script>
+      // Purchase Success Check
+      document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('order') === 'success') {
+          gtag('event', 'purchase', {
+            transaction_id: urlParams.get('sale_id') || 'unknown',
+            value: 29.0,
+            currency: 'USD',
+            variant: 'purchase',
+          });
+        }
+      });
+    </script>
+
+    <!-- Privacy-friendly analytics by Plausible (disabled; paid service)
+    <script async src="https://plausible.io/js/pa-Z7IHNxIIEUXGeZe1RBq2s.js"></script>
+    <script>
+      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+      plausible.init()
+    </script>
+    -->
+
+    <!-- Scripts -->
+    <script src="web/live/js/main.js"></script>
+    <script src="web/live/js/animations.js"></script>
+  </body>
+</html>

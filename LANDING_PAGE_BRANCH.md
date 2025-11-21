@@ -11,6 +11,8 @@
 
 The `landing-page` branch is a **separate production branch** dedicated to marketing and conversion optimization for SignKit. It contains multiple landing page variants for A/B testing different checkout flows and messaging approaches.
 
+Note: The repo's `main` branch now contains a canonical copy of the currently deployed live landing site in `web/live/`. Use the `docs/LANDING_SYNC.md` guide to sync updates from `landing-page` to `main` (recommended workflow for audits and backups).
+
 **This branch is NOT merged into main** - it's deployed independently to `signkit.work` via Cloudflare Pages.
 
 ---
