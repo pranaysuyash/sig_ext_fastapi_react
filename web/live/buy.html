@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SignKit - Checkout</title>
+
+    <!-- Favicons -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="assets/files/signkit_icon_32x32.png"
+    />
+
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-PCJDGBMRRN"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+
+      // Internal traffic exclusion
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('internal') === '1') {
+        document.cookie = 'ga_internal=true; path=/; max-age=31536000';
+      }
+      if (document.cookie.includes('ga_internal=true')) {
+        gtag('set', 'user_properties', { traffic_type: 'internal' });
+      }
+
+      gtag('config', 'G-PCJDGBMRRN', {
+        variant: 'buy',
+      });
+
+      // Track variant view
+      gtag('event', 'variant_view', {
+        variant: 'buy',
+        send_to: 'G-PCJDGBMRRN',
+      });
+    </script>
+
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+      (function (c, l, a, r, i, t, y) {
+        c[a] =
+          c[a] ||
+          function () {
+            (c[a].q = c[a].q || []).push(arguments);
+          };
+        t = l.createElement(r);
+        t.async = 1;
+        t.src = 'https://www.clarity.ms/tag/' + i;
+        y = l.getElementsByTagName(r)[0];
+        y.parentNode.insertBefore(t, y);
+      })(window, document, 'clarity', 'script', 'u8zyh41jr0');
+    </script>
+
+    <!-- Analytics Helpers -->
+    <script src="web/claude_landing_page_v2/js/analytics.js"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          sans-serif;
+      }
+
+      #checkout-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+      }
+
+      .loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #4b5563;
+      }
+
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e5e7eb;
+        border-top-color: #4f46e5;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loading" id="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading checkout...</p>
+    </div>
+
+    <iframe
+      id="checkout-iframe"
+      src="https://gum.new/gum/cmhyha3rs001h04l7ccem2nkj"
+      title="SignKit Checkout"
+      allow="payment"
+    ></iframe>
+
+    <script>
+      // Hide loading indicator once iframe loads
+      const iframe = document.getElementById('checkout-iframe');
+      const loading = document.getElementById('loading');
+
+      iframe.addEventListener('load', () => {
+        loading.style.display = 'none';
+      });
+
+      // Fallback: hide loading after 3 seconds even if load event doesn't fire
+      setTimeout(() => {
+        loading.style.display = 'none';
+      }, 3000);
+    </script>
+  </body>
+</html>
