@@ -20,9 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initNavigation() {
   const navbar = document.getElementById('navbar');
   const navToggle = document.getElementById('navToggle');
-  let lastScroll = 0;
 
-          if (button.id === 'demoBtn') {
   window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
 
@@ -33,14 +31,8 @@ function initNavigation() {
       navbar.style.boxShadow = 'none';
     }
 
-    lastScroll = currentScroll;
   });
-            // if button has data-href open it
-            const href = button.getAttribute('data-href') || button.getAttribute('href');
-            if (href) {
-              // Open in new tab but allow analytics.js to append UTM if present
-              window.open(href, '_blank');
-            }
+
   // Mobile menu toggle
   if (navToggle) {
     navToggle.addEventListener('click', () => {
@@ -117,7 +109,8 @@ function initDemoCarousel() {
   }
 
   function startAutoPlay() {
-    autoPlayInterval = setInterval(nextStep, 5000);
+    stopAutoPlay();
+    autoPlayInterval = setInterval(nextStep, 3000);
   }
 
   function stopAutoPlay() {
@@ -129,16 +122,18 @@ function initDemoCarousel() {
   // Dot click handlers
   dots.forEach((dot) => {
     dot.addEventListener('click', () => {
-      const stepNumber = parseInt(dot.dataset.step);
+      const stepNumber = parseInt(dot.dataset.step, 10);
       showStep(stepNumber);
       stopAutoPlay();
       // Restart autoplay after user interaction
-      setTimeout(startAutoPlay, 5000);
+      setTimeout(startAutoPlay, 3000);
     });
   });
 
   // Start autoplay
-  startAutoPlay();
+  if (steps.length > 0) {
+    startAutoPlay();
+  }
 
   // Pause on hover
   const demoWindow = document.querySelector('.demo-window');
@@ -238,6 +233,7 @@ function initBackToTop() {
 // CTA Buttons
 // ============================================
 function initCTAButtons() {
+  const CTA_FALLBACK_URL = 'https://pranaysuyash.gumroad.com/l/signkit-v1';
   const ctaButtons = [
     document.getElementById('navCTA'),
     document.getElementById('heroCTA'),
@@ -247,31 +243,31 @@ function initCTAButtons() {
   ];
 
   ctaButtons.forEach((button) => {
-    if (button) {
-      button.addEventListener('click', (e) => {
-        // Handle CTA click
-        if (button.id === 'demoBtn') {
-          // Scroll to demo or open modal
-          const demoSection = document.getElementById('demo');
-          if (demoSection) {
-            demoSection.scrollIntoView({ behavior: 'smooth' });
-          } else {
-            // Or show a demo modal
-            console.log('Show demo modal');
-          }
-        } else {
-          // Handle purchase CTAs
-          console.log('Purchase CTA clicked:', button.id);
-          // If data-href is present, let analytics.js or native behavior handle it
-          if (button.getAttribute('data-href')) return;
-          
-          window.location.href = 'https://pranaysuyash.gumroad.com/l/signkit-v1';
-        }
+    if (!button) return;
 
-        // Add ripple effect
-        createRipple(e, button);
-      });
-    }
+    button.addEventListener('click', (e) => {
+      if (button.id === 'demoBtn') {
+        const demoSection = document.getElementById('demo');
+        if (demoSection) {
+          demoSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        const dataHref = button.getAttribute('data-href');
+        const anchorHref = button.getAttribute('href');
+
+        if (dataHref) {
+          // Analytics helper will intercept these clicks to append UTMs + open Gumroad
+          return;
+        } else if (anchorHref && anchorHref !== '#') {
+          // Allow native anchor navigation
+          return;
+        } else {
+          window.open(CTA_FALLBACK_URL, '_blank');
+        }
+      }
+
+      createRipple(e, button);
+    });
   });
 }
 
@@ -347,44 +343,6 @@ function initScrollAnimations() {
   document.querySelectorAll('.animate-on-scroll').forEach((el) => {
     observer.observe(el);
   });
-}
-
-// ============================================
-// Utility Functions
-// ============================================
-
-// Debounce function for performance
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
-
-// Check if element is in viewport
-function isInViewport(element) {
-  const rect = element.getBoundingClientRect();
-  return (
-    rect.top >= 0 &&
-    rect.left >= 0 &&
-    rect.bottom <=
-      (window.innerHeight || document.documentElement.clientHeight) &&
-    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-  );
-}
-
-// Get scroll percentage
-function getScrollPercentage() {
-  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  const scrollHeight =
-    document.documentElement.scrollHeight -
-    document.documentElement.clientHeight;
-  return (scrollTop / scrollHeight) * 100;
 }
 
 // ============================================
