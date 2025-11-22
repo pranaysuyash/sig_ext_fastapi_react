@@ -182,3 +182,6 @@ alembic/versions/*.pyc
 *.p12
 *.certSigningRequest
 deploy_dist/
+ 
+# Ignore local-only helper script used to generate WebP screenshots
+tools/convert_images.py
