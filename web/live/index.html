@@ -44,8 +44,19 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg" />
+
+    <!-- Preload LCP image (hero) -->
+    <link
+      rel="preload"
+      as="image"
+      href="./assets/screenshots/step1-upload-768.webp"
+      imagesrcset="./assets/screenshots/step1-upload-1200.webp 1200w, ./assets/screenshots/step1-upload-768.webp 768w, ./assets/screenshots/step1-upload-380.webp 380w"
+      imagesizes="(max-width: 840px) 100vw, 50vw"
+    />
   </head>
   <body>
+    <!-- Accessibility: Skip link to main content -->
+    <a class="skip-link" href="#main">Skip to main content</a>
     <!-- Progress Bar -->
     <div class="progress-bar" id="progressBar"></div>
 
@@ -93,6 +104,9 @@
         </button>
       </div>
     </nav>
+
+    <!-- Main landmark for accessibility -->
+    <main id="main" tabindex="-1">
 
     <!-- Hero Section -->
     <section class="hero" id="hero">
@@ -210,11 +224,18 @@
               <div class="demo-carousel">
                 <div class="demo-step active" data-step="1">
                   <!-- Replace with actual screenshot -->
-                  <img
-                    src="./assets/screenshots/step1-upload.png"
-                    alt="Upload document interface"
-                    class="demo-screenshot"
-                  />
+                  <picture>
+                    <source type="image/webp" srcset="./assets/screenshots/step1-upload-1200.webp 1200w, ./assets/screenshots/step1-upload-768.webp 768w, ./assets/screenshots/step1-upload-380.webp 380w" sizes="(max-width: 840px) 100vw, 50vw" />
+                    <img
+                      src="./assets/screenshots/step1-upload-768.webp"
+                      alt="Upload document interface"
+                      class="demo-screenshot"
+                      width="1200"
+                      height="767"
+                      loading="eager"
+                      fetchpriority="high"
+                    />
+                  </picture>
                   <div class="demo-caption">
                     <i class="fa-solid fa-file-arrow-up"></i>
                     <span>Upload Document</span>
@@ -222,11 +243,17 @@
                 </div>
                 <div class="demo-step" data-step="2">
                   <!-- Replace with actual screenshot -->
-                  <img
-                    src="./assets/screenshots/step2-select.png"
-                    alt="Select signature with precision"
-                    class="demo-screenshot"
-                  />
+                  <picture>
+                    <source type="image/webp" srcset="./assets/screenshots/step2-select-1200.webp 1200w, ./assets/screenshots/step2-select-768.webp 768w, ./assets/screenshots/step2-select-380.webp 380w" sizes="(max-width: 840px) 100vw, 50vw" />
+                    <img
+                      src="./assets/screenshots/step2-select-768.webp"
+                      alt="Select signature with precision"
+                      class="demo-screenshot"
+                      width="1200"
+                      height="767"
+                      loading="lazy"
+                    />
+                  </picture>
                   <div class="demo-caption">
                     <i class="fa-solid fa-vector-square"></i>
                     <span>Select Signature</span>
@@ -234,11 +261,17 @@
                 </div>
                 <div class="demo-step" data-step="3">
                   <!-- Replace with actual screenshot -->
-                  <img
-                    src="./assets/screenshots/step3-clean.png"
-                    alt="Cleaned extracted signature"
-                    class="demo-screenshot"
-                  />
+                  <picture>
+                    <source type="image/webp" srcset="./assets/screenshots/step3-clean-1200.webp 1200w, ./assets/screenshots/step3-clean-768.webp 768w, ./assets/screenshots/step3-clean-380.webp 380w" sizes="(max-width: 840px) 100vw, 50vw" />
+                    <img
+                      src="./assets/screenshots/step3-clean-768.webp"
+                      alt="Cleaned extracted signature"
+                      class="demo-screenshot"
+                      width="1200"
+                      height="767"
+                      loading="lazy"
+                    />
+                  </picture>
                   <div class="demo-caption">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                     <span>Clean & Extract</span>
@@ -246,11 +279,17 @@
                 </div>
                 <div class="demo-step" data-step="4">
                   <!-- Replace with actual screenshot -->
-                  <img
-                    src="./assets/screenshots/step4-sign.png"
-                    alt="Place signature on PDF"
-                    class="demo-screenshot"
-                  />
+                  <picture>
+                    <source type="image/webp" srcset="./assets/screenshots/step4-sign-1200.webp 1200w, ./assets/screenshots/step4-sign-768.webp 768w, ./assets/screenshots/step4-sign-380.webp 380w" sizes="(max-width: 840px) 100vw, 50vw" />
+                    <img
+                      src="./assets/screenshots/step4-sign-768.webp"
+                      alt="Place signature on PDF"
+                      class="demo-screenshot"
+                      width="1200"
+                      height="767"
+                      loading="lazy"
+                    />
+                  </picture>
                   <div class="demo-caption">
                     <i class="fa-solid fa-file-signature"></i>
                     <span>Place on PDF</span>
@@ -259,10 +298,10 @@
               </div>
             </div>
             <div class="demo-controls">
-              <button class="demo-dot active" data-step="1"></button>
-              <button class="demo-dot" data-step="2"></button>
-              <button class="demo-dot" data-step="3"></button>
-              <button class="demo-dot" data-step="4"></button>
+              <button class="demo-dot active" data-step="1" title="Step 1: Upload" aria-label="Step 1: Upload"></button>
+              <button class="demo-dot" data-step="2" title="Step 2: Select" aria-label="Step 2: Select"></button>
+              <button class="demo-dot" data-step="3" title="Step 3: Clean" aria-label="Step 3: Clean"></button>
+              <button class="demo-dot" data-step="4" title="Step 4: Place" aria-label="Step 4: Place"></button>
             </div>
           </div>
         </div>
@@ -751,6 +790,8 @@
     </section>
 
     <!-- Footer -->
+    </main>
+
     <footer class="footer">
       <div class="container">
         <div class="footer-content">
@@ -834,21 +875,37 @@
     </button>
 
     <!-- Scripts -->
-    <!-- Google Analytics (replace G-XXXXXXXXXX with your measurement ID) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-PCJDGBMRRN"
-    ></script>
+    <!-- Google Analytics: load during idle to avoid blocking LCP -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag('js', new Date());
-      gtag('config', 'G-PCJDGBMRRN');
+      (function () {
+        function loadGoogleTagManager() {
+          var s = document.createElement('script');
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-PCJDGBMRRN';
+          s.async = true;
+          document.head.appendChild(s);
+
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);} window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', 'G-PCJDGBMRRN');
+        }
+
+        function loadLandingAnalytics() {
+          var s2 = document.createElement('script');
+          s2.src = './js/analytics.js';
+          s2.defer = true;
+          document.head.appendChild(s2);
+        }
+
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(function () { loadGoogleTagManager(); loadLandingAnalytics(); }, { timeout: 3000 });
+        } else {
+          window.addEventListener('load', function () {
+            setTimeout(function () { loadGoogleTagManager(); loadLandingAnalytics(); }, 1000);
+          });
+        }
+      })();
     </script>
-    <!-- Landing page analytics helpers (real user detection, bot detection, scroll depth, CTA tracking) -->
-    <script src="./js/analytics.js"></script>
     <script src="./js/main.js"></script>
     <script src="./js/animations.js"></script>
   </body>
