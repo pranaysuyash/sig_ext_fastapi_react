@@ -161,3 +161,7 @@ alembic/versions/*.pyc
 *.cer
 *.p12
 *.certSigningRequest
+
+# Local helper scripts (dev-only) - ignored on main and landing branches
+tools/convert_images.py
+tools/upload_to_cloudflare.py
