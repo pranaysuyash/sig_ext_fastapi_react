@@ -1,3 +1,17 @@
+- **To publish only the landing folder** (when `landing-page` branch contains other non-landing changes):
+  1. Switch to the branch that contains the landing changes (e.g., `landing-page`):
+     ```bash
+     git checkout landing-page
+     git pull origin landing-page
+     ```
+  2. Run the helper script to create a publish-only branch and push it to remote (this copies `web/live` and the root landing pages into a new temporary branch):
+     ```bash
+     chmod +x tools/create_publish_branch.sh
+     ./tools/create_publish_branch.sh
+     ```
+  3. Go to Actions → `Manual Pages Publish (landing)` and trigger the workflow. Use the `branch` input and provide the branch name produced by the helper script (example: `landing-publish-20251122XXXXXX`).
+  4. Confirm the Cloudflare Pages deployment at `https://signkit-landing.pages.dev`.
+
 # SignKit Landing Page - Deployment Checklist
 
 ## ✅ Pre-Deployment Verification
@@ -86,6 +100,11 @@ git push origin landing-page
 1. Click **Save and Deploy**
 2. Wait for deployment to complete (~1-2 minutes)
 3. Note your deployment URL: `https://signkit-landing.pages.dev`
+
+Note: This repository includes these automation helpers:
+- `.github/workflows/manual_publish_landing.yml` — run manually from the Actions tab to publish `web/live` (requires secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`).
+- `.github/workflows/auto_publish_landing.yml` — auto-publishes `web/live` to Pages on pushes to `landing-page`, but only when the push contains changes restricted to `web/live` or the small set of root landing pages (index/buy/purchase/gum/root).
+- `.github/workflows/landing_sync.yml` — creates a PR to `main` with the updated `web/live` and root landing pages; this action now validates the changed list and aborts if non-landing files are changed.
 
 ### Step 5: Test Deployment
 

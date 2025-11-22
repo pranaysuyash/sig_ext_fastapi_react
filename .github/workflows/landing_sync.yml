@@ -72,6 +72,40 @@ jobs:
           if [ -f web/live/sitemap.xml ]; then echo "sitemap.xml found"; fi
           if [ -f web/live/robots.txt ]; then echo "robots.txt found"; fi
 
+      - name: Validate changed files are only landing assets
+        run: |
+          # Only proceed if the changes introduced by this automation are limited to the allowed landing paths.
+          # This prevents accidental merges or destructive changes affecting other parts of the repository.
+          git add -A
+          # List changed files between the current branch and origin/main
+          changed_files=$(git diff --name-only origin/main...HEAD | tr '\n' ' ')
+          echo "Changed files: $changed_files"
+          if [ -z "$changed_files" ]; then
+            echo "No changes detected; nothing to add."; exit 0
+          fi
+          for f in $changed_files; do
+            case "$f" in
+              web/live/*|index.html|buy.html|purchase.html|gum.html|root.html)
+                # Allowed changes — continue
+                ;;
+              *)
+                echo "Detected changed file outside of allowed landing paths: $f"; exit 1
+                ;;
+            esac
+          done
+
+      - name: Compose PR body
+        id: compose_pr_body
+        run: |
+          changed_files=$(git diff --name-only origin/main...HEAD | sed 's/$/\n/' )
+          echo "Composing PR body with changed files..."
+          printf "Auto-generated PR: this updates the canonical 'web/live' folder and the root-level landing pages (index.html, buy.html, purchase.html, gum.html, root.html) on 'main' using the latest from 'landing-page'.\n\nChanged files:\n" > /tmp/pr_body.txt
+          printf '%s' "$changed_files" >> /tmp/pr_body.txt
+          # Store as environment variable for use in create-pull-request action
+          echo "pr_body<<EOF" >> $GITHUB_OUTPUT
+          cat /tmp/pr_body.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
@@ -93,10 +127,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: 'chore(landing-sync): update web/live and root pages from landing-page'
           title: 'chore(landing-sync): update web/live and root pages from landing-page'
-          body: |
-            Auto-generated PR: this updates the canonical `web/live` folder and the root-level landing pages (index.html, buy.html, purchase.html, gum.html, root.html) on `main` using the latest from `landing-page`.
-
-            The action is triggered on pushes to `landing-page` and by manual workflow dispatch. Review CI and tests before merging.
+          body: ${{ steps.compose_pr_body.outputs.pr_body }}
           base: main
           branch: landing-sync-${{ github.sha }}
           labels: landing-sync

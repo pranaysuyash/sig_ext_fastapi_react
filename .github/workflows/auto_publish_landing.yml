@@ -1,0 +1,76 @@
+name: Auto Publish Landing (restricted)
+
+on:
+  push:
+    branches:
+      - landing-page
+
+jobs:
+  publish-landing:
+    name: Auto publish landing to Cloudflare Pages (restricted)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout landing branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate changed files are only landing assets
+        run: |
+          # Ensure we have origin/main fetched to diff against
+          git fetch origin main:refs/remotes/origin/main
+          # Ensure this push only modifies landing files; otherwise abort to avoid surprise publishes.
+          changed_files=$(git diff --name-only origin/main...HEAD | tr '\n' ' ')
+          echo "Changed files: $changed_files"
+          if [ -z "$changed_files" ]; then
+            echo "No changed files; nothing to publish"; exit 0
+          fi
+          for f in $changed_files; do
+            case "$f" in
+              web/live/*|index.html|buy.html|purchase.html|gum.html|root.html)
+                ;;
+              *)
+                echo "Detected changed file outside allowed paths: $f"; exit 1
+                ;;
+            esac
+          done
+
+      - name: Prepare publish directory (copy root landing pages & assets)
+        run: |
+          mkdir -p web/live
+          # Copy root-level HTML landing pages into web/live
+          for f in index.html buy.html purchase.html gum.html root.html; do
+            if [ -f "$f" ]; then cp "$f" web/live/; fi
+          done
+          # Copy entire root assets into web/live/assets if present
+          if [ -d "assets" ]; then
+            mkdir -p web/live/assets
+            rsync -a --delete assets/ web/live/assets/
+          fi
+          # Copy screenshots if present at repo root
+          if [ -d "screenshots" ]; then
+            mkdir -p web/live/screenshots
+            rsync -a --delete screenshots/ web/live/screenshots/
+          fi
+          # Copy landing page variant folders (e.g., web/claude_landing_page_v2) into web/live/web
+          if [ -d "web/claude_landing_page_v2" ]; then
+            mkdir -p web/live/web/claude_landing_page_v2
+            rsync -a --delete web/claude_landing_page_v2/ web/live/web/claude_landing_page_v2/
+          fi
+
+      - name: Install Node & Wrangler
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          npm install -g @cloudflare/wrangler
+
+      - name: Publish web/live to Cloudflare Pages
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          echo "Publishing web/live to Cloudflare Pages (project: signkit-pages-landing)"
+          wrangler pages publish web/live --project-name signkit-pages-landing --branch landing-page
+
+      - name: Done
+        run: echo "Auto publish to Cloudflare Pages finished."

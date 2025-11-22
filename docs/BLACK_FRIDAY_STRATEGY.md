@@ -1153,6 +1153,11 @@ Happy to provide review access/screenshots.
    - CTA: "Get it for $19 (Regular $29)"
    - Countdown timer: "Deal ends Dec 2"
 
+      - Deploy notes: The canonical landing site is `web/live` on the `landing-page` branch. To publish the latest landing changes to Cloudflare Pages you can:
+         - Run locally: `export CLOUDFLARE_ACCOUNT_ID=... && export CLOUDFLARE_API_TOKEN=... && ./tools/deploy_to_pages.sh`
+         - Use the GitHub Action: `.github/workflows/manual_publish_landing.yml` (workflow_dispatch) — requires the repo secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. You can optionally pass a `branch` input to the workflow to publish `web/live` from a specific branch (default: `landing-page`).
+         - There's also an automatic guarded publish workflow (`.github/workflows/auto_publish_landing.yml`) which will only publish `web/live` if the push contains changes restricted to `web/live` or the root landing pages (`index.html`, `buy.html`, `purchase.html`, `gum.html`, `root.html`). This guards against accidental wide-scope commits being published.
+
 3. **Screenshots (5 key shots)**
 
    - Main window with extraction

@@ -152,13 +152,36 @@ Security note: Do not commit your Cloudflare API token and keep the `tools` help
 
 We keep local helper scripts such as `tools/convert_images.py` and `tools/upload_to_cloudflare.py` untracked for the following reasons:
 
-- They often require environment-specific settings and API credentials (e.g., Cloudflare API token). We avoid committing any script that could encourage secrets in source control.
-- These helpers are developer utilities not required for the production build (the generated images and the HTML should be enough for the static site to work).
-- Keeping them local reduces risk of unintentionally committing sensitive data or making private credentials public.
 
 If you'd like the repository to contain a helper example, we commit a safe sample file: `tools/upload_to_cloudflare.sample.py` (without secrets). Use it as a starting point and copy to `tools/upload_to_cloudflare.py` locally when you're ready.
 
 If you'd prefer automating these steps in CI/CD, we can add an action that runs the conversion (or uploads) using GitHub Actions with secrets stored in `Settings -> Secrets & variables` for the repository. This enables a secure automation route without exposing credentials in the codebase.
+
+
+### Manual Publish with Wrangler (Cloudflare Pages)
+
+If you have `wrangler` configured locally and want to deploy the landing `web/live` folder directly to Cloudflare Pages without waiting for GitHub or CI, do this from your development machine:
+
+```bash
+# Install wrangler (if not installed):
+npm install -g @cloudflare/wrangler
+
+# Export your Cloudflare credentials
+export CLOUDFLARE_ACCOUNT_ID=your_account_id
+export CLOUDFLARE_API_TOKEN=your_api_token
+
+# Publish folder to Cloudflare Pages (landing branch preview)
+wrangler pages publish web/live --project-name signkit-pages-landing --branch landing-page
+```
+
+Notes:
+- This publishes the contents of `web/live` to the Pages project (signkit-pages-landing) under the `landing-page` branch.
+- If the Pages project is set to build from `landing-page`, a new build should pick up these files automatically.
+- We included an optional workflow (`.github/workflows/manual_publish_landing.yml`) that can be triggered manually from the Actions tab to run the same command via GitHub Actions; you'll need to set `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` in repository secrets for it to succeed.
+
+### Auto Publish (Optional)
+
+We also provide an optional, guarded auto-publish workflow (`.github/workflows/auto_publish_landing.yml`) that automatically publishes `web/live` to Cloudflare Pages when commits are pushed to the `landing-page` branch. This workflow will only publish when the push contains changes restricted to `web/live` or the root landing pages (index/buy/purchase/gum/root) — any broader changes will abort the publish to prevent accidental site updates.
 
 
 ---
