@@ -19,8 +19,8 @@ Use this as a comprehensive checklist to evaluate all aspects of the product bef
 ## 🎯 REVIEW PROMPT FOR AI/LLM
 
 ```
-You are an expert product reviewer conducting a comprehensive pre-launch audit of SignKit, 
-a desktop application for signature extraction. Your goal is to identify any issues, gaps, 
+You are an expert product reviewer conducting a comprehensive pre-launch audit of SignKit,
+a desktop application for signature extraction. Your goal is to identify any issues, gaps,
 or improvements needed before the Black Friday launch (15 days away).
 
 Review the following aspects in detail and provide actionable feedback:
@@ -435,11 +435,11 @@ For each section above, provide:
 
 1. **Overall Assessment:** (Excellent / Good / Needs Improvement / Critical Issues)
 
-2. **Key Findings:** 
+2. **Key Findings:**
    - List 3-5 most important observations
    - Highlight both strengths and weaknesses
 
-3. **Critical Issues:** 
+3. **Critical Issues:**
    - Issues that MUST be fixed before launch
    - Ranked by severity and impact
 
@@ -509,7 +509,7 @@ Please review these files from the codebase:
 
 ---
 
-Begin your comprehensive review now. Be thorough, critical, and constructive. 
+Begin your comprehensive review now. Be thorough, critical, and constructive.
 The goal is to ensure a successful Black Friday launch in 15 days.
 ```
 
@@ -584,11 +584,12 @@ The goal is to ensure a successful Black Friday launch in 15 days.
 **4 - Major Issues:** Critical problems, 2-4 weeks needed  
 **3 - Serious Problems:** Fundamental issues, 1-2 months needed  
 **2 - Not Ready:** Major rework required, 3+ months  
-**1 - Start Over:** Fundamental flaws, consider pivot  
+**1 - Start Over:** Fundamental flaws, consider pivot
 
 ### Category Scoring (0-10 scale)
 
 Score each category:
+
 - User Experience (UX)
 - User Interface (UI)
 - Feature Completeness
@@ -620,21 +621,25 @@ After completing this review, you should have:
 ## 💡 TIPS FOR REVIEWERS
 
 **Be Honest:**
+
 - Don't sugarcoat issues
 - Be specific about problems
 - Provide actionable feedback
 
 **Be Constructive:**
+
 - Suggest solutions, not just problems
 - Prioritize by impact and effort
 - Focus on launch-critical issues
 
 **Be Thorough:**
+
 - Test edge cases
 - Try to break things
 - Think like a customer
 
 **Be Realistic:**
+
 - Consider the 15-day timeline
 - Distinguish must-fix from nice-to-have
 - Balance perfection with shipping

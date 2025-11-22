@@ -11,6 +11,7 @@
 ## 🌐 Live URLs
 
 ### Production (Custom Domain)
+
 - **Main:** https://signkit.work
 - **Control Variant:** https://signkit.work/root
 - **Buy Variant (Iframe):** https://signkit.work/buy
@@ -19,6 +20,7 @@
 - **Test Dashboard:** https://signkit.work/test-variants.html
 
 ### Cloudflare Pages (Staging)
+
 - **Main:** https://d5834d2a.signkit-landing.pages.dev
 - **Control:** https://d5834d2a.signkit-landing.pages.dev/root
 - **Buy:** https://d5834d2a.signkit-landing.pages.dev/buy
@@ -65,17 +67,20 @@ Branch: landing-page
 ## 🎯 A/B Testing Setup
 
 ### Current Configuration
+
 **Mode:** Manual Testing (`AUTO_SPLIT = false`)
 
 ### 4 Variants Being Tested
 
 #### Variant 1: Control (`/root`)
+
 - **Design:** Neo-brutalism
 - **CTA:** External Gumroad link
 - **Hypothesis:** Simple, privacy-focused design converts best
 - **File:** `root.html`
 
 #### Variant 2: Embedded Checkout (`/buy`)
+
 - **Design:** Full-page iframe
 - **CTA:** Embedded Gumroad checkout
 - **Hypothesis:** Keeping users on domain increases trust
@@ -83,12 +88,14 @@ Branch: landing-page
 - **Iframe URL:** https://gum.new/gum/cmhyha3rs001h04l7ccem2nkj
 
 #### Variant 3: SaaS Landing (`/purchase`)
+
 - **Design:** Traditional SaaS with animations
 - **CTA:** External Gumroad link
 - **Hypothesis:** Detailed features increase perceived value
 - **File:** `purchase.html`
 
 #### Variant 4: Direct Redirect (`/gum`)
+
 - **Design:** Immediate redirect
 - **CTA:** Instant redirect to Gumroad
 - **Hypothesis:** Minimal friction for high-intent users
@@ -96,6 +103,7 @@ Branch: landing-page
 - **Redirect URL:** https://pranaysuyash.gumroad.com/l/signkit-v1
 
 ### Traffic Distribution (When AUTO_SPLIT = true)
+
 - 25% → Control (`/root`)
 - 25% → Embedded (`/buy`)
 - 25% → SaaS (`/purchase`)
@@ -106,19 +114,23 @@ Branch: landing-page
 ## 🚀 Deployment
 
 ### Platform
+
 **Cloudflare Pages**
+
 - Project: `signkit-landing`
 - Branch: `landing-page`
 - Build: None (static files)
 - Output: `/`
 
 ### Deployment Method
+
 ```bash
 # Via Wrangler CLI
 wrangler pages deploy .deploy --project-name=signkit-landing --branch=landing-page
 ```
 
 ### Auto-Deploy
+
 Cloudflare Pages automatically deploys on push to `landing-page` branch.
 
 ---
@@ -126,12 +138,15 @@ Cloudflare Pages automatically deploys on push to `landing-page` branch.
 ## 🌍 Domain Configuration
 
 ### Domain
+
 **signkit.work** (registered via Namecheap)
 
 ### DNS Provider
+
 **Cloudflare** (nameservers pointed to Cloudflare)
 
 ### DNS Records
+
 ```
 Type    Name              Content                        Proxy
 CNAME   signkit.work      signkit-landing.pages.dev      Proxied
@@ -142,6 +157,7 @@ TXT     signkit.work      google-site-verification=...
 ```
 
 ### SSL/TLS
+
 - **Mode:** Full (strict)
 - **Certificate:** Auto-provisioned by Cloudflare
 - **Status:** Active
@@ -151,6 +167,7 @@ TXT     signkit.work      google-site-verification=...
 ## 📊 Analytics
 
 ### Google Analytics 4
+
 - **Property ID:** `G-PCJDGBMRRN`
 - **Event:** `ab_test_impression`
 - **Parameters:**
@@ -158,9 +175,11 @@ TXT     signkit.work      google-site-verification=...
   - `experiment_id`: checkout_flow_test
 
 ### Tracking Implementation
+
 All variants include GA4 tracking script that fires on page load.
 
 ### View Results
+
 1. Go to [GA4 Dashboard](https://analytics.google.com/)
 2. Navigate to **Reports** → **Events**
 3. Look for `ab_test_impression` event
@@ -171,6 +190,7 @@ All variants include GA4 tracking script that fires on page load.
 ## 🔧 Configuration
 
 ### Enable A/B Testing
+
 To enable automatic traffic splitting:
 
 1. Edit `index.html` in `landing-page` branch
@@ -179,6 +199,7 @@ To enable automatic traffic splitting:
 4. Cloudflare auto-deploys
 
 ### Disable A/B Testing
+
 Set `AUTO_SPLIT = false` to show control page to all visitors.
 
 ---
@@ -186,6 +207,7 @@ Set `AUTO_SPLIT = false` to show control page to all visitors.
 ## 🧪 Testing
 
 ### Local Testing
+
 ```bash
 # Start local server
 python3 -m http.server 8080
@@ -199,7 +221,9 @@ open http://localhost:8080/test-variants.html
 ```
 
 ### Production Testing
+
 Visit each variant URL and verify:
+
 - ✅ Page loads correctly
 - ✅ Assets load (images, CSS, JS)
 - ✅ CTA buttons work
@@ -211,6 +235,7 @@ Visit each variant URL and verify:
 ## 📝 Maintenance
 
 ### Update Landing Page
+
 ```bash
 # Switch to landing-page branch
 git checkout landing-page
@@ -227,6 +252,7 @@ git push origin landing-page
 ```
 
 ### Redeploy Manually
+
 ```bash
 # Prepare deployment directory
 rm -rf .deploy
@@ -243,15 +269,18 @@ wrangler pages deploy .deploy --project-name=signkit-landing --branch=landing-pa
 ## 🎯 Success Metrics
 
 ### Primary Metric
+
 **Conversion Rate:** Purchases / Unique Visitors
 
 ### Secondary Metrics
+
 - Click-through Rate (CTA clicks / Page views)
 - Bounce Rate
 - Time on Page
 - Exit Rate
 
 ### Target Sample Size
+
 - **Minimum:** 100 conversions per variant
 - **Total Visitors:** ~4,000+ (assuming 1% conversion rate)
 - **Duration:** 14-30 days
@@ -262,15 +291,19 @@ wrangler pages deploy .deploy --project-name=signkit-landing --branch=landing-pa
 ## 🐛 Troubleshooting
 
 ### Issue: Domain not resolving
+
 **Solution:** Wait 24-48 hours for DNS propagation, check nameservers
 
 ### Issue: Assets not loading
+
 **Solution:** Verify paths are relative, check `.cfignore` exclusions
 
 ### Issue: Iframe not loading on /buy
+
 **Solution:** Check browser console for CSP errors, verify Gumroad URL
 
 ### Issue: A/B routing not working
+
 **Solution:** Verify `AUTO_SPLIT` setting, clear localStorage
 
 ---
@@ -278,17 +311,21 @@ wrangler pages deploy .deploy --project-name=signkit-landing --branch=landing-pa
 ## 📞 Support & Resources
 
 ### Cloudflare
+
 - **Dashboard:** https://dash.cloudflare.com/pages/signkit-landing
 - **Docs:** https://developers.cloudflare.com/pages/
 - **Community:** https://community.cloudflare.com/
 
 ### Repository
+
 - **GitHub:** https://github.com/pranaysuyash/sig_ext_fastapi_react
 - **Branch:** `landing-page`
 - **Issues:** Report via GitHub Issues
 
 ### Documentation
+
 All documentation is in the `landing-page` branch:
+
 - `QUICK_START.md` - Quick deployment guide
 - `CLOUDFLARE_DEPLOYMENT.md` - Comprehensive guide
 - `AB_TEST_STRUCTURE.md` - A/B test details
@@ -322,22 +359,26 @@ All documentation is in the `landing-page` branch:
 ## 📈 Roadmap
 
 ### Phase 1: Testing (Current)
+
 - ✅ Deploy all variants
 - ✅ Configure DNS
 - ⬜ Test all variants
 - ⬜ Verify GA4 tracking
 
 ### Phase 2: Soft Launch
+
 - ⬜ Enable AUTO_SPLIT
 - ⬜ Drive initial traffic
 - ⬜ Monitor for bugs
 
 ### Phase 3: Full A/B Test
+
 - ⬜ Run for 14-30 days
 - ⬜ Collect 100+ conversions per variant
 - ⬜ Analyze results
 
 ### Phase 4: Optimization
+
 - ⬜ Identify winning variant
 - ⬜ Implement winner as default
 - ⬜ Iterate and optimize
@@ -347,17 +388,20 @@ All documentation is in the `landing-page` branch:
 ## 🎉 Quick Reference
 
 ### Key URLs
+
 - **Production:** https://signkit.work
 - **Staging:** https://d5834d2a.signkit-landing.pages.dev
 - **Dashboard:** https://dash.cloudflare.com/pages/signkit-landing
 - **Analytics:** https://analytics.google.com/ (G-PCJDGBMRRN)
 
 ### Key Files
+
 - `index.html` - Main entry (A/B routing)
 - `_redirects` - Cloudflare routing
 - `wrangler.toml` - Deployment config
 
 ### Key Commands
+
 ```bash
 # Deploy
 wrangler pages deploy .deploy --project-name=signkit-landing

@@ -28,6 +28,7 @@ Then refresh browser: `Cmd + Shift + R`
 4. **Select All** (Cmd+A) → **Paste** (Cmd+V) → **Save**
 
 Repeat for:
+
 - `animations.css`
 - `main.js`
 - `animations.js`
@@ -35,6 +36,7 @@ Repeat for:
 ## ✅ After Copying
 
 Refresh page - it should look perfect with:
+
 - ✅ Professional styling
 - ✅ Font Awesome icons
 - ✅ Animations

@@ -23,10 +23,11 @@ ls -la js/
 ```
 
 You should see:
+
 ```
 css/
   animations.css ✅
-  font-awesome-additions.css ✅  
+  font-awesome-additions.css ✅
   style.css ✅ (should be ~30KB)
 
 js/
@@ -72,6 +73,7 @@ find /Users/pranay/Projects -name "style.css" -path "*/claude_landing_page/*"
 ```
 
 Or manually:
+
 1. Open `/web/claude_landing_page/css/style.css` in VS Code
 2. Copy all content
 3. Paste into `/web/live/css/style.css`

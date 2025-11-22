@@ -73,11 +73,11 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore(landing-sync): update web/live and root pages from landing-page"
-          title: "chore(landing-sync): update web/live and root pages from landing-page"
+          commit-message: 'chore(landing-sync): update web/live and root pages from landing-page'
+          title: 'chore(landing-sync): update web/live and root pages from landing-page'
           body: |
             Auto-generated PR: this updates the canonical `web/live` folder and the root-level landing pages (index.html, buy.html, purchase.html, gum.html, root.html) on `main` using the latest from `landing-page`.
-            
+
             The action is triggered on pushes to `landing-page` and by manual workflow dispatch. Review CI and tests before merging.
           base: main
           branch: landing-sync-${{ github.sha }}

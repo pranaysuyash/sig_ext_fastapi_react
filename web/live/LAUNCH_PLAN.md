@@ -3,6 +3,7 @@
 ## What I Just Created For You
 
 ✅ **New Landing Page V2** at: `web/live/`
+
 - All emojis replaced with Font Awesome icons
 - Screenshot placeholders ready for your actual app images
 - YouTube video embed option
@@ -16,13 +17,16 @@
 ### **TODAY (Day 1): Assets & Setup**
 
 **Morning (2 hours):**
+
 1. Take 4 screenshots of your app:
+
    - Upload interface
    - Selection + zoom
    - Cleaned signature
    - PDF signing
 
 2. Save them as:
+
    ```
    web/live/assets/screenshots/
    ├── step1-upload.png
@@ -38,31 +42,30 @@
    cp ../claude_landing_page/js/*.js ./js/
    ```
 
-**Afternoon (2 hours):**
-4. Create Gumroad account & product
-5. Get your Gumroad product URL
-6. Update all "Buy" buttons in index.html with your Gumroad URL
-7. Test locally: `python3 -m http.server 8000`
+**Afternoon (2 hours):** 4. Create Gumroad account & product 5. Get your Gumroad product URL 6. Update all "Buy" buttons in index.html with your Gumroad URL 7. Test locally: `python3 -m http.server 8000`
 
 ### **DAY 2: Polish & Deploy**
 
 **Morning (2 hours):**
+
 1. Decide on final app name (SignKit, Signature Extractor, or new name)
 2. Search/replace name throughout index.html
 3. Record 45-second demo video (optional but recommended)
 4. Upload to YouTube and add video ID to page
 
-**Afternoon (1-2 hours):**
-5. Deploy to Netlify:
-   - Go to netlify.com
-   - Drag & drop `web/live` folder
-   - Done!
+**Afternoon (1-2 hours):** 5. Deploy to Netlify:
+
+- Go to netlify.com
+- Drag & drop `web/live` folder
+- Done!
+
 6. Test on mobile device
 7. Fix any issues
 
 ### **DAY 3: Launch!**
 
 **Morning:**
+
 1. Final QA check
 2. Add analytics (Google Analytics or Plausible)
 3. Update social links in footer
@@ -72,28 +75,34 @@
 **11 AM:** Post on Product Hunt  
 **12 PM:** Twitter announcement  
 **2 PM:** LinkedIn post  
-**4 PM:** Email your network  
+**4 PM:** Email your network
 
 ---
 
 ## 🎨 Quick Customization Guide
 
 ### Change App Name
+
 Search & replace in `index.html`:
+
 - "SignKit" → Your Name
 - Update `<title>` tag
 - Update meta descriptions
 
 ### Change Pricing
+
 Find in `index.html`:
+
 ```html
-<span class="price-current">$29</span>
-<span class="price-original">$39</span>
+<span class="price-current">$29</span> <span class="price-original">$39</span>
 ```
+
 Update to your pricing.
 
 ### Update Social Proof
+
 Replace these placeholders:
+
 - "1,200+ Happy Customers" → "Early Access" or real number
 - "12,847 Signatures" → Remove or use real number
 - "4.8/5 Rating" → Wait for real reviews
@@ -106,18 +115,19 @@ Replace these placeholders:
 
 Here's why:
 
-| Factor | Gumroad | Custom Payment |
-|--------|---------|----------------|
-| Time to launch | 2-3 hours | 2-4 weeks |
-| Dev effort | Zero | High |
-| Monthly cost | $0 | $50-100+ |
-| Payment handling | Automatic | You build it |
-| License delivery | Built-in | You build it |
-| Tax compliance | Handled | You handle |
-| Refunds | One click | Manual process |
+| Factor                  | Gumroad                   | Custom Payment         |
+| ----------------------- | ------------------------- | ---------------------- |
+| Time to launch          | 2-3 hours                 | 2-4 weeks              |
+| Dev effort              | Zero                      | High                   |
+| Monthly cost            | $0                        | $50-100+               |
+| Payment handling        | Automatic                 | You build it           |
+| License delivery        | Built-in                  | You build it           |
+| Tax compliance          | Handled                   | You handle             |
+| Refunds                 | One click                 | Manual process         |
 | **When it makes sense** | **Now → 500 sales/month** | **After $15K revenue** |
 
 **The Math:**
+
 - Gumroad fee: 10% = $2.90 per $29 sale
 - At 100 sales/month: $290 in fees
 - Custom solution: $500+ dev time + $50/month hosting = More expensive initially
@@ -134,24 +144,28 @@ Here's why:
 Since you need to decide, here are my top 3 with reasoning:
 
 ### 1. **SignKit** ⭐ (My #1 pick)
+
 - **Domain:** `signkit.work` or `getsignkit.com`
 - **Why:** Short, memorable, room to grow
 - **Tagline:** "Your signature toolkit"
 - **Logo:** Pen + toolbox
 
 ### 2. **InkSpace**
+
 - **Domain:** `inkspace.app`
 - **Why:** Professional, hints at workspace
 - **Tagline:** "Sign with confidence"
 - **Logo:** Signature in negative space
 
 ### 3. **Keep "Signature Extractor"**
+
 - **Domain:** `signature-extractor.app`
 - **Why:** SEO-friendly, descriptive
 - **Tagline:** "Extract signatures with precision"
 - **Logo:** Document + extraction box
 
 **Decision framework:**
+
 - Choose SignKit if you want: brandable, future-proof
 - Choose InkSpace if you want: professional, creative
 - Keep current if you want: SEO advantages, clear purpose
@@ -207,6 +221,7 @@ The landing page V2 is ready. Your pricing is solid ($29 launch). Your product w
 **SHIP IT THIS WEEK.** 🚀
 
 You can iterate on:
+
 - Better screenshots (later)
 - Demo video (later)
 - Perfect domain (later)
@@ -226,6 +241,7 @@ But you can't iterate on sales feedback until you have sales.
 5. Launch!
 
 **When you're ready to launch, just ping me and I'll help with:**
+
 - Final QA check
 - Tweet/post copywriting
 - Any last-minute issues

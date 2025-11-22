@@ -3,6 +3,7 @@
 ## What Was Done
 
 ### 1. **Complete CSS File Created** ✅
+
 - **File**: `/css/style.css`
 - **Size**: Complete with all styles (1900+ lines)
 - **Features**:
@@ -13,6 +14,7 @@
   - All sections styled (nav, hero, problem, solution, pricing, FAQ, footer)
 
 ### 2. **JavaScript Files Created** ✅
+
 - **main.js**: Core functionality
   - Navigation with scroll effects
   - Progress bar
@@ -22,7 +24,6 @@
   - Back-to-top button
   - CTA button handlers
   - Scroll-triggered animations
-  
 - **animations.js**: Advanced effects
   - Parallax scrolling
   - Number counter animations
@@ -32,12 +33,14 @@
   - Optional effects (gradient animation, cursor trail, visualizer)
 
 ### 3. **Files Already in Place** ✅
+
 - `animations.css`: Keyframe animations and animation classes
 - `index.html`: Complete HTML structure with Font Awesome icons
 
 ## What the Page Now Has
 
 ### Visual Features
+
 - ✅ Animated gradient backgrounds with floating blobs
 - ✅ Smooth scroll progress bar at top
 - ✅ Auto-playing demo carousel with 4 steps
@@ -50,11 +53,13 @@
 - ✅ Back-to-top button
 
 ### Typography & Icons
+
 - ✅ Google Fonts: Inter + Space Grotesk
 - ✅ Font Awesome 6.4.2 icons throughout
 - ✅ Proper icon sizing and colors
 
 ### Responsive Design
+
 - ✅ Mobile navigation toggle
 - ✅ Breakpoints at 1024px, 768px, 640px
 - ✅ Grid layouts adapt to screen size
@@ -63,6 +68,7 @@
 ## How to Test
 
 1. **Open the page**:
+
    ```bash
    open /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/live/index.html
    ```
@@ -82,6 +88,7 @@
 ## Key Differences from V1
 
 The V2 landing page uses:
+
 - **Font Awesome icons** instead of emoji (more professional)
 - **Same structure** as V1 but with icon updates
 - **Same animations** and interactions
@@ -90,7 +97,9 @@ The V2 landing page uses:
 ## Next Steps
 
 ### Before Launch
+
 1. **Add Real Screenshots**:
+
    - Replace placeholder paths in `index.html`:
      - `./assets/screenshots/step1-upload.png`
      - `./assets/screenshots/step2-select.png`
@@ -98,14 +107,17 @@ The V2 landing page uses:
      - `./assets/screenshots/step4-sign.png`
 
 2. **Or Add Demo Video**:
+
    - Uncomment video section in HTML
    - Add YouTube video ID
 
 3. **Update Links**:
+
    - Replace `#` href in social media links (footer)
    - Add actual Gumroad/purchase links to CTA buttons
 
 4. **Create Assets Folder**:
+
    ```bash
    mkdir -p /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/live/assets/screenshots
    mkdir -p /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/live/assets/icons
@@ -117,6 +129,7 @@ The V2 landing page uses:
    - Firefox (Gecko)
 
 ## File Structure
+
 ```
 live/
 ├── index.html          ✅ Complete
@@ -132,6 +145,7 @@ live/
 ```
 
 ## Performance Notes
+
 - Page load should be < 2 seconds
 - All animations respect `prefers-reduced-motion`
 - Images should be optimized (WebP format recommended)
@@ -142,10 +156,12 @@ live/
 If something doesn't work:
 
 1. **Check Console** (F12 → Console)
+
    - Look for JavaScript errors
    - Check if Font Awesome loaded
 
 2. **Hard Refresh** (Cmd + Shift + R)
+
    - Clear cache to see latest changes
 
 3. **Verify File Paths**

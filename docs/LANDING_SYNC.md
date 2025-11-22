@@ -2,18 +2,16 @@
 
 This document explains the recommended process to keep the `landing-page` branch as the working branch for marketing and A/B testing while ensuring the `main` branch contains a canonical `web/live` copy used for production staging and audits.
 
-
 ## Goals
- 
+
 - Keep `landing-page` as the active development branch for landing and analytics work.
 - Keep `main` clean, with landing content stored under `web/live` and essential root pages (index, buy, purchase, gum, root).
 - Make it easy to update `main` from `landing-page` without merging the entire branch.
 
-
 ## Recommended Sync Process
 
 1. On a clean working tree, switch to `main`:
-   
+
    ```bash
    git checkout main
    git fetch origin
@@ -21,7 +19,7 @@ This document explains the recommended process to keep the `landing-page` branch
    ```
 
 2. Pull `web/live` and root pages from the `landing-page` branch (or whichever feature branch you're working on):
-   
+
    ```bash
    # Bring the latest landing output into main
    git checkout landing-page -- web/live
@@ -30,7 +28,7 @@ This document explains the recommended process to keep the `landing-page` branch
    ```
 
 3. Review the changes, adjust asset paths if necessary (e.g., ensure references to `web/live/...` are used), then commit and push:
-   
+
    ```bash
    git add web/live index.html buy.html purchase.html gum.html root.html
    git commit -m "chore(main): sync landing-page (web/live and root pages)"
@@ -40,19 +38,17 @@ This document explains the recommended process to keep the `landing-page` branch
 4. If you use any deployment scripts or CI (e.g., Cloudflare pages), update them to use `web/live` or use `main` as the production branch as appropriate.
 
 ### Auto-sync via GitHub Actions
+
 We provide a GitHub Action at `.github/workflows/landing_sync.yml` that automatically creates a PR against `main` whenever `landing-page` is updated (or when manually triggered). The action copies `web/live/` and the root-level landing pages (`index.html`, `buy.html`, `purchase.html`, `gum.html`, `root.html`) from `landing-page` into a PR for main. The PR allows for review and merging to safely update the `main` branch.
 
 Notes: This default action creates a PR rather than pushing directly to main; you can merge the PR automatically if desired by changing the action inputs or using `auto-merge` in the PR settings.
 
-
-
 ## Notes and Best Practices
- 
+
 - Prefer `git checkout branch -- <path>` to avoid merge conflicts arising from rename/rename (e.g., `web/claude_landing_page_v2` vs `web/live`).
 - Avoid merging the entire `landing-page` into `main` unless you want to bring non-website code changes.
 - Document updates to `web/live` in the `web/live/README.md` file so future editors know where to find the canonical content in `main`.
 - If you expect frequent syncs, consider setting up a small automation (CI) that automatically updates `web/live/` in `main` on demand (e.g., a GitHub Action triggered by a label or a schedule).
-
 
 ## Example automation (optional)
 
