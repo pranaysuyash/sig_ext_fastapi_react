@@ -5,7 +5,7 @@ Sorry for the confusion! Here's the simplest fix:
 ## Option 1: Terminal Commands (FASTEST)
 
 ```bash
-cd /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/live
+cd /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/web/claude_landing_page_v2
 
 # Copy complete CSS
 cp ../claude_landing_page/css/style.css ./css/
@@ -24,11 +24,10 @@ Then refresh browser: `Cmd + Shift + R`
 
 1. **Open in VS Code:** `/web/claude_landing_page/css/style.css`
 2. **Select All** (Cmd+A) → **Copy** (Cmd+C)
-3. **Open:** `/web/live/css/style.css`
+3. **Open:** `/web/claude_landing_page_v2/css/style.css`
 4. **Select All** (Cmd+A) → **Paste** (Cmd+V) → **Save**
 
 Repeat for:
-
 - `animations.css`
 - `main.js`
 - `animations.js`
@@ -36,7 +35,6 @@ Repeat for:
 ## ✅ After Copying
 
 Refresh page - it should look perfect with:
-
 - ✅ Professional styling
 - ✅ Font Awesome icons
 - ✅ Animations

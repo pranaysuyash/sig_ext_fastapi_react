@@ -15,7 +15,7 @@ This version improves upon the original Claude landing page with:
 ## 📂 Project Structure
 
 ```
-live/
+claude_landing_page_v2/
 ├── index.html                 # Main HTML file with Font Awesome
 ├── css/
 │   ├── style.css             # Main styles (Font Awesome compatible)
@@ -41,7 +41,7 @@ You need to copy these from the original landing page:
 
 ```bash
 # From project root
-cd web/live
+cd web/claude_landing_page_v2
 
 # Copy animations CSS
 cp ../claude_landing_page/css/animations.css ./css/
@@ -112,6 +112,77 @@ npx serve
 ```
 
 Open http://localhost:8000 in your browser
+
+---
+
+## 🖼 Image Optimization & Cloudflare Upload (Local-only)
+
+We provide a small set of local helper scripts for generating responsive WebP screenshots and optionally uploading them to Cloudflare Images. These helper scripts are intentionally local-only (ignored by git) so you can use them to optimize and publish assets from your development machine.
+
+1. Convert PNG screenshots to WebP (lossy) variants using Pillow:
+
+```bash
+# create a local venv (recommended)
+python3 -m venv .venv
+source .venv/bin/activate
+pip install pillow
+python3 tools/convert_images.py
+```
+
+This script writes `-1200.webp`, `-768.webp`, and `-380.webp` variants next to your existing PNGs in `web/live/assets/screenshots/`.
+
+2. Optionally push the generated WebP images to Cloudflare Images from your local machine (requires a Cloudflare account, an API token scoped to `Images:Edit`, and your `ACCOUNT_ID`):
+
+```bash
+pip install requests
+
+# Set env vars (macOS / Linux)
+export CLOUDFLARE_ACCOUNT_ID=your_account_id
+export CLOUDFLARE_API_TOKEN=your_token
+
+# And run the local uploader (this file is ignored by git and kept locally)
+python3 tools/upload_to_cloudflare.py
+```
+
+3. After conversion, the `web/live/index.html` file is already set up to prefer WebP variants (via `<picture>` sources and responsive `srcset`), so the static assets will be automatically used when served. Cloudflare Pages (or Netlify/Vercel) will serve images from your repo; Cloudflare Images will serve directly from the CDN when uploaded via the script.
+
+Security note: Do not commit your Cloudflare API token and keep the `tools` helpers local and secure. If you need an automation step in CI/Conventional workflows, we can discuss secure variables and token management later.
+
+## Why are helper scripts kept local (not committed)?
+
+We keep local helper scripts such as `tools/convert_images.py` and `tools/upload_to_cloudflare.py` untracked for the following reasons:
+
+
+If you'd like the repository to contain a helper example, we commit a safe sample file: `tools/upload_to_cloudflare.sample.py` (without secrets). Use it as a starting point and copy to `tools/upload_to_cloudflare.py` locally when you're ready.
+
+If you'd prefer automating these steps in CI/CD, we can add an action that runs the conversion (or uploads) using GitHub Actions with secrets stored in `Settings -> Secrets & variables` for the repository. This enables a secure automation route without exposing credentials in the codebase.
+
+
+### Manual Publish with Wrangler (Cloudflare Pages)
+
+If you have `wrangler` configured locally and want to deploy the landing `web/live` folder directly to Cloudflare Pages without waiting for GitHub or CI, do this from your development machine:
+
+```bash
+# Install wrangler (if not installed):
+npm install -g @cloudflare/wrangler
+
+# Export your Cloudflare credentials
+export CLOUDFLARE_ACCOUNT_ID=your_account_id
+export CLOUDFLARE_API_TOKEN=your_api_token
+
+# Publish folder to Cloudflare Pages (landing branch preview)
+wrangler pages publish web/live --project-name signkit-pages-landing --branch landing-page
+```
+
+Notes:
+- This publishes the contents of `web/live` to the Pages project (signkit-pages-landing) under the `landing-page` branch.
+- If the Pages project is set to build from `landing-page`, a new build should pick up these files automatically.
+- We included an optional workflow (`.github/workflows/manual_publish_landing.yml`) that can be triggered manually from the Actions tab to run the same command via GitHub Actions; you'll need to set `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` in repository secrets for it to succeed.
+
+### Auto Publish (Optional)
+
+We also provide an optional, guarded auto-publish workflow (`.github/workflows/auto_publish_landing.yml`) that automatically publishes `web/live` to Cloudflare Pages when commits are pushed to the `landing-page` branch. This workflow will only publish when the push contains changes restricted to `web/live` or the root landing pages (index/buy/purchase/gum/root) — any broader changes will abort the publish to prevent accidental site updates.
+
 
 ---
 
@@ -234,7 +305,7 @@ Cmd + Shift + 5    # Screenshot UI with options
 
 ### Option 1: Netlify (Recommended)
 
-1. Drag and drop the `web/live` folder
+1. Drag and drop the `claude_landing_page_v2` folder
 2. Done! You get a URL like `signkit-app.netlify.app`
 3. Add custom domain in settings
 
@@ -247,16 +318,16 @@ Cmd + Shift + 5    # Screenshot UI with options
 ### Option 3: Cloudflare Pages
 
 1. Connect GitHub repo
-2. Set build directory to `web/live`
+2. Set build directory to `web/claude_landing_page_v2`
 3. Deploy
 
 Note: We expect most production deploys to use Cloudflare Pages (fast global CDN).
 
 To avoid confusion and ensure assets are included in the Pages build, add your screenshots and images under this variant's assets folder prior to publishing:
 
-- `web/live/assets/screenshots/step1-upload.png`
-- `web/live/assets/screenshots/step2-select.png`
-- `web/live/assets/screenshots/step3-clean.png`
+- `web/claude_landing_page_v2/assets/screenshots/step1-upload.png`
+- `web/claude_landing_page_v2/assets/screenshots/step2-select.png`
+- `web/claude_landing_page_v2/assets/screenshots/step3-clean.png`
 
 Security note: The `uploads/` folder is a runtime-only folder and should never be committed. If uploads are tracked accidentally, remove them with:
 
@@ -282,7 +353,7 @@ brew install cloudflare/cloudflare/wrangler
 3. Run pages publish:
 
 ```bash
-cd web/live
+cd web/claude_landing_page_v2
 wrangler pages publish . --project-name signkit-pages-landing --branch landing-page
 ```
 
@@ -291,7 +362,7 @@ Note: `wrangler pages publish` can also accept a directory `dist` created by a b
 ### Option 4: GitHub Pages
 
 1. Create `docs` folder in repo root
-2. Copy all files from `web/live` to `docs`
+2. Copy all files from `claude_landing_page_v2` to `docs`
 3. Enable GitHub Pages in repo settings
 4. Set source to `docs` folder
 
