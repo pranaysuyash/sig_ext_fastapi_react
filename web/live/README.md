@@ -115,6 +115,54 @@ Open http://localhost:8000 in your browser
 
 ---
 
+## 🖼 Image Optimization & Cloudflare Upload (Local-only)
+
+We provide a small set of local helper scripts for generating responsive WebP screenshots and optionally uploading them to Cloudflare Images. These helper scripts are intentionally local-only (ignored by git) so you can use them to optimize and publish assets from your development machine.
+
+1. Convert PNG screenshots to WebP (lossy) variants using Pillow:
+
+```bash
+# create a local venv (recommended)
+python3 -m venv .venv
+source .venv/bin/activate
+pip install pillow
+python3 tools/convert_images.py
+```
+
+This script writes `-1200.webp`, `-768.webp`, and `-380.webp` variants next to your existing PNGs in `web/live/assets/screenshots/`.
+
+2. Optionally push the generated WebP images to Cloudflare Images from your local machine (requires a Cloudflare account, an API token scoped to `Images:Edit`, and your `ACCOUNT_ID`):
+
+```bash
+pip install requests
+
+# Set env vars (macOS / Linux)
+export CLOUDFLARE_ACCOUNT_ID=your_account_id
+export CLOUDFLARE_API_TOKEN=your_token
+
+# And run the local uploader (this file is ignored by git and kept locally)
+python3 tools/upload_to_cloudflare.py
+```
+
+3. After conversion, the `web/live/index.html` file is already set up to prefer WebP variants (via `<picture>` sources and responsive `srcset`), so the static assets will be automatically used when served. Cloudflare Pages (or Netlify/Vercel) will serve images from your repo; Cloudflare Images will serve directly from the CDN when uploaded via the script.
+
+Security note: Do not commit your Cloudflare API token and keep the `tools` helpers local and secure. If you need an automation step in CI/Conventional workflows, we can discuss secure variables and token management later.
+
+## Why are helper scripts kept local (not committed)?
+
+We keep local helper scripts such as `tools/convert_images.py` and `tools/upload_to_cloudflare.py` untracked for the following reasons:
+
+- They often require environment-specific settings and API credentials (e.g., Cloudflare API token). We avoid committing any script that could encourage secrets in source control.
+- These helpers are developer utilities not required for the production build (the generated images and the HTML should be enough for the static site to work).
+- Keeping them local reduces risk of unintentionally committing sensitive data or making private credentials public.
+
+If you'd like the repository to contain a helper example, we commit a safe sample file: `tools/upload_to_cloudflare.sample.py` (without secrets). Use it as a starting point and copy to `tools/upload_to_cloudflare.py` locally when you're ready.
+
+If you'd prefer automating these steps in CI/CD, we can add an action that runs the conversion (or uploads) using GitHub Actions with secrets stored in `Settings -> Secrets & variables` for the repository. This enables a secure automation route without exposing credentials in the codebase.
+
+
+---
+
 ## 🎨 Customization Guide
 
 ### Change Brand Name
