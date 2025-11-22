@@ -186,3 +186,4 @@ deploy_dist/
  
 # Ignore local-only helper script used to generate WebP screenshots
 tools/convert_images.py
+tools/upload_to_cloudflare.py
