@@ -1,0 +1,21 @@
+# robots.txt for signkit.work
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://signkit.work/sitemap.xml
+
+# Disallow admin/internal paths (if any)
+Disallow: /admin/
+Disallow: /.git/
+Disallow: /node_modules/
+
+# Allow all assets
+Allow: /assets/
+Allow: /css/
+Allow: /js/
+Allow: /images/
+
+# Crawl-delay (optional, helps with server load)
+Crawl-delay: 1
