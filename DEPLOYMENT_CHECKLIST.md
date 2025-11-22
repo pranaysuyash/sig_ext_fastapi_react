@@ -102,6 +102,7 @@ git push origin landing-page
 3. Note your deployment URL: `https://signkit-landing.pages.dev`
 
 Note: This repository includes these automation helpers:
+
 - `.github/workflows/manual_publish_landing.yml` — run manually from the Actions tab to publish `web/live` (requires secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`).
 - `.github/workflows/auto_publish_landing.yml` — auto-publishes `web/live` to Pages on pushes to `landing-page`, but only when the push contains changes restricted to `web/live` or the small set of root landing pages (index/buy/purchase/gum/root).
 - `.github/workflows/landing_sync.yml` — creates a PR to `main` with the updated `web/live` and root landing pages; this action now validates the changed list and aborts if non-landing files are changed.
@@ -335,11 +336,11 @@ Deployment is successful when:
 
 ---
 
-**Deployment Date:** ******\_******
+**Deployment Date:** **\*\***\_**\*\***
 
-**Deployed By:** ******\_******
+**Deployed By:** **\*\***\_**\*\***
 
-**Deployment URL:** ******\_******
+**Deployment URL:** **\*\***\_**\*\***
 
 **Custom Domain:** signkit.work
 

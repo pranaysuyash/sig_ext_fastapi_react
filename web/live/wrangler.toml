@@ -3,7 +3,7 @@
 
 name = "signkit-pages-landing"
 type = "javascript"
-account_id = "YOUR_ACCOUNT_ID"
+account_id = "9af41d56d8210eaef657aa2635ab5d73"
 compatibility_date = "2025-11-20"
 
 [build]
