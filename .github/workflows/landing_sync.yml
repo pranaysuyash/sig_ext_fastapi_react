@@ -54,6 +54,24 @@ jobs:
             fi
           done
 
+      - name: Run smoke checks on copied landing files
+        run: |
+          echo "Running smoke checks on web/live and root pages..."
+          # Check that the main landing folder and index.html exist
+          if [ ! -d web/live ]; then
+            echo "web/live folder missing"; exit 1;
+          fi
+          if [ ! -f web/live/index.html ]; then
+            echo "web/live/index.html missing"; exit 1;
+          fi
+          # Ensure index contains a title tag
+          if ! grep -q "<title" web/live/index.html; then
+            echo "index.html missing <title>", exit 1;
+          fi
+          # Ensure sitemap and robots exist (optional; not required if site is dynamic)
+          if [ -f web/live/sitemap.xml ]; then echo "sitemap.xml found"; fi
+          if [ -f web/live/robots.txt ]; then echo "robots.txt found"; fi
+
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
