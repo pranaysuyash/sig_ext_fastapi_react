@@ -99,6 +99,27 @@ class OnboardingDialog(QDialog):
         separator.setFrameShadow(QFrame.Shadow.Sunken)
         layout.addWidget(separator)
 
+        # Why SignKit section
+        why_label = QLabel("<b>Why SignKit?</b>")
+        why_label.setStyleSheet("font-size: 14px;")
+        layout.addWidget(why_label)
+
+        features = [
+            ("🔒", "Privacy First", "Your documents never leave your device. Works 100% offline."),
+            ("💰", "One-Time Purchase", "No monthly subscriptions. Pay once, own it forever."),
+            ("✨", "Smart Cleaning", "Auto-removes shadows and noise for perfect signatures."),
+        ]
+
+        for emoji, title, description in features:
+            feat_widget = self._create_step_widget(emoji, title, description)
+            layout.addWidget(feat_widget)
+
+        # Separator
+        separator_why = QFrame()
+        separator_why.setFrameShape(QFrame.Shape.HLine)
+        separator_why.setFrameShadow(QFrame.Shadow.Sunken)
+        layout.addWidget(separator_why)
+
         # Quick start guide
         guide_label = QLabel("<b>Quick Start Guide:</b>")
         guide_label.setStyleSheet("font-size: 14px;")

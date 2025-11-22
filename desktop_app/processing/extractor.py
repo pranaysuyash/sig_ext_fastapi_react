@@ -79,6 +79,7 @@ class ProcessingParams:
     """Parameters for signature processing."""
     threshold: int
     color: str
+    auto_clean: bool = False
     
     def __post_init__(self):
         """Validate parameters after initialization."""
@@ -405,7 +406,8 @@ class SignatureExtractor:
         session_id: str,
         x1: int, y1: int, x2: int, y2: int,
         threshold: int,
-        color: str
+        color: str,
+        auto_clean: bool = False
     ) -> bytes:
         """Process selected region with given parameters.
         
@@ -426,7 +428,7 @@ class SignatureExtractor:
             raise ValueError(f"Session not found: {session_id}")
         
         # Validate parameters
-        params = ProcessingParams(threshold=threshold, color=color)
+        params = ProcessingParams(threshold=threshold, color=color, auto_clean=auto_clean)
         self._validate_coordinates(x1, y1, x2, y2, session.width, session.height)
         
         try:
@@ -450,8 +452,19 @@ class SignatureExtractor:
             # Convert to grayscale for thresholding
             gray = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
             
-            # Apply threshold to create binary mask
-            _, mask = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY_INV)
+            if auto_clean:
+                # Auto-clean: Adaptive thresholding for shadow removal
+                # Block size 21, C=10 are optimized for document signatures
+                mask = cv2.adaptiveThreshold(
+                    gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+                    cv2.THRESH_BINARY_INV, 21, 10
+                )
+                # Morphological opening to remove small noise (salt noise)
+                kernel = np.ones((2,2), np.uint8)
+                mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+            else:
+                # Standard: Apply global threshold to create binary mask
+                _, mask = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY_INV)
             
             # Convert color hex string (#RRGGBB) to BGR tuple for OpenCV
             hex_color = color.lstrip("#")

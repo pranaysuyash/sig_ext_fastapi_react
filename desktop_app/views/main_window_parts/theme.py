@@ -499,6 +499,17 @@ class ThemeMixin:
                     }
                 """
                 )
+            # Append external QSS for component styling
+            try:
+                import os
+                qss_path = os.path.join(os.path.dirname(__file__), "..", "..", "resources", "styles.qss")
+                if os.path.exists(qss_path):
+                    with open(qss_path, "r") as f:
+                        stylesheet += "\n" + f.read()
+            except Exception as e:
+                print(f"Failed to load styles.qss: {e}")
+
+            self.setStyleSheet(stylesheet)
             self._setup_dark_mode_support()
             return
 

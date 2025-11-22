@@ -1,0 +1,115 @@
+/* SignKit Modern Components */
+
+/* Buttons */
+QPushButton {
+    background-color: #4F46E5; /* Indigo-600 */
+    color: white;
+    border: 1px solid #4338CA;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+QPushButton:hover {
+    background-color: #4338CA; /* Indigo-700 */
+}
+
+QPushButton:pressed {
+    background-color: #3730A3; /* Indigo-800 */
+}
+
+QPushButton:disabled {
+    background-color: rgba(128, 128, 128, 0.2);
+    color: rgba(128, 128, 128, 0.6);
+}
+
+/* Secondary Button (Outline) */
+QPushButton[class="secondary"] {
+    background-color: transparent;
+    border: 1px solid #4F46E5;
+    color: #4F46E5;
+}
+
+QPushButton[class="secondary"]:hover {
+    background-color: rgba(79, 70, 229, 0.1);
+}
+
+/* Inputs */
+QLineEdit, QTextEdit, QPlainTextEdit {
+    background-color: rgba(45, 45, 45, 0.5);
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 6px;
+    padding: 6px;
+}
+
+QLineEdit:focus, QTextEdit:focus {
+    border: 1px solid #4F46E5;
+    background-color: rgba(45, 45, 45, 0.7);
+}
+
+/* Lists & Tables */
+QListWidget, QTableWidget, QTreeWidget {
+    background-color: rgba(30, 30, 30, 0.4);
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    border-radius: 6px;
+    alternate-background-color: rgba(45, 45, 45, 0.4);
+}
+
+QHeaderView::section {
+    background-color: rgba(45, 45, 45, 0.8);
+    padding: 4px;
+    border: none;
+    border-right: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+/* Custom Classes for SignKit */
+QLabel[class="heading"] {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937; /* Gray-900 */
+    margin-bottom: 8px;
+    letter-spacing: -0.025em;
+}
+
+/* Dark mode adjustment for heading */
+QWidget[dark_mode="true"] QLabel[class="heading"] {
+    color: #f9fafb; /* Gray-50 */
+}
+
+QLabel[class="subheading"] {
+    font-size: 13px;
+    color: #6b7280; /* Gray-500 */
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+/* Dark mode adjustment for subheading */
+QWidget[dark_mode="true"] QLabel[class="subheading"] {
+    color: #9ca3af; /* Gray-400 */
+}
+
+QFrame[class="card"] {
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+}
+
+/* Dark mode adjustment for card */
+QWidget[dark_mode="true"] QFrame[class="card"] {
+    background-color: rgba(30, 30, 30, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Drag & Drop Zone */
+QLabel[class="drop-zone"] {
+    border: 2px dashed #4F46E5;
+    border-radius: 12px;
+    background-color: rgba(79, 70, 229, 0.05);
+    font-size: 14px;
+}
+
+QLabel[class="drop-zone"]:hover {
+    background-color: rgba(79, 70, 229, 0.1);
+    border-color: #6366F1; /* Indigo-500 */
+}

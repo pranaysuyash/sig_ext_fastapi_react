@@ -1595,7 +1595,8 @@ class ExtractionTabMixin:
                 session_id=self.session.session_id,
                 x1=x1, y1=y1, x2=x2, y2=y2,
                 color=self._color_hex,
-                threshold=int(self.threshold.value())
+                threshold=int(self.threshold.value()),
+                auto_clean=self.auto_threshold_cb.isChecked()
             )
             
             # Call the existing process finished handler
@@ -2564,6 +2565,7 @@ class ExtractionTabMixin:
 
     def _make_section_label(self, text: str, color_hex: Optional[str], *, top_margin: int = 12) -> QLabel:
         label = QLabel(text.upper())
+        label.setProperty("class", "heading")
         margin = max(top_margin, 0)
         if color_hex is None:
             # Use bright white for maximum contrast
@@ -2576,6 +2578,7 @@ class ExtractionTabMixin:
 
     def _make_secondary_label(self, text: str, color_hex: Optional[str]) -> QLabel:
         label = QLabel(text)
+        label.setProperty("class", "subheading")
         if color_hex is None:
             # Use bright white for readability instead of calculated dim color
             color_hex = "#FFFFFF"

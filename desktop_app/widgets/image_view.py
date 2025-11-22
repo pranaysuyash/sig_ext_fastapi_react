@@ -54,6 +54,12 @@ class ImageView(QGraphicsView):
         )
         self._hint_label.hide()
         self._hint_dismissed = False
+
+        # Drop zone overlay
+        self._drop_hint_label = QLabel("Drop Image Here", self)
+        self._drop_hint_label.setAlignment(Qt.AlignCenter)
+        self._drop_hint_label.setProperty("class", "drop-zone")
+        self._drop_hint_label.hide()
         # Ensure the view's background is transparent so container panels can show through
         try:
             from PySide6.QtGui import QColor
@@ -182,9 +188,16 @@ class ImageView(QGraphicsView):
         if event.mimeData().hasUrls():
             for url in event.mimeData().urls():
                 if url.isLocalFile():
+                    self._drop_hint_label.resize(self.size())
+                    self._drop_hint_label.show()
+                    self._drop_hint_label.raise_()
                     event.acceptProposedAction()
                     return
         event.ignore()
+
+    def dragLeaveEvent(self, event) -> None:
+        self._drop_hint_label.hide()
+        super().dragLeaveEvent(event)
 
     def dragMoveEvent(self, event: QDragMoveEvent) -> None:
         if event.mimeData().hasUrls():
@@ -195,6 +208,7 @@ class ImageView(QGraphicsView):
         event.ignore()
 
     def dropEvent(self, event: QDropEvent) -> None:
+        self._drop_hint_label.hide()
         if event.mimeData().hasUrls():
             for url in event.mimeData().urls():
                 if url.isLocalFile():
@@ -403,6 +417,11 @@ class ImageView(QGraphicsView):
         # Reposition hint overlay
         if not self._hint_dismissed and self._hint_label.isVisible():
             self._show_selection_hint()
+        
+        # Resize drop hint if visible
+        if self._drop_hint_label.isVisible():
+            self._drop_hint_label.resize(self.size())
+            
         self.viewChanged.emit()
 
     def get_zoom_percent(self) -> float:
