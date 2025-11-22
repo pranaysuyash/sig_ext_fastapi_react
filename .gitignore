@@ -58,12 +58,12 @@ build-artifacts-final/
 dist/
 *.spec.bak
 
-# Screenshots (generated)
+# Screenshots (generated) - only root-level screenshots folder is ignored
 # Root-level screenshots used on some landing pages; allow final screenshots folder to be tracked. Generated debug versions are still ignored.
-screenshots/
-screenshots_final/
-screenshots_debug/
-screenshots_*/
+/screenshots/
+/screenshots_final/
+/screenshots_debug/
+/screenshots_*/
 
 # Allow root screenshots used by some landing pages to be tracked
 !screenshots/**
