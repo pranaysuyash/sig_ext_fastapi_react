@@ -146,7 +146,10 @@ class PdfTabMixin:
                 layout.addWidget(error_label)
 
             # Help button
-            help_btn = _create_button("📖 Installation Help", self)
+            help_btn = _create_button("Installation Help", self)
+            help_icon = get_icon("help")
+            if not help_icon.isNull():
+                help_btn.setIcon(help_icon)
             help_btn.clicked.connect(lambda: self._open_document("docs/PDF_SETUP.md"))
             help_btn.setStyleSheet(
                 "QPushButton { padding: 8px 16px; font-size: 13px; margin-top: 16px; }"

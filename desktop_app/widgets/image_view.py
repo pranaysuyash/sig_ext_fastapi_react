@@ -253,7 +253,7 @@ class ImageView(QGraphicsView):
 
         coords = (x1, y1, x2, y2)
         if coords != self._last_reported_coords:
-            print(f"[ImageView] Selection -> ({x1},{y1})→({x2},{y2}) [{x2 - x1}×{y2 - y1}] (scene bounds: {bounds.left():.1f},{bounds.top():.1f}→{bounds.right():.1f},{bounds.bottom():.1f})")
+            print(f"[ImageView] Selection -> ({x1},{y1})->({x2},{y2}) [{x2 - x1}x{y2 - y1}] (scene bounds: {bounds.left():.1f},{bounds.top():.1f}->{bounds.right():.1f},{bounds.bottom():.1f})")
             self._last_reported_coords = coords
         return (x1, y1, x2, y2)
 
@@ -290,7 +290,7 @@ class ImageView(QGraphicsView):
             y2 = max(0, min(img_rect.height(), int(math.ceil(max(origin_scene.y(), scene_pt.y())))))
             w = max(0, x2 - x1)
             h = max(0, y2 - y1)
-            coords = f"{x}, {y}  •  Sel: ({x1}, {y1}) → ({x2}, {y2})  [{w}×{h}]"
+            coords = f"{x}, {y}  |  Sel: ({x1}, {y1}) -> ({x2}, {y2})  [{w}x{h}]"
 
         # Use HTML with explicit black text on yellow background
         text = f'<span style="background-color: #ffffcc; color: #000000; padding: 4px; border: 1px solid #888;">{coords}</span>'

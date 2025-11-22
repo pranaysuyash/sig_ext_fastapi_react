@@ -76,6 +76,7 @@ def main():
 
     # Set application/dock icon from assets if available
     icon_paths = [
+        "assets/files/signkit_icon_1024x1024.png",
         "assets/files/signkit_icon_512x512.png",
         "assets/files/signkit_icon_256x256.png",
         "assets/files/signkit_icon_128x128.png",

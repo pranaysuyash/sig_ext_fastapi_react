@@ -507,6 +507,274 @@ class SignatureExtractor:
             LOG.error(f"Failed to process selection for session {session_id}: {e}")
             raise
     
+    def process_selection_svg(
+        self,
+        session_id: str,
+        x1: int, y1: int, x2: int, y2: int,
+        threshold: int,
+        color: str,
+        auto_clean: bool = False
+    ) -> str:
+        """Process selected region and return SVG string.
+        
+        Args:
+            session_id: Session identifier
+            x1, y1, x2, y2: Selection coordinates
+            threshold: Threshold value
+            color: Target color in #RRGGBB format
+            
+        Returns:
+            SVG XML string
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            raise ValueError(f"Session not found: {session_id}")
+            
+        # Validate parameters
+        self._validate_coordinates(x1, y1, x2, y2, session.width, session.height)
+        
+        try:
+            # Crop the selected region
+            cropped_image = session.original_image[y1:y2, x1:x2]
+            
+            # Convert to grayscale
+            gray = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+            
+            if auto_clean:
+                # Auto-clean: Adaptive thresholding
+                mask = cv2.adaptiveThreshold(
+                    gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+                    cv2.THRESH_BINARY_INV, 21, 10
+                )
+                kernel = np.ones((2,2), np.uint8)
+                mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+            else:
+                # Standard threshold
+                _, mask = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY_INV)
+            
+            # Find contours
+            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            
+            # Generate SVG content
+            height, width = mask.shape
+            svg_parts = [
+                f'<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
+                f'<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}" xmlns="http://www.w3.org/2000/svg">',
+                f'<g fill="{color}">'
+            ]
+            
+            for contour in contours:
+                # Approximate contour to reduce points (smoother, smaller file)
+                epsilon = 1.0  # Precision factor
+                approx = cv2.approxPolyDP(contour, epsilon, True)
+                
+                if len(approx) < 3:
+                    continue
+                    
+                # Build path data
+                path_data = "M"
+                for point in approx:
+                    x, y = point[0]
+                    path_data += f" {x},{y}"
+                path_data += " Z"
+                
+                svg_parts.append(f'<path d="{path_data}" />')
+                
+            svg_parts.append('</g>')
+            svg_parts.append('</svg>')
+            
+            return "\n".join(svg_parts)
+            
+        except Exception as e:
+            LOG.error(f"Failed to generate SVG for session {session_id}: {e}")
+            raise
+
+    def process_selection_kmeans(
+        self,
+        session_id: str,
+        x1: int, y1: int, x2: int, y2: int,
+        k: int = 2
+    ) -> bytes:
+        """Process selected region using K-Means clustering (Forensic Mode).
+        
+        Args:
+            session_id: Session identifier
+            x1, y1, x2, y2: Selection coordinates
+            k: Number of clusters (default 2: Ink vs Background)
+            
+        Returns:
+            PNG bytes of the extracted signature
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            raise ValueError(f"Session not found: {session_id}")
+            
+        # Validate parameters
+        self._validate_coordinates(x1, y1, x2, y2, session.width, session.height)
+        
+        try:
+            # Crop the selected region
+            cropped_image = session.original_image[y1:y2, x1:x2]
+            
+            # Convert to LAB color space for better color separation
+            lab_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2LAB)
+            
+            # Reshape to 2D array of pixels
+            pixel_values = lab_image.reshape((-1, 3))
+            pixel_values = np.float32(pixel_values)
+            
+            # Define criteria = ( type, max_iter = 100, epsilon = 1.0 )
+            criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2)
+            
+            # Apply KMeans
+            _, labels, centers = cv2.kmeans(
+                pixel_values, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS
+            )
+            
+            # Convert back to 8 bit values
+            centers = np.uint8(centers)
+            
+            # Determine which cluster is the "ink"
+            # Usually ink is darker (lower L value in LAB)
+            # L channel is index 0 in LAB
+            l_values = centers[:, 0]
+            ink_cluster_idx = np.argmin(l_values)
+            
+            # Create mask: 255 where label == ink_cluster_idx, else 0
+            labels = labels.flatten()
+            mask = np.zeros(labels.shape, dtype=np.uint8)
+            mask[labels == ink_cluster_idx] = 255
+            
+            # Reshape mask back to image dimensions
+            mask = mask.reshape(cropped_image.shape[:2])
+            
+            # Morphological cleanup (remove small noise)
+            kernel = np.ones((2,2), np.uint8)
+            mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+            
+            # Apply mask to original image (or just return black ink on transparent)
+            # For signature extraction, we usually want the original ink color or black
+            # Let's keep original ink color but with alpha channel
+            
+            # Create RGBA image
+            b, g, r = cv2.split(cropped_image)
+            rgba = cv2.merge([b, g, r, mask])
+            
+            # Encode to PNG
+            success, encoded_img = cv2.imencode(".png", rgba)
+            if not success:
+                raise ValueError("Failed to encode image")
+                
+            return encoded_img.tobytes()
+            
+        except Exception as e:
+            LOG.error(f"Failed to process selection (K-Means) for session {session_id}: {e}")
+            raise
+
+    def analyze_quality(
+        self,
+        session_id: str,
+        x1: int, y1: int, x2: int, y2: int
+    ) -> dict:
+        """Analyze the quality of the selected region (Health Score).
+        
+        Args:
+            session_id: Session identifier
+            x1, y1, x2, y2: Selection coordinates
+            
+        Returns:
+            Dictionary containing quality metrics:
+            - score: Overall score (0-100)
+            - rating: "Excellent", "Good", "Poor"
+            - issues: List of specific issues (e.g., "Blurry", "Low Contrast")
+            - metrics: Raw metrics (blur_var, contrast, resolution)
+        """
+        session = self.sessions.get(session_id)
+        if not session:
+            raise ValueError(f"Session not found: {session_id}")
+            
+        # Validate parameters
+        self._validate_coordinates(x1, y1, x2, y2, session.width, session.height)
+        
+        try:
+            # Crop the selected region
+            cropped_image = session.original_image[y1:y2, x1:x2]
+            
+            # Convert to grayscale for analysis
+            gray = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+            
+            # 1. Blur Detection (Laplacian Variance)
+            # Higher variance = sharper image. < 100 is usually blurry.
+            blur_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+            
+            # 2. Contrast Detection (RMS Contrast)
+            # Standard deviation of pixel intensities
+            contrast = gray.std()
+            
+            # 3. Resolution Check
+            height, width = gray.shape
+            min_dim = min(height, width)
+            
+            # Scoring Logic
+            issues = []
+            score = 100
+            
+            # Blur Penalty
+            if blur_var < 50:
+                score -= 40
+                issues.append("Very Blurry")
+            elif blur_var < 100:
+                score -= 20
+                issues.append("Slightly Blurry")
+                
+            # Contrast Penalty
+            if contrast < 20:
+                score -= 30
+                issues.append("Low Contrast")
+            elif contrast < 40:
+                score -= 10
+                issues.append("Moderate Contrast")
+                
+            # Resolution Penalty
+            if min_dim < 100:
+                score -= 30
+                issues.append("Low Resolution")
+            elif min_dim < 200:
+                score -= 10
+                issues.append("Small Size")
+                
+            # Clamp score
+            score = max(0, min(100, score))
+            
+            # Determine Rating
+            if score >= 80:
+                rating = "Excellent"
+            elif score >= 50:
+                rating = "Good"
+            else:
+                rating = "Poor"
+                
+            return {
+                "score": score,
+                "rating": rating,
+                "issues": issues,
+                "metrics": {
+                    "blur_var": float(blur_var),
+                    "contrast": float(contrast),
+                    "min_dim": int(min_dim)
+                }
+            }
+            
+        except Exception as e:
+            LOG.error(f"Failed to analyze quality for session {session_id}: {e}")
+            # Return a safe default on error
+            return {
+                "score": 0,
+                "rating": "Unknown",
+                "issues": ["Analysis Failed"],
+                "metrics": {}
+            }
+    
     def rotate_image(self, session_id: str, angle: float) -> str:
         """Rotate image and create new session.
         
@@ -652,10 +920,10 @@ class SignatureExtractor:
             )
         
         # Check bounds after size validation
-        if x1 >= max_width or x2 >= max_width:
-            raise ValueError(f"X coordinates must be < {max_width}, got x1={x1}, x2={x2}")
-        if y1 >= max_height or y2 >= max_height:
-            raise ValueError(f"Y coordinates must be < {max_height}, got y1={y1}, y2={y2}")
+        if x1 >= max_width or x2 > max_width:
+            raise ValueError(f"X coordinates must be <= {max_width} (x1 < {max_width}), got x1={x1}, x2={x2}")
+        if y1 >= max_height or y2 > max_height:
+            raise ValueError(f"Y coordinates must be <= {max_height} (y1 < {max_height}), got y1={y1}, y2={y2}")
 
     def cleanup_all(self) -> None:
         """Clean up all sessions and temporary files securely."""

@@ -662,7 +662,16 @@ class ExtractionTabMixin:
         controls.addWidget(self._make_section_label("Upload", section_color_hex, top_margin=0))
         controls.addWidget(self.open_btn)
 
-        controls.addWidget(self._make_section_label("Threshold", section_color_hex))
+        controls.addWidget(self._make_section_label("Extraction Mode", section_color_hex))
+        self.mode_combo = QComboBox()
+        self.mode_combo.setObjectName("modeCombo")
+        self.mode_combo.addItems(["Standard (Threshold)", "Forensic (Ink Separation)"])
+        self.mode_combo.setToolTip("Choose between fast thresholding or advanced AI clustering")
+        self.mode_combo.currentIndexChanged.connect(self._on_mode_changed)
+        controls.addWidget(self.mode_combo)
+
+        self.threshold_label = self._make_section_label("Threshold", section_color_hex)
+        controls.addWidget(self.threshold_label)
         threshold_row = QHBoxLayout()
         self.threshold = QSlider(Qt.Orientation.Horizontal)
         self.threshold.setObjectName("thresholdSlider")
@@ -804,6 +813,21 @@ class ExtractionTabMixin:
         controls.addWidget(self.clear_sel_btn)
         controls.addWidget(self.clean_session_btn)
 
+        # Health Score Badge
+        self.health_badge = QLabel("Quality: Unknown")
+        self.health_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.health_badge.setStyleSheet(
+            "background-color: rgba(128, 128, 128, 0.2);"
+            "color: #888;"
+            "border-radius: 6px;"
+            "padding: 4px;"
+            "font-weight: bold;"
+            "font-size: 11px;"
+        )
+        self.health_badge.setToolTip("Signature Quality Analysis (DPI, Blur, Contrast)")
+        self.health_badge.setVisible(False)
+        controls.addWidget(self.health_badge)
+
         controls.addWidget(self._make_section_label("Export & Save", section_color_hex))
         export_row_1 = QHBoxLayout()
         self.export_btn = _create_button("Export Signature", parent_widget, primary=True)
@@ -838,6 +862,16 @@ class ExtractionTabMixin:
         self.save_to_library_btn.setToolTip("Quick save as PNG to local library")
         self.save_to_library_btn.clicked.connect(self.on_save_to_library)
         self.save_to_library_btn.setEnabled(False)
+        
+        self.save_to_vault_btn = _create_button("Save to Vault", parent_widget, primary=True)
+        self.save_to_vault_btn.setObjectName("saveToVaultButton")
+        self.save_to_vault_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        vault_icon = get_icon("lock")
+        if not vault_icon.isNull():
+            self.save_to_vault_btn.setIcon(vault_icon)
+        self.save_to_vault_btn.setToolTip("Encrypt and store in secure local vault")
+        self.save_to_vault_btn.clicked.connect(self.on_save_to_vault)
+        self.save_to_vault_btn.setEnabled(False)
 
         self.export_json_btn = _create_button("Export JSON", parent_widget)
         self.export_json_btn.setObjectName("exportJsonButton")
@@ -1556,6 +1590,18 @@ class ExtractionTabMixin:
             self.schedule_preview()
             self._remember_color(self._color_hex)
 
+    def _on_mode_changed(self, index: int):
+        """Handle extraction mode change."""
+        is_forensic = index == 1
+        # Disable threshold controls in forensic mode as it uses clustering
+        self.threshold.setEnabled(not is_forensic)
+        self.threshold_label.setEnabled(not is_forensic)
+        self.threshold_value_label.setEnabled(not is_forensic)
+        self.auto_threshold_cb.setEnabled(not is_forensic)
+        
+        # Trigger preview update
+        self.schedule_preview()
+
     def on_preview(self):
         """Process the selected region and show the result."""
         self.status_bar.showMessage("Processing selection...", 0)
@@ -1590,24 +1636,87 @@ class ExtractionTabMixin:
         start_time = time.time()
 
         try:
-            # Use local extractor instead of backend API
-            png_bytes = self.local_extractor.process_selection(
-                session_id=self.session.session_id,
-                x1=x1, y1=y1, x2=x2, y2=y2,
-                color=self._color_hex,
-                threshold=int(self.threshold.value()),
-                auto_clean=self.auto_threshold_cb.isChecked()
-            )
+            # Check extraction mode
+            is_forensic = self.mode_combo.currentIndex() == 1
+            
+            if is_forensic:
+                # Use K-Means clustering
+                png_bytes = self.local_extractor.process_selection_kmeans(
+                    session_id=self.session.session_id,
+                    x1=x1, y1=y1, x2=x2, y2=y2,
+                    k=2  # Default to 2 clusters (Ink vs Background)
+                )
+            else:
+                # Use standard thresholding
+                png_bytes = self.local_extractor.process_selection(
+                    session_id=self.session.session_id,
+                    x1=x1, y1=y1, x2=x2, y2=y2,
+                    color=self._color_hex,
+                    threshold=int(self.threshold.value()),
+                    auto_clean=self.auto_threshold_cb.isChecked()
+                )
+            
             
             # Call the existing process finished handler
             self._on_process_finished(png_bytes, start_time)
             
+            # Analyze Quality (Health Score)
+            try:
+                quality = self.local_extractor.analyze_quality(
+                    session_id=self.session.session_id,
+                    x1=x1, y1=y1, x2=x2, y2=y2
+                )
+                self._update_health_badge(quality)
+            except Exception as e:
+                LOG.error(f"Quality analysis failed: {e}")
+                self.health_badge.setVisible(False)
+
         except Exception as e:
             LOG.error(f"Local processing failed: {e}")
             self.export_btn.setEnabled(True)
             self.status_bar.showMessage("Processing failed", 3000)
             # Call the existing error handler
             self._on_process_error(e, start_time)
+
+    def _update_health_badge(self, quality: dict):
+        """Update the health badge based on quality metrics."""
+        rating = quality.get("rating", "Unknown")
+        issues = quality.get("issues", [])
+        score = quality.get("score", 0)
+        
+        self.health_badge.setVisible(True)
+        
+        if rating == "Excellent":
+            color = "#2e7d32" # Green
+            bg = "rgba(46, 125, 50, 0.15)"
+            text = "✓ Excellent Quality"
+        elif rating == "Good":
+            color = "#f57f17" # Orange
+            bg = "rgba(245, 127, 23, 0.15)"
+            text = "⚠ Good Quality"
+        else:
+            color = "#c62828" # Red
+            bg = "rgba(198, 40, 40, 0.15)"
+            text = "✕ Poor Quality"
+            
+        self.health_badge.setText(text)
+        self.health_badge.setStyleSheet(
+            f"background-color: {bg};"
+            f"color: {color};"
+            "border-radius: 6px;"
+            "padding: 4px;"
+            "font-weight: bold;"
+            "font-size: 11px;"
+            f"border: 1px solid {color};"
+        )
+        
+        tooltip = f"Score: {score}/100\n"
+        if issues:
+            tooltip += "\nIssues:\n" + "\n".join([f"- {i}" for i in issues])
+        else:
+            tooltip += "\nNo issues detected."
+            
+        self.health_badge.setToolTip(tooltip)
 
     def _on_process_finished(self, png_bytes, start_time: float) -> None:
         """Handle completion of async processing."""
@@ -2067,13 +2176,78 @@ class ExtractionTabMixin:
             self.status_bar.showMessage("Export requires a license", 2000)
             return
         
+        # Define SVG generator callback
+        def svg_generator() -> str:
+            x1, y1, x2, y2 = self.src_view.selected_rect_image_coords()
+            return self.local_extractor.process_selection_svg(
+                session_id=self.session.session_id,
+                x1=x1, y1=y1, x2=x2, y2=y2,
+                threshold=int(self.threshold.value()),
+                color=self._color_hex,
+                auto_clean=self.auto_threshold_cb.isChecked()
+            )
+        
         self.status_bar.showMessage("Opening export dialog...", 1000)
-        dialog = ExportDialog(self._last_result_png, self)
+        dialog = ExportDialog(self._last_result_png, self, svg_generator=svg_generator)
         if dialog.exec():
             self.status_bar.showMessage(f"Exported successfully", 3000)
         else:
             self.status_bar.showMessage("Export cancelled", 2000)
     
+    def on_save_to_vault(self):
+        """Encrypt and save the current signature to the local vault."""
+        if not self._last_result_png:
+            return
+            
+        try:
+            # Get metadata
+            source_name = os.path.basename(self.session.file_path) if self.session.file_path else "Unknown"
+            
+            # Get health score if available
+            health_score = 0
+            health_rating = "Unknown"
+            if hasattr(self, 'health_badge') and self.health_badge.isVisible():
+                tooltip = self.health_badge.toolTip()
+                # Parse score from tooltip "Score: 80/100"
+                import re
+                match = re.search(r"Score: (\d+)/100", tooltip)
+                if match:
+                    health_score = int(match.group(1))
+                    
+                text = self.health_badge.text()
+                if "Excellent" in text: health_rating = "Excellent"
+                elif "Good" in text: health_rating = "Good"
+                elif "Poor" in text: health_rating = "Poor"
+            
+            meta = {
+                "source_name": source_name,
+                "health_score": health_score,
+                "health_rating": health_rating,
+                "extraction_mode": self.mode_combo.currentText() if hasattr(self, 'mode_combo') else "Standard"
+            }
+            
+            # Access vault from main window (self is mixed into MainWindow)
+            if hasattr(self, 'vault'):
+                self.vault.store_signature(self._last_result_png, meta)
+                
+                # Refresh vault tab
+                if hasattr(self, 'vault_tab'):
+                    self.vault_tab.refresh_list()
+                    
+                self.status_bar.showMessage("Signature encrypted and saved to Vault", 3000)
+                
+                # Visual feedback
+                orig_text = self.save_to_vault_btn.text()
+                self.save_to_vault_btn.setText("Saved!")
+                QTimer.singleShot(1500, lambda: self.save_to_vault_btn.setText(orig_text))
+            else:
+                LOG.error("Vault not initialized")
+                QMessageBox.critical(cast(QWidget, self), "Error", "Vault not initialized")
+                
+        except Exception as e:
+            LOG.error(f"Failed to save to vault: {e}")
+            QMessageBox.critical(cast(QWidget, self), "Vault Error", f"Failed to save signature: {e}")
+
     def on_export_json(self):
         """Export basic metadata as JSON (selection, color, threshold, session, image size)."""
         try:
@@ -2620,7 +2794,11 @@ class ExtractionTabMixin:
         has_preview = bool(preview_ready or self._last_result_png)
         self.export_btn.setEnabled(has_preview)
         self.export_json_btn.setEnabled(True)  # Allow exporting metadata even without preview
+        self.export_btn.setEnabled(has_preview)
+        self.export_json_btn.setEnabled(True)  # Allow exporting metadata even without preview
         self.save_to_library_btn.setEnabled(has_preview)
+        if hasattr(self, 'save_to_vault_btn'):
+            self.save_to_vault_btn.setEnabled(has_preview)
         self.copy_btn.setEnabled(has_preview)
         self._update_export_tooltips()  # Update tooltips based on license status
         self._update_view_actions_enabled()

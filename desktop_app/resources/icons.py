@@ -40,8 +40,11 @@ class IconManager:
             'folder': QStyle.StandardPixmap.SP_DirIcon,
             'file': QStyle.StandardPixmap.SP_FileIcon,
             'copy': QStyle.StandardPixmap.SP_DialogApplyButton,
+            'paste': QStyle.StandardPixmap.SP_DialogApplyButton,
             'mode_select': QStyle.StandardPixmap.SP_ArrowRight,
             'mode_pan': QStyle.StandardPixmap.SP_ArrowForward,
+            'color': QStyle.StandardPixmap.SP_DialogApplyButton,
+            'bulk': QStyle.StandardPixmap.SP_FileDialogDetailedView,
 
             # Navigation
             'refresh': QStyle.StandardPixmap.SP_BrowserReload,

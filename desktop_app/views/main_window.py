@@ -31,6 +31,9 @@ if TYPE_CHECKING:
     from desktop_app.backend_manager import BackendManager
 
 
+from desktop_app.processing.vault import NotaryVault
+from desktop_app.views.vault_tab import VaultTab
+
 class MainWindow(
     QMainWindow,
     ThemeMixin,
@@ -50,6 +53,7 @@ class MainWindow(
         
         # Initialize local processing engine
         self.local_extractor = SignatureExtractor()
+        self.vault = NotaryVault()
 
         self.setWindowTitle("SignKit")
         app_icon = get_icon("file")
@@ -76,6 +80,11 @@ class MainWindow(
         
         self._setup_extraction_ui()
         self._setup_pdf_ui()
+        
+        # Setup Vault Tab
+        self.vault_tab = VaultTab(self.vault)
+        self.tab_widget.addTab(self.vault_tab, "Vault")
+        
         root.addWidget(self.tab_widget)
         
         # Force session_id_label to be initialized before any upload

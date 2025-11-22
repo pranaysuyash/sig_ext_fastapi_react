@@ -80,7 +80,7 @@ class OnboardingDialog(QDialog):
         layout.setSpacing(24)
 
         # Header
-        header = QLabel("👋 Welcome to Signature Extractor")
+        header = QLabel("Welcome to Signature Extractor")
         header.setStyleSheet("font-size: 24px; font-weight: 600;")
         header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(header)
@@ -105,9 +105,9 @@ class OnboardingDialog(QDialog):
         layout.addWidget(why_label)
 
         features = [
-            ("🔒", "Privacy First", "Your documents never leave your device. Works 100% offline."),
-            ("💰", "One-Time Purchase", "No monthly subscriptions. Pay once, own it forever."),
-            ("✨", "Smart Cleaning", "Auto-removes shadows and noise for perfect signatures."),
+            ("info", "Privacy First", "Your documents never leave your device. Works 100% offline."),
+            ("ok", "One-Time Purchase", "No monthly subscriptions. Pay once, own it forever."),
+            ("apply", "Smart Cleaning", "Auto-removes shadows and noise for perfect signatures."),
         ]
 
         for emoji, title, description in features:
@@ -126,10 +126,10 @@ class OnboardingDialog(QDialog):
         layout.addWidget(guide_label)
 
         steps = [
-            ("1️⃣", "Open an image", "Click 'Open & Upload Image' to load a document containing your signature"),
-            ("2️⃣", "Select signature", "Draw a rectangle around your signature in the source view"),
-            ("3️⃣", "Adjust settings", "Fine-tune the threshold and color removal to isolate your signature"),
-            ("4️⃣", "Export or sign", "Export the cleaned signature or use it to sign PDF documents"),
+            ("1.", "Open an image", "Click 'Open & Upload Image' to load a document containing your signature"),
+            ("2.", "Select signature", "Draw a rectangle around your signature in the source view"),
+            ("3.", "Adjust settings", "Fine-tune the threshold and color removal to isolate your signature"),
+            ("4.", "Export or sign", "Export the cleaned signature or use it to sign PDF documents"),
         ]
 
         for emoji, title, description in steps:
@@ -140,7 +140,7 @@ class OnboardingDialog(QDialog):
         health_section = QHBoxLayout()
         health_section.setSpacing(12)
 
-        self.health_status_label = QLabel("⏳ Checking backend...")
+        self.health_status_label = QLabel("Checking backend...")
         self.health_status_label.setStyleSheet("font-size: 13px; color: gray;")
         health_section.addWidget(self.health_status_label)
 
@@ -156,7 +156,7 @@ class OnboardingDialog(QDialog):
         license_section = QVBoxLayout()
         license_section.setSpacing(8)
         
-        license_label = QLabel("<b>🔑 License & Activation:</b>")
+        license_label = QLabel("<b>License & Activation:</b>")
         license_label.setStyleSheet("font-size: 14px;")
         license_section.addWidget(license_label)
         
@@ -195,11 +195,11 @@ class OnboardingDialog(QDialog):
         links_section = QHBoxLayout()
         links_section.setSpacing(16)
 
-        help_btn = _create_button("📖 Help & Troubleshooting", self)
+        help_btn = _create_button("Help & Troubleshooting", self)
         help_btn.clicked.connect(lambda: self._open_document("docs/HELP.md"))
         links_section.addWidget(help_btn)
 
-        shortcuts_btn = _create_button("⌨️ Keyboard Shortcuts", self)
+        shortcuts_btn = _create_button("Keyboard Shortcuts", self)
         shortcuts_btn.clicked.connect(lambda: self._open_document("docs/SHORTCUTS.md"))
         links_section.addWidget(shortcuts_btn)
 
@@ -224,18 +224,41 @@ class OnboardingDialog(QDialog):
         # Store backend check function reference
         self._backend_check_fn = None
 
-    def _create_step_widget(self, emoji: str, title: str, description: str) -> QWidget:
-        """Create a styled step widget for the quick start guide."""
+    def _create_step_widget(self, icon_type: str, title: str, description: str) -> QWidget:
+        """Create a styled step widget for the quick start guide.
+        
+        Args:
+            icon_type: Icon identifier (e.g., 'info', 'ok', 'apply') or step number (e.g., '1.')
+            title: Step title
+            description: Step description
+        """
         container = QWidget()
         container_layout = QHBoxLayout(container)
         container_layout.setContentsMargins(0, 0, 0, 0)
         container_layout.setSpacing(12)
 
-        # Emoji icon
-        emoji_label = QLabel(emoji)
-        emoji_label.setStyleSheet("font-size: 24px;")
-        emoji_label.setFixedWidth(40)
-        container_layout.addWidget(emoji_label)
+        # Icon or step number
+        icon_label = QLabel()
+        icon_label.setFixedWidth(40)
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        # Check if it's a step number (contains a digit) or an icon type
+        if any(char.isdigit() for char in icon_type):
+            # It's a step number - display as text
+            icon_label.setText(icon_type)
+            icon_label.setStyleSheet("font-size: 20px; font-weight: 600;")
+        else:
+            # It's an icon type - use QIcon
+            icon = get_icon(icon_type)
+            if not icon.isNull():
+                pixmap = icon.pixmap(24, 24)
+                icon_label.setPixmap(pixmap)
+            else:
+                # Fallback to text if icon not available
+                icon_label.setText(icon_type)
+                icon_label.setStyleSheet("font-size: 20px;")
+        
+        container_layout.addWidget(icon_label)
 
         # Text content
         text_layout = QVBoxLayout()
@@ -297,16 +320,16 @@ class OnboardingDialog(QDialog):
     def _check_backend_health(self) -> None:
         """Trigger backend health check if function is set."""
         if self._backend_check_fn:
-            self.health_status_label.setText("⏳ Checking...")
+            self.health_status_label.setText("Checking...")
             self._backend_check_fn(self._on_health_check_result)
 
     def _on_health_check_result(self, online: bool, message: str) -> None:
         """Handle backend health check result."""
         if online:
-            self.health_status_label.setText("✅ Backend is online and ready")
+            self.health_status_label.setText("Backend is online and ready")
             self.health_status_label.setStyleSheet("font-size: 13px; color: #2e7d32;")
         else:
-            self.health_status_label.setText(f"❌ Backend offline: {message}")
+            self.health_status_label.setText(f"Backend offline: {message}")
             self.health_status_label.setStyleSheet("font-size: 13px; color: #c62828;")
 
     def _open_license_dialog(self) -> None:
@@ -318,7 +341,7 @@ class OnboardingDialog(QDialog):
             from desktop_app.views.license_dialog import LicenseDialog
             dialog = LicenseDialog(self)
             if dialog.exec():
-                self.health_status_label.setText("✅ License activated successfully")
+                self.health_status_label.setText("License activated successfully")
                 self.health_status_label.setStyleSheet("font-size: 13px; color: #2e7d32;")
 
     def _open_purchase_page(self) -> None:

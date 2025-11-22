@@ -9,9 +9,10 @@ from PySide6.QtGui import QImage, QColor
 from PIL import Image
 import io
 import sys
-from typing import Optional
+from typing import Optional, Callable
 
 from desktop_app.widgets.modern_mac_button import ModernMacButton
+from desktop_app.resources.icons import get_icon
 
 
 def _create_button(
@@ -57,9 +58,10 @@ def _create_button(
 class ExportDialog(QDialog):
     """Dialog for exporting processed signatures with professional options."""
     
-    def __init__(self, png_bytes: bytes, parent=None):
+    def __init__(self, png_bytes: bytes, parent=None, svg_generator: Optional[Callable[[], str]] = None):
         super().__init__(parent)
         self.png_bytes = png_bytes
+        self.svg_generator = svg_generator
         self.result_path = None
         
         self.setWindowTitle("Export Options")
@@ -73,7 +75,10 @@ class ExportDialog(QDialog):
         format_layout = QVBoxLayout()
         
         self.format_combo = QComboBox()
-        self.format_combo.addItems(["PNG (Recommended)", "JPEG (No Transparency)", "PNG-8 (Smaller)"])
+        formats = ["PNG (Recommended)", "JPEG (No Transparency)", "PNG-8 (Smaller)"]
+        if self.svg_generator:
+            formats.append("SVG (Vector)")
+        self.format_combo.addItems(formats)
         self.format_combo.currentIndexChanged.connect(self._on_format_changed)
         format_layout.addWidget(self.format_combo)
         
@@ -149,8 +154,11 @@ class ExportDialog(QDialog):
         btn_layout = QHBoxLayout()
         btn_layout.addStretch(1)
         
-        export_btn = _create_button("💾 Export...", self, primary=True)
+        export_btn = _create_button("Export...", self, primary=True)
         export_btn.setDefault(True)
+        export_icon = get_icon("export")
+        if not export_icon.isNull():
+            export_btn.setIcon(export_icon)
         export_btn.clicked.connect(self._export)
         
         cancel_btn = _create_button("Cancel", self)
@@ -161,7 +169,7 @@ class ExportDialog(QDialog):
         layout.addLayout(btn_layout)
         
         # Preview info
-        info_label = QLabel("💡 Tip: Use transparent PNG for signatures, white/black backgrounds for document embedding.")
+        info_label = QLabel("Tip: Use transparent PNG for signatures, white/black backgrounds for document embedding.")
         info_label.setWordWrap(True)
         info_label.setStyleSheet("color: #666; font-size: 11px; padding: 8px;")
         layout.addWidget(info_label)
@@ -169,6 +177,7 @@ class ExportDialog(QDialog):
     def _on_format_changed(self, index):
         """Enable/disable options based on format."""
         is_jpeg = "JPEG" in self.format_combo.currentText()
+        is_svg = "SVG" in self.format_combo.currentText()
         
         # JPEG doesn't support transparency
         if is_jpeg:
@@ -176,9 +185,23 @@ class ExportDialog(QDialog):
             if self.bg_transparent.isChecked():
                 self.bg_white.setChecked(True)
             self.quality_spin.setEnabled(True)
+            self.trim_checkbox.setEnabled(True)
+        elif is_svg:
+            # SVG is always transparent and vector-based
+            self.bg_transparent.setEnabled(False)
+            self.bg_white.setEnabled(False)
+            self.bg_black.setEnabled(False)
+            self.bg_custom.setEnabled(False)
+            self.quality_spin.setEnabled(False)
+            self.trim_checkbox.setEnabled(False)
+            self.padding_spin.setEnabled(False)
         else:
             self.bg_transparent.setEnabled(True)
+            self.bg_white.setEnabled(True)
+            self.bg_black.setEnabled(True)
+            self.bg_custom.setEnabled(True)
             self.quality_spin.setEnabled(False)
+            self.trim_checkbox.setEnabled(True)
     
     def _pick_custom_bg(self):
         from PySide6.QtWidgets import QColorDialog
@@ -189,6 +212,31 @@ class ExportDialog(QDialog):
     def _export(self):
         """Perform the export with selected options."""
         try:
+            format_text = self.format_combo.currentText()
+            
+            # Handle SVG Export
+            if "SVG" in format_text and self.svg_generator:
+                file_path, _ = QFileDialog.getSaveFileName(
+                    self,
+                    "Export As",
+                    "signature.svg",
+                    "SVG Image (*.svg)"
+                )
+                
+                if not file_path:
+                    return
+                    
+                # Generate SVG content
+                svg_content = self.svg_generator()
+                
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(svg_content)
+                    
+                self.result_path = file_path
+                self.accept()
+                QMessageBox.information(self, "Export Successful", f"Saved to:\n{file_path}")
+                return
+
             # Load the PNG bytes
             pil_image = Image.open(io.BytesIO(self.png_bytes))
             
@@ -220,7 +268,6 @@ class ExportDialog(QDialog):
                 pil_image = self._trim_to_content(pil_image, self.padding_spin.value())
             
             # Determine format and extension
-            format_text = self.format_combo.currentText()
             if "JPEG" in format_text:
                 ext = "*.jpg *.jpeg"
                 save_format = "JPEG"

@@ -8,7 +8,7 @@ from typing import Optional
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame
+    QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QStyle
 )
 
 from desktop_app.license.storage import OperationType
@@ -101,9 +101,11 @@ class LicenseRestrictionDialog(QDialog):
         title_layout.setSpacing(12)
         
         # Use a warning icon (you could add an actual icon here)
-        icon_label = QLabel("⚠️")
-        icon_label.setStyleSheet("font-size: 24px;")
-        icon_label.setAlignment(Qt.AlignmentFlag.AlignTop)
+        # Use standard warning icon
+        icon_label = QLabel()
+        icon = self.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxWarning)
+        icon_label.setPixmap(icon.pixmap(48, 48))
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_layout.addWidget(icon_label)
         
         title_text = QVBoxLayout()
