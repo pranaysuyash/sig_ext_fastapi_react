@@ -70,6 +70,7 @@ screenshots_*/
 
 # Allow per-variant screenshots (used by web landing pages)
 !web/**/assets/screenshots/**
+!web/live/assets/screenshots/**
 !web/**/assets/images/**
 
 # Test images (keep sample assets)
