@@ -22,7 +22,7 @@ if [[ -z "${CLOUDFLARE_ACCOUNT_ID:-}" || -z "${CLOUDFLARE_API_TOKEN:-}" ]]; then
   exit 1
 fi
 
-echo "Publishing $PUBLISH_DIR to Cloudflare Pages (project: signkit-pages-landing, branch: $BRANCH)"
-wrangler pages publish "$PUBLISH_DIR" --project-name signkit-pages-landing --branch "$BRANCH"
+echo "Publishing $PUBLISH_DIR to Cloudflare Pages (project: signkit-landing, branch: $BRANCH)"
+wrangler pages deploy "$PUBLISH_DIR" --project-name signkit-landing --branch "$BRANCH"
 
 echo "Publish finished. Check Cloudflare Pages dashboard for status or visit the site (https://signkit-landing.pages.dev)."

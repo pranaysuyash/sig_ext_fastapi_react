@@ -95,7 +95,7 @@ Manual verification checklist (what you can manually verify quickly)
 
 - Roll-back & emergency restore
 
-- If you find errors, copy the corresponding backup file from `web/backups/landing-page-sync-YYYYMMDD/` into `web/live/` and run the `wrangler pages publish web/live --project-name signkit-pages-landing --branch landing-page` command (or equivalent `wrangler pages deploy web/live --project-name signkit-pages-landing --branch landing-page` depending on your workflow).
+- If you find errors, copy the corresponding backup file from `web/backups/landing-page-sync-YYYYMMDD/` into `web/live/` and run `wrangler pages deploy web/live --project-name signkit-landing --branch landing-page` (or equivalent) to republish.
 - Alternatively, revert via git by checking out the previous commit and redeploying.
 
 Follow-up recommendations

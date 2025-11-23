@@ -1,7 +1,7 @@
 # Wrangler config template for Cloudflare Pages / Workers
 # Replace the placeholders before running `wrangler` commands or CI deploys.
 
-name = "signkit-pages-landing"
+name = "signkit-landing"
 type = "javascript"
 account_id = "9af41d56d8210eaef657aa2635ab5d73"
 compatibility_date = "2025-11-20"
@@ -15,4 +15,4 @@ bucket = "./"
 entry-point = "."
 
 # Example deployment command (local):
-# wrangler pages publish . --branch landing-page --project-name signkit-pages-landing
+# wrangler pages deploy . --branch landing-page --project-name signkit-landing

@@ -58,19 +58,34 @@ jobs:
             rsync -a --delete web/claude_landing_page_v2/ web/live/web/claude_landing_page_v2/
           fi
 
-      - name: Install Node & Wrangler
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install Wrangler
         run: |
-          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt-get install -y nodejs
           npm install -g @cloudflare/wrangler
+
+      - name: Run pre-publish checks (smoke tests + e2e)
+        run: |
+          nohup python3 serve.py &
+          sleep 2
+          ./test-pages.sh
+          cd web/e2e && npm install --no-audit --no-fund
+          npx playwright install --with-deps
+          npm test
 
       - name: Publish web/live to Cloudflare Pages
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          echo "Publishing web/live to Cloudflare Pages (project: signkit-pages-landing)"
-          wrangler pages publish web/live --project-name signkit-pages-landing --branch landing-page
+          echo "Publishing web/live to Cloudflare Pages (project: signkit-landing)"
+          wrangler pages deploy web/live --project-name signkit-landing --branch landing-page
 
       - name: Done
         run: echo "Auto publish to Cloudflare Pages finished."

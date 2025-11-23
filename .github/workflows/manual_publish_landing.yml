@@ -88,8 +88,8 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          # Publish the web/live folder to the signkit-pages-landing project
-          wrangler pages publish "${{ github.event.inputs.publish_dir }}" --project-name signkit-pages-landing --branch "${{ github.event.inputs.branch }}"
+          # Publish the web/live folder to the signkit-landing project
+          wrangler pages deploy "${{ github.event.inputs.publish_dir }}" --project-name signkit-landing --branch "${{ github.event.inputs.branch }}"
 
       - name: Done
         run: echo "Cloudflare Pages publish finished."

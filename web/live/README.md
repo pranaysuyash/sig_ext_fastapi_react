@@ -169,12 +169,12 @@ export CLOUDFLARE_ACCOUNT_ID=your_account_id
 export CLOUDFLARE_API_TOKEN=your_api_token
 
 # Publish folder to Cloudflare Pages (landing branch preview)
-wrangler pages publish web/live --project-name signkit-pages-landing --branch landing-page
+wrangler pages deploy web/live --project-name signkit-landing --branch landing-page
 ```
 
 Notes:
 
-- This publishes the contents of `web/live` to the Pages project (signkit-pages-landing) under the `landing-page` branch.
+- This publishes the contents of `web/live` to the Pages project (signkit-landing) under the `landing-page` branch.
 - If the Pages project is set to build from `landing-page`, a new build should pick up these files automatically.
 - We included an optional workflow (`.github/workflows/manual_publish_landing.yml`) that can be triggered manually from the Actions tab to run the same command via GitHub Actions; you'll need to set `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` in repository secrets for it to succeed.
 
@@ -352,7 +352,7 @@ brew install cloudflare/cloudflare/wrangler
 
 ```bash
 cd web/claude_landing_page_v2
-wrangler pages publish . --project-name signkit-pages-landing --branch landing-page
+wrangler pages deploy . --project-name signkit-landing --branch landing-page
 ```
 
 Note: `wrangler pages publish` can also accept a directory `dist` created by a build step. For simple static pages the site root `.` works fine.
