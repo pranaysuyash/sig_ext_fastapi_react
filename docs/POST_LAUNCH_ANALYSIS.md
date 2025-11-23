@@ -316,5 +316,48 @@ Focus 100% on:
 
 ---
 
+## 🔮 Future Opportunity: Agentic Workflows (Phase 4)
+
+### The Vision
+**Problem:** Users manually manage document workflows - sending PDFs back and forth, collating notes, creating emails
+
+**Solution:** AI agents that understand document intent and execute complete workflows automatically
+
+### Key Capabilities (Months 10-15)
+1. **External Notes Collation & Email Automation**
+   - Auto-collect all external annotations
+   - Generate professional emails with context
+   - Send via Gmail/Outlook/SMTP
+
+2. **Intelligent Annotation Classification**
+   - Auto-classify as internal/external/action-item
+   - NLP-based content analysis
+   - Learn from user corrections
+
+3. **Multi-Document Workflow Orchestration**
+   - Detect document relationships
+   - Define signing sequences with dependencies
+   - Automated reminders
+
+4. **Action Item Extraction & Task Management**
+   - Extract tasks from annotations
+   - Integrate with Asana/Todoist/Linear
+   - Bi-directional sync
+
+### Revenue Impact
+- **Additional Year 3 Revenue:** +$1.2M (+40%)
+- **Target Market:** Business tier upgrades
+- **Pricing:** $199/year (Advanced AI workflows)
+
+### Why It Matters
+- Eliminates manual document back-and-forth
+- Saves 15-30 minutes per document
+- Unique capability (no competitor offers this)
+- Privacy-first (local processing option)
+
+**Spec Location:** `.kiro/specs/agentic-document-workflows/requirements.md`
+
+---
+
 **Last Updated:** November 23, 2025  
 **Next Review:** November 30, 2025 (7 days post-launch)

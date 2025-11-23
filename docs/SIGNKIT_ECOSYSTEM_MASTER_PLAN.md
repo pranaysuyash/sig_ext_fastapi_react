@@ -233,8 +233,8 @@ v3.0: Privacy-First DocuSign + CRM Alternative
 
 ---
 
-### **Phase 4: AI/ML Intelligence** (Months 10-15)
-**Theme**: "Documents that understand themselves"
+### **Phase 4: AI/ML Intelligence + Agentic Workflows** (Months 10-15)
+**Theme**: "Documents that understand and act on themselves"
 
 **CV Features**:
 1. **Signature Forgery Detection** (3 weeks)
@@ -273,9 +273,40 @@ v3.0: Privacy-First DocuSign + CRM Alternative
    - Context-aware filling
    - Validation & error checking
 
-**Timeline**: 17 weeks  
-**Revenue Impact**: $6.5M Year 3 (+117%)  
-**Positioning**: "Intelligent Document Engine"
+**Agentic Workflows** ⭐ NEW - GAME CHANGER (8 weeks)
+1. **External Notes Collation & Email Automation** (2 weeks)
+   - Auto-collect external annotations
+   - Generate professional emails with context
+   - Send via Gmail/Outlook/SMTP
+   - Full audit trail
+
+2. **Intelligent Annotation Classification** (1 week)
+   - Auto-classify as internal/external/action-item
+   - NLP-based content analysis
+   - Learn from user corrections
+   - Visual indicators
+
+3. **Multi-Document Workflow Orchestration** (2 weeks)
+   - Detect document relationships
+   - Define signing sequences with dependencies
+   - Automated reminders
+   - Compile final signed documents
+
+4. **Document Intelligence & Context Understanding** (2 weeks)
+   - Classify document type (contract, NDA, invoice, etc.)
+   - Extract key entities (parties, dates, amounts)
+   - Highlight important clauses
+   - Risk assessment for unusual terms
+
+5. **Action Item Extraction & Task Management** (1 week)
+   - Extract tasks from annotations
+   - Parse natural language dates
+   - Integrate with Asana/Todoist/Linear
+   - Bi-directional sync
+
+**Timeline**: 25 weeks  
+**Revenue Impact**: $7.8M Year 3 (+157%)  
+**Positioning**: "Intelligent Document Engine with Autonomous Workflows"
 
 ---
 
@@ -331,13 +362,13 @@ v3.0: Privacy-First DocuSign + CRM Alternative
 - **Revenue**: $1,575,000
 - **Growth**: +385% YoY
 
-### Year 3: AI/ML + CRM
+### Year 3: AI/ML + Agentic Workflows + CRM
 - **Users**: 250,000
 - **Conversion**: 35%
 - **Paid Users**: 87,500
-- **ARPU**: $75
-- **Revenue**: $6,562,500
-- **Growth**: +317% YoY
+- **ARPU**: $90 (increased by agentic workflows)
+- **Revenue**: $7,875,000
+- **Growth**: +400% YoY
 
 ### Year 4: Enterprise & API
 - **Users**: 750,000
