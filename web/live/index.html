@@ -111,6 +111,12 @@
       rel="stylesheet"
     />
 
+      <!-- Font Awesome (icons used in footer) -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+
+    <!-- Live CSS (shared styles for footer & layout) -->
+    <link rel="stylesheet" href="css/style.css" />
+
     <style>
       :root {
         --bg-main: #f5f5f5;
@@ -558,25 +564,7 @@
         z-index: -1;
       }
 
-      /* Footer */
-      .footer {
-        text-align: center;
-        margin-top: 48px;
-        padding-top: 24px;
-        border-top: var(--border-strong) solid #111827;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-      }
-
-      .footer a {
-        color: var(--accent-2);
-        text-decoration: none;
-        font-weight: 500;
-      }
-
-      .footer a:hover {
-        text-decoration: underline;
-      }
+      /* Footer: leave layout to external stylesheet (.footer-content handles grid). */
 
       /* Platform badges */
       .platform-badges {
@@ -938,32 +926,60 @@
         </div>
 
         <!-- Footer -->
-        <div
-          class="footer"
-          style="
-            text-align: center;
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 3px solid #111827;
-            font-size: 0.85rem;
-            color: #4b5563;
-          "
-        >
-          <p>
-            © 2025 SignKit •
-            <a
-              href="mailto:support@signkit.work"
-              style="color: #4f46e5; text-decoration: none"
-              >support@signkit.work</a
-            >
-            •
-            <a
-              href="https://signkit.work"
-              style="color: #4f46e5; text-decoration: none"
-              >signkit.work</a
-            >
-          </p>
-        </div>
+        <footer class="footer">
+          <div class="container">
+            <div class="footer-content">
+              <div class="footer-brand">
+                <div class="footer-logo">
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 24L14 8L18 16L24 12L20 24H8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span>SignKit</span>
+                </div>
+                <p>
+                  Built with care for professionals who need precision and privacy in signature extraction.
+                </p>
+                <div class="footer-social">
+                  <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                  <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                  <a href="#" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                </div>
+              </div>
+
+              <div class="footer-links">
+                <div class="footer-column">
+                  <h4>Product</h4>
+                  <a href="#features">Features</a>
+                  <a href="#pricing">Pricing</a>
+                  <a href="#demo">Download</a>
+                  <a href="#">Roadmap</a>
+                </div>
+
+                <div class="footer-column">
+                  <h4>Support</h4>
+                  <a href="#">Help Center</a>
+                  <a href="mailto:support@signkit.work">Contact</a>
+                  <a href="#faq">FAQ</a>
+                  <a href="#">System Status</a>
+                </div>
+
+                <div class="footer-column">
+                  <h4>Legal</h4>
+                  <a href="#">Privacy Policy</a>
+                  <a href="#">Terms of Service</a>
+                  <a href="#">EULA</a>
+                  <a href="#">Refund Policy</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="footer-bottom">
+              <div class="footer-copyright">
+                <p>&copy; 2025 SignKit. All rights reserved.</p>
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
 
