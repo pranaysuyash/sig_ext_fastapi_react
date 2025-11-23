@@ -3,7 +3,9 @@ const { test, expect } = require('@playwright/test');
 const BASE = 'http://localhost:8080';
 
 test.describe('Carousel demo', () => {
-  test('carousel dots should change active slide on click', async ({ page }) => {
+  test('carousel dots should change active slide on click', async ({
+    page,
+  }) => {
     await page.goto(BASE + '/purchase.html');
 
     const dots = page.locator('.demo-dot');
@@ -18,7 +20,9 @@ test.describe('Carousel demo', () => {
 
     // The second step should be active
     const steps = page.locator('.demo-step');
-    const activeIndex = await steps.evaluateAll(nodes => nodes.findIndex(n => n.classList.contains('active')));
+    const activeIndex = await steps.evaluateAll((nodes) =>
+      nodes.findIndex((n) => n.classList.contains('active'))
+    );
     expect(activeIndex).toBeGreaterThanOrEqual(0);
 
     const activeStep = steps.nth(activeIndex);

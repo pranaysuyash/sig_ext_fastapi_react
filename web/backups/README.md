@@ -1,4 +1,3 @@
-
 # Backup folder
 
 This folder stores local backups created during sync and deploy operations for the landing pages.

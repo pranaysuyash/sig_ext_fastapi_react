@@ -2,9 +2,9 @@ name: Landing Page Smoke Tests
 
 on:
   push:
-    branches: [ landing-page ]
+    branches: [landing-page]
   pull_request:
-    branches: [ landing-page ]
+    branches: [landing-page]
 
 jobs:
   smoke-tests:

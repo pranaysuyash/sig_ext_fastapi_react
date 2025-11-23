@@ -26,29 +26,29 @@ Why it happened (probable causes)
 
 How we handled it (step-by-step)
 
- 1. Backed up current `web/live` pages into `web/backups/landing-page-sync-20251123/`
+1.  Backed up current `web/live` pages into `web/backups/landing-page-sync-20251123/`
 
     - This preserves a local snapshot for any rollback or analysis; we did not commit these to git.
 
- 2. Reconciled `web/live` with authoritative pages in the repository root.
+2.  Reconciled `web/live` with authoritative pages in the repository root.
 
     - Copied canonical `index.html`, `root.html`, `purchase.html`, `buy.html`, `gum.html` and `test-variants.html` into `web/live`.
 
- 3. Validated analytics presence locally.
+3.  Validated analytics presence locally.
 
     - Confirmed inline GA snippet, Clarity and analytics helper are included on `index`, `root`, `purchase`, `buy`, and `gum` files.
 
- 4. Committed changes to the `landing-page` branch with a descriptive commit message.
+4.  Committed changes to the `landing-page` branch with a descriptive commit message.
 
- 5. Deployed `web/live` to Cloudflare Pages (preview) and validated the public site at `https://signkit-landing.pages.dev`.
+5.  Deployed `web/live` to Cloudflare Pages (preview) and validated the public site at `https://signkit-landing.pages.dev`.
 
- 6. Added automated local smoke tests and CI workflow to prevent repeat issues:
+6.  Added automated local smoke tests and CI workflow to prevent repeat issues:
 
     - `test-pages.sh`: now asserts 200 responses and checks for `G-PCJDGBMRRN`, `u8zyh41jr0` and the analytics helper `web/claude_landing_page_v2/js/analytics.js` in pages.
 
     - `.github/workflows/landing-page-smoke.yml`: runs `test-pages.sh` on pushes and PRs to `landing-page`.
 
- 7. Moved ad-hoc backups from `web/live/_backup_pre_sync` and `web/live/index.claude-backup.html` to `web/backups/landing-page-sync-20251123/` and added `.gitignore` entries to ignore these backups going forward.
+7.  Moved ad-hoc backups from `web/live/_backup_pre_sync` and `web/live/index.claude-backup.html` to `web/backups/landing-page-sync-20251123/` and added `.gitignore` entries to ignore these backups going forward.
 
 Files changed/created
 
@@ -83,14 +83,15 @@ Deployed checks (Cloudflare)
 Manual verification checklist (what you can manually verify quickly)
 
 - Re-deploy verification: Confirm <https://signkit-landing.pages.dev> loads and shows the root version. Use `curl` to inspect HTML at a glance:
-   - Root: `curl -s <https://signkit-landing.pages.dev> | grep "G-PCJDGBMRRN"` (should show snippet)
-   - Purchase: `curl -s <https://signkit-landing.pages.dev/purchase> | grep -E "G-PCJDGBMRRN|u8zyh41jr0|analytics.js"`
-   - Root and buy variant: same approach as above.
+  - Root: `curl -s <https://signkit-landing.pages.dev> | grep "G-PCJDGBMRRN"` (should show snippet)
+  - Purchase: `curl -s <https://signkit-landing.pages.dev/purchase> | grep -E "G-PCJDGBMRRN|u8zyh41jr0|analytics.js"`
+  - Root and buy variant: same approach as above.
 - Browser-level checks:
-   - In your browser dev tools, open Console and check for `dataLayer` pushes while interacting (scroll, click CTA).
-   - For Playwright-like verification, run a script capturing `window.dataLayer` pushes — we used such a script during verification.
+  - In your browser dev tools, open Console and check for `dataLayer` pushes while interacting (scroll, click CTA).
+  - For Playwright-like verification, run a script capturing `window.dataLayer` pushes — we used such a script during verification.
 - Cloudflare Pages check:
-   - Confirm the site shows a 200 status: `curl -I <https://signkit-landing.pages.dev>`.
+
+  - Confirm the site shows a 200 status: `curl -I <https://signkit-landing.pages.dev>`.
 
 - Roll-back & emergency restore
 
@@ -118,4 +119,3 @@ If you want me to proceed while you manually verify:
 If anything is missing or you want me to re-run a set of validations/Playwright scenario(s) while you confirm changes, say the word and I’ll run it now.
 
 — End of report —
-

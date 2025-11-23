@@ -56,15 +56,14 @@ jobs:
           fi
       - name: Run pre-publish checks (smoke tests + e2e)
         run: |
-            # Start server and run smoke tests
-            nohup python3 serve.py &
-            sleep 2
-            ./test-pages.sh
-            # Run e2e tests
-            cd web/e2e && npm install --no-audit --no-fund
-            npx playwright install --with-deps
-            npm test
-      
+          # Start server and run smoke tests
+          nohup python3 serve.py &
+          sleep 2
+          ./test-pages.sh
+          # Run e2e tests
+          cd web/e2e && npm install --no-audit --no-fund
+          npx playwright install --with-deps
+          npm test
 
       - name: Ensure secrets are present
         env:
