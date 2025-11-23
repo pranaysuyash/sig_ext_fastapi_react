@@ -1,0 +1,12 @@
+{
+  "name": "signkit-landing-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "npx playwright test --reporter=list",
+    "test:ci": "npx playwright test --reporter=github"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.36.1"
+  }
+}
