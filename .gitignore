@@ -34,6 +34,13 @@ logs/*.log
 mcp-shell.log
 app.log
 
+# Debug files
+*_dir.txt
+*_help.txt
+overlay_help.txt
+pdfimage_dir.txt
+pikepdf_dir.txt
+
 # Databases
 *.db
 *.sqlite
@@ -165,3 +172,12 @@ alembic/versions/*.pyc
 # Local helper scripts (dev-only) - ignored on main and landing branches
 tools/convert_images.py
 tools/upload_to_cloudflare.py
+
+# Ignore published landing artifacts and test artifacts on 'main' to prevent accidental adds/merges
+# (Landing pages and e2e artifacts are maintained on the `landing-page` branch)
+/web/live/
+/web/backups/
+/web/e2e/test-results/
+/web/e2e/playwright-report/
+/web/e2e/**/specs/*-snapshots/
+/web/e2e/.wrangler/
