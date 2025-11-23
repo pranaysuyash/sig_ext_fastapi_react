@@ -24,3 +24,16 @@ jobs:
           sleep 2
       - name: Run smoke tests
         run: ./test-pages.sh
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install Playwright and dependencies
+        run: |
+          cd web/e2e
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps
+      - name: Run E2E Playwright tests
+        run: |
+          cd web/e2e
+          npm test

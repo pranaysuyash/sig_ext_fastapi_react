@@ -20,10 +20,16 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
 
-      - name: Install Node & Wrangler
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install Wrangler
         run: |
-          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt-get install -y nodejs
           npm install -g @cloudflare/wrangler
 
       - name: Prepare publish directory (copy root landing pages & assets)
@@ -48,6 +54,17 @@ jobs:
             mkdir -p web/live/web/claude_landing_page_v2
             rsync -a --delete web/claude_landing_page_v2/ web/live/web/claude_landing_page_v2/
           fi
+      - name: Run pre-publish checks (smoke tests + e2e)
+        run: |
+            # Start server and run smoke tests
+            nohup python3 serve.py &
+            sleep 2
+            ./test-pages.sh
+            # Run e2e tests
+            cd web/e2e && npm install --no-audit --no-fund
+            npx playwright install --with-deps
+            npm test
+      
 
       - name: Ensure secrets are present
         env:
