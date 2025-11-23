@@ -33,6 +33,7 @@ htmlcov/
 logs/*.log
 mcp-shell.log
 app.log
+nohup.out
 
 # Databases
 *.db
