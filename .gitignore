@@ -191,3 +191,7 @@ tools/upload_to_cloudflare.py
 # Ignore ad-hoc live backups created during local sync/deploy
 /web/live/_backup_pre_sync/
 /web/live/index.claude-backup.html
+
+# Store backups outside of web/live and ignore their contents but keep README
+/web/backups/*
+!/web/backups/README.md
