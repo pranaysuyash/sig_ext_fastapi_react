@@ -1,6 +1,6 @@
 /** @type {import('@playwright/test').PlaywrightTestConfig} */
 const config = {
-  testDir: './tests',
+  testDir: './specs',
   timeout: 30 * 1000,
   use: {
     headless: true,
