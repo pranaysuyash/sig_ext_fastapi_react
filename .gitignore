@@ -74,6 +74,9 @@ dist/
 !web/live/assets/screenshots/**
 !web/**/assets/images/**
 
+# Allow Playwright visual snapshot images created under web/e2e/specs
+!web/e2e/**/specs/*-snapshots/**
+
 # Test images (keep sample assets)
 *.png
 *.jpg
