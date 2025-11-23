@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SignKit A/B Test Variants - Testing Dashboard</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        color: white;
+        margin-bottom: 40px;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        font-weight: 800;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+      }
+
+      .card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .badge-control {
+        background: #10b981;
+        color: white;
+      }
+
+      .badge-v2 {
+        background: #3b82f6;
+        color: white;
+      }
+
+      .badge-v3 {
+        background: #8b5cf6;
+        color: white;
+      }
+
+      .badge-v4 {
+        background: #ef4444;
+        color: white;
+      }
+
+      .card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+        color: #1f2937;
+      }
+
+      .card .route {
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        color: #6b7280;
+        margin-bottom: 16px;
+      }
+
+      .card p {
+        color: #4b5563;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .card ul {
+        list-style: none;
+        margin-bottom: 20px;
+      }
+
+      .card ul li {
+        padding: 8px 0;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .card ul li::before {
+        content: '✓';
+        color: #10b981;
+        font-weight: bold;
+      }
+
+      .btn {
+        display: block;
+        width: 100%;
+        padding: 14px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        text-align: center;
+        color: white;
+      }
+
+      .btn:hover {
+        transform: scale(1.02);
+      }
+
+      .btn-control {
+        background: #10b981;
+      }
+
+      .btn-control:hover {
+        background: #059669;
+      }
+
+      .btn-v2 {
+        background: #3b82f6;
+      }
+
+      .btn-v2:hover {
+        background: #2563eb;
+      }
+
+      .btn-v3 {
+        background: #8b5cf6;
+      }
+
+      .btn-v3:hover {
+        background: #7c3aed;
+      }
+
+      .btn-v4 {
+        background: #ef4444;
+      }
+
+      .btn-v4:hover {
+        background: #dc2626;
+      }
+
+      .info-box {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 24px;
+        margin-top: 40px;
+      }
+
+      .info-box h3 {
+        color: #1f2937;
+        margin-bottom: 16px;
+        font-size: 1.3rem;
+      }
+
+      .info-box ul {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .info-box ul li {
+        padding: 10px 0;
+        color: #4b5563;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .info-box ul li:last-child {
+        border-bottom: none;
+      }
+
+      .info-box code {
+        background: #f3f4f6;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        color: #dc2626;
+        font-size: 0.9rem;
+      }
+
+      .status {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .status-icon {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #10b981;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .status-text {
+        color: #1f2937;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🧪 SignKit A/B Test Variants</h1>
+        <p>Local Testing Dashboard - Click to test each variant</p>
+      </div>
+
+      <div class="status">
+        <div class="status-icon"></div>
+        <div class="status-text">Server running at http://127.0.0.1:8080</div>
+      </div>
+
+      <div class="grid">
+        <!-- Control Variant -->
+        <div class="card">
+          <div class="card-header">
+            <span class="badge badge-control">Control</span>
+          </div>
+          <h2>Neo-Brutalism</h2>
+          <div class="route">/</div>
+          <p>
+            Bold, modern design with clean typography and clear value props.
+          </p>
+          <ul>
+            <li>Privacy-first messaging</li>
+            <li>External Gumroad CTA</li>
+            <li>Product screenshots</li>
+            <li>Simple, direct copy</li>
+          </ul>
+          <a href="/" class="btn btn-control" target="_blank">Test Control →</a>
+        </div>
+
+        <!-- V2: Embedded -->
+        <div class="card">
+          <div class="card-header">
+            <span class="badge badge-v2">V2</span>
+          </div>
+          <h2>Embedded Checkout</h2>
+          <div class="route">/buy</div>
+          <p>Same landing page with gum.new checkout embedded inline.</p>
+          <ul>
+            <li>Keep users on domain</li>
+            <li>Embedded iframe checkout</li>
+            <li>Reduced friction</li>
+            <li>Trust & consistency</li>
+          </ul>
+          <a href="/buy" class="btn btn-v2" target="_blank">Test Embedded →</a>
+        </div>
+
+        <!-- V3: Claude -->
+        <div class="card">
+          <div class="card-header">
+            <span class="badge badge-v3">V3</span>
+          </div>
+          <h2>Claude Design</h2>
+          <div class="route">/purchase</div>
+          <p>Traditional SaaS landing with animations and detailed features.</p>
+          <ul>
+            <li>Animated hero section</li>
+            <li>Detailed feature breakdown</li>
+            <li>Social proof elements</li>
+            <li>Polished interactions</li>
+          </ul>
+          <a href="/purchase" class="btn btn-v3" target="_blank"
+            >Test Claude →</a
+          >
+        </div>
+
+        <!-- V4: Direct -->
+        <div class="card">
+          <div class="card-header">
+            <span class="badge badge-v4">V4</span>
+          </div>
+          <h2>Direct Redirect</h2>
+          <div class="route">/gum</div>
+          <p>Immediate redirect to Gumroad product page - minimal friction.</p>
+          <ul>
+            <li>Zero landing page</li>
+            <li>Instant checkout</li>
+            <li>Lowest friction</li>
+            <li>Tests direct intent</li>
+          </ul>
+          <a href="/gum" class="btn btn-v4" target="_blank">Test Redirect →</a>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <h3>📋 Testing Checklist</h3>
+        <ul>
+          <li>✓ Check all images load (icons, screenshots)</li>
+          <li>✓ Test CTA buttons click through correctly</li>
+          <li>✓ Verify gum.new embed loads on <code>/buy</code></li>
+          <li>✓ Confirm <code>/gum</code> redirects to Gumroad</li>
+          <li>✓ Test <code>/purchase</code> animations and interactions</li>
+          <li>✓ Check responsive design on mobile (resize window)</li>
+          <li>✓ Verify GA4 tracking is present (check console)</li>
+          <li>✓ Test all routes work without errors</li>
+        </ul>
+      </div>
+
+      <div class="info-box">
+        <h3>🎯 A/B Test Configuration</h3>
+        <ul>
+          <li>
+            <strong>Auto-split:</strong> Currently <code>false</code> (manual
+            URLs)
+          </li>
+          <li>
+            <strong>Enable auto-split:</strong> Change
+            <code>AUTO_SPLIT = true</code> in index.html
+          </li>
+          <li>
+            <strong>Traffic split:</strong> 25% each variant when auto-split
+            enabled
+          </li>
+          <li><strong>Persistence:</strong> Variant saved in localStorage</li>
+          <li><strong>GA4 Property:</strong> G-PCJDGBMRRN</li>
+          <li>
+            <strong>Event:</strong> <code>ab_test_impression</code> with variant
+            name
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

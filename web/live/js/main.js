@@ -30,7 +30,6 @@ function initNavigation() {
     } else {
       navbar.style.boxShadow = 'none';
     }
-
   });
 
   // Mobile menu toggle
