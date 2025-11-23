@@ -355,7 +355,7 @@ cd web/claude_landing_page_v2
 wrangler pages deploy . --project-name signkit-landing --branch landing-page
 ```
 
-Note: `wrangler pages publish` can also accept a directory `dist` created by a build step. For simple static pages the site root `.` works fine.
+Note: `wrangler pages deploy` (preferred) or the legacy `wrangler pages publish` can accept a directory `dist` created by a build step. For simple static pages the site root `.` works fine.
 
 ### Option 4: GitHub Pages
 
