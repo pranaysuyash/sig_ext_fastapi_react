@@ -187,3 +187,7 @@ deploy_dist/
 # Ignore local-only helper script used to generate WebP screenshots
 tools/convert_images.py
 tools/upload_to_cloudflare.py
+
+# Ignore ad-hoc live backups created during local sync/deploy
+/web/live/_backup_pre_sync/
+/web/live/index.claude-backup.html

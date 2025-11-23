@@ -26,6 +26,22 @@ test_page() {
     fi
 }
 
+check_contains() {
+    local path=$1
+    local name=$2
+    local substring=$3
+
+    echo -n "Checking for '$substring' on $name ($path)... "
+    html=$(curl -s "$BASE_URL$path")
+    if echo "$html" | grep -q "$substring"; then
+        echo "✅ Found"
+        return 0
+    else
+        echo "❌ Missing"
+        return 1
+    fi
+}
+
 # Test all variants
 test_page "/" "Root/Index"
 test_page "/root.html" "Control Variant"
@@ -48,6 +64,16 @@ test_page "/web/claude_landing_page_v2/css/style.css" "Style CSS"
 test_page "/web/claude_landing_page_v2/css/animations.css" "Animations CSS"
 test_page "/web/claude_landing_page_v2/js/main.js" "Main JS"
 test_page "/web/claude_landing_page_v2/js/animations.js" "Animations JS"
+
+echo ""
+echo "Checking analytics presence on pages:" 
+check_contains "/" "Root/Index" "G-PCJDGBMRRN"
+check_contains "/" "Root/Index" "web/claude_landing_page_v2/js/analytics.js"
+check_contains "/root.html" "Control Variant" "G-PCJDGBMRRN"
+check_contains "/root.html" "Control Variant" "web/claude_landing_page_v2/js/analytics.js"
+check_contains "/purchase.html" "Purchase Variant (Claude v2)" "G-PCJDGBMRRN"
+check_contains "/purchase.html" "Purchase Variant (Claude v2)" "web/claude_landing_page_v2/js/analytics.js"
+check_contains "/purchase.html" "Purchase Variant (Claude v2)" "u8zyh41jr0"
 
 echo ""
 echo "=========================================="
