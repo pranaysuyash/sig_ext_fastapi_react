@@ -1068,6 +1068,7 @@ class ExtractionTabMixin:
             )
         result_layout.addWidget(self.result_label)
         self.res_view = ImageView(self)
+        self.res_view.set_drag_source(True)
         self.res_view.setObjectName("resultImageView")
         self.res_view.setAccessibleName("Result image pane")
         self.res_view.setAccessibleDescription("Final processed signature ready for export")

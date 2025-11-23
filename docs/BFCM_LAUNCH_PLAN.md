@@ -48,7 +48,6 @@ This document outlines the plan for preparing, executing, and monitoring a succe
 
 ## Production Deployment Strategy
 
-- Use GitHub Action `.github/workflows/landing_sync.yml` to create PRs from `landing-page` → `main` (review before merging)
 - Cloudflare Pages: ensure the build directory is set to `web/live` if deploying from `main`, or `landing-page` if you prefer variant branches. Document final choice in the `CLOUDFLARE_DEPLOYMENT.md`.
 - For critical releases, deploy during a low-traffic maintenance window (e.g., early morning) and enable a short TTL on cache for fast rollbacks.
 

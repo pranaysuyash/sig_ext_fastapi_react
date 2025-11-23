@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 
 from desktop_app.processing.vault import NotaryVault
 from desktop_app.views.vault_tab import VaultTab
+from desktop_app.views.pdf_tab import PdfTab
 
 class MainWindow(
     QMainWindow,
@@ -84,6 +85,10 @@ class MainWindow(
         # Setup Vault Tab
         self.vault_tab = VaultTab(self.vault)
         self.tab_widget.addTab(self.vault_tab, "Vault")
+        
+        # Setup PDF Signer Tab
+        self.pdf_tab = PdfTab()
+        self.tab_widget.addTab(self.pdf_tab, "PDF Signer")
         
         root.addWidget(self.tab_widget)
         
@@ -337,6 +342,13 @@ class MainWindow(
         self.check_health_action = QAction("Open Backend Health", self)
         self.check_health_action.triggered.connect(lambda: self._open_url(f"{self.api_client.base_url}/health"))
         help_menu.addAction(self.check_health_action)
+        
+        # Tools Menu
+        tools_menu = menu_bar.addMenu("Tools")
+        
+        self.verify_sig_action = QAction("Verify Signature...", self)
+        self.verify_sig_action.triggered.connect(self.on_verify_signature)
+        tools_menu.addAction(self.verify_sig_action)
 
     def on_check_updates(self):
         """Check for application updates by fetching updates.json from CDN."""
@@ -437,6 +449,12 @@ class MainWindow(
                 "Update Check Failed",
                 f"An error occurred while checking for updates:\n{str(e)}"
             )
+            
+    def on_verify_signature(self):
+        """Open the signature verification dialog."""
+        from desktop_app.views.verify_dialog import VerifyDialog
+        dialog = VerifyDialog(self)
+        dialog.exec()
     
     # ----- Qt overrides -----
     def resizeEvent(self, event) -> None:

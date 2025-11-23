@@ -95,6 +95,18 @@ class ProcessingParams:
         except ValueError:
             raise ValueError(f"Invalid hex color format: {self.color}")
 
+from desktop_app.processing.watermark import WatermarkEngine
+
+class SignatureExtractor:
+    """
+    Handles loading images, processing selections, and extracting signatures.
+    Now includes forensic watermarking.
+    """
+
+    def __init__(self):
+        self.current_image: Optional[np.ndarray] = None
+        self.original_path: Optional[str] = None
+        self.watermarker = WatermarkEngine()
 
 @dataclass
 class ProcessingSession:
@@ -660,12 +672,30 @@ class SignatureExtractor:
             b, g, r = cv2.split(cropped_image)
             rgba = cv2.merge([b, g, r, mask])
             
-            # Encode to PNG
-            success, encoded_img = cv2.imencode(".png", rgba)
-            if not success:
-                raise ValueError("Failed to encode image")
+            # Convert to bytes
+            is_success, buffer = cv2.imencode(".png", rgba)
+            if not is_success:
+                raise RuntimeError("Failed to encode result image")
                 
-            return encoded_img.tobytes()
+            png_bytes = buffer.tobytes()
+            
+            # Apply invisible watermark
+            try:
+                import time
+                import hashlib
+                
+                meta = {
+                    "app": "SignKit",
+                    "version": "1.0.0",
+                    "timestamp": int(time.time()),
+                    "source_hash": hashlib.md5(self.original_path.encode()).hexdigest() if self.original_path else "unknown",
+                    "mode": "forensic"
+                }
+                png_bytes = self.watermarker.embed_watermark(png_bytes, meta)
+            except Exception as e:
+                LOG.error(f"Watermarking failed: {e}")
+                
+            return png_bytes
             
         except Exception as e:
             LOG.error(f"Failed to process selection (K-Means) for session {session_id}: {e}")
