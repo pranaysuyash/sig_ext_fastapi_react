@@ -544,6 +544,14 @@ ul {
     pointer-events: all;
 }
 
+.demo-step img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 8px;
+}
+
 .demo-placeholder {
     text-align: center;
 }
