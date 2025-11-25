@@ -931,79 +931,83 @@
         </div>
 
         <!-- Footer -->
-        <footer class="footer">
-          <div class="container">
-            <div class="footer-content">
-              <div class="footer-brand">
-                <div class="footer-logo">
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 32 32"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M8 24L14 8L18 16L24 12L20 24H8Z"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <span>SignKit</span>
-                </div>
-                <p>
-                  Built with care for professionals who need precision and
-                  privacy in signature extraction.
-                </p>
-                <div class="footer-social">
-                  <a href="#" aria-label="Twitter"
-                    ><i class="fa-brands fa-twitter"></i
-                  ></a>
-                  <a href="#" aria-label="LinkedIn"
-                    ><i class="fa-brands fa-linkedin"></i
-                  ></a>
-                  <a href="#" aria-label="GitHub"
-                    ><i class="fa-brands fa-github"></i
-                  ></a>
-                </div>
+        <div
+          class="footer"
+          style="
+            margin-top: 48px;
+            padding: 32px 24px;
+            background: #fefefe;
+            border-radius: 20px;
+            border: 3px solid #111827;
+            box-shadow: 8px 8px 0 #111827;
+          "
+        >
+          <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 24px;">
+            <!-- Brand Column -->
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 24L14 8L18 16L24 12L20 24H8Z" stroke="#111827" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span style="font-weight: 700; font-size: 1.2rem;">SignKit</span>
               </div>
-
-              <div class="footer-links">
-                <div class="footer-column">
-                  <h4>Product</h4>
-                  <a href="#features">Features</a>
-                  <a href="#pricing">Pricing</a>
-                  <a href="#demo">Download</a>
-                  <a href="#">Roadmap</a>
-                </div>
-
-                <div class="footer-column">
-                  <h4>Support</h4>
-                  <a href="#">Help Center</a>
-                  <a href="mailto:support@signkit.work">Contact</a>
-                  <a href="#faq">FAQ</a>
-                  <a href="#">System Status</a>
-                </div>
-
-                <div class="footer-column">
-                  <h4>Legal</h4>
-                  <a href="#">Privacy Policy</a>
-                  <a href="#">Terms of Service</a>
-                  <a href="#">EULA</a>
-                  <a href="#">Refund Policy</a>
-                </div>
+              <p style="font-size: 0.85rem; color: #4b5563; margin-bottom: 16px; line-height: 1.5;">
+                Built with care for professionals who need precision and privacy in signature extraction.
+              </p>
+              <div style="display: flex; gap: 12px;">
+                <a href="#" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 2px solid #111827; border-radius: 8px; background: #fff; box-shadow: 3px 3px 0 #111827; transition: transform 0.1s;" onmouseover="this.style.transform='translate(-2px, -2px)'; this.style.boxShadow='5px 5px 0 #111827'" onmouseout="this.style.transform=''; this.style.boxShadow='3px 3px 0 #111827'">
+                  <i class="fa-brands fa-twitter" style="font-size: 1rem;"></i>
+                </a>
+                <a href="#" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 2px solid #111827; border-radius: 8px; background: #fff; box-shadow: 3px 3px 0 #111827; transition: transform 0.1s;" onmouseover="this.style.transform='translate(-2px, -2px)'; this.style.boxShadow='5px 5px 0 #111827'" onmouseout="this.style.transform=''; this.style.boxShadow='3px 3px 0 #111827'">
+                  <i class="fa-brands fa-linkedin" style="font-size: 1rem;"></i>
+                </a>
+                <a href="#" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 2px solid #111827; border-radius: 8px; background: #fff; box-shadow: 3px 3px 0 #111827; transition: transform 0.1s;" onmouseover="this.style.transform='translate(-2px, -2px)'; this.style.boxShadow='5px 5px 0 #111827'" onmouseout="this.style.transform=''; this.style.boxShadow='3px 3px 0 #111827'">
+                  <i class="fa-brands fa-github" style="font-size: 1rem;"></i>
+                </a>
               </div>
             </div>
 
-            <div class="footer-bottom">
-              <div class="footer-copyright">
-                <p>&copy; 2025 SignKit. All rights reserved.</p>
+            <!-- Product Column -->
+            <div>
+              <h4 style="font-weight: 700; font-size: 0.9rem; margin-bottom: 12px;">Product</h4>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a href="#features" style="font-size: 0.85rem; color: #4b5563; text-decoration: none; transition: color 0.1s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#4b5563'">Features</a>
+                <a href="#pricing" style="font-size: 0.85rem; color: #4b5563; text-decoration: none; transition: color 0.1s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#4b5563'">Pricing</a>
+                <a href="#demo" style="font-size: 0.85rem; color: #4b5563; text-decoration: none; transition: color 0.1s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#4b5563'">Download</a>
+                <a href="#" style="font-size: 0.85rem; color: #4b5563; text-decoration: none; transition: color 0.1s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#4b5563'">Roadmap</a>
+              </div>
+            </div>
+
+            <!-- Support Column -->
+            <div>
+              <h4 style="font-weight: 700; font-size: 0.9rem; margin-bottom: 12px;">Support</h4>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a href="#" style="font-size: 0.85rem; color: #4b5563; text-decoration: none; transition: color 0.1s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#4b5563'">Help Center</a>
+                <a href="mailto:support@signkit.work" style="font-size: 0.85rem; color: #4b5563; text-decoration: none; transition: color 0.1s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#4b5563'">Contact</a>
+                <a href="#faq" style="font-size: 0.85rem; color: #4b5563; text-decoration: none; transition: color 0.1s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#4b5563'">FAQ</a>
+                <a href="#" style="font-size: 0.85rem; color: #4b5563; text-decoration: none; transition: color 0.1s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#4b5563'">System Status</a>
+              </div>
+            </div>
+
+            <!-- Legal Column -->
+            <div>
+              <h4 style="font-weight: 700; font-size: 0.9rem; margin-bottom: 12px;">Legal</h4>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a href="#" style="font-size: 0.85rem; color: #4b5563; text-decoration: none; transition: color 0.1s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#4b5563'">Privacy Policy</a>
+                <a href="#" style="font-size: 0.85rem; color: #4b5563; text-decoration: none; transition: color 0.1s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#4b5563'">Terms of Service</a>
+                <a href="#" style="font-size: 0.85rem; color: #4b5563; text-decoration: none; transition: color 0.1s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#4b5563'">EULA</a>
+                <a href="#" style="font-size: 0.85rem; color: #4b5563; text-decoration: none; transition: color 0.1s;" onmouseover="this.style.color='#111827'" onmouseout="this.style.color='#4b5563'">Refund Policy</a>
               </div>
             </div>
           </div>
-        </footer>
+
+          <!-- Footer Bottom -->
+          <div style="padding-top: 20px; border-top: 2px solid #e5e7eb; text-align: center;">
+            <p style="font-size: 0.8rem; color: #6b7280;">
+              © 2025 SignKit. All rights reserved.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </body>
