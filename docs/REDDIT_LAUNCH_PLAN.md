@@ -169,4 +169,25 @@ This document contains the launch plan, post templates, assets checklist, postin
 1. Prepare assets and add them to `web/live/assets/screenshots/` — ensure consistent filenames.
 2. Add UTM parameters to your shared link and make sure analytics capture the event.
 3. Schedule posts for r/SideProject and r/IndieHackers according to the timing above.
-4. Reply to comments quickly and use the
+4. Reply to comments quickly and use the following template for follow-ups:
+
+**Follow-up template:**
+> Thanks for the feedback! We’ve noted this and will consider it for the next update. If you’d like a beta invite or have specific feature requests, drop a message and we’ll help you out.
+
+1. Collect the engagement metrics in the first 48 hours and summarize the top 5 action items.
+
+---
+
+## Appendix & Helpful Commands
+
+
+- Start local server (for quick smoke testing):
+  - `cd web/live && python3 -m http.server 8000`
+- Verify an individual page contains analytics (replace path as needed):
+  - `curl -s http://127.0.0.1:8000/index.html | head -n 80 | grep -E "G-PCJDGBMRRN|u8zyh41jr0|analytics.js"`
+- Generate small GIF for social (ffmpeg example):
+  - `ffmpeg -ss 00:00:01 -i demo.mp4 -to 00:00:08 -vf "scale=640:-1" -r 12 -loop 0 demo.gif`
+
+---
+
+Thanks for shipping SignKit — good luck on launch! 🚀
