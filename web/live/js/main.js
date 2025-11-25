@@ -109,7 +109,7 @@ function initDemoCarousel() {
 
   function startAutoPlay() {
     stopAutoPlay();
-    autoPlayInterval = setInterval(nextStep, 3000);
+    autoPlayInterval = setInterval(nextStep, 5000);
   }
 
   function stopAutoPlay() {
@@ -125,7 +125,7 @@ function initDemoCarousel() {
       showStep(stepNumber);
       stopAutoPlay();
       // Restart autoplay after user interaction
-      setTimeout(startAutoPlay, 3000);
+      setTimeout(startAutoPlay, 5000);
     });
   });
 

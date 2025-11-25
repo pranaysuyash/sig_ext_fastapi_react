@@ -1,0 +1,11 @@
+Help on method add_overlay in module pikepdf._methods:
+
+add_overlay(
+    other: 'Object | Page',
+    rect: 'Rectangle | None' = None,
+    *,
+    push_stack: 'bool' = True,
+    shrink: 'bool' = True,
+    expand: 'bool' = True
+) -> 'Name' method of pikepdf._core.Page instance
+
