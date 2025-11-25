@@ -107,7 +107,7 @@ function initDemoCarousel() {
     }
 
     function startAutoPlay() {
-        autoPlayInterval = setInterval(nextStep, 3000);
+        autoPlayInterval = setInterval(nextStep, 5000);
     }
 
     function stopAutoPlay() {
