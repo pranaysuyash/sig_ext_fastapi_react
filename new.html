@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignKit - The Privacy-First Signature Tool</title>
+    <meta name="description" content="Extract signatures and sign PDFs offline. No cloud upload. $29 one-time payment.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="web/new_landing_page/css/style.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/files/signkit_icon_32x32.png">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PCJDGBMRRN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      // Internal traffic exclusion
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('internal') === '1') {
+        document.cookie = 'ga_internal=true; path=/; max-age=31536000';
+      }
+      if (document.cookie.includes('ga_internal=true')) {
+        gtag('set', 'user_properties', { traffic_type: 'internal' });
+      }
+
+      gtag('config', 'G-PCJDGBMRRN', {
+        variant: 'new',
+      });
+
+      // Track variant view
+      gtag('event', 'variant_view', {
+        variant: 'new',
+        send_to: 'G-PCJDGBMRRN',
+      });
+    </script>
+
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+      (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", "u8zyh41jr0");
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container nav-content">
+            <a href="#" class="logo">
+                <img src="assets/files/signkit_icon_64x64.png" alt="SignKit Logo">
+                <span>SignKit</span>
+            </a>
+            <a href="https://pranaysuyash.gumroad.com/l/signkit-v1" class="btn btn-primary">
+                Get it for $29
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-bg-glow"></div>
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <div class="badge">✨ New: Version 2.0 Available</div>
+                    <h1>
+                        Sign PDFs <span class="text-gradient">Offline</span>.<br>
+                        Keep Data <span class="text-gradient">Private</span>.
+                    </h1>
+                    <p class="lead">
+                        The desktop app that lets you extract signatures from images and sign documents without ever uploading them to the cloud.
+                    </p>
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; @media(min-width: 768px){justify-content: flex-start;}">
+                        <a href="https://pranaysuyash.gumroad.com/l/signkit-v1" class="btn btn-primary">
+                            Buy Now - $29
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+                        </a>
+                        <a href="#how-it-works" class="btn btn-secondary">
+                            How it works
+                        </a>
+                    </div>
+                    
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">100%</span>
+                            <span class="stat-label">Offline</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">0</span>
+                            <span class="stat-label">Subscriptions</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">∞</span>
+                            <span class="stat-label">Signatures</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hero-visual">
+                    <div class="app-window">
+                        <div class="window-header">
+                            <div class="window-dot red"></div>
+                            <div class="window-dot yellow"></div>
+                            <div class="window-dot green"></div>
+                        </div>
+                        <div class="app-content">
+                            <img src="screenshots/screenshot-2.png" alt="SignKit App Interface">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="section" id="features">
+            <div class="container">
+                <div style="text-align: center; max-width: 600px; margin: 0 auto 64px;">
+                    <h2>Everything you need to <span class="text-gradient">ditch the printer</span></h2>
+                    <p class="lead" style="margin: 0 auto;">Stop printing, signing, and scanning. SignKit makes digital signing feel natural and secure.</p>
+                </div>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        </div>
+                        <h3 class="feature-title">Local Extraction</h3>
+                        <p class="feature-desc">Take a photo of your signature on paper. SignKit instantly removes the background and makes it transparent.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        </div>
+                        <h3 class="feature-title">Privacy First</h3>
+                        <p class="feature-desc">Your documents and signatures never leave your computer. Everything is processed locally on your device.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        </div>
+                        <h3 class="feature-title">PDF Support</h3>
+                        <p class="feature-desc">Open any PDF, drag and drop your signature, resize it perfectly, and save a new signed copy.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it works -->
+        <section class="section" id="how-it-works" style="background: rgba(255,255,255,0.02);">
+            <div class="container">
+                <div class="hero-grid">
+                    <div class="hero-visual">
+                         <div class="app-window" style="transform: rotateY(5deg) rotateX(2deg);">
+                            <div class="window-header">
+                                <div class="window-dot red"></div>
+                                <div class="window-dot yellow"></div>
+                                <div class="window-dot green"></div>
+                            </div>
+                            <div class="app-content">
+                                <img src="screenshots/screenshot-1.png" alt="SignKit Extraction">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="steps">
+                        <h2>How it works</h2>
+                        
+                        <div class="step-item">
+                            <div class="step-number">01</div>
+                            <div class="step-content">
+                                <h3>Snap a photo</h3>
+                                <p class="text-muted">Sign on a white piece of paper and take a photo with your phone. Transfer it to your computer.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-number">02</div>
+                            <div class="step-content">
+                                <h3>Extract & Clean</h3>
+                                <p class="text-muted">Drag the photo into SignKit. Adjust the threshold to perfectly isolate your ink from the paper.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-number">03</div>
+                            <div class="step-content">
+                                <h3>Sign & Save</h3>
+                                <p class="text-muted">Open your PDF, place your new digital signature, and export. Simple as that.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing -->
+        <section class="section">
+            <div class="container">
+                <div class="pricing-card">
+                    <h3>Simple Pricing</h3>
+                    <p class="text-muted">No monthly fees. No hidden costs.</p>
+                    
+                    <div class="price">
+                        <span class="currency">$</span>
+                        29
+                        <span class="period">/ lifetime</span>
+                    </div>
+                    
+                    <ul class="pricing-features">
+                        <li>
+                            <svg class="check-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            Unlimited signatures
+                        </li>
+                        <li>
+                            <svg class="check-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            Offline processing
+                        </li>
+                        <li>
+                            <svg class="check-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            macOS, Windows & Linux
+                        </li>
+                        <li>
+                            <svg class="check-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            Free updates forever
+                        </li>
+                    </ul>
+                    
+                    <a href="https://pranaysuyash.gumroad.com/l/signkit-v1" class="btn btn-primary" style="width: 100%;">
+                        Get SignKit Now
+                    </a>
+                    <p style="margin-top: 16px; font-size: 0.8rem; color: var(--text-muted);">Secured by Gumroad</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <img src="assets/files/signkit_icon_32x32.png" alt="Logo">
+                        <span>SignKit</span>
+                    </div>
+                    <p>The privacy-first tool for signing documents without the cloud.</p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#">Download</a></li>
+                        <li><a href="#">Changelog</a></li>
+                        <li><a href="#">Pricing</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2025 SignKit. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="web/new_landing_page/js/main.js"></script>
+</body>
+</html>

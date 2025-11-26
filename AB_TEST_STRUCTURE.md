@@ -105,6 +105,31 @@ experiment_id: 'checkout_flow_test'
 
 ---
 
+### Variant 5: Modern Dark Theme - `/new`
+**File:** `new.html`  
+**Design:** Modern dark theme with gradients  
+**CTA:** External link to Gumroad  
+**Hypothesis:** Contemporary design appeals to tech-savvy users
+
+**Key Features:**
+- Dark theme with purple/indigo gradients
+- Clean, minimalist aesthetic
+- Smooth animations and interactions
+- Professional tech-forward design
+- Parallax effects on hero visual
+
+**Tracking:**
+```javascript
+variant: 'new'
+experiment_id: 'checkout_flow_test'
+```
+
+**Dependencies:**
+- `web/new_landing_page/css/style.css`
+- `web/new_landing_page/js/main.js`
+
+---
+
 ## Routing Logic
 
 ### Manual Mode (Current: `AUTO_SPLIT = false`)
@@ -115,6 +140,7 @@ experiment_id: 'checkout_flow_test'
 /buy        → Shows embedded checkout (buy.html)
 /purchase   → Shows SaaS landing (purchase.html)
 /gum        → Redirects to Gumroad (gum.html)
+/new        → Shows modern dark theme (new.html)
 ```
 
 Users can manually access any variant via direct URL.
