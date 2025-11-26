@@ -21,6 +21,9 @@ class ABTestRouter(SimpleHTTPRequestHandler):
         elif self.path == '/purchase':
             # Serve purchase.html for /purchase route
             self.path = '/purchase.html'
+        elif self.path == '/new':
+            # Serve new landing page
+            self.path = '/web/new_landing_page/index.html'
         elif self.path.startswith('/test-variants'):
             # Allow test dashboard
             pass
@@ -43,6 +46,7 @@ if __name__ == '__main__':
     print(f'  • http://127.0.0.1:{PORT}/buy       (Embedded)')
     print(f'  • http://127.0.0.1:{PORT}/purchase  (Claude)')
     print(f'  • http://127.0.0.1:{PORT}/gum       (Redirect)')
+    print(f'  • http://127.0.0.1:{PORT}/new       (New Design)')
     print(f'\nPress Ctrl+C to stop\n')
     
     try:
