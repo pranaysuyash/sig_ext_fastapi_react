@@ -39,17 +39,18 @@ echo ""
 
 # Step 2: Check for uncommitted changes
 echo "${BLUE}Step 2: Checking for uncommitted changes...${NC}"
-if ! git diff-index --quiet HEAD -- web/live/; then
-    echo "${YELLOW}⚠ You have uncommitted changes in web/live/${NC}"
+LANDING_FILES="*.html _redirects wrangler.toml assets/ screenshots/ web/"
+if ! git diff-index --quiet HEAD -- $LANDING_FILES 2>/dev/null; then
+    echo "${YELLOW}⚠ You have uncommitted changes in landing page files${NC}"
     echo ""
-    git status --short web/live/
+    git status --short $LANDING_FILES 2>/dev/null || true
     echo ""
     read -p "Commit changes before deploying? (Y/n): " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Nn]$ ]]; then
         echo ""
         read -p "Enter commit message: " COMMIT_MSG
-        git add web/live/
+        git add $LANDING_FILES
         git commit -m "$COMMIT_MSG"
         echo "${GREEN}✓ Changes committed${NC}"
     fi
@@ -71,9 +72,16 @@ echo ""
 
 # Step 4: Show what will be deployed
 echo "${BLUE}Step 4: Files to be deployed:${NC}"
-cd "$PROJECT_ROOT/web/live"
+cd "$PROJECT_ROOT"
 echo "  Directory: $(pwd)"
-echo "  File count: $(find . -type f ! -path '*/\.*' | wc -l) files"
+echo "  HTML files: $(ls -1 *.html 2>/dev/null | wc -l)"
+echo "  Key files:"
+echo "    - index.html (main entry with A/B routing)"
+echo "    - root.html (neo-brutalist variant)"
+echo "    - buy.html (embedded checkout)"
+echo "    - purchase.html (SaaS landing)"
+echo "    - gum.html (redirect variant)"
+echo "    - new.html (modern dark theme)"
 echo ""
 
 # Step 5: Confirm deployment
