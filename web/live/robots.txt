@@ -1,12 +1,15 @@
-# robots.txt for signkit.work
+# robots.txt for signkit.work - AI Search Era SEO Policy
+# Updated: November 26, 2025
+# Policy: Allow AI search indexing, block training data scraping
 
 User-agent: *
+Content-signal: search=yes,ai-input=yes,ai-train=no
 Allow: /
 
 # Sitemaps
 Sitemap: https://signkit.work/sitemap.xml
 
-# Disallow admin/internal paths (if any)
+# Disallow admin/internal paths
 Disallow: /admin/
 Disallow: /.git/
 Disallow: /node_modules/
