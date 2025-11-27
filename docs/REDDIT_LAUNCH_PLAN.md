@@ -13,6 +13,8 @@ This document contains the launch plan, post templates, assets checklist, postin
 - Post at recommended timings; answer comments for first several hours.
 - Gather feedback and post update after 24–48 hours.
 
+Launch status: Product Hunt launch scheduled for Nov 28 (in ~17 hours).
+
 ---
 
 ## Goals & Messaging
@@ -61,7 +63,7 @@ This document contains the launch plan, post templates, assets checklist, postin
 >
 > - Why: I needed a privacy-first tool that doesn't upload my documents.
 > - How: drag & drop → select signature → crop/clean → place on PDF.
-> - Try it (demo + landing): https://signkit.work/purchase?utm_source=reddit&utm_medium=post&utm_campaign=sideproject-launch
+> - Try it (demo + landing): <https://signkit.work/purchase?utm_source=reddit&utm_medium=post&utm_campaign=sideproject-launch>
 >   Screenshots + demo GIF attached — feedback would be much appreciated!
 >   Note: I’m specifically looking for: integration suggestions, pricing feedback, and use cases.
 
@@ -77,7 +79,7 @@ This document contains the launch plan, post templates, assets checklist, postin
 >
 > - Problem/market: businesses with forms & signatures want a private, efficient tool for routine PDF work.
 > - Basic model: free trial + $X one-time / $Y yearly / or tiered business pricing.
-> - Demo: https://signkit.work/purchase?utm_source=indiehackers&utm_medium=post&utm_campaign=launch
+> - Demo: <https://signkit.work/purchase?utm_source=indiehackers&utm_medium=post&utm_campaign=launch>
 >   I’d love pricing and distribution feedback: one-time vs subscription vs enterprise? Thank you!
 
 ### Product Hunt / Launch day copy (if launching there)
@@ -142,6 +144,7 @@ This document contains the launch plan, post templates, assets checklist, postin
 - [ ] Prepare a pinned comment draft that invites feedback and lists what you want to learn.
 - [ ] Post to r/SideProject (fast reply cadence first two hours).
 - [ ] Post to r/IndieHackers 1–3 hours later to stagger engagement.
+- [ ] Product Hunt launch (Nov 28): confirm assets, tagline, and tags. Be online for first 4 hours.
 - [ ] Monitor crashes, console logs, or site performance issues.
 - [ ] Respond in the comments first, then move to private messages only on request.
 
@@ -187,6 +190,8 @@ This document contains the launch plan, post templates, assets checklist, postin
   - `curl -s http://127.0.0.1:8000/index.html | head -n 80 | grep -E "G-PCJDGBMRRN|u8zyh41jr0|analytics.js"`
 - Generate small GIF for social (ffmpeg example):
   - `ffmpeg -ss 00:00:01 -i demo.mp4 -to 00:00:08 -vf "scale=640:-1" -r 12 -loop 0 demo.gif`
+
+ 
 
 ---
 

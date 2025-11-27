@@ -10,8 +10,8 @@
 
 | Directory | Status | Priority | Submitted | Approved | Notes |
 |-----------|--------|----------|-----------|----------|-------|
-| BetaList | 🟢 Submitted | 🔥🔥 High | Nov 21 | Pending | In review |
-| Product Hunt | 🔴 Not Started | 🔥🔥🔥 Critical | - | - | Launch Nov 28 |
+| BetaList | 🟢 Submitted | 🔥🔥 High | Nov 21 | Pending | Submitted; not live/approved yet |
+| Product Hunt | 🟡 Scheduled | 🔥🔥🔥 Critical | Nov 27 | - | Launch scheduled Nov 28 (00:01 PST) |
 | AlternativeTo | 🟢 Submitted | 🔥🔥🔥 Critical | Nov 26 | Pending | 24-48hr review |
 | Slant | 🔴 Not Started | 🔥🔥 High | - | - | Submit today |
 | Capterra | 🔴 Not Started | 🔥🔥 High | - | - | 1-2 week review |
@@ -66,8 +66,8 @@
 ---
 
 ### 1. Product Hunt
-**URL:** https://www.producthunt.com/  
-**Status:** 🔴 Not Started  
+**URL:** <https://www.producthunt.com/>  
+**Status:** 🟡 Scheduled  
 **Impact:** 🔥🔥🔥 CRITICAL  
 **Audience:** 5M+ tech enthusiasts  
 **Cost:** Free  
@@ -86,7 +86,7 @@
   - [ ] Add website URL
   - [ ] Add Gumroad purchase link
   - [ ] Add topics/tags: productivity, privacy, pdf, desktop, mac
-- [ ] Schedule launch for Nov 28, 12:01 AM PST
+- [x] Schedule launch for Nov 28, 12:01 AM PST
 - [ ] Line up 20+ supporters for upvotes
 - [ ] Prepare first comment with additional details
 
@@ -104,8 +104,8 @@
 ---
 
 ### 2. AlternativeTo
-**URL:** https://alternativeto.net/  
-**Status:** � Submittred (Nov 26, 2025)  
+**URL:** <https://alternativeto.net/>  
+**Status:** ✅ Approved (Nov 26, 2025)  
 **Impact:** 🔥🔥🔥 CRITICAL  
 **Audience:** 10M+ monthly visitors  
 **Cost:** Free  
@@ -139,13 +139,14 @@
 - [x] Submit for review
 
 **Submission Date:** November 26, 2025  
-**Expected Approval:** November 27-28, 2025
+**Approval Date:** November 26, 2025 (email confirmation)
 
 **Post-Approval Actions:**
 - [ ] Encourage users to "like" the listing
 - [ ] Respond to comments
 - [ ] Update regularly with new features
 - [ ] Monitor traffic via UTM parameters
+- [ ] Ensure listing links to <https://signkit.work>
 
 **Expected Results:**
 - 500-2,000 visits/month
