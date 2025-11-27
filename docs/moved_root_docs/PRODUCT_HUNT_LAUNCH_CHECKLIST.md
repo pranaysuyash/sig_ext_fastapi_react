@@ -71,13 +71,12 @@ Privacy-first signature extraction. Own forever.
 - [ ] Upload to Product Hunt
 
 #### 4. Gallery Images (5-7 screenshots, 1270x760px recommended)
-- [ ] Image 1: Main interface with document loaded
-- [ ] Image 2: Before/after comparison
-- [ ] Image 3: Precision selection feature
-- [ ] Image 4: Export options
-- [ ] Image 5: PDF signing (if applicable)
-- [ ] Image 6: Settings/threshold adjustment
-- [ ] Image 7: Multi-platform support
+- [x] Image 1: Main interface with document loaded (Existing)
+- [x] Image 2: Before/after comparison (Existing)
+- [ ] Image 3: Privacy Focus (100% Local Processing) - *In Progress*
+- [ ] Image 4: Export Options (PNG, SVG, PDF) - *In Progress*
+- [ ] Image 5: Precision Settings (Threshold/Zoom) - *In Progress*
+- [ ] Image 6: Multi-platform support (Optional)
 
 #### 5. Product Video (Optional but HIGHLY recommended)
 - [ ] Demo video (60-90 seconds)
@@ -113,12 +112,11 @@ contracts, PDFs, and workflows. Black Friday: $19 (own forever, no subscription)
 ```markdown
 Hey Product Hunt! 👋
 
-I'm [Your Name], and I built SignKit to solve a problem I had: extracting
-signatures from documents without uploading them to cloud services.
+I'm Pranay Suyash, and I built SignKit to solve a problem I had: extracting signatures from documents without uploading them to cloud services.
 
 **Why SignKit?**
 🔒 Complete privacy - all processing happens locally on your computer
-💰 Black Friday special: $19 (regularly $29, own forever)
+💰 Launch special: $29 (own forever)
 🎯 Professional precision with zoom and threshold controls
 📄 PDF signing included
 🚫 No subscriptions, no tracking, no cloud uploads
@@ -131,9 +129,7 @@ signatures from documents without uploading them to cloud services.
 • Anyone who values privacy
 
 **The Problem I Solved:**
-I needed to extract signatures for contracts but didn't trust cloud services
-with sensitive documents. Adobe Acrobat costs $240/year. Free online tools
-compromise privacy or have malware risks.
+I needed to extract signatures for contracts but didn't trust cloud services with sensitive documents. Adobe Acrobat costs $240/year. Free online tools compromise privacy or have malware risks.
 
 So I built SignKit - a desktop app that processes everything locally.
 
@@ -143,18 +139,11 @@ So I built SignKit - a desktop app that processes everything locally.
 • PyMuPDF for PDF handling
 • Cross-platform: macOS (ARM64 & Intel), Windows, Linux
 
-**What Took 6 Months:**
-• Building cross-platform desktop app
-• Implementing precision selection tools
-• Packaging for different operating systems
-• Testing on dozens of document types
-• Ensuring 100% local processing (no cloud)
-
 **Black Friday Special:**
-Launching today at $19 (35% off regular $29).
+Launching today at $29.
 One-time payment. Own it forever. No subscriptions.
 
-**Try it free:** https://signkit.work
+**Download it here:** https://signkit.work
 Test all features before buying. No credit card required for trial.
 
 **What I'd Love Feedback On:**
@@ -164,10 +153,6 @@ Test all features before buying. No credit card required for trial.
 4. Any privacy concerns I should address?
 
 Thanks for checking out SignKit! Happy to answer any questions. 🚀
-
----
-
-P.S. If you're launching on Product Hunt soon, happy to support your launch too!
 ```
 
 ---
