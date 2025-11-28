@@ -1,4 +1,13 @@
 # Launch Specs Status Summary
+
+> **⚠️ OBSOLETE - November 27, 2025**  
+> This document was created during pre-launch planning (November 7, 2025).  
+> **Product has since launched successfully.**  
+> For current status, see: `docs/CURRENT_STATUS_NOV_27_2025.md`  
+> Keeping for historical reference only.
+
+---
+
 **Generated:** November 7, 2025  
 **Based on:** Actual codebase inspection, not task checkboxes
 

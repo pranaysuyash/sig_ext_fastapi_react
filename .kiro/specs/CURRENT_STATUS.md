@@ -1,4 +1,13 @@
 # Current Status - Launch Preparation
+
+> **⚠️ OBSOLETE - November 27, 2025**  
+> This document was created during pre-launch preparation (November 7, 2025).  
+> **Product has since launched successfully.**  
+> For current status, see: `docs/CURRENT_STATUS_NOV_27_2025.md`  
+> Keeping for historical reference only.
+
+---
+
 **Last Updated:** November 7, 2025  
 **Git Commit:** 5feca42 - "Organize codebase structure and clean up random files"
 

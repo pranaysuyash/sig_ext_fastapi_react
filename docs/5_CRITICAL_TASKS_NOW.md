@@ -1,5 +1,14 @@
 # 🚀 5 CRITICAL TASKS - DO RIGHT NOW
 
+> **⚠️ PARTIALLY OBSOLETE - November 27, 2025**  
+> This document was created for pre-launch tasks (November 22, 2025).  
+> **Product has since launched.**  
+> Some tasks completed (Analytics, GSC), others still relevant (directories, content).  
+> For current priorities, see: `docs/CURRENT_STATUS_NOV_27_2025.md`  
+> Keeping for reference - some tasks still applicable.
+
+---
+
 **Date:** November 22, 2025  
 **Days Until Launch:** 6 days  
 **Total Time:** 6.5 hours

@@ -1,4 +1,13 @@
 # Launch Action Plan
+
+> **⚠️ OBSOLETE - November 27, 2025**  
+> This document was created during pre-launch planning (November 7, 2025).  
+> **Product launched successfully mid-November 2025.**  
+> For current post-launch priorities, see: `docs/CURRENT_STATUS_NOV_27_2025.md`  
+> Keeping for historical reference only.
+
+---
+
 **Created:** November 7, 2025  
 **Target Launch:** ~18 days from now (November 25, 2025)
 

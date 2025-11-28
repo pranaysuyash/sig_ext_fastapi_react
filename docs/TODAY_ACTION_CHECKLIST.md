@@ -1,5 +1,14 @@
 # TODAY'S ACTION CHECKLIST - November 21, 2025
 
+> **⚠️ OBSOLETE - November 27, 2025**  
+> This document was created for pre-launch tasks (November 21, 2025).  
+> **Product has since launched.**  
+> Many tasks completed (GSC, sitemap, analytics).  
+> For current action items, see: `docs/CURRENT_STATUS_NOV_27_2025.md`  
+> Keeping for historical reference only.
+
+---
+
 **🚨 URGENT: 7 Days Until Black Friday Launch**
 
 ---
