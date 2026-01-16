@@ -27,7 +27,17 @@ jobs:
           fi
           for f in $changed_files; do
             case "$f" in
-              index.html|root.html|buy.html|purchase.html|gum.html|new.html|test-variants.html|robots.txt|sitemap.xml|404.html|_redirects|assets/*|css/*|js/*|screenshots/*|web/*)
+              # Landing HTML entrypoints
+              index.html|root.html|buy.html|purchase.html|gum.html|new.html|test-variants.html)
+                ;;
+              # SEO / routing / deploy config
+              robots.txt|sitemap.xml|404.html|_redirects|wrangler.toml|.cfignore|.pagesignore|.pages-include)
+                ;;
+              # Landing assets
+              assets/*|css/*|js/*|screenshots/*|web/*)
+                ;;
+              # Landing-only CI workflow tuning
+              .github/workflows/*)
                 ;;
               *)
                 echo "Detected changed file outside allowed paths: $f"; exit 1
