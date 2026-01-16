@@ -25,3 +25,4 @@ Allow: /web/
 
 # Crawl-delay (optional, helps with server load)
 Crawl-delay: 1
+

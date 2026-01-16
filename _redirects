@@ -1,6 +1,13 @@
-# Cloudflare Pages - No redirects needed
-# Cloudflare automatically serves extensionless URLs
-# /root → root.html
-# /buy → buy.html
-# /gum → gum.html
-# /purchase → purchase.html
+# Extensionless routes (avoid SPA fallback eating robots/sitemap)
+/root /root.html 200
+/root/ /root.html 200
+/buy /buy.html 200
+/buy/ /buy.html 200
+/purchase /purchase.html 200
+/purchase/ /purchase.html 200
+/gum /gum.html 200
+/gum/ /gum.html 200
+/test-variants /test-variants.html 200
+/test-variants/ /test-variants.html 200
+/robots.txt /robots.txt 200
+/sitemap.xml /sitemap.xml 200

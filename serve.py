@@ -9,29 +9,26 @@ import os
 
 class ABTestRouter(SimpleHTTPRequestHandler):
     def do_GET(self):
-        # Handle different routes
+        # Handle extensionless landing routes (match Cloudflare Pages _redirects)
         if self.path == '/':
             self.path = '/index.html'
         elif self.path == '/root':
-            # Serve index.html for /root route (control variant)
-            self.path = '/index.html'
-        elif self.path == '/buy' or self.path == '/gum':
-            # Serve index.html for /buy and /gum (JavaScript handles the rest)
-            self.path = '/index.html'
+            self.path = '/root.html'
+        elif self.path == '/buy':
+            self.path = '/buy.html'
         elif self.path == '/purchase':
-            # Serve purchase.html for /purchase route
             self.path = '/purchase.html'
+        elif self.path == '/gum':
+            self.path = '/gum.html'
+        elif self.path == '/test-variants':
+            self.path = '/test-variants.html'
         elif self.path == '/new':
             # Serve new landing page
             self.path = '/web/new_landing_page/index.html'
-        elif self.path.startswith('/test-variants'):
-            # Allow test dashboard
-            pass
         elif not os.path.exists(self.path.lstrip('/')):
-            # If file doesn't exist and not a special route, serve index.html
-            # This handles refresh on /buy, /gum routes
-            if not '.' in os.path.basename(self.path):
-                self.path = '/index.html'
+            # Unknown extensionless route: serve 404 (closer to Pages behavior)
+            if '.' not in os.path.basename(self.path):
+                self.path = '/404.html'
         
         return SimpleHTTPRequestHandler.do_GET(self)
 

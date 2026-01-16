@@ -8,9 +8,9 @@ on:
         required: false
         default: 'landing-page'
       publish_dir:
-        description: 'Folder to publish (default: web/live, use . for full branch root)'
+        description: 'Folder to publish (default: ., publish full branch root)'
         required: false
-        default: 'web/live'
+        default: '.'
 
 jobs:
   publish-landing:
@@ -32,28 +32,6 @@ jobs:
         run: |
           npm install -g @cloudflare/wrangler
 
-      - name: Prepare publish directory (copy root landing pages & assets)
-        run: |
-          mkdir -p web/live
-          # Copy root-level HTML landing pages into web/live
-          for f in index.html buy.html purchase.html gum.html root.html; do
-            if [ -f "$f" ]; then cp "$f" web/live/; fi
-          done
-          # Copy entire root assets into web/live/assets if present
-          if [ -d "assets" ]; then
-            mkdir -p web/live/assets
-            rsync -a --delete assets/ web/live/assets/
-          fi
-          # Copy screenshots if present at repo root
-          if [ -d "screenshots" ]; then
-            mkdir -p web/live/screenshots
-            rsync -a --delete screenshots/ web/live/screenshots/
-          fi
-          # Copy landing page variant folders (e.g., web/claude_landing_page_v2) into web/live/web
-          if [ -d "web/claude_landing_page_v2" ]; then
-            mkdir -p web/live/web/claude_landing_page_v2
-            rsync -a --delete web/claude_landing_page_v2/ web/live/web/claude_landing_page_v2/
-          fi
       - name: Run pre-publish checks (smoke tests + e2e)
         run: |
           # Start server and run smoke tests
@@ -83,12 +61,11 @@ jobs:
           echo "Configuring Wrangler via env..."
           # Wrangler will pick up env vars via standard env
 
-      - name: Publish web/live to Cloudflare Pages
+      - name: Publish to Cloudflare Pages
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          # Publish the web/live folder to the signkit-landing project
           wrangler pages deploy "${{ github.event.inputs.publish_dir }}" --project-name signkit-landing --branch "${{ github.event.inputs.branch }}"
 
       - name: Done

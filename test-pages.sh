@@ -26,6 +26,23 @@ test_page() {
     fi
 }
 
+test_header_contains() {
+    local path=$1
+    local name=$2
+    local header=$3
+    local expected=$4
+
+    echo -n "Checking header $header contains '$expected' on $name ($path)... "
+    value=$(curl -sI "$BASE_URL$path" | tr -d '\r' | awk -F': ' -v h="$header" 'tolower($1)==tolower(h){print $2}' | head -n 1)
+    if echo "$value" | grep -qi "$expected"; then
+        echo "✅ OK"
+        return 0
+    else
+        echo "❌ FAILED ($header: $value)"
+        return 1
+    fi
+}
+
 check_contains() {
     local path=$1
     local name=$2
@@ -44,11 +61,20 @@ check_contains() {
 
 # Test all variants
 test_page "/" "Root/Index"
+test_page "/root" "Control Variant (clean URL)"
+test_page "/buy" "Buy Variant (clean URL)"
+test_page "/purchase" "Purchase Variant (clean URL)"
+test_page "/gum" "Gum Variant (clean URL)"
+test_page "/test-variants" "Test Dashboard (clean URL)"
 test_page "/root.html" "Control Variant"
 test_page "/buy.html" "Buy Variant (Iframe)"
 test_page "/purchase.html" "Purchase Variant (Claude v2)"
 test_page "/gum.html" "Gum Variant (Redirect)"
 test_page "/test-variants.html" "Test Dashboard"
+test_page "/robots.txt" "robots.txt"
+test_page "/sitemap.xml" "sitemap.xml"
+test_header_contains "/robots.txt" "robots.txt" "content-type" "text/plain"
+test_header_contains "/sitemap.xml" "sitemap.xml" "content-type" "xml"
 
 echo ""
 echo "Testing Assets:"

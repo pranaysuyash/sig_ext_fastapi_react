@@ -6,6 +6,10 @@ purchase.html
 gum.html
 new.html
 test-variants.html
+robots.txt
+sitemap.xml
+404.html
+_redirects
 assets/
 screenshots/
 web/claude_landing_page_v2/
