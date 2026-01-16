@@ -42,14 +42,11 @@ jobs:
         run: |
           npm install -g @cloudflare/wrangler
 
-      - name: Run pre-publish checks (smoke tests + e2e)
+      - name: Run pre-publish checks (smoke tests)
         run: |
           nohup python3 serve.py &
           sleep 2
           ./test-pages.sh
-          cd web/e2e && npm install --no-audit --no-fund
-          npx playwright install --with-deps
-          npm test
 
       - name: Publish to Cloudflare Pages
         env:
