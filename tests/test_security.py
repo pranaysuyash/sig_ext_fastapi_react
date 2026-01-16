@@ -90,8 +90,9 @@ class TestSecurityValidator:
             "/etc/passwd",
             "/bin/sh",
             "/usr/bin/python",
-            "C:\\Windows\\System32\\config\\SAM",
         ]
+        if os.name == "nt":
+            system_paths.append("C:\\Windows\\System32\\config\\SAM")
         
         for path in system_paths:
             with pytest.raises(ValueError, match="Access to system directory not allowed"):
@@ -156,9 +157,9 @@ class TestSignatureExtractorSecurity:
                 )
             
             # Test coordinates outside image bounds
-            with pytest.raises(ValueError, match="coordinates must be"):
+            with pytest.raises(ValueError, match="coordinates must be|X coordinates must be|Y coordinates must be"):
                 self.extractor.process_selection(
-                    session_id, 0, 0, 10000, 10000, 128, "#000000"
+                    session_id, 0, 0, 301, 10, 128, "#000000"
                 )
             
             # Test invalid selection (x2 <= x1)
@@ -208,7 +209,7 @@ class TestSignatureExtractorSecurity:
     
     def test_large_selection_prevention(self):
         """Test prevention of extremely large selections."""
-        test_image_path = self._create_test_image()
+        test_image_path = self._create_test_image(width=5200, height=5200)
         
         try:
             session_id = self.extractor.create_session(test_image_path)
@@ -217,7 +218,7 @@ class TestSignatureExtractorSecurity:
             # Create coordinates that would result in >25M pixels
             with pytest.raises(ValueError, match="Selection too large"):
                 self.extractor.process_selection(
-                    session_id, 0, 0, 5000, 5000, 128, "#000000"  # 25M pixels
+                    session_id, 0, 0, 5200, 5200, 128, "#000000"
                 )
                 
         finally:
@@ -248,14 +249,14 @@ class TestSignatureExtractorSecurity:
             if os.path.exists(test_image_path):
                 os.unlink(test_image_path)
     
-    def _create_test_image(self) -> str:
+    def _create_test_image(self, width: int = 300, height: int = 200) -> str:
         """Create a valid test image for testing."""
         import cv2
         import numpy as np
         
         # Create a simple test image
-        img = np.ones((200, 300, 3), dtype=np.uint8) * 255
-        cv2.putText(img, "Test", (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+        img = np.ones((height, width, 3), dtype=np.uint8) * 255
+        cv2.putText(img, "Test", (max(10, width // 8), max(20, height // 2)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
         
         # Save to temporary file
         fd, temp_path = tempfile.mkstemp(suffix='.png')

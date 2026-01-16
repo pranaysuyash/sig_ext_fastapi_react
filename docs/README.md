@@ -16,7 +16,7 @@
 
 - **Frontend**: PySide6 desktop application (macOS, Windows, Linux)
 - **Backend**: FastAPI REST API (Python 3.9+)
-- **Database**: SQLite (default) or PostgreSQL (optional)
+- **Database**: PostgreSQL (backend)
 - **Processing**: OpenCV, NumPy, PIL for image manipulation
 
 ## Documentation
@@ -62,11 +62,8 @@ JWT_SECRET=your_secure_32_byte_hex_key_here
 # REQUIRED: API endpoint for desktop app
 API_BASE_URL=http://127.0.0.1:8001
 
-# REQUIRED: Database (SQLite recommended for local use)
-DATABASE_URL=sqlite:///./signature_extractor.db
-
-# OPTIONAL: PostgreSQL instead of SQLite
-# DATABASE_URL=postgresql://username:password@localhost:5432/signature_extractor
+# REQUIRED: Database (PostgreSQL)
+DATABASE_URL=postgresql://username:password@localhost:5432/signature_extractor
 ```
 
 See `.env.example` for complete configuration options and examples.
@@ -79,7 +76,7 @@ Run backend:
 # Install backend dependencies
 pip install -r backend/requirements.txt
 
-# Start server (auto-creates SQLite DB if needed)
+# Start server
 uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8001
 ```
 
@@ -138,7 +135,7 @@ python -m desktop_app.main
 ✅ **Cleanup**:
 
 - Removed React frontend (simplified to desktop-only)
-- SQLite as default DB (no Postgres required)
+- PostgreSQL as backend DB (required)
 - Updated all docs and specs
 
 ## Use Cases

@@ -217,11 +217,11 @@ class BackendManager:
 
             base_dir = _user_data_dir()
 
-            # Ensure a writable SQLite database if DATABASE_URL not provided
+            # Backend requires PostgreSQL. If DATABASE_URL is not configured,
+            # keep operating in offline mode (desktop local processing).
             if not env.get("DATABASE_URL"):
-                data_dir = os.path.join(base_dir, "data")
-                os.makedirs(data_dir, exist_ok=True)
-                env["DATABASE_URL"] = f"sqlite:///{os.path.join(data_dir, 'app.db')}"
+                LOG.info("DATABASE_URL not set; backend remains disabled (offline-first mode).")
+                return False
 
             # Persist and provide a JWT secret if missing
             if not env.get("JWT_SECRET"):
@@ -401,11 +401,8 @@ class BackendManager:
             # Prepare a user-writable environment (same as subprocess branch)
             env = os.environ
             if not env.get("DATABASE_URL"):
-                base_dir = os.path.expanduser("~/Library/Application Support/SignKit") if sys.platform == "darwin" else (
-                    os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), "SignKit") if sys.platform == "win32" else os.path.expanduser("~/.local/share/SignKit")
-                )
-                os.makedirs(os.path.join(base_dir, "data"), exist_ok=True)
-                env["DATABASE_URL"] = f"sqlite:///{os.path.join(base_dir, 'data', 'app.db')}"
+                LOG.info("DATABASE_URL not set; backend remains disabled (offline-first mode).")
+                return False
             if not env.get("JWT_SECRET"):
                 try:
                     import secrets as _secrets

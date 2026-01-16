@@ -4,6 +4,9 @@ import pytest
 from unittest.mock import Mock
 
 
+PySide6 = pytest.importorskip("PySide6")
+
+
 def test_main_window_mixin_contract():
     """Verify all mixin methods exist on MainWindow before instantiation."""
     # Import here to catch import errors

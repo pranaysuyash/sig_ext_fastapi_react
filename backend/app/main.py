@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from backend.app.routers import auth, extraction
 from backend.app.database import Base, engine
+from backend.app.paths import LOG_DIR, UPLOADS_DIR
 import os
 import logging
 import sys
@@ -20,23 +21,8 @@ class LocalTimeFormatter(logging.Formatter):
     converter = time.localtime
 
 
-def _get_user_data_dir() -> str:
-    """Return a user-writable base directory for app data/logs/uploads."""
-    app_name = "SignKit"
-    if sys.platform == "darwin":
-        base = os.path.expanduser(f"~/Library/Application Support/{app_name}")
-    elif sys.platform == "win32":
-        base = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), app_name)
-    else:
-        base = os.path.expanduser(f"~/.local/share/{app_name}")
-    os.makedirs(base, exist_ok=True)
-    return base
-
-
-USER_DATA_DIR = _get_user_data_dir()
-LOG_DIR = os.path.join(USER_DATA_DIR, "logs")
-os.makedirs(LOG_DIR, exist_ok=True)
-LOG_PATH = os.path.join(LOG_DIR, "app.log")
+os.makedirs(str(LOG_DIR), exist_ok=True)
+LOG_PATH = os.path.join(str(LOG_DIR), "app.log")
 
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
@@ -69,13 +55,12 @@ app = FastAPI(
 )
 
 # Ensure uploads directory exists in a user-writable location
-UPLOADS_DIR = os.path.join(USER_DATA_DIR, "uploads", "images")
-os.makedirs(UPLOADS_DIR, exist_ok=True)
+os.makedirs(str(UPLOADS_DIR), exist_ok=True)
 logger.info(f"Uploads directory configured at: {UPLOADS_DIR}")
 
 # Mount static files (for serving uploaded images and signatures)
 try:
-    app.mount("/uploads/images", StaticFiles(directory=UPLOADS_DIR), name="uploads")
+    app.mount("/uploads/images", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
     logger.info("Successfully mounted uploads directory")
 except Exception as e:
     logger.error(f"Failed to mount uploads directory: {str(e)}")
@@ -103,8 +88,8 @@ app.add_middleware(
 async def health_check():
     return {
         "status": "healthy",
-        "uploads_dir": UPLOADS_DIR,
-        "uploads_dir_exists": os.path.exists(UPLOADS_DIR)
+        "uploads_dir": str(UPLOADS_DIR),
+        "uploads_dir_exists": os.path.exists(str(UPLOADS_DIR))
     }
 
 # Include routers

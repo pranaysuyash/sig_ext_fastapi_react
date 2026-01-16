@@ -144,7 +144,7 @@ Launching today at $29.
 One-time payment. Own it forever. No subscriptions.
 
 **Download it here:** https://signkit.work
-Test all features before buying. No credit card required for trial.
+(30-day money-back guarantee)
 
 **What I'd Love Feedback On:**
 1. Is the value proposition clear?

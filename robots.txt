@@ -1,0 +1,28 @@
+# robots.txt for signkit.work - AI Search Era SEO Policy
+#
+# Policy:
+# - Allow traditional search indexing and real-time AI search (RAG) with attribution
+# - Disallow wholesale AI training data scraping
+
+User-agent: *
+Content-signal: search=yes,ai-input=yes,ai-train=no
+Allow: /
+
+# Sitemap
+Sitemap: https://signkit.work/sitemap.xml
+
+# Disallow admin/internal paths (defense-in-depth)
+Disallow: /admin/
+Disallow: /.git/
+Disallow: /node_modules/
+
+# Allow assets
+Allow: /assets/
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /web/
+
+# Crawl-delay (optional, helps with server load)
+Crawl-delay: 1
+

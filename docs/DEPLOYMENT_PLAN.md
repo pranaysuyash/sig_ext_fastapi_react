@@ -6,7 +6,7 @@
 
 ## Artifacts
 - Desktop app binary (PyInstaller or Nuitka)
-- Backend container image for optional cloud (FastAPI + SQLite/Postgres)
+- Backend container image for optional cloud (FastAPI + PostgreSQL)
 - Documentation and release notes per version
 
 ## Environments
@@ -41,13 +41,13 @@
 
 ## Backend Deployment (Optional Cloud)
 - Container: Docker image with FastAPI
-- DB: SQLite by default; Postgres optional via `DATABASE_URL`
+- DB: PostgreSQL via `DATABASE_URL`
 - Hosting options: Fly.io, Railway, DO App Platform, AWS/GCP/Azure (container services)
 - Health and uptime: `/health` endpoint; liveness/readiness if using k8s
 - SSL: Terminate at load balancer or use Traefik/Caddy for local deployments
 
 ### Config & Secrets
-- .env (local): `JWT_SECRET`, `DATABASE_URL` (default SQLite), ports
+- .env (local): `JWT_SECRET`, `DATABASE_URL` (PostgreSQL), ports
 - Secrets in cloud: platform secret manager; never commit
 - CORS: Restrict to local desktop or trusted origins
 
@@ -83,4 +83,3 @@
 - Website landing page with direct download links
 - Product Hunt and community posts at launch
 - Optional package managers: winget/choco (Windows), Homebrew (macOS), apt repo (Linux) in later phase
-

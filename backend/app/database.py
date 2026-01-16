@@ -1,5 +1,6 @@
 
 from sqlalchemy import create_engine
+from sqlalchemy import text
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 from backend.app.config import settings
@@ -7,40 +8,26 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Resolve database URL with optional SQLite fallback for desktop/local use
 import os
 ENV_DB_URL = os.getenv("DATABASE_URL")
 if ENV_DB_URL:
     SQLALCHEMY_DATABASE_URL = ENV_DB_URL
 else:
-    # Default to Postgres via settings; users can flip to SQLite by setting DATABASE_URL
-    SQLALCHEMY_DATABASE_URL = (
-        f"postgresql://{settings.DATABASE_USERNAME}:{settings.DATABASE_PASSWORD}"
-        f"@{settings.DATABASE_HOSTNAME}:{settings.DATABASE_PORT}/{settings.DATABASE_NAME}"
+    SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
+
+if not SQLALCHEMY_DATABASE_URL.startswith("postgresql://") and not SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    raise ValueError(
+        "Unsupported DATABASE_URL scheme. This backend requires PostgreSQL. "
+        "Set DATABASE_URL to a postgresql://... URL."
     )
 
-# Ensure directory exists for SQLite file URLs like sqlite:///backend/data/app.db
-connect_args = {}
-if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
-    try:
-        path = SQLALCHEMY_DATABASE_URL.replace("sqlite:///", "", 1)
-        if path:
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-    except Exception as _e:
-        logger.warning(f"Could not ensure SQLite directory: {_e}")
-    connect_args = {"check_same_thread": False}
-
-# Create engine (add pooling only when not using SQLite)
-if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
-    engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False, connect_args=connect_args)
-else:
-    engine = create_engine(
-        SQLALCHEMY_DATABASE_URL,
-        echo=True,  # Log all SQL statements
-        pool_pre_ping=True,  # Enable connection health checks
-        pool_size=5,
-        max_overflow=10
-    )
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    echo=False,
+    pool_pre_ping=True,
+    pool_size=5,
+    max_overflow=10,
+)
 
 # Create session factory
 SessionLocal = sessionmaker(
@@ -79,7 +66,7 @@ def verify_db_connection():
     """Verify database connection is working."""
     try:
         db = SessionLocal()
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         logger.info("Database connection verified successfully")
         return True
     except Exception as e:

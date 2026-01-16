@@ -23,17 +23,17 @@ import uuid
 import os
 import traceback
 
+from backend.app.paths import UPLOADS_DIR
+from backend.app.security import UploadSecurity
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 router = APIRouter(tags=["Extraction"])
 
 
-# Define the directory for image uploads
-UPLOADS_DIR = "uploads/images"  # Relative to where FastAPI serves static files
-
 # Ensure the uploads directory exists
-os.makedirs(UPLOADS_DIR, exist_ok=True)
+os.makedirs(str(UPLOADS_DIR), exist_ok=True)
 
 
 # Upload image endpoint
@@ -49,13 +49,16 @@ async def upload_image_endpoint(
                 detail="No file provided"
             )
 
+        data = await file.read()
+        UploadSecurity.validate_image_bytes(file.filename or "", data)
+
         # Generate unique filename and save
         file_id = str(uuid.uuid4())
         filename = f"{file_id}.png"
-        file_path = os.path.join(UPLOADS_DIR, filename)
+        file_path = os.path.join(str(UPLOADS_DIR), filename)
 
         with open(file_path, "wb") as buffer:
-            buffer.write(await file.read())
+            buffer.write(data)
 
         logger.info(f"Successfully uploaded image: {filename}")
 
@@ -65,9 +68,12 @@ async def upload_image_endpoint(
             "filename": filename,
             "file_path": f"/uploads/images/{filename}"
         }
+    except ValueError as e:
+        logger.warning("Upload rejected: %s", e)
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Error uploading image: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to upload image")
+        raise HTTPException(status_code=500, detail="Failed to upload image") from e
 
 
 # Select region endpoint
@@ -117,8 +123,12 @@ async def process_image_endpoint(
     db: Session = Depends(get_db)
 ):
     try:
+        session_id = UploadSecurity.validate_session_id(session_id)
+        threshold = UploadSecurity.validate_threshold(threshold)
+        color = UploadSecurity.validate_hex_color(color)
+
         # Correctly reference the saved image file based on session_id
-        file_path = os.path.join(UPLOADS_DIR, f"{session_id}.png")
+        file_path = os.path.join(str(UPLOADS_DIR), f"{session_id}.png")
 
         logger.info("[BACKEND] process_image_endpoint called")
         logger.info(f"[BACKEND] Session ID: {session_id}")
@@ -158,11 +168,6 @@ async def process_image_endpoint(
 
         # Convert color hex string (#RRGGBB) to BGR tuple for OpenCV
         hex_color = color.lstrip("#")
-        if len(hex_color) != 6:
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid color format; expected #RRGGBB"
-            )
         r_val = int(hex_color[0:2], 16)
         g_val = int(hex_color[2:4], 16)
         b_val = int(hex_color[4:6], 16)
@@ -187,6 +192,9 @@ async def process_image_endpoint(
         )
 
         return StreamingResponse(final_image_io, media_type="image/png")
+    except ValueError as e:
+        logger.warning("process_image rejected: %s", e)
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Error processing image: {str(e)}")
         traceback.print_exc()

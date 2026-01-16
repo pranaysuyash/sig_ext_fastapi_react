@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SignKit A/B Variants</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        margin: 0;
+        padding: 32px 18px;
+        background: #0b1020;
+        color: #e5e7eb;
+      }
+      .wrap {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+      h1 {
+        margin: 0 0 8px 0;
+        font-size: 26px;
+      }
+      p {
+        margin: 0 0 18px 0;
+        color: #cbd5e1;
+        line-height: 1.5;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+        margin-top: 14px;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        padding: 16px;
+      }
+      .badge {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        padding: 4px 8px;
+        border-radius: 8px;
+        background: rgba(59, 130, 246, 0.2);
+        border: 1px solid rgba(59, 130, 246, 0.35);
+        color: #bfdbfe;
+      }
+      .route {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 13px;
+        color: #e5e7eb;
+        margin: 10px 0 10px 0;
+      }
+      a.btn,
+      button.btn {
+        display: inline-block;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.08);
+        color: #e5e7eb;
+        text-decoration: none;
+        padding: 10px 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+      }
+      code {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 2px 6px;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>SignKit A/B Variants</h1>
+      <p>
+        Use these direct URLs to QA each variant. Current assigned variant (via
+        <code>localStorage.ab_variant</code>): <span id="variant">(none)</span>
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <span class="badge">Entry</span>
+          <div class="route">/</div>
+          <p>Entry page. If <code>AUTO_SPLIT</code> is enabled, this redirects to a variant.</p>
+          <a class="btn" href="/" target="_blank" rel="noopener">Open /</a>
+        </div>
+        <div class="card">
+          <span class="badge">Control</span>
+          <div class="route">/root</div>
+          <p>Control landing page variant.</p>
+          <a class="btn" href="/root" target="_blank" rel="noopener">Open /root</a>
+        </div>
+        <div class="card">
+          <span class="badge">Embedded</span>
+          <div class="route">/buy</div>
+          <p>Embedded checkout variant.</p>
+          <a class="btn" href="/buy" target="_blank" rel="noopener">Open /buy</a>
+        </div>
+        <div class="card">
+          <span class="badge">SaaS</span>
+          <div class="route">/purchase</div>
+          <p>Long-form “purchase” landing variant.</p>
+          <a class="btn" href="/purchase" target="_blank" rel="noopener">Open /purchase</a>
+        </div>
+        <div class="card">
+          <span class="badge">Redirect</span>
+          <div class="route">/gum</div>
+          <p>Immediate redirect variant.</p>
+          <a class="btn" href="/gum" target="_blank" rel="noopener">Open /gum</a>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn" id="clearVariant">Clear localStorage variant</button>
+        <a class="btn" href="/robots.txt" target="_blank" rel="noopener">Open robots.txt</a>
+        <a class="btn" href="/sitemap.xml" target="_blank" rel="noopener">Open sitemap.xml</a>
+      </div>
+    </div>
+
+    <script>
+      function refresh() {
+        const v = localStorage.getItem('ab_variant');
+        document.getElementById('variant').textContent = v || '(none)';
+      }
+      document.getElementById('clearVariant').addEventListener('click', () => {
+        localStorage.removeItem('ab_variant');
+        refresh();
+      });
+      refresh();
+    </script>
+  </body>
+</html>
+

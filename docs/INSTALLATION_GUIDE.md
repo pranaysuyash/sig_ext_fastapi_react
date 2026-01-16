@@ -246,7 +246,7 @@ Create or edit `.env` file:
 # Required settings
 JWT_SECRET=your_secure_32_byte_hex_key_here
 API_BASE_URL=http://127.0.0.1:8001
-DATABASE_URL=sqlite:///./signature_extractor.db
+DATABASE_URL=postgresql://username:password@localhost:5432/signature_extractor
 
 # Optional settings
 LOG_LEVEL=INFO
@@ -266,8 +266,7 @@ uvicorn backend.app.main:app --host 127.0.0.1 --port 8001
 
 **Database Configuration**:
 
-- Default: SQLite database in application directory
-- PostgreSQL: Set `DATABASE_URL=postgresql://user:pass@localhost:5432/dbname`
+- Backend requires PostgreSQL: set `DATABASE_URL=postgresql://user:pass@localhost:5432/dbname`
 
 ### Custom Installation Paths
 
@@ -303,7 +302,6 @@ uvicorn backend.app.main:app --host 127.0.0.1 --port 8001
 **Backup Files**:
 
 - `license.json` - Your license information
-- `signature_extractor.db` - Application database (if using SQLite)
 - `library/` - Your saved signatures and documents
 
 ### Uninstallation

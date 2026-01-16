@@ -23,13 +23,7 @@ echo "JWT_SECRET=your_generated_key_here" >> .env
 
 **Solutions**:
 
-**For SQLite (Recommended)**:
-```env
-# In .env file
-DATABASE_URL=sqlite:///./signature_extractor.db
-```
-
-**For PostgreSQL**:
+**For PostgreSQL (required for backend)**:
 ```env
 # Make sure PostgreSQL is running
 DATABASE_URL=postgresql://username:password@localhost:5432/signature_extractor
@@ -64,6 +58,10 @@ DATABASE_NAME=signature_extractor
    ```bash
    curl http://127.0.0.1:8001/health
    ```
+
+Notes:
+- The desktop app can run fully offline for signature extraction.
+- The backend requires `DATABASE_URL` configured for PostgreSQL.
 
 ### 4. "Invalid API_BASE_URL format" Error
 
@@ -111,7 +109,7 @@ The desktop app validates configuration and shows clear error messages:
 # .env for development
 JWT_SECRET=dev_secret_key_replace_in_production
 API_BASE_URL=http://127.0.0.1:8001
-DATABASE_URL=sqlite:///./dev_signature_extractor.db
+DATABASE_URL=postgresql://username:password@localhost:5432/signature_extractor
 DEBUG=true
 LOG_LEVEL=DEBUG
 ```
@@ -170,17 +168,7 @@ If you need to use a different port:
 
 ## Database Setup
 
-### SQLite Setup (Default)
-
-SQLite requires no additional setup - the database file is created automatically:
-
-```env
-DATABASE_URL=sqlite:///./signature_extractor.db
-```
-
-The file will be created in the project root directory.
-
-### PostgreSQL Setup
+### PostgreSQL Setup (required for backend)
 
 1. **Install PostgreSQL**:
    ```bash
@@ -239,7 +227,6 @@ This error occurs when the backend cannot connect to the database.
 - Database server is running (for PostgreSQL)
 - Database credentials are correct
 - Database exists and is accessible
-- File permissions (for SQLite)
 
 ## Getting Help
 

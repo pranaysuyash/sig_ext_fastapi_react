@@ -1,0 +1,34 @@
+name: Landing Smoke Tests
+
+on:
+  push:
+    branches:
+      - main
+      - landing-page
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure expected landing files exist
+        run: |
+          test -f index.html
+          test -f root.html
+          test -f buy.html
+          test -f purchase.html
+          test -f gum.html
+          test -f test-variants.html
+          test -f robots.txt
+          test -f sitemap.xml
+      - name: Local static server smoke test
+        run: |
+          chmod +x scripts/test-local-landing.sh
+          ./scripts/test-local-landing.sh
+      - name: Optional production smoke test
+        if: ${{ github.ref_name == 'landing-page' }}
+        run: |
+          chmod +x scripts/test-deployment.sh
+          ./scripts/test-deployment.sh https://signkit.work
+
