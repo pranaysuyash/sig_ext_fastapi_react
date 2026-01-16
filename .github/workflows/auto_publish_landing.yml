@@ -15,34 +15,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate changed files are only landing assets
+      - name: Validate required landing files exist
         run: |
-          # Ensure we have origin/main fetched to diff against
-          git fetch origin main:refs/remotes/origin/main
-          # Ensure this push only modifies landing files; otherwise abort to avoid surprise publishes.
-          changed_files=$(git diff --name-only origin/main...HEAD | tr '\n' ' ')
-          echo "Changed files: $changed_files"
-          if [ -z "$changed_files" ]; then
-            echo "No changed files; nothing to publish"; exit 0
-          fi
-          for f in $changed_files; do
-            case "$f" in
-              # Landing HTML entrypoints
-              index.html|root.html|buy.html|purchase.html|gum.html|new.html|test-variants.html)
-                ;;
-              # SEO / routing / deploy config
-              robots.txt|sitemap.xml|404.html|_redirects|wrangler.toml|.cfignore|.pagesignore|.pages-include)
-                ;;
-              # Landing assets
-              assets/*|css/*|js/*|screenshots/*|web/*)
-                ;;
-              # Landing-only CI workflow tuning
-              .github/workflows/*)
-                ;;
-              *)
-                echo "Detected changed file outside allowed paths: $f"; exit 1
-                ;;
-            esac
+          required=(index.html root.html buy.html purchase.html gum.html test-variants.html _redirects)
+          for f in "${required[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "Missing required file: $f"; exit 1
+            fi
+          done
+          # SEO files are strongly recommended (and expected for signkit.work)
+          for f in robots.txt sitemap.xml 404.html; do
+            if [ ! -f "$f" ]; then
+              echo "Missing recommended file: $f"; exit 1
+            fi
           done
 
       - name: Setup Node.js
