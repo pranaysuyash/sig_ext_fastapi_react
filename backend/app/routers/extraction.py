@@ -38,7 +38,7 @@ os.makedirs(str(UPLOADS_DIR), exist_ok=True)
 
 # Upload image endpoint
 @router.post("/upload")
-async def upload_image_endpoint(
+def upload_image_endpoint(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
@@ -49,7 +49,7 @@ async def upload_image_endpoint(
                 detail="No file provided"
             )
 
-        data = await file.read()
+        data = file.file.read()
         UploadSecurity.validate_image_bytes(file.filename or "", data)
 
         # Generate unique filename and save
@@ -112,7 +112,7 @@ async def select_region(
 
 # Process image endpoint
 @router.post("/process_image/")
-async def process_image_endpoint(
+def process_image_endpoint(
     session_id: str = Form(...),
     x1: int = Form(...),
     y1: int = Form(...),
@@ -152,17 +152,27 @@ async def process_image_endpoint(
             )
         logger.info(f"[BACKEND] Image shape: {image.shape}")
 
+        # Swap inverted coordinates
+        x_start, x_end = min(x1, x2), max(x1, x2)
+        y_start, y_end = min(y1, y2), max(y1, y2)
+
         # Ensure coordinates are within image bounds
         height, width = image.shape[:2]
-        x1 = max(0, min(x1, width))
-        x2 = max(0, min(x2, width))
-        y1 = max(0, min(y1, height))
-        y2 = max(0, min(y2, height))
+        x_start = max(0, min(x_start, width))
+        x_end = max(0, min(x_end, width))
+        y_start = max(0, min(y_start, height))
+        y_end = max(0, min(y_end, height))
 
-        logger.info(f"[BACKEND] Clamped coords: ({x1}, {y1}) → ({x2}, {y2})")
-        logger.info(f"[BACKEND] Crop size: {x2-x1} x {y2-y1}")
+        logger.info(f"[BACKEND] Clamped coords: ({x_start}, {y_start}) → ({x_end}, {y_end})")
+        logger.info(f"[BACKEND] Crop size: {x_end-x_start} x {y_end-y_start}")
 
-        cropped_image = image[y1:y2, x1:x2]
+        if x_start == x_end or y_start == y_end:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid crop dimensions: area is zero"
+            )
+
+        cropped_image = image[y_start:y_end, x_start:x_end]
         gray = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
         _, mask = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY_INV)
 
@@ -192,6 +202,9 @@ async def process_image_endpoint(
         )
 
         return StreamingResponse(final_image_io, media_type="image/png")
+    except HTTPException:
+        # Re-raise explicit HTTP exceptions (e.g., 400 Bad Request, 404 Not Found)
+        raise
     except ValueError as e:
         logger.warning("process_image rejected: %s", e)
         raise HTTPException(status_code=400, detail=str(e)) from e
