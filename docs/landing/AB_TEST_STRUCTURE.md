@@ -342,7 +342,7 @@ open http://localhost:8080/test-variants.html
 ```bash
 git add .
 git commit -m "Update landing page variants"
-git push origin landing-page
+git push origin main
 ```
 
 ### Enable A/B Testing

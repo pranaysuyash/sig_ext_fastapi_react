@@ -33,7 +33,7 @@ This document outlines the plan for preparing, executing, and monitoring a succe
 
 ## Landing Page & A/B Testing
 
-- Use `web/live` canonical content; `landing-page` branch remains the dev branch for variant testing.
+- Use `web/live` canonical content; `main` is the live branch for variant testing.
 - Make sure root-level pages link to `web/live` assets and use consistent CTAs.
 - Keep `AUTO_SPLIT = true` if running A/B traffic during BFCM; prefer `AUTO_SPLIT = false` for controlled/progressive rollouts.
 
@@ -48,7 +48,7 @@ This document outlines the plan for preparing, executing, and monitoring a succe
 
 ## Production Deployment Strategy
 
-- Cloudflare Pages: ensure the build directory is set to `web/live` if deploying from `main`, or `landing-page` if you prefer variant branches. Document final choice in the `CLOUDFLARE_DEPLOYMENT.md`.
+- Cloudflare Pages: ensure the build directory is set to `web/live` when deploying from `main`. Document the final choice in `CLOUDFLARE_DEPLOYMENT.md`.
 - For critical releases, deploy during a low-traffic maintenance window (e.g., early morning) and enable a short TTL on cache for fast rollbacks.
 
 ## Testing Scripts & Automated Checks

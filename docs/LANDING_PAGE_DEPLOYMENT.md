@@ -1,23 +1,28 @@
 # Landing Page Deployment Guide
 
 ## Overview
-The SignKit landing page is deployed on Cloudflare Pages at **signkit.work** from the `landing-page` branch.
+The SignKit landing page is deployed on Cloudflare Pages at **signkit.work** from the repository's `main` branch.
 
 ## Branch Strategy
 
-### `landing-page` Branch
+### `main` Branch
 - **Purpose**: Production landing page and A/B test variants
 - **Domain**: https://signkit.work
 - **Cloudflare Project**: signkit-landing
 - **Contents**: HTML pages, assets, screenshots for marketing site
-- **When to update**: Only for landing page copy, design, or A/B test changes
+- **When to update**: Landing page copy, design, assets, deployment wiring, or A/B test changes
 
-### `main` Branch  
-- **Purpose**: Desktop application development
-- **Contents**: Python app, backend, tests, build tools
-- **When to update**: All feature development, bug fixes, new functionality
+### `landing-page` Branch
+- **Status**: Archived/deprecated
+- **Purpose**: Historical reference only
+- **Remote**: Kept on `origin` for auditability and rollback context
 
-**The branches are independent** - you can develop new features in `main` without affecting the live landing page.
+### Repository Scope
+- **Purpose**: Desktop application development and landing page deployment live together in the same repo
+- **Contents**: Python app, backend, tests, build tools, HTML landing pages, assets, screenshots
+- **When to update**: All feature development, bug fixes, landing page copy/design, deployment wiring, and A/B test changes
+
+**The repo is now unified on `main`** - `main` is the source of truth for the live landing page and app code.
 
 ## A/B Testing Setup
 
@@ -43,7 +48,7 @@ Four checkout flow variants are being tested:
 ### Enabling Auto A/B Testing
 When ready to enable automatic variant assignment:
 
-1. Checkout `landing-page` branch
+1. Checkout `main`
 2. Edit `index.html`:
    ```javascript
    const AUTO_SPLIT = true; // Change from false
@@ -54,14 +59,14 @@ When ready to enable automatic variant assignment:
 ## Deployment Process
 
 ### Automatic Deployment (Recommended)
-Cloudflare Pages automatically deploys when you push to `landing-page`:
+Cloudflare Pages automatically deploys when you push to `main`:
 
 ```bash
-git checkout landing-page
+git checkout main
 # Make your changes
 git add -A
 git commit -m "Update landing page copy"
-git push origin landing-page
+git push origin main
 ```
 
 Cloudflare detects the push and deploys automatically (usually 1-2 minutes).
@@ -75,7 +80,7 @@ mkdir -p /tmp/signkit-deploy
 cp -r index.html root.html buy.html purchase.html gum.html test-variants.html assets screenshots web /tmp/signkit-deploy/
 
 # Deploy
-wrangler pages deploy /tmp/signkit-deploy --project-name=signkit-landing --branch=landing-page
+wrangler pages deploy /tmp/signkit-deploy --project-name=signkit-landing --branch=main
 ```
 
 ## Cloudflare Pages Routing Configuration
@@ -118,7 +123,7 @@ wrangler pages deploy /tmp/signkit-deploy --project-name=signkit-landing --branc
 ## File Structure
 
 ```
-landing-page branch:
+main branch:
 ├── index.html              # Main landing page
 ├── root.html               # Control variant
 ├── buy.html                # Gum.new embedded variant
@@ -167,7 +172,7 @@ View results in Google Analytics:
 - Then redirects to Gumroad
 - Includes fallback timeout to ensure redirect happens
 
-**Testing**: Use `test-analytics.html` (in landing-page branch) to verify all variants track correctly:
+**Testing**: Use `test-analytics.html` (in `main`) to verify all variants track correctly:
 ```bash
 # Start local server
 python3 -m http.server 8001
@@ -182,7 +187,7 @@ open http://localhost:8001/test-analytics.html
 - Each variant should send `collect?v=2&...&en=ab_test_impression`
 - One request may show "(canceled)" - this is normal, the 204 response is what matters
 
-See `moved_root_docs/moved_root_docs/ANALYTICS_FIX_SUMMARY.md` (in landing-page branch) for complete details.
+See `moved_root_docs/moved_root_docs/ANALYTICS_FIX_SUMMARY.md` (archived history) for complete details.
 
 ## Troubleshooting
 
@@ -206,21 +211,14 @@ See `moved_root_docs/moved_root_docs/ANALYTICS_FIX_SUMMARY.md` (in landing-page 
 
 ## When to Update Each Branch
 
-### Update `landing-page` when:
+### Update `main` when:
 - Changing landing page copy or messaging
 - Updating pricing information
 - Adding/removing A/B test variants
 - Changing screenshots or assets
 - Enabling/disabling AUTO_SPLIT
 
-### Update `main` when:
-- Adding new desktop app features
-- Fixing bugs in the application
-- Updating dependencies
-- Changing build process
-- Adding tests
-
 ## Related Documentation
-- `moved_root_docs/moved_root_docs/CLOUDFLARE_REDIRECTS_ISSUE.md` (in landing-page branch) - Details on the 308 redirect issue
-- `AB_TEST_STRUCTURE.md` (in landing-page branch) - A/B testing implementation details
-- `DEPLOYMENT_CHECKLIST.md` (in landing-page branch) - Pre-deployment checklist
+- `moved_root_docs/moved_root_docs/CLOUDFLARE_REDIRECTS_ISSUE.md` (archived history) - Details on the 308 redirect issue
+- `AB_TEST_STRUCTURE.md` - A/B testing implementation details
+- `DEPLOYMENT_CHECKLIST.md` - Pre-deployment checklist

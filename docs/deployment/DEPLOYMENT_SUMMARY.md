@@ -47,7 +47,7 @@
 
 ## 🎯 Current Status
 
-**Branch:** `landing-page` ✅  
+**Branch:** `main` ✅  
 **Local Testing:** Passed ✅  
 **Ready for Deployment:** YES ✅  
 **A/B Mode:** Manual (`AUTO_SPLIT = false`)
@@ -87,7 +87,7 @@ Change to: `const AUTO_SPLIT = true;`
    ```bash
    git add .
    git commit -m "feat: Cloudflare Pages deployment with A/B testing"
-   git push origin landing-page
+   git push origin main
    ```
 
 2. **Deploy to Cloudflare**
@@ -286,7 +286,7 @@ git commit -m "feat: Cloudflare Pages deployment with A/B testing
 - All tests passing"
 
 # 2. Push to GitHub
-git push origin landing-page
+git push origin main
 
 # 3. Deploy via Cloudflare Dashboard
 # Follow QUICK_START.md for 5-minute deployment
@@ -311,6 +311,6 @@ Follow [QUICK_START.md](QUICK_START.md) to deploy in 5 minutes.
 
 **Prepared:** November 18, 2025  
 **Status:** ✅ Ready for Deployment  
-**Branch:** landing-page  
+**Branch:** main  
 **Target:** Cloudflare Pages  
 **Domain:** signkit.work

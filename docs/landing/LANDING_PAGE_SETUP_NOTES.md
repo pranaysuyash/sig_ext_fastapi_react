@@ -1,6 +1,6 @@
 # Landing Page Setup - Complete Notes
 
-## Branch: landing-page
+## Branch: main
 
 ### A/B Test Variants
 
@@ -24,7 +24,7 @@
 ### Files Structure
 
 ```
-landing-page branch:
+main branch:
 ├── index.html (Control + /buy + /gum routing logic)
 ├── purchase.html (Claude v2 variant)
 ├── screenshots/ (3 product screenshots)
@@ -63,7 +63,7 @@ landing-page branch:
 ### Deployment
 
 - **Platform**: Cloudflare Pages (free tier)
-- **Branch to deploy**: landing-page
+- **Branch to deploy**: main
 - **Domain**: signkit.work
 - **Build settings**: None needed (static HTML)
 

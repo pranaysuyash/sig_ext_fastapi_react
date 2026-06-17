@@ -10,7 +10,7 @@ set -euo pipefail
 ROOT_DIR=$(dirname "$0")/..
 PUBLISH_DIR="$ROOT_DIR/web/live"
 # Allow overriding the branch via first arg
-BRANCH="${1:-landing-page}"
+BRANCH="${1:-main}"
 
 if ! command -v wrangler >/dev/null 2>&1; then
   echo "Wrangler not found. Please install @cloudflare/wrangler (npm i -g @cloudflare/wrangler)"

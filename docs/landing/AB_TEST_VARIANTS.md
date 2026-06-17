@@ -155,7 +155,7 @@ http://127.0.0.1:8080/gum           # V4: Direct (will redirect)
 
 ## Cloudflare Pages Setup
 
-1. **Production branch:** `landing-page`
+1. **Production branch:** `main`
 2. **Build directory:** `/` (root)
 3. **Environment:**
 
@@ -227,7 +227,7 @@ Run test for **minimum 1000 visitors** or **2 weeks**, whichever comes first.
 ## Files Structure
 
 ```
-landing-page branch:
+main branch:
 ├── index.html                  # Control + V2 (/buy) + V4 (/gum)
 ├── purchase.html               # V3 (/purchase)
 ├── screenshots/                # Product screenshots

@@ -49,7 +49,7 @@
 # Check current branch
 git branch
 
-# Should be on: landing-page
+# Should be on: main
 
 # Stage all changes
 git add .
@@ -58,7 +58,7 @@ git add .
 git commit -m "feat: Cloudflare Pages deployment setup with A/B testing"
 
 # Push to GitHub
-git push origin landing-page
+git push origin main
 ```
 
 ### Step 2: Connect to Cloudflare Pages
@@ -68,7 +68,7 @@ git push origin landing-page
 3. Click **Create a project**
 4. Select **Connect to Git**
 5. Choose your GitHub repository
-6. Select branch: `landing-page`
+6. Select branch: `main`
 
 ### Step 3: Configure Build Settings
 

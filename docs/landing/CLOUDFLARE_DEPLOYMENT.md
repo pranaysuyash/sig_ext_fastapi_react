@@ -37,7 +37,7 @@ This landing page is set up for deployment to Cloudflare Pages with A/B testing 
    - Navigate to Pages
    - Click "Create a project"
    - Connect your GitHub repository
-   - Select the `landing-page` branch
+   - Select the `main` branch
 
 2. **Configure Build Settings**
 

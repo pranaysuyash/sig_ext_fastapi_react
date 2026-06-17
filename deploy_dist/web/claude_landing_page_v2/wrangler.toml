@@ -15,4 +15,4 @@ bucket = "./"
 entry-point = "."
 
 # Example deployment command (local):
-# wrangler pages publish . --branch landing-page --project-name signkit-pages-landing
+# wrangler pages publish . --branch main --project-name signkit-pages-landing
