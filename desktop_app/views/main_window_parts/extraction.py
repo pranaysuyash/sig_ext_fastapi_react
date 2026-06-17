@@ -11,72 +11,17 @@ from typing import TYPE_CHECKING, Any, Callable, Optional, Protocol, cast
 import numpy as np
 from PIL import Image as PILImage
 
-# Early imports for AsyncRunner helper class
+# Standalone utilities extracted to separate modules
+from desktop_app.views.main_window_parts.extraction_utils import (
+    AsyncRunner,
+    run_async,
+    _rgba,
+    _create_button,
+    _clear_layout,
+)
+from desktop_app.views.main_window_parts.extraction_widgets import ElidingButton
+
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
-
-
-class AsyncRunner(QObject):
-    """Helper class to run functions asynchronously and emit results."""
-
-    finished = Signal(object)  # Emits the result
-    error = Signal(Exception)  # Emits any exception
-
-    def __init__(self, func, *args, **kwargs):
-        super().__init__()
-        self.func = func
-        self.args = args
-        self.kwargs = kwargs
-
-    def run(self):
-        """Run the function and emit the result or error."""
-        try:
-            result = self.func(*self.args, **self.kwargs)
-            self.finished.emit(result)
-        except Exception as e:
-            self.error.emit(e)
-
-
-def run_async(func, *args, **kwargs):
-    """Run a function asynchronously and return a future-like object.
-
-    This is a compatibility function that mimics QtConcurrent.run behavior.
-    """
-    runner = AsyncRunner(func, *args, **kwargs)
-
-    class Future:
-        def __init__(self, runner):
-            self.runner = runner
-            self._result = None
-            self._error = None
-            self._finished = False
-            runner.finished.connect(self._on_finished)
-            runner.error.connect(self._on_error)
-
-        def _on_finished(self, result):
-            self._result = result
-            self._finished = True
-
-        def _on_error(self, error):
-            self._error = error
-            self._finished = True
-
-        def result(self):
-            if self._error:
-                raise self._error
-            return self._result
-
-        def isFinished(self):
-            return self._finished
-
-    future = Future(runner)
-
-    # Run in thread pool
-    thread_pool = QThreadPool.globalInstance()
-    runnable = QRunnable.create(lambda: runner.run())
-    runnable.setAutoDelete(True)
-    thread_pool.start(runnable)
-
-    return future
 from PySide6.QtCore import QTimer, Qt, QPoint, QBuffer, QIODevice, QUrl, QEvent
 from PySide6.QtGui import QColor, QDesktopServices, QFont, QFontMetrics, QImage, QKeySequence, QPalette, QPixmap, QShortcut, QTransform
 from PySide6.QtWidgets import (
@@ -131,96 +76,6 @@ if TYPE_CHECKING:
 LOG = logging.getLogger(__name__)
 
 ShortcutKey = QKeySequence | QKeySequence.StandardKey | str
-
-
-def _rgba(color: QColor) -> str:
-    """Return a Qt stylesheet-friendly RGBA string for the given QColor."""
-    return f"rgba({color.red()}, {color.green()}, {color.blue()}, {color.alpha()})"
-
-
-def _create_button(
-    text: str = "",
-    parent: QWidget = None,
-    *,
-    use_modern_mac: bool = None,
-    primary: bool = False,
-    color: str = 'blue',
-    compact: bool = False  # Changed from True to False to match onboarding dialog quality
-) -> QPushButton:
-    """Create a button, using ModernMacButton on macOS if available and requested.
-
-    Args:
-        text: Button text
-        parent: Parent widget
-        use_modern_mac: Force modern button (default: auto-detect macOS)
-        primary: True for primary action buttons (colored)
-        color: One of 'blue', 'purple', 'pink', 'red', 'orange', 'yellow', 'green', 'teal'
-        compact: True for smaller buttons (sidebar/toolbar), False for larger (dialogs)
-    """
-    if use_modern_mac is None:
-        use_modern_mac = sys.platform == "darwin"
-
-    if use_modern_mac:
-        try:
-            btn = ModernMacButton(
-                text, parent,
-                primary=primary,
-                color=color,
-                glass=True,
-                compact=compact
-            )
-            return btn
-        except (NameError, TypeError):
-            # Fallback if ModernMacButton not available or doesn't support compact
-            pass
-
-    # Default to standard QPushButton
-    btn = QPushButton(text, parent)
-    # Mark compact variant so we can style it via stylesheet on macOS too
-    if compact:
-        # dynamic property is lowercased as "true"/"false" in Qt style matching
-        btn.setProperty("compact", True)
-    return btn
-
-
-class ElidingButton(QPushButton):
-    """A QPushButton that elides text when it doesn't fit."""
-
-    def __init__(self, text="", parent=None):
-        # Use ModernMacButton on macOS if available
-        if sys.platform == "darwin":
-            try:
-                # Create ModernMacButton instance directly
-                ModernMacButton.__init__(self, text, parent)
-                # Add eliding-specific attributes
-                self._full_text = text
-                return
-            except (NameError, Exception):
-                pass
-        # Fallback to QPushButton
-        super().__init__(text, parent)
-        self._full_text = text
-        # Make sidebar buttons expand horizontally but keep a sane height
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        self.setMinimumHeight(30)
-        # Tooltips should expose the full text when elided
-        if text:
-            self.setToolTip(text)
-
-    def setText(self, text):
-        self._full_text = text
-        super().setText(text)
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        if self._full_text:
-            fm = QFontMetrics(self.font())
-            elided = fm.elidedText(self._full_text, Qt.ElideRight, self.width() - 10)
-            super().setText(elided)
-
-    def mousePressEvent(self, event):
-        # Ensure default press behavior; stored _full_text is only for eliding, not the label itself
-        super().mousePressEvent(event)
 
 
 class ExtractionTabMixin:
@@ -659,8 +514,16 @@ class ExtractionTabMixin:
         self.open_btn.setObjectName("openFileButton")
         self.open_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.open_btn.clicked.connect(self.on_open)
+
+        self.sample_btn = _create_button("Try with sample signature", parent_widget)
+        self.sample_btn.setObjectName("sampleButton")
+        self.sample_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.sample_btn.setToolTip("Load a sample signature image to try the extraction")
+        self.sample_btn.clicked.connect(self._load_sample_image)
+
         controls.addWidget(self._make_section_label("Upload", section_color_hex, top_margin=0))
         controls.addWidget(self.open_btn)
+        controls.addWidget(self.sample_btn)
 
         controls.addWidget(self._make_section_label("Extraction Mode", section_color_hex))
         self.mode_combo = QComboBox()
@@ -885,6 +748,14 @@ class ExtractionTabMixin:
         export_row_2.addWidget(self.save_to_library_btn)
         export_row_2.addWidget(self.export_json_btn)
         controls.addLayout(export_row_2)
+
+        self.sign_pdf_btn = _create_button("Sign a PDF with this", parent_widget)
+        self.sign_pdf_btn.setObjectName("signPdfButton")
+        self.sign_pdf_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.sign_pdf_btn.setToolTip("Switch to PDF Signer tab and use this extracted signature")
+        self.sign_pdf_btn.clicked.connect(self._sign_pdf_with_extracted)
+        self.sign_pdf_btn.setEnabled(False)
+        controls.addWidget(self.sign_pdf_btn)
 
         # Store section label for responsive hiding
         self._library_section_label = self._make_section_label("My Signatures", section_color_hex)
@@ -1320,6 +1191,20 @@ class ExtractionTabMixin:
             self._handle_backend_exception(e, context="Upload failed")
             self.status_bar.showMessage("Upload failed", 3000)
 
+    def _load_sample_image(self) -> None:
+        """Generate and load a sample signature image for first-time users."""
+        try:
+            from desktop_app.resources.sample_signature import generate_sample_signature
+            file_path = generate_sample_signature()
+            self.status_bar.showMessage("Loading sample signature...", 0)
+            self._load_image_from_path(file_path)
+            self.status_bar.showMessage("Sample loaded — try adjusting the threshold slider", 4000)
+            self.sample_btn.setEnabled(False)
+            self.sample_btn.setText("Sample loaded")
+        except Exception as e:
+            LOG.error(f"Failed to load sample image: {e}", exc_info=True)
+            self.status_bar.showMessage(f"Failed to load sample: {str(e)[:50]}", 3000)
+
     def _load_image_from_path(self, file_path: str) -> None:
         if not os.path.exists(file_path):
             raise FileNotFoundError(file_path)
@@ -1415,6 +1300,9 @@ class ExtractionTabMixin:
             
             self.status_bar.showMessage("Image loaded successfully", 3000)
 
+            # Auto-detect signature region
+            QTimer.singleShot(100, lambda: self._auto_select_signature(session_id))
+
             self._last_result_png = None
             self.preview_view.clear_image()
             self.res_view.scene().clear()
@@ -1459,6 +1347,22 @@ class ExtractionTabMixin:
         except Exception as exc:
             self._handle_backend_exception(exc, context="Upload via drag-and-drop failed")
             self.status_bar.showMessage("Upload failed", 3000)
+
+    def _auto_select_signature(self, session_id: str) -> None:
+        """Auto-detect and select the signature region on the loaded image."""
+        try:
+            region = self.local_extractor.auto_detect_signature(session_id)
+            if region:
+                x1, y1, x2, y2 = region
+                self.src_view.set_selection_from_coords(x1, y1, x2, y2)
+                self.status_bar.showMessage(f"Signature detected — adjust threshold to extract", 3000)
+                # Trigger preview after a short delay
+                QTimer.singleShot(300, self.schedule_preview)
+            else:
+                self.status_bar.showMessage("Select the signature area to extract", 4000)
+        except Exception as e:
+            LOG.debug(f"Auto-detect failed (non-critical): {e}")
+            self.status_bar.showMessage("Select the signature area to extract", 4000)
 
     # Demo helpers for automated flows (no dialogs/backends)
     def demo_load_image(self, file_path: str) -> None:
@@ -1632,6 +1536,7 @@ class ExtractionTabMixin:
         # Process locally (offline-first approach)
         self.status_bar.showMessage("Processing...", 0)
         self.export_btn.setEnabled(False)  # Disable during processing
+        cast(QWidget, self).setCursor(Qt.CursorShape.WaitCursor)
 
         import time
         start_time = time.time()
@@ -1660,6 +1565,7 @@ class ExtractionTabMixin:
             
             # Call the existing process finished handler
             self._on_process_finished(png_bytes, start_time)
+            cast(QWidget, self).unsetCursor()
             
             # Analyze Quality (Health Score)
             try:
@@ -1675,6 +1581,7 @@ class ExtractionTabMixin:
         except Exception as e:
             LOG.error(f"Local processing failed: {e}")
             self.export_btn.setEnabled(True)
+            cast(QWidget, self).unsetCursor()
             self.status_bar.showMessage("Processing failed", 3000)
             # Call the existing error handler
             self._on_process_error(e, start_time)
@@ -2303,6 +2210,34 @@ class ExtractionTabMixin:
         except Exception as e:
             QMessageBox.critical(cast(QWidget, self), "Save failed", str(e))
             self.status_bar.showMessage("Save failed", 3000)
+
+    def _sign_pdf_with_extracted(self) -> None:
+        """Save extracted signature and switch to PDF Signer tab."""
+        if not self._last_result_png:
+            self.status_bar.showMessage("Extract a signature first", 2000)
+            return
+        try:
+            import tempfile
+            tmp = tempfile.mktemp(suffix=".png")
+            with open(tmp, "wb") as f:
+                f.write(self._last_result_png)
+            # Switch to PDF Signer tab (index 3)
+            pdf_tab_index = -1
+            for i in range(self.tab_widget.count()):
+                if self.tab_widget.tabText(i) == "PDF Signer":
+                    pdf_tab_index = i
+                    break
+            if pdf_tab_index >= 0:
+                self.tab_widget.setCurrentIndex(pdf_tab_index)
+                pdf_tab = self.tab_widget.widget(pdf_tab_index)
+                if hasattr(pdf_tab, 'set_signature_image'):
+                    pdf_tab.set_signature_image(tmp)
+                self.status_bar.showMessage("Signature ready — open a PDF to sign", 4000)
+            else:
+                self.status_bar.showMessage("PDF Signer tab not found", 3000)
+        except Exception as e:
+            LOG.error(f"Failed to pass signature to PDF tab: {e}")
+            self.status_bar.showMessage("Could not switch to PDF Signer", 3000)
     
     def _refresh_library_list(self):
         """Refresh library list in Extraction tab with coordinate tooltips."""
@@ -2583,6 +2518,12 @@ class ExtractionTabMixin:
                 self._update_view_actions_enabled()
             return
 
+        # Preview/result pane — view-only rotation
+        view = self._get_active_view()
+        if view:
+            view.rotate_view(degrees)
+            self.status_bar.showMessage(f"Rotated view {degrees}°", 2000)
+
     def _on_rotate_upload_finished(self, tmp_path: str, payload) -> None:
         """Handle completion of async rotation upload."""
         # Re-enable rotation buttons
@@ -2707,7 +2648,7 @@ class ExtractionTabMixin:
         self._refresh_color_history()
 
     def _refresh_color_history(self) -> None:
-        self._clear_layout(self.color_history_layout)
+        _clear_layout(self.color_history_layout)
         if not self._color_history:
             return
         for color in self._color_history:
@@ -2717,7 +2658,7 @@ class ExtractionTabMixin:
             self.color_history_layout.addWidget(btn)
 
     def _populate_color_presets(self) -> None:
-        self._clear_layout(self.color_presets_layout)
+        _clear_layout(self.color_presets_layout)
         for color in self._color_presets:
             btn = self._make_color_button(color)
             btn.setToolTip(f"Preset: {color}")
@@ -2779,28 +2720,18 @@ class ExtractionTabMixin:
         )
         return btn
 
-    @staticmethod
-    def _clear_layout(layout) -> None:
-        while layout.count():
-            item = layout.takeAt(0)
-            widget = item.widget()
-            if widget:
-                widget.setParent(None)
-            elif item.layout():
-                ExtractionTabMixin._clear_layout(item.layout())
-
     # -------- License/Evaluation helpers --------
     def _update_action_states(self, preview_ready: bool = False):
         """Enable or disable actions based on whether a processed preview exists."""
         has_preview = bool(preview_ready or self._last_result_png)
         self.export_btn.setEnabled(has_preview)
         self.export_json_btn.setEnabled(True)  # Allow exporting metadata even without preview
-        self.export_btn.setEnabled(has_preview)
-        self.export_json_btn.setEnabled(True)  # Allow exporting metadata even without preview
         self.save_to_library_btn.setEnabled(has_preview)
         if hasattr(self, 'save_to_vault_btn'):
             self.save_to_vault_btn.setEnabled(has_preview)
         self.copy_btn.setEnabled(has_preview)
+        if hasattr(self, 'sign_pdf_btn'):
+            self.sign_pdf_btn.setEnabled(has_preview)
         self._update_export_tooltips()  # Update tooltips based on license status
         self._update_view_actions_enabled()
         self._adjust_pane_layout()  # Dynamically adjust layout based on content

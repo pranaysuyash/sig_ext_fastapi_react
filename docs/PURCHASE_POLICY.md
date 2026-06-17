@@ -84,7 +84,7 @@ SignKit is professional desktop software sold with a clear "all sales final" pol
 If you experience technical problems that prevent the application from working:
 
 **We'll help you fix it:**
-1. Contact support: support@signatureextractor.app
+1. Contact support: support@signkit.work
 2. We'll troubleshoot the issue
 3. We'll provide updates or workarounds
 4. We'll make it work for you
@@ -108,7 +108,7 @@ If your purchase was:
 - Charged incorrectly
 
 **Contact us immediately:**
-- Email: support@signatureextractor.app
+- Email: support@signkit.work
 - We'll investigate and resolve
 - Refund if fraud is confirmed
 
@@ -262,20 +262,20 @@ If your purchase was:
 - Buy when ready
 
 **Have questions?**
-- Email: support@signatureextractor.app
-- Check FAQ: https://signatureextractor.app/faq
+- Email: support@signkit.work
+- Check FAQ: https://signkit.work/faq
 - Read documentation: docs/
 
 ### After Purchase
 
 **Need help?**
-- Email: support@signatureextractor.app
+- Email: support@signkit.work
 - Include: Order number, issue description
 - Response: Within 24-48 hours
 
 **Technical issues?**
 - Check: docs/TROUBLESHOOTING.md
-- Email: support@signatureextractor.app
+- Email: support@signkit.work
 - We'll help resolve it
 
 ## Legal
@@ -290,7 +290,7 @@ This policy is governed by:
 ### Disputes
 
 **If you disagree:**
-- Contact us first: support@signatureextractor.app
+- Contact us first: support@signkit.work
 - We'll try to resolve amicably
 - Arbitration if needed
 - Small claims court as last resort
@@ -320,6 +320,6 @@ This policy is governed by:
 
 ---
 
-**Questions about this policy?** Contact us at support@signatureextractor.app
+**Questions about this policy?** Contact us at support@signkit.work
 
-**Ready to try?** Download at https://signatureextractor.app
+**Ready to try?** Download at https://signkit.work

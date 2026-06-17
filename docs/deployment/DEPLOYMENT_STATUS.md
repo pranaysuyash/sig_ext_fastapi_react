@@ -2,7 +2,7 @@
 
 **Last Updated:** November 18, 2025  
 **Status:** ✅ DEPLOYED & LIVE  
-**Branch:** `landing-page`
+**Branch:** `main`
 
 ---
 
@@ -158,13 +158,13 @@
 # Then commit and push
 git add .
 git commit -m "Update landing page"
-git push origin landing-page
+git push origin main
 
 # Redeploy to Cloudflare
 rm -rf .deploy
 mkdir -p .deploy
 cp -r index.html root.html buy.html purchase.html gum.html test-variants.html _redirects assets screenshots web .deploy/
-wrangler pages deploy .deploy --project-name=signkit-landing --branch=landing-page
+wrangler pages deploy .deploy --project-name=signkit-landing --branch=main
 ```
 
 ### Enable A/B Testing
@@ -173,10 +173,10 @@ wrangler pages deploy .deploy --project-name=signkit-landing --branch=landing-pa
 # Edit index.html: AUTO_SPLIT = false → true
 git add index.html
 git commit -m "Enable A/B testing"
-git push origin landing-page
+git push origin main
 
 # Redeploy
-wrangler pages deploy .deploy --project-name=signkit-landing --branch=landing-page
+wrangler pages deploy .deploy --project-name=signkit-landing --branch=main
 ```
 
 ### Check Deployment Status
@@ -237,7 +237,7 @@ None currently.
 
 - **Cloudflare Pages:** https://dash.cloudflare.com/pages/signkit-landing
 - **GitHub Repo:** https://github.com/pranaysuyash/sig_ext_fastapi_react
-- **Branch:** `landing-page`
+- **Branch:** `main`
 - **Documentation:** See `QUICK_START.md` for quick reference
 
 ---

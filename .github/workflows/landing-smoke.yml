@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - landing-page
   workflow_dispatch:
 
 jobs:
@@ -27,8 +26,7 @@ jobs:
           chmod +x scripts/test-local-landing.sh
           ./scripts/test-local-landing.sh
       - name: Optional production smoke test
-        if: ${{ github.ref_name == 'landing-page' }}
+        if: ${{ github.ref_name == 'main' }}
         run: |
           chmod +x scripts/test-deployment.sh
           ./scripts/test-deployment.sh https://signkit.work
-

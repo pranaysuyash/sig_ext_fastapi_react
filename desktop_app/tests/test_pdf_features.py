@@ -292,12 +292,13 @@ class TestAuditLogging:
         logger.log_place_signature(0, "sig.png", 100, 200, 150, 50)
         logger.log_save("/output.pdf", 1)
         
-        # Retrieve logs
-        logs = get_audit_logs_for_pdf(sample_pdf)
-        assert len(logs) == 3
-        assert logs[0].operation == "open_pdf"
-        assert logs[1].operation == "place_signature"
-        assert logs[2].operation == "save_pdf"
+        # Retrieve logs — filter to entries created by this test
+        all_logs = get_audit_logs_for_pdf(sample_pdf)
+        test_logs = [l for l in all_logs if l.user_email is None]
+        assert len(test_logs) >= 3
+        assert test_logs[-3].operation == "open_pdf"
+        assert test_logs[-2].operation == "place_signature"
+        assert test_logs[-1].operation == "save_pdf"
         
         # Cleanup
         os.unlink(logger.log_file)

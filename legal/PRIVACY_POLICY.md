@@ -97,7 +97,7 @@ Under applicable privacy laws, you have the right to:
 To exercise your privacy rights:
 
 ```
-Email: privacy@signatureextractor.app
+Email: support@signkit.work
 Subject: Privacy Request
 ```
 
@@ -180,7 +180,7 @@ For formal data protection inquiries:
 
 ```text
 Email: support@signkit.work
-Address: [Your Business Address]
+Address: [UPDATE WITH YOUR ADDRESS]
 ```
 
 ### 11.3 Regulatory Authorities

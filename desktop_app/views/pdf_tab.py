@@ -92,6 +92,8 @@ class PdfTab(QWidget):
         self.total_pages = 0
         self.scale = 1.0
         self.signatures: List[DraggableSignature] = []
+        self._pending_signature_path = None
+        self.page_container = None
         
         self._setup_ui()
         
@@ -280,3 +282,23 @@ class PdfTab(QWidget):
         except Exception as e:
             LOG.error(f"Save error: {e}")
             QMessageBox.critical(self, "Save Error", f"Failed to save PDF: {e}")
+
+    def set_signature_image(self, image_path: str) -> None:
+        """Load a signature image for placement on the PDF.
+        
+        Called from the extraction tab when user clicks 'Sign a PDF with this'.
+        """
+        try:
+            pixmap = QPixmap(image_path)
+            if pixmap.isNull():
+                LOG.error(f"Failed to load signature image: {image_path}")
+                return
+            self._pending_signature_path = image_path
+            if self.page_container:
+                sig = DraggableSignature(pixmap, self.page_container)
+                sig.move(100, self.page_container.height() - 150)
+                sig.show()
+                self.signatures.append(sig)
+                self.save_btn.setEnabled(True)
+        except Exception as e:
+            LOG.error(f"Failed to set signature image: {e}")

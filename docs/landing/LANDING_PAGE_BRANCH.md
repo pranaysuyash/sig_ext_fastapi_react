@@ -1,6 +1,6 @@
-# Landing Page Branch - Complete Documentation
+# Landing Page Deployment - Complete Documentation
 
-**Branch Name**: `landing-page`  
+**Branch Name**: `main`  
 **Purpose**: A/B testing framework for SignKit product launch  
 **Domain**: https://signkit.work (via Cloudflare Pages)  
 **Status**: Production-ready, deployed November 2025
@@ -9,29 +9,29 @@
 
 ## Overview
 
-The `landing-page` branch is a **separate production branch** dedicated to marketing and conversion optimization for SignKit. It contains multiple landing page variants for A/B testing different checkout flows and messaging approaches.
+The landing page is now deployed from the repository's `main` branch. It contains multiple landing page variants for A/B testing different checkout flows and messaging approaches.
 
-Note: The repo's `main` branch now contains a canonical copy of the currently deployed live landing site in `web/live/`.
+The canonical live landing site lives in the repository root pages plus `web/live/` assets.
 
-**This branch is NOT merged into main** - it's deployed independently to `signkit.work` via Cloudflare Pages.
+The old `landing-page` branch is legacy history only.
 
 ---
 
 ## Branch Architecture
 
-### Why a Separate Branch?
+### Why Keep It In Main?
 
-The landing page branch is isolated from the main application codebase because:
+The landing page stays in the main codebase because:
 
-1. **Independent deployment cycle** - Marketing pages can be updated and tested without touching application code
+1. **Single source of truth** - Marketing pages and app docs stay in one branch
 2. **Static HTML hosting** - Cloudflare Pages serves HTML/CSS/JS directly from the repository
 3. **A/B testing framework** - Enables rapid iteration on conversion experiments
-4. **Clean separation** - Marketing assets don't pollute the desktop app repository
+4. **Cleaner operations** - Fewer branch-specific deployment paths to maintain
 
 ### What's in This Branch
 
 ```
-landing-page/
+main/
 ├── index.html                      # Control variant (neo-brutalism design)
 ├── purchase.html                   # Claude v2 variant
 ├── serve.py                        # Local development server with routing
@@ -247,7 +247,7 @@ open http://localhost:8001/test-analytics.html
 4. Look for `collect?v=2&...&en=ab_test_impression` requests
 5. Status 204 = success (canceled requests are normal, GA4 sends multiple)
 
-See `ANALYTICS_FIX_SUMMARY.md` in the landing-page branch for complete technical details.
+See `ANALYTICS_FIX_SUMMARY.md` for complete technical details.
 
 ### Plausible Analytics
 
@@ -298,8 +298,8 @@ if (
 ### Quick Start
 
 ```bash
-# Clone and checkout branch
-git checkout landing-page
+# Clone and use the main branch
+git checkout main
 
 # Option 1: Simple HTTP server (query params only)
 python3 -m http.server 8080
@@ -337,7 +337,7 @@ Navigate to http://127.0.0.1:8080/test-variants.html for a visual dashboard show
 
 1. **Cloudflare Pages Settings**:
 
-   - **Production branch**: `landing-page` (NOT `main`)
+   - **Production branch**: `main`
    - **Build command**: None (static HTML)
    - **Build output directory**: `/` (root)
    - **Custom domain**: `signkit.work`
@@ -347,7 +347,7 @@ Navigate to http://127.0.0.1:8080/test-variants.html for a visual dashboard show
    ```bash
    git add -A
    git commit -m "Update landing page"
-   git push origin landing-page
+   git push origin main
    ```
 
    Cloudflare auto-deploys within ~1 minute.
@@ -496,8 +496,8 @@ localStorage.clear();
 ### Branch Management
 
 ```bash
-# Switch to landing page branch
-git checkout landing-page
+# Switch to main
+git checkout main
 
 # Make changes
 # ...
@@ -505,14 +505,13 @@ git checkout landing-page
 # Commit and push
 git add -A
 git commit -m "Descriptive message"
-git push origin landing-page
+git push origin main
 ```
 
 **Important**:
 
-- **NEVER merge `landing-page` into `main`** - they're independent codebases
-- **NEVER merge `main` into `landing-page`** - marketing pages don't need app code
-- Keep branches separate permanently
+- Keep `main` as the single source of truth for the landing page
+- Keep the old `landing-page` branch only as historical reference
 
 ### Recent Commits (Nov 18, 2025)
 
@@ -605,7 +604,7 @@ ORDER BY conversion_rate DESC
 - **Website**: https://signkit.work
 - **Email**: support@signkit.work
 - **Repository**: sig_ext_fastapi_react (pranaysuyash)
-- **Branch**: `landing-page`
+- **Branch**: `main`
 
 ---
 

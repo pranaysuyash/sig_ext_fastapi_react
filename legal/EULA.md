@@ -1,6 +1,6 @@
 # SignKit - End User License Agreement (EULA)
 
-**IMPORTANT: READ CAREFULLY** - This End User License Agreement ("EULA") is a legal agreement between you ("Licensee") and Signature Tools LLC ("Licensor") for the SignKit software application.
+**IMPORTANT: READ CAREFULLY** - This End User License Agreement ("EULA") is a legal agreement between you ("Licensee") and the SignKit team ("Licensor") for the SignKit software application.
 
 **By installing and using SignKit, you agree to be bound by the terms of this EULA.** If you do not agree to these terms, do not install or use the software.
 
@@ -73,9 +73,9 @@
 
 ## 9. GOVERNING LAW
 
-**9.1 Jurisdiction**: This EULA is governed by the laws of [Your State/Country], without regard to conflict of law principles.
+**9.1 Jurisdiction**: This EULA is governed by the laws of India, without regard to conflict of law principles.
 
-**9.2 Dispute Resolution**: Any disputes shall be resolved through binding arbitration in [Your City], [Your State].
+**9.2 Dispute Resolution**: Any disputes shall be resolved through binding arbitration in India.
 
 ## 10. UPDATES AND SUPPORT
 

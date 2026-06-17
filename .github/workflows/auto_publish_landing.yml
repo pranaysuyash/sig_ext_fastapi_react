@@ -1,0 +1,74 @@
+name: Auto Publish Landing (restricted)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish-landing:
+    name: Auto publish landing to Cloudflare Pages (restricted)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate required landing files exist
+        run: |
+          required=(index.html root.html buy.html purchase.html gum.html test-variants.html _redirects)
+          for f in "${required[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "Missing required file: $f"; exit 1
+            fi
+          done
+          # SEO files are strongly recommended (and expected for signkit.work)
+          for f in robots.txt sitemap.xml 404.html; do
+            if [ ! -f "$f" ]; then
+              echo "Missing recommended file: $f"; exit 1
+            fi
+          done
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install Wrangler
+        run: |
+          npm install -g @cloudflare/wrangler
+
+      - name: Run pre-publish checks (smoke tests)
+        run: |
+          nohup python3 serve.py &
+          sleep 2
+          ./test-pages.sh
+
+      - name: Check Cloudflare secrets
+        id: cf_secrets
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "${CLOUDFLARE_ACCOUNT_ID}" ] || [ -z "${CLOUDFLARE_API_TOKEN}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Cloudflare secrets not configured; skipping Pages deploy (Cloudflare Git integration may still deploy)."
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to Cloudflare Pages
+        if: steps.cf_secrets.outputs.skip != 'true'
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          echo "Publishing main branch landing page to Cloudflare Pages (project: signkit-landing)"
+          wrangler pages deploy . --project-name signkit-landing --branch main
+
+      - name: Done
+        run: echo "Auto publish to Cloudflare Pages finished."

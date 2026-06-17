@@ -123,7 +123,7 @@ ACTIVATION:
 3. Enter your license key and click Activate
 4. Enjoy all premium features!
 
-Need help? Email: support@signatureextractor.app
+Need help? Email: support@signkit.work
 ```
 
 #### Page 2: Basic Usage
@@ -188,7 +188,7 @@ TROUBLESHOOTING:
 
 ❓ License not working
 → Copy/paste key exactly (no extra spaces)
-→ Contact support@signatureextractor.app
+→ Contact support@signkit.work
 
 ❓ Image won't load
 → Check file format (JPG, PNG, PDF)
@@ -199,8 +199,8 @@ TROUBLESHOOTING:
 → Try different file name
 
 SUPPORT:
-📧 Email: support@signatureextractor.app
-📖 Documentation: signatureextractor.app/help
+📧 Email: support@signkit.work
+📖 Documentation: signkit.work/help
 🔄 Updates: Automatic (when online)
 
 Thank you for choosing Signature Extractor!

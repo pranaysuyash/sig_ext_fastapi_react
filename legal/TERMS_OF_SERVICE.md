@@ -309,7 +309,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 
 **These Terms are governed** by:
 
-- **Jurisdiction**: [Your State/Country] law
+- **Jurisdiction**: Laws of India
 - **Federal Law**: United States federal law (where applicable)
 - **International**: Applicable international laws
 
@@ -326,7 +326,7 @@ Some jurisdictions do not allow certain limitations, so these may not apply to y
 **If informal resolution fails**:
 
 - **Mediation**: Agree to mediation before litigation
-- **Jurisdiction**: Courts in [Your City/State]
+- **Jurisdiction**: Courts in India
 - **Attorney's Fees**: Prevailing party entitled to reasonable fees
 
 ## 13. General Provisions
@@ -352,8 +352,8 @@ These Terms constitute the entire agreement between us regarding the Application
 **Legal notices** should be sent to:
 
 ```
-Email: legal@signatureextractor.app
-Address: [Your Business Address]
+Email: support@signkit.work
+Address: [UPDATE WITH YOUR ADDRESS]
 ```
 
 ## 14. Special Provisions
@@ -391,7 +391,7 @@ Website: https://signkit.work
 
 ```text
 Email: support@signkit.work
-Address: [Your Legal Business Address]
+Address: [UPDATE WITH YOUR ADDRESS]
 ```
 
 ### 15.3 Press and Media

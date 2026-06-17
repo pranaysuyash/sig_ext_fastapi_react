@@ -55,6 +55,36 @@ Creative feature concept:
 
 **Use this for**: Future innovative features
 
+### [FEATURE_EXPANSION_ROADMAP_2026-06-17.md](./FEATURE_EXPANSION_ROADMAP_2026-06-17.md)
+
+Grounded expansion memo covering:
+
+- signature field identification
+- targeted native PDF editing
+- OCR and document intelligence
+- CV-based layout and quality analysis
+- adjacent product lines like email signatures and digital business cards
+
+**Use this for**: Product expansion planning rooted in the current codebase and open-source PDF/CV tooling
+
+### [ROADMAP_30_60_90_2026-06-17.md](./ROADMAP_30_60_90_2026-06-17.md)
+
+Execution-oriented 30/60/90 plan for the first quarter of expansion work.
+
+**Use this for**: Sequencing the first quarter of implementation
+
+### [IMPLEMENTATION_EPICS_2026-06-17.md](./IMPLEMENTATION_EPICS_2026-06-17.md)
+
+Backlog-style epic decomposition with goals, scope, dependencies, and acceptance criteria.
+
+**Use this for**: Turning the roadmap into work items and engineering slices
+
+### [SIGNATURE_FIELD_AND_PDF_EDITING_SPEC_2026-06-17.md](./SIGNATURE_FIELD_AND_PDF_EDITING_SPEC_2026-06-17.md)
+
+Technical spec covering field detection, template placement, native PDF editing, OCR cleanup, and testing strategy.
+
+**Use this for**: Architecture and implementation design for the core PDF-aware workflow
+
 ## Related Documentation
 
 - [ROADMAP.md](../ROADMAP.md) - Product development roadmap with 8 phases
@@ -66,4 +96,4 @@ Creative feature concept:
 
 These analysis documents were created during the initial project assessment (October 2025) and provide valuable reference material for future development. They complement the main documentation and provide deeper technical and business insights.
 
-**Last Updated**: October 26, 2025
+**Last Updated**: June 17, 2026

@@ -283,7 +283,7 @@ brew install cloudflare/cloudflare/wrangler
 
 ```bash
 cd web/live
-wrangler pages publish . --project-name signkit-pages-landing --branch landing-page
+wrangler pages publish . --project-name signkit-pages-landing --branch main
 ```
 
 Note: `wrangler pages publish` can also accept a directory `dist` created by a build step. For simple static pages the site root `.` works fine.

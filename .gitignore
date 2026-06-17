@@ -173,10 +173,9 @@ alembic/versions/*.pyc
 tools/convert_images.py
 tools/upload_to_cloudflare.py
 
-# Ignore published landing artifacts and test artifacts on 'main' to prevent accidental adds/merges
-# (Landing pages and e2e artifacts are maintained on the `landing-page` branch)
-/web/live/
-/web/backups/
+# Keep generated landing test artifacts out of git now that `main` owns the landing page
+/web/backups/*
+!/web/backups/README.md
 /web/e2e/test-results/
 /web/e2e/playwright-report/
 /web/e2e/**/specs/*-snapshots/

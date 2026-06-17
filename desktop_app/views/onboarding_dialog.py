@@ -67,7 +67,7 @@ class OnboardingDialog(QDialog):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
-        self.setWindowTitle("Welcome to Signature Extractor")
+        self.setWindowTitle("Welcome to SignKit")
         self.setModal(True)
         self.setMinimumWidth(560)
         self.setMaximumWidth(700)
@@ -80,7 +80,7 @@ class OnboardingDialog(QDialog):
         layout.setSpacing(24)
 
         # Header
-        header = QLabel("Welcome to Signature Extractor")
+        header = QLabel("Welcome to SignKit")
         header.setStyleSheet("font-size: 24px; font-weight: 600;")
         header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(header)

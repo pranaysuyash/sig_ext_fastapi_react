@@ -1,0 +1,10 @@
+# Generated: 2026-05-25T10:13:19.978241
+# Env path: /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/.venv
+# Project path: /Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app
+# Detected manager: pip
+# Project last modified: 2026-05-07T20:14:43.905520
+# Freeze status: ERROR: Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/pranay/Projects/Data_Science/computer_vision/proj6/signature-extractor-app/.venv/lib/python3.13/site-packages/pip/__main__.py", line 24, in <modu
+

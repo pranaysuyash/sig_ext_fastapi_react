@@ -109,8 +109,8 @@ class PaneStatusMixin:
         viewport_w = viewport_rect.width()
         viewport_h = viewport_rect.height()
 
-        if active_view._pixmap_item:
-            pix = active_view._pixmap_item.pixmap()
+        if active_view.pixmap_item:
+            pix = active_view.pixmap_item.pixmap()
             self.viewport_image_label.setText(f"VP: {viewport_w}×{viewport_h} | Img: {pix.width()}×{pix.height()}")
         else:
             self.viewport_image_label.setText(f"VP: {viewport_w}×{viewport_h} | Img: –")
@@ -118,8 +118,8 @@ class PaneStatusMixin:
         tl_scene = active_view.mapToScene(viewport_rect.topLeft())
         br_scene = active_view.mapToScene(viewport_rect.bottomRight())
 
-        if active_view._pixmap_item:
-            img_rect = active_view._pixmap_item.pixmap().rect()
+        if active_view.pixmap_item:
+            img_rect = active_view.pixmap_item.pixmap().rect()
             img_tl_viewport = active_view.mapFromScene(0, 0)
             img_br_viewport = active_view.mapFromScene(img_rect.width(), img_rect.height())
 

@@ -411,6 +411,84 @@ class SignatureExtractor:
         Returns:
             ProcessingSession if found, None otherwise
         """
+
+    def auto_detect_signature(self, session_id: str) -> Optional[Tuple[int, int, int, int]]:
+        """Detect the most likely signature region in the image.
+        
+        Uses contour detection to find the largest non-background region
+        that looks like ink/marker on paper.
+        
+        Args:
+            session_id: Processing session ID
+            
+        Returns:
+            (x1, y1, x2, y2) bounding box of detected signature, or None if not found
+        """
+        session = self.get_session(session_id)
+        if session is None:
+            return None
+        
+        image = session.original_image
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        
+        # Adaptive threshold to find dark regions (ink) on lighter background
+        binary = cv2.adaptiveThreshold(
+            gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY_INV, 51, 10
+        )
+        
+        # Also try global threshold as fallback
+        _, binary_global = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY_INV)
+        
+        # Combine both
+        combined = cv2.bitwise_or(binary, binary_global)
+        
+        # Morphological operations to clean up noise
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+        cleaned = cv2.morphologyEx(combined, cv2.MORPH_CLOSE, kernel, iterations=2)
+        cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel, iterations=1)
+        
+        # Find contours
+        contours, _ = cv2.findContours(cleaned, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        if not contours:
+            return None
+        
+        # Filter contours by area — too small = noise, too large = background
+        img_area = image.shape[0] * image.shape[1]
+        min_area = img_area * 0.001  # At least 0.1% of image
+        max_area = img_area * 0.8    # Not more than 80% of image
+        
+        valid_contours = []
+        for c in contours:
+            area = cv2.contourArea(c)
+            if min_area < area < max_area:
+                x, y, w, h = cv2.boundingRect(c)
+                aspect_ratio = w / h if h > 0 else 0
+                # Signatures are typically wider than tall, but not extreme
+                if 0.2 < aspect_ratio < 10 and w > 30 and h > 15:
+                    valid_contours.append((area, x, y, w, h))
+        
+        if not valid_contours:
+            # Fallback: just use the largest contour
+            largest = max(contours, key=cv2.contourArea)
+            x, y, w, h = cv2.boundingRect(largest)
+            return (x, y, x + w, y + h)
+        
+        # Merge nearby contours into a single bounding box
+        valid_contours.sort(key=lambda t: t[0], reverse=True)
+        # Take the largest valid contour region
+        _, x, y, w, h = valid_contours[0]
+        
+        # Expand the bounding box slightly for better coverage
+        padding = 10
+        x1 = max(0, x - padding)
+        y1 = max(0, y - padding)
+        x2 = min(image.shape[1], x + w + padding)
+        y2 = min(image.shape[0], y + h + padding)
+        
+        LOG.info(f"Auto-detected signature region: ({x1},{y1})-({x2},{y2})")
+        return (x1, y1, x2, y2)
         return self.sessions.get(session_id)
     
     def process_selection(
