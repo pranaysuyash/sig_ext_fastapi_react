@@ -1,8 +1,7 @@
 """PDF signing utilities.
 
-Primary implementation uses PyMuPDF for robust, standards-compliant image
-insertion. Falls back to legacy pikepdf stream editing if PyMuPDF is not
-available (not recommended).
+Primary implementation uses PyMuPDF when explicitly allowed for the session.
+Otherwise, we use a deliberate pikepdf fallback.
 """
 
 import io
@@ -10,16 +9,22 @@ from typing import List, Dict, Any, cast
 from pathlib import Path
 
 import pikepdf
+from desktop_app.pdf.stack_profile import _is_fitz_allowed, record_signing_backend_telemetry
 from PIL import Image as PILImage
 
 # Optional, preferred implementation
 try:
-    import fitz  # type: ignore  # PyMuPDF
-    HAS_PYMUPDF = True
+    if _is_fitz_allowed():
+        import fitz  # type: ignore  # PyMuPDF
+        HAS_PYMUPDF = True
+    else:
+        HAS_PYMUPDF = False
+        fitz = cast(Any, None)  # type: ignore
 except Exception:
     HAS_PYMUPDF = False
     # Provide a dummy name to satisfy static analyzers when PyMuPDF is not installed
     fitz = cast(Any, None)  # type: ignore
+
 
 class PDFSigner:
     """Embed signature images into PDF documents.
@@ -46,19 +51,37 @@ class PDFSigner:
             raise FileNotFoundError(f"PDF not found: {input_pdf_path}")
 
         self.input_path = input_pdf_path
-        # Prefer PyMuPDF document handle if available
+        self._using_fitz = False
+        self._doc = None
+        self._pdf = None
+
+        # Prefer PyMuPDF document handle if enabled and available
         if HAS_PYMUPDF:
             try:
                 self._doc = fitz.open(input_pdf_path)
+                self._using_fitz = True
+                record_signing_backend_telemetry(
+                    backend="fitz",
+                    source="PDFSigner.__init__",
+                    reason="preferred_backend",
+                )
             except Exception as e:
-                raise ValueError(f"Failed to open PDF (PyMuPDF): {e}")
-            self._pdf = None
-        else:
+                record_signing_backend_telemetry(
+                    backend="fitz",
+                    source="PDFSigner.__init__",
+                    reason=f"open_failed:{e}",
+                )
+
+        if not self._using_fitz:
             try:
                 self._pdf = pikepdf.open(input_pdf_path)
+                record_signing_backend_telemetry(
+                    backend="pikepdf",
+                    source="PDFSigner.__init__",
+                    reason="fallback_or_configured",
+                )
             except Exception as e:
                 raise ValueError(f"Failed to open PDF (pikepdf): {e}")
-            self._doc = None
 
     def add_signature(
         self, page_num: int, sig_image_path: str, x: float, y: float, width: float, height: float
@@ -80,7 +103,7 @@ class PDFSigner:
           points.
         """
         # Preferred implementation: PyMuPDF
-        if HAS_PYMUPDF and self._doc is not None:
+        if self._using_fitz and self._doc is not None:
             if page_num < 0 or page_num >= self._doc.page_count:
                 raise ValueError(f"Invalid page number: {page_num}")
 

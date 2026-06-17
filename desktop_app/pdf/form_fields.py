@@ -4,9 +4,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, List, Optional, TYPE_CHECKING
 
-import fitz
+from desktop_app.pdf.stack_profile import _is_fitz_allowed
+
+if TYPE_CHECKING:
+    import fitz
 
 
 @dataclass(frozen=True)
@@ -47,6 +50,7 @@ class PdfFormFieldEditor:
     """Inspect and edit native PDF form widgets with PyMuPDF."""
 
     def detect_pdf(self, pdf_path: str, page_index: Optional[int] = None) -> List[FormFieldCandidate]:
+        fitz = self._require_fitz()
         if not Path(pdf_path).exists():
             raise FileNotFoundError(f"PDF not found: {pdf_path}")
 
@@ -72,6 +76,7 @@ class PdfFormFieldEditor:
         value: str = "",
         signature_image_path: str = "",
     ) -> bool:
+        fitz = self._require_fitz()
         if not Path(pdf_path).exists():
             raise FileNotFoundError(f"PDF not found: {pdf_path}")
 
@@ -89,7 +94,7 @@ class PdfFormFieldEditor:
         finally:
             doc.close()
 
-    def _widget_to_candidate(self, page_index: int, widget: fitz.Widget) -> FormFieldCandidate:
+    def _widget_to_candidate(self, page_index: int, widget: Any) -> FormFieldCandidate:
         rect = widget.rect
         on_state = ""
         try:
@@ -114,8 +119,8 @@ class PdfFormFieldEditor:
 
     def _apply_widget_value(
         self,
-        page: fitz.Page,
-        widget: fitz.Widget,
+        page: Any,
+        widget: Any,
         value: str,
         signature_image_path: str,
     ) -> bool:
@@ -149,7 +154,7 @@ class PdfFormFieldEditor:
         normalized = value.strip().lower()
         return normalized in {"1", "true", "yes", "y", "on", "checked", "signed"}
 
-    def _select_radio_state(self, widget: fitz.Widget, value: str) -> str:
+    def _select_radio_state(self, widget: Any, value: str) -> str:
         """Choose the radio state to activate for a widget."""
         normalized = value.strip()
         if not normalized:
@@ -166,3 +171,15 @@ class PdfFormFieldEditor:
         if normalized.casefold() == str(widget.field_value or "").casefold():
             return current_state
         return "Off"
+
+    def _require_fitz(self) -> Any:
+        if not _is_fitz_allowed():
+            raise RuntimeError(
+                "PyMuPDF form editing is disabled by policy. Set SIGNKIT_ALLOW_PYMUPDF_SIGNING=1 to enable it for this session."
+            )
+
+        try:
+            import fitz as fitz_module  # type: ignore
+            return fitz_module
+        except Exception as exc:
+            raise RuntimeError(f"PyMuPDF is not available: {exc}") from exc

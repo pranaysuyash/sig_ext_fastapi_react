@@ -1556,6 +1556,12 @@ class ExtractionTabMixin:
         if hasattr(self, "capture_btn"):
             self.capture_btn.setEnabled(True)
         self.open_btn.setText("Choose Image")  # Reset button text
+
+        if self._offer_camera_fallback(
+            "Upload failed. We can capture a signature from your camera instead and continue with the same extraction workflow."
+        ):
+            return
+
         # Immediately flip health indicator to offline on upload failure
         if hasattr(self, "backend_status_label"):
             self.backend_status_label.setText("Backend: Offline")

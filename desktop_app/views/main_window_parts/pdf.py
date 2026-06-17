@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
     QHBoxLayout,
     QLabel,
+    QInputDialog,
     QListWidget,
     QListWidgetItem,
     QMenu,
@@ -75,11 +76,13 @@ def _create_button(
 
 from desktop_app.library import storage as lib
 from desktop_app.views.bulk_sign_dialog import BulkSignDialog
+from desktop_app.pdf.stack_profile import stack_install_hint, signing_backend_report
 
 try:
     from desktop_app.pdf.viewer import PDFViewer
     from desktop_app.pdf.signer import sign_pdf
     from desktop_app.pdf.form_fields import PdfFormFieldEditor
+    from desktop_app.pdf.annotations import PdfAnnotationEditor
     from desktop_app.pdf.db_audit import DatabaseAuditLogger as AuditLogger, get_audit_logs_for_pdf
     from desktop_app.pdf.template_store import (
         SignaturePlacementTemplate,
@@ -114,6 +117,7 @@ class PdfTabMixin:
         return label
 
     def _setup_pdf_ui(self) -> None:
+        install_hint = stack_install_hint()
         if not PDF_AVAILABLE:
             self._pdf_placeholder_tab = QWidget()
             placeholder = self._pdf_placeholder_tab
@@ -140,7 +144,7 @@ class PdfTabMixin:
             install_cmd = QLabel(
                 "<code style='background-color: rgba(100, 100, 100, 0.2); "
                 "padding: 8px 16px; border-radius: 6px; font-family: monospace;'>"
-                "pip install pypdfium2 pikepdf"
+                f"{install_hint}"
                 "</code>"
             )
             install_cmd.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -177,7 +181,7 @@ class PdfTabMixin:
             # Add tooltip to tab explaining why it's disabled
             self.tab_widget.setTabToolTip(
                 self._pdf_tab_index,
-                "PDF signing features require pypdfium2 and pikepdf libraries"
+                f"PDF signing backend status: {signing_backend_report()}"
             )
             return
 
@@ -605,7 +609,17 @@ class PdfTabMixin:
         place_field_act.setStatusTip("Place the selected signature into the best detected field")
         place_field_act.triggered.connect(self._on_pdf_place_on_field)
         pdf_menu.addAction(place_field_act)
-        
+
+        highlight_field_act = QAction("Add &Highlight to Selected Field", self)
+        highlight_field_act.setStatusTip("Write a review highlight on the currently selected detected field")
+        highlight_field_act.triggered.connect(self._on_pdf_add_highlight_to_selected_field)
+        pdf_menu.addAction(highlight_field_act)
+
+        comment_field_act = QAction("Add &Comment to Selected Field", self)
+        comment_field_act.setStatusTip("Attach a note annotation to the currently selected detected field")
+        comment_field_act.triggered.connect(self._on_pdf_add_comment_to_selected_field)
+        pdf_menu.addAction(comment_field_act)
+
         pdf_menu.addSeparator()
         
         view_logs_act = QAction("View &Audit Logs", self)
@@ -616,9 +630,10 @@ class PdfTabMixin:
     def on_pdf_open(self):
         """Open a PDF file for signing."""
         if not PDF_AVAILABLE:
+            hint = stack_install_hint()
             QMessageBox.warning(self, "Feature Unavailable",
-                              "PDF features require pypdfium2 and pikepdf.\n"
-                              "Install with: pip install pypdfium2 pikepdf")
+                              "PDF features are currently unavailable in this environment.\n"
+                              f"Install with: {hint}")
             return
         
         path = self._native_open_file("Open PDF", "PDF Files (*.pdf)")
@@ -760,6 +775,166 @@ class PdfTabMixin:
         layout.addWidget(buttons)
         
         dialog.exec()
+
+    def _active_pdf_path(self) -> Optional[str]:
+        """Return the current active PDF path from whichever tab state is live."""
+        if self._current_pdf_path:
+            return self._current_pdf_path
+        if self.session and self.session.pdf_state and self.session.pdf_state.current_pdf_path:
+            return self.session.pdf_state.current_pdf_path
+        return None
+
+    def _selected_pdf_field_candidate(self) -> Optional[dict]:
+        """Return the currently selected detected field candidate if available."""
+        if not self.pdf_viewer or not self.pdf_viewer.page_view:
+            return None
+
+        index = self.pdf_viewer.page_view.selected_field_candidate_index
+        if index is None:
+            index = self.pdf_viewer.selected_field_candidate_index
+        if index is None:
+            return None
+
+        candidates = self.pdf_viewer.page_view.field_candidates
+        if 0 <= index < len(candidates):
+            return candidates[index]
+        return None
+
+    def _view_candidate_to_pdf_rect(self, candidate: dict) -> Optional[tuple[float, float, float, float]]:
+        """Convert a viewer-space detected field candidate to PDF page coordinates."""
+        if not self.pdf_viewer or not self.pdf_viewer.page_view.pixmap or not self.pdf_viewer.renderer:
+            return None
+
+        page_w_pt, page_h_pt = self.pdf_viewer.renderer.get_page_size(self.pdf_viewer.current_page)
+        pixmap_w = self.pdf_viewer.page_view.pixmap.width()
+        pixmap_h = self.pdf_viewer.page_view.pixmap.height()
+        if page_w_pt <= 0 or page_h_pt <= 0 or pixmap_w <= 0 or pixmap_h <= 0:
+            return None
+
+        x = float(candidate.get("x", 0.0)) * page_w_pt / pixmap_w
+        y = page_h_pt - (float(candidate.get("y", 0.0)) + float(candidate.get("height", 0.0))) * page_h_pt / pixmap_h
+        width = float(candidate.get("width", 0.0)) * page_w_pt / pixmap_w
+        height = float(candidate.get("height", 0.0)) * page_h_pt / pixmap_h
+        if width <= 0 or height <= 0:
+            return None
+        return x, y, width, height
+
+    def _prompt_comment_text(self, default_text: str) -> Optional[str]:
+        """Ask the user for review note text."""
+        text, ok = QInputDialog.getMultiLineText(
+            self,
+            "Add Comment",
+            "Comment text:",
+            default_text,
+        )
+        if not ok:
+            return None
+        cleaned = text.strip()
+        return cleaned or None
+
+    def _write_annotation_to_pdf(self, *, kind: str, contents: str = "") -> bool:
+        """Write an annotation anchored to the selected field candidate."""
+        pdf_path = self._active_pdf_path()
+        if not pdf_path:
+            QMessageBox.information(self, "No PDF", "Please open a PDF document first.")
+            return False
+
+        candidate = self._selected_pdf_field_candidate()
+        if candidate is None:
+            QMessageBox.information(self, "No Field Selected", "Detect fields and select one first.")
+            return False
+
+        rect = self._view_candidate_to_pdf_rect(candidate)
+        if rect is None:
+            QMessageBox.warning(self, "Annotation Failed", "Could not translate the selected field into PDF coordinates.")
+            return False
+
+        x, y, width, height = rect
+        default_name = f"{Path(pdf_path).stem}_annotated.pdf"
+        output_path = self._native_save_file("Save Annotated PDF", default_name, "PDF Files (*.pdf)")
+        if not output_path:
+            return False
+
+        try:
+            editor = PdfAnnotationEditor(pdf_path)
+            page_index = int(self.pdf_viewer.current_page if self.pdf_viewer else 0)
+            if kind == "highlight":
+                result = editor.add_highlight(
+                    output_path,
+                    page_index=page_index,
+                    x=x,
+                    y=y,
+                    width=width,
+                    height=height,
+                    contents=contents,
+                    author=self.session.user_email or "",
+                )
+            else:
+                note_x = x + max(2.0, width * 0.02)
+                note_y = y + max(2.0, height * 0.7)
+                result = editor.add_note(
+                    output_path,
+                    page_index=page_index,
+                    x=note_x,
+                    y=note_y,
+                    contents=contents,
+                    author=self.session.user_email or "",
+                )
+
+            if self.audit_logger:
+                run_id = self.audit_logger.start_run(
+                    f"add_{kind}_annotation",
+                    details=f"{kind.title()} annotation added to selected field",
+                    page_count=1,
+                )
+                self.audit_logger.log_annotation(
+                    kind,
+                    page_index,
+                    int(x),
+                    int(y),
+                    int(width),
+                    int(height),
+                    run_id=run_id,
+                    details=f"Saved to {Path(result.output_path).name}",
+                )
+                self.audit_logger.finish_run(
+                    run_id,
+                    success=True,
+                    details=f"{kind.title()} annotation saved",
+                    signature_count=result.annotation_count,
+                )
+
+            self.statusBar().showMessage(f"✅ Saved annotated PDF: {Path(output_path).name}")
+            QMessageBox.information(self, "Annotation Saved", f"Annotated PDF saved to:\n{output_path}")
+            return True
+        except Exception as exc:
+            if self.audit_logger:
+                self.audit_logger.log_error(f"{kind}_annotation_failed", str(exc))
+            QMessageBox.critical(self, "Annotation Failed", f"Failed to write annotation:\n{exc}")
+            return False
+
+    def _on_pdf_add_highlight_to_selected_field(self):
+        """Write a highlight annotation on the currently selected detected field."""
+        candidate = self._selected_pdf_field_candidate()
+        if candidate is None:
+            QMessageBox.information(self, "No Field Selected", "Detect fields and select one first.")
+            return
+        label = str(candidate.get("label") or candidate.get("field_type") or "field")
+        self._write_annotation_to_pdf(kind="highlight", contents=f"Review highlight for {label}")
+
+    def _on_pdf_add_comment_to_selected_field(self):
+        """Write a note annotation on the currently selected detected field."""
+        candidate = self._selected_pdf_field_candidate()
+        if candidate is None:
+            QMessageBox.information(self, "No Field Selected", "Detect fields and select one first.")
+            return
+
+        label = str(candidate.get("label") or candidate.get("field_type") or "field")
+        default_text = f"Review note for {label}"
+        comment = self._prompt_comment_text(default_text)
+        if comment is None:
+            return
+        self._write_annotation_to_pdf(kind="comment", contents=comment)
     
     # ========== PDF TAB EVENT HANDLERS ==========
     

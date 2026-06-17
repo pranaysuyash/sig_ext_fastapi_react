@@ -14,6 +14,7 @@ from desktop_app.processing import SignatureExtractor
 from desktop_app.resources.icons import get_icon
 from desktop_app.state.session import SessionState
 from desktop_app.views.onboarding_dialog import OnboardingDialog
+from desktop_app.pdf.stack_profile import stack_install_hint
 from desktop_app.views.main_window_parts import (
     ExtractionTabMixin,
     NativeDialogsMixin,
@@ -96,7 +97,7 @@ class MainWindow(
         if PDF_AVAILABLE:
             self.status_bar.showMessage("Ready - PDF features enabled", 2000)
         else:
-            detail = f"Ready - PDF features unavailable (install pypdfium2 and pikepdf)"
+            detail = f"Ready - PDF features unavailable ({stack_install_hint()})"
             if PDF_IMPORT_ERROR:
                 LOG.warning("PDF features disabled: %s", PDF_IMPORT_ERROR)
                 detail = f"{detail}: {PDF_IMPORT_ERROR}"

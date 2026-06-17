@@ -23,6 +23,9 @@
 
 - **[Use Cases](docs/USE_CASES.md)** — 20+ real-world applications (legal, healthcare, design, e-signing)
 - **[PDF Quick Start](docs/PDF_QUICK_START.md)** — PDF signing workflow and audit logging
+- **[PDF Stack Setup](docs/PDF_SETUP.md)** — runtime library policy, role mapping, and install matrix
+- **[PDF Library Exploration](docs/analysis/PDF_LIBRARY_EXPLORATION_2026-06-17.md)** — broader OSS candidate survey and rationale
+- **[PDF Platform Convergence](docs/analysis/PDF_PLATFORM_CONVERGENCE_2026-06-17.md)** — long-term architecture for editing, annotations, signing, and export
 - **[PDF Implementation](docs/PDF_FEATURE_IMPLEMENTATION.md)** — Technical details for developers
 - **[Pricing Strategy](docs/PRICING.md)** — Freemium model with Pro/Team/Enterprise tiers
 - **[Product Roadmap](docs/ROADMAP.md)** — 8-phase development plan (auto-recognition, integrations, deployment)
@@ -90,7 +93,20 @@ Install dependencies:
 pip install PySide6 requests python-dotenv pillow opencv-python numpy
 
 # Optional: For PDF signing features
-pip install pypdfium2 PyMuPDF pikepdf
+python -m pip install pypdfium2 PyMuPDF pikepdf
+```
+
+Use the stack matrix in **[PDF_SETUP](docs/PDF_SETUP.md)** if you only need part of the PDF workflow:
+
+```zsh
+# Preview only
+python -m pip install pypdfium2
+
+# Signing only
+python -m pip install PyMuPDF pikepdf
+
+# Full stack for current PDF feature set
+python -m pip install pypdfium2 PyMuPDF pikepdf
 ```
 
 Run app:
@@ -161,12 +177,12 @@ See **[full use case guide](docs/USE_CASES.md)** for 20+ detailed scenarios.
 
 ## Pricing
 
-- 🆓 **Free**: Desktop app with unlimited local extractions
-- 💼 **Pro** ($12/mo): Cloud sync, browser extension, batch processing
-- 🏢 **Team** ($30/user/mo): Shared workspace, API access, webhooks
-- 🚀 **Enterprise** (custom): On-premise, SSO, HIPAA compliance
+- 🪪 **Lifetime Desktop**: **$39** (launch price **$29**) one-time, no subscriptions
+- 💼 **Pro Workspace**: **$15/mo or $129/yr** (future)
+  - batch workflows, sync, shared libraries, audit exports
+- 🏢 **Team / Enterprise**: custom pricing (future)
 
-See **[pricing strategy doc](docs/PRICING.md)** for complete tier comparison and revenue projections.
+See **[pricing strategy doc](docs/PRICING.md)** for complete tier details and launch plan.
 
 ## Development
 

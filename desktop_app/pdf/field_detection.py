@@ -9,15 +9,16 @@ This module combines two practical signal sources:
 from __future__ import annotations
 
 from dataclasses import dataclass
+import importlib
 import logging
 import re
 from pathlib import Path
 from typing import Any, Iterable, List, Optional, Sequence
 
-import cv2
-import numpy as np
 import pikepdf
 import pypdfium2 as pdfium
+import numpy as np
+from desktop_app.pdf.stack_profile import is_scan_preprocess_enabled
 
 LOG = logging.getLogger(__name__)
 
@@ -72,11 +73,19 @@ class SignatureFieldDetector:
         else:
             pages_for_heuristics = page_indexes[:3]
 
+        # Rendered heuristics and OCR hints run only in scan-preprocess mode.
         for idx in pages_for_heuristics:
             try:
                 candidates.extend(self._detect_rendered_page_candidates(pdf_path, idx))
             except Exception as exc:
                 LOG.debug("Rendered candidate detection failed for page %s: %s", idx, exc)
+
+        if is_scan_preprocess_enabled():
+            for idx in pages_for_heuristics:
+                try:
+                    candidates.extend(self._detect_ocr_candidate_hints(pdf_path, idx))
+                except Exception as exc:
+                    LOG.debug("OCR candidate detection failed for page %s: %s", idx, exc)
 
         return self._dedupe_candidates(candidates)
 
@@ -166,12 +175,17 @@ class SignatureFieldDetector:
     ) -> List[SignatureFieldCandidate]:
         pdf = pdfium.PdfDocument(pdf_path)
         try:
+            cv2_module = self._require_cv2()
+            if cv2_module is None:
+                LOG.debug("OpenCV not available; skipping rendered heuristic candidate detection")
+                return []
+
             page = pdf[page_index]
             page_width_pt = float(page.get_width())
             page_height_pt = float(page.get_height())
             bitmap = page.render(scale=2.0, rotation=0)
             image = np.array(bitmap.to_pil().convert("RGB"))
-            heuristics = self._detect_from_image(image)
+            heuristics = self._detect_from_image(image, cv2_module)
 
             candidates: list[SignatureFieldCandidate] = []
             for item in heuristics:
@@ -193,18 +207,116 @@ class SignatureFieldDetector:
         finally:
             pdf.close()
 
-    def _detect_from_image(self, image: np.ndarray) -> List[dict[str, Any]]:
-        gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-        blur = cv2.GaussianBlur(gray, (5, 5), 0)
-        _, binary = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    def _detect_ocr_candidate_hints(
+        self,
+        pdf_path: str,
+        page_index: int,
+    ) -> List[SignatureFieldCandidate]:
+        pdf = pdfium.PdfDocument(pdf_path)
+        try:
+            cv2_module, pytesseract_module = self._require_scan_ocr_stack()
+            if cv2_module is None or pytesseract_module is None:
+                return []
+
+            page = pdf[page_index]
+            page_width_pt = float(page.get_width())
+            page_height_pt = float(page.get_height())
+            bitmap = page.render(scale=2.0, rotation=0)
+            image = np.array(bitmap.to_pil().convert("RGB"))
+
+            gray = cv2_module.cvtColor(image, cv2_module.COLOR_RGB2GRAY)
+            _, threshold = cv2_module.threshold(gray, 0, 255, cv2_module.THRESH_BINARY + cv2_module.THRESH_OTSU)
+            data = pytesseract_module.image_to_data(threshold, output_type=pytesseract_module.Output.DICT, lang="eng")
+
+            tokens = data.get("text", [])
+            confidences = data.get("conf", [])
+            lefts = data.get("left", [])
+            tops = data.get("top", [])
+            widths = data.get("width", [])
+            heights = data.get("height", [])
+            candidates: list[SignatureFieldCandidate] = []
+
+            for idx, raw_text in enumerate(tokens):
+                text = str(raw_text or "").strip()
+                if not text:
+                    continue
+
+                if not self._looks_like_signature_ocr_text(text):
+                    continue
+
+                conf = self._parse_tesseract_confidence(confidences, idx)
+                if conf < 0.35:
+                    continue
+
+                x = float(lefts[idx]) if idx < len(lefts) else 0.0
+                y = float(tops[idx]) if idx < len(tops) else 0.0
+                width = float(widths[idx]) if idx < len(widths) else 0.0
+                height = float(heights[idx]) if idx < len(heights) else 0.0
+
+                if width <= 6 or height <= 6:
+                    continue
+
+                candidates.append(
+                    SignatureFieldCandidate(
+                        page_index=page_index,
+                        field_type="ocr_keyword_hint",
+                        x=page_width_pt * (x / image.shape[1]),
+                        y=page_height_pt - ((y + height) * page_height_pt / image.shape[0]),
+                        width=page_width_pt * (width / image.shape[1]),
+                        height=page_height_pt * (height / image.shape[0]),
+                        confidence=round(0.6 + min(0.34, conf * 0.35), 3),
+                        source="ocr",
+                        reason=f"OCR keyword hint: {text}",
+                        label=text[:48],
+                    )
+                )
+
+            return candidates
+        finally:
+            pdf.close()
+
+    def _looks_like_signature_ocr_text(self, text: str) -> bool:
+        normalized = text.lower().strip()
+        if len(normalized) < 3:
+            return False
+
+        signature_terms = (
+            "sign",
+            "signature",
+            "sign here",
+            "sig",
+            "initial",
+            "initials",
+            "acknowledge",
+            "date",
+        )
+        return any(token in normalized for token in signature_terms)
+
+    def _parse_tesseract_confidence(self, confidences: Sequence[Any], index: int) -> float:
+        if index >= len(confidences):
+            return 0.0
+
+        try:
+            raw_conf = float(confidences[index])
+        except (TypeError, ValueError):
+            return 0.0
+
+        if raw_conf <= 1:
+            return max(0.0, raw_conf)
+        return max(0.0, min(1.0, raw_conf / 100.0))
+
+    def _detect_from_image(self, image: np.ndarray, cv2_module: Any) -> List[dict[str, Any]]:
+        gray = cv2_module.cvtColor(image, cv2_module.COLOR_RGB2GRAY)
+        blur = cv2_module.GaussianBlur(gray, (5, 5), 0)
+        _, binary = cv2_module.threshold(blur, 0, 255, cv2_module.THRESH_BINARY_INV + cv2_module.THRESH_OTSU)
 
         height, width = gray.shape[:2]
         candidates: list[dict[str, Any]] = []
 
-        horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (max(20, width // 12), 1))
-        horizontal = cv2.morphologyEx(binary, cv2.MORPH_OPEN, horizontal_kernel)
-        for contour in self._contours(horizontal):
-            x, y, w, h = cv2.boundingRect(contour)
+        horizontal_kernel = cv2_module.getStructuringElement(cv2_module.MORPH_RECT, (max(20, width // 12), 1))
+        horizontal = cv2_module.morphologyEx(binary, cv2_module.MORPH_OPEN, horizontal_kernel)
+        for contour in self._contours(horizontal, cv2_module):
+            x, y, w, h = cv2_module.boundingRect(contour)
             if self._looks_like_signature_line(w, h, width):
                 candidates.append(
                     {
@@ -219,10 +331,10 @@ class SignatureFieldDetector:
                     }
                 )
 
-        rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
-        closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, rect_kernel, iterations=2)
-        for contour in self._contours(closed):
-            x, y, w, h = cv2.boundingRect(contour)
+        rect_kernel = cv2_module.getStructuringElement(cv2_module.MORPH_RECT, (5, 5))
+        closed = cv2_module.morphologyEx(binary, cv2_module.MORPH_CLOSE, rect_kernel, iterations=2)
+        for contour in self._contours(closed, cv2_module):
+            x, y, w, h = cv2_module.boundingRect(contour)
             if self._looks_like_field_box(w, h, width, height):
                 field_type = self._classify_box(w, h)
                 candidates.append(
@@ -274,13 +386,32 @@ class SignatureFieldDetector:
         bottom_bonus = 0.1 if y > page_height * 0.45 else 0.0
         return round(min(0.95, 0.35 + 0.4 * size_score + 0.15 * aspect_score + bottom_bonus), 3)
 
-    def _contours(self, image: np.ndarray) -> Iterable[np.ndarray]:
-        found = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    def _contours(self, image: np.ndarray, cv2_module: Any) -> Iterable[np.ndarray]:
+        found = cv2_module.findContours(image, cv2_module.RETR_EXTERNAL, cv2_module.CHAIN_APPROX_SIMPLE)
         if len(found) == 3:
             _, contours, _ = found
         else:
             contours, _ = found
         return contours
+
+    def _require_cv2(self) -> Any:
+        try:
+            return importlib.import_module("cv2")
+        except Exception:
+            return None
+
+    def _require_scan_ocr_stack(self) -> tuple[Any, Any]:
+        try:
+            cv2_module = importlib.import_module("cv2")
+        except Exception:
+            return None, None
+
+        try:
+            pytesseract_module = importlib.import_module("pytesseract")
+        except Exception:
+            return cv2_module, None
+
+        return cv2_module, pytesseract_module
 
     def _dedupe_candidates(self, candidates: Sequence[SignatureFieldCandidate]) -> List[SignatureFieldCandidate]:
         ordered = sorted(candidates, key=lambda c: c.confidence, reverse=True)

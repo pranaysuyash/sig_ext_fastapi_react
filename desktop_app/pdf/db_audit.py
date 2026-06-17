@@ -349,6 +349,33 @@ class DatabaseAuditLogger:
             height=height,
         )
 
+    def log_annotation(
+        self,
+        annotation_kind: str,
+        page_num: int,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        *,
+        run_id: Optional[str] = None,
+        details: Optional[str] = None,
+    ) -> None:
+        """Log a PDF annotation or comment operation."""
+        message = f"Added {annotation_kind} annotation on page {page_num + 1} at ({x}, {y})"
+        if details:
+            message = f"{message} | {details}"
+        self._log(
+            'add_annotation',
+            run_id=run_id or self.active_run_id,
+            details=message,
+            page_number=page_num,
+            x=x,
+            y=y,
+            width=width,
+            height=height,
+        )
+
     def log_save(self, output_path: str, sig_count: int, *, run_id: Optional[str] = None) -> None:
         """Log PDF save operation."""
         details = f"Saved signed PDF with {sig_count} signature(s)"
