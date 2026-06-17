@@ -732,10 +732,7 @@ class PdfTabMixin:
 
                 QMessageBox.information(
                     self, "Success",
-                    f"✅ Signed PDF saved to:
-{output_path}
-
-"
+                    f"✅ Signed PDF saved to:\\n{output_path}\\n\\n"
                     f"Signatures placed: {len(placed_sigs)}"
                 )
                 self.statusBar().showMessage(f"💾 Saved: {Path(output_path).name}")

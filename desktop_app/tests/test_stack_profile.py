@@ -1,5 +1,6 @@
 """Tests for the canonical PDF stack profile and install guidance."""
 
+import importlib.util
 import json
 
 from pathlib import Path
@@ -71,3 +72,23 @@ def test_signing_backend_telemetry_logs_path(tmp_path, monkeypatch):
     assert payload["source"] == "tests"
     assert payload["reason"] == "unit-test"
     assert payload["extra"]["plan"] == "unit"
+
+
+def test_live_profile_matches_installed_pdf_packages(monkeypatch):
+    """Smoke-test the actual environment without any monkeypatching of imports."""
+    monkeypatch.setenv("SIGNKIT_ALLOW_PYMUPDF_SIGNING", "0")
+    monkeypatch.setenv("SIGNKIT_PDF_SCAN_PREPROCESS", "0")
+
+    profile = stack_profile.get_pdf_stack_profile()
+
+    for module_name, package_key in (
+        ("pypdfium2", "pypdfium2"),
+        ("pypdf", "pypdf"),
+        ("pikepdf", "pikepdf"),
+    ):
+        expected = importlib.util.find_spec(module_name) is not None
+        assert profile["packages"][package_key]["available"] is expected
+
+    assert profile["packages"]["fitz"]["available"] is False
+    assert profile["primary"]["rendering"] in {"pypdfium2", "unavailable"}
+    assert profile["primary"]["annotations"] in {"pypdf", "unavailable"}
