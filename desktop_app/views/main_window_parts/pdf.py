@@ -83,6 +83,7 @@ try:
     from desktop_app.pdf.signer import sign_pdf
     from desktop_app.pdf.form_fields import PdfFormFieldEditor
     from desktop_app.pdf.annotations import PdfAnnotationEditor
+    from desktop_app.pdf.document_session_store import load_document_session, save_document_session
     from desktop_app.pdf.db_audit import DatabaseAuditLogger as AuditLogger, get_audit_logs_for_pdf
     from desktop_app.pdf.template_store import (
         SignaturePlacementTemplate,
@@ -659,6 +660,7 @@ class PdfTabMixin:
         # Initialize audit logger
         self.audit_logger = AuditLogger(path, self.session.user_email)
         self.audit_logger.log_open()
+        self._restore_persisted_pdf_placements(path)
         
         self.statusBar().showMessage(f"Opened PDF: {Path(path).name}")
         if hasattr(self, "_refresh_toolbar_action_states"):
@@ -724,349 +726,16 @@ class PdfTabMixin:
                 # Log save operation
                 if self.audit_logger:
                     self.audit_logger.log_save(output_path, len(placed_sigs))
-                
+                if self._current_pdf_path:
+                    save_document_session(self._current_pdf_path, placed_sigs)
+                save_document_session(output_path, placed_sigs)
+
                 QMessageBox.information(
                     self, "Success",
-                    f"Signed PDF saved to:\n{output_path}"
-                )
-                self.statusBar().showMessage(f"Saved: {Path(output_path).name}")
-            else:
-                raise Exception("PDF signing failed")
-                
-        except Exception as e:
-            if self.audit_logger:
-                self.audit_logger.log_error("save_failed", str(e))
-            QMessageBox.critical(self, "Error", f"Failed to save PDF:\n{e}")
-        finally:
-            if hasattr(self, "_refresh_toolbar_action_states"):
-                self._refresh_toolbar_action_states()
-    
-    def on_pdf_view_audit_logs(self):
-        """View audit logs for current PDF."""
-        if not self.session.pdf_state or not self.session.pdf_state.current_pdf_path:
-            QMessageBox.warning(self, "No PDF", "No PDF is currently open")
-            return
-        
-        logs = get_audit_logs_for_pdf(self.session.pdf_state.current_pdf_path)
-        
-        if not logs:
-            QMessageBox.information(self, "Audit Logs", "No audit logs found for this PDF")
-            return
-        
-        # Display logs in a dialog
-        log_text = "\n\n".join([
-            f"[{log.timestamp}] {log.operation}\n{log.details}"
-            for log in logs
-        ])
-        
-        dialog = QDialog(self)
-        dialog.setWindowTitle("Audit Logs")
-        dialog.resize(600, 400)
-        
-        layout = QVBoxLayout(dialog)
-        
-        text_edit = QTextEdit()
-        text_edit.setReadOnly(True)
-        text_edit.setPlainText(log_text)
-        layout.addWidget(text_edit)
-        
-        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
-        buttons.accepted.connect(dialog.accept)
-        layout.addWidget(buttons)
-        
-        dialog.exec()
+                    f"✅ Signed PDF saved to:
+{output_path}
 
-    def _active_pdf_path(self) -> Optional[str]:
-        """Return the current active PDF path from whichever tab state is live."""
-        if self._current_pdf_path:
-            return self._current_pdf_path
-        if self.session and self.session.pdf_state and self.session.pdf_state.current_pdf_path:
-            return self.session.pdf_state.current_pdf_path
-        return None
-
-    def _selected_pdf_field_candidate(self) -> Optional[dict]:
-        """Return the currently selected detected field candidate if available."""
-        if not self.pdf_viewer or not self.pdf_viewer.page_view:
-            return None
-
-        index = self.pdf_viewer.page_view.selected_field_candidate_index
-        if index is None:
-            index = self.pdf_viewer.selected_field_candidate_index
-        if index is None:
-            return None
-
-        candidates = self.pdf_viewer.page_view.field_candidates
-        if 0 <= index < len(candidates):
-            return candidates[index]
-        return None
-
-    def _view_candidate_to_pdf_rect(self, candidate: dict) -> Optional[tuple[float, float, float, float]]:
-        """Convert a viewer-space detected field candidate to PDF page coordinates."""
-        if not self.pdf_viewer or not self.pdf_viewer.page_view.pixmap or not self.pdf_viewer.renderer:
-            return None
-
-        page_w_pt, page_h_pt = self.pdf_viewer.renderer.get_page_size(self.pdf_viewer.current_page)
-        pixmap_w = self.pdf_viewer.page_view.pixmap.width()
-        pixmap_h = self.pdf_viewer.page_view.pixmap.height()
-        if page_w_pt <= 0 or page_h_pt <= 0 or pixmap_w <= 0 or pixmap_h <= 0:
-            return None
-
-        x = float(candidate.get("x", 0.0)) * page_w_pt / pixmap_w
-        y = page_h_pt - (float(candidate.get("y", 0.0)) + float(candidate.get("height", 0.0))) * page_h_pt / pixmap_h
-        width = float(candidate.get("width", 0.0)) * page_w_pt / pixmap_w
-        height = float(candidate.get("height", 0.0)) * page_h_pt / pixmap_h
-        if width <= 0 or height <= 0:
-            return None
-        return x, y, width, height
-
-    def _prompt_comment_text(self, default_text: str) -> Optional[str]:
-        """Ask the user for review note text."""
-        text, ok = QInputDialog.getMultiLineText(
-            self,
-            "Add Comment",
-            "Comment text:",
-            default_text,
-        )
-        if not ok:
-            return None
-        cleaned = text.strip()
-        return cleaned or None
-
-    def _write_annotation_to_pdf(self, *, kind: str, contents: str = "") -> bool:
-        """Write an annotation anchored to the selected field candidate."""
-        pdf_path = self._active_pdf_path()
-        if not pdf_path:
-            QMessageBox.information(self, "No PDF", "Please open a PDF document first.")
-            return False
-
-        candidate = self._selected_pdf_field_candidate()
-        if candidate is None:
-            QMessageBox.information(self, "No Field Selected", "Detect fields and select one first.")
-            return False
-
-        rect = self._view_candidate_to_pdf_rect(candidate)
-        if rect is None:
-            QMessageBox.warning(self, "Annotation Failed", "Could not translate the selected field into PDF coordinates.")
-            return False
-
-        x, y, width, height = rect
-        default_name = f"{Path(pdf_path).stem}_annotated.pdf"
-        output_path = self._native_save_file("Save Annotated PDF", default_name, "PDF Files (*.pdf)")
-        if not output_path:
-            return False
-
-        try:
-            editor = PdfAnnotationEditor(pdf_path)
-            page_index = int(self.pdf_viewer.current_page if self.pdf_viewer else 0)
-            if kind == "highlight":
-                result = editor.add_highlight(
-                    output_path,
-                    page_index=page_index,
-                    x=x,
-                    y=y,
-                    width=width,
-                    height=height,
-                    contents=contents,
-                    author=self.session.user_email or "",
-                )
-            else:
-                note_x = x + max(2.0, width * 0.02)
-                note_y = y + max(2.0, height * 0.7)
-                result = editor.add_note(
-                    output_path,
-                    page_index=page_index,
-                    x=note_x,
-                    y=note_y,
-                    contents=contents,
-                    author=self.session.user_email or "",
-                )
-
-            if self.audit_logger:
-                run_id = self.audit_logger.start_run(
-                    f"add_{kind}_annotation",
-                    details=f"{kind.title()} annotation added to selected field",
-                    page_count=1,
-                )
-                self.audit_logger.log_annotation(
-                    kind,
-                    page_index,
-                    int(x),
-                    int(y),
-                    int(width),
-                    int(height),
-                    run_id=run_id,
-                    details=f"Saved to {Path(result.output_path).name}",
-                )
-                self.audit_logger.finish_run(
-                    run_id,
-                    success=True,
-                    details=f"{kind.title()} annotation saved",
-                    signature_count=result.annotation_count,
-                )
-
-            self.statusBar().showMessage(f"✅ Saved annotated PDF: {Path(output_path).name}")
-            QMessageBox.information(self, "Annotation Saved", f"Annotated PDF saved to:\n{output_path}")
-            return True
-        except Exception as exc:
-            if self.audit_logger:
-                self.audit_logger.log_error(f"{kind}_annotation_failed", str(exc))
-            QMessageBox.critical(self, "Annotation Failed", f"Failed to write annotation:\n{exc}")
-            return False
-
-    def _on_pdf_add_highlight_to_selected_field(self):
-        """Write a highlight annotation on the currently selected detected field."""
-        candidate = self._selected_pdf_field_candidate()
-        if candidate is None:
-            QMessageBox.information(self, "No Field Selected", "Detect fields and select one first.")
-            return
-        label = str(candidate.get("label") or candidate.get("field_type") or "field")
-        self._write_annotation_to_pdf(kind="highlight", contents=f"Review highlight for {label}")
-
-    def _on_pdf_add_comment_to_selected_field(self):
-        """Write a note annotation on the currently selected detected field."""
-        candidate = self._selected_pdf_field_candidate()
-        if candidate is None:
-            QMessageBox.information(self, "No Field Selected", "Detect fields and select one first.")
-            return
-
-        label = str(candidate.get("label") or candidate.get("field_type") or "field")
-        default_text = f"Review note for {label}"
-        comment = self._prompt_comment_text(default_text)
-        if comment is None:
-            return
-        self._write_annotation_to_pdf(kind="comment", contents=comment)
-    
-    # ========== PDF TAB EVENT HANDLERS ==========
-    
-    def _on_pdf_tab_open(self):
-        """Open PDF in the PDF tab viewer."""
-        path = self._native_open_file("Open PDF", "PDF Files (*.pdf)")
-        if not path:
-            return
-        
-        # Open in viewer
-        success = self.pdf_viewer.open_pdf(path)
-        if not success:
-            return
-        
-        # Initialize state
-        self.session.init_pdf_state()
-        if self.session.pdf_state:
-            self.session.pdf_state.current_pdf_path = path
-        self._current_pdf_path = path
-        self._form_fields_cache = []
-        self._last_pdf_placement = None
-        if hasattr(self, "pdf_form_field_list"):
-            self.pdf_form_field_list.clear()
-        if hasattr(self, "pdf_detected_field_list"):
-            self.pdf_detected_field_list.clear()
-        
-        # Initialize audit logger
-        self.audit_logger = AuditLogger(path, self.session.user_email)
-        self.audit_logger.log_open()
-        
-        # Refresh signature and template lists
-        self._refresh_pdf_signature_library()
-        self._refresh_pdf_template_list()
-        
-        self.statusBar().showMessage(f"📄 Opened: {Path(path).name}")
-        if hasattr(self, "_refresh_toolbar_action_states"):
-            self._refresh_toolbar_action_states()
-    
-    def _on_tab_changed(self, index: int):
-        """Handle tab change - refresh PDF signature library when switching to PDF tab."""
-        if PDF_AVAILABLE and index == getattr(self, "_pdf_tab_index", -1):
-            self._refresh_pdf_signature_library()
-            self._refresh_pdf_template_list()
-        if hasattr(self, "_update_toolbar_for_tab"):
-            self._update_toolbar_for_tab(index)
-    
-    def _on_pdf_coord_tooltips_toggled(self, state):
-        """Toggle coordinate tooltips in PDF viewer."""
-        enabled = bool(state)
-        if self.pdf_viewer:
-            self.pdf_viewer.enable_coordinate_tooltips(enabled)
-    
-    def _on_source_coord_tooltips_toggled(self, state):
-        """Toggle coordinate tooltips in Source, Preview, and Result image views."""
-        enabled = bool(state)
-        if self.src_view:
-            self.src_view.enable_coordinate_tooltips(enabled)
-        if self.preview_view:
-            self.preview_view.enable_coordinate_tooltips(enabled)
-        if self.res_view:
-            self.res_view.enable_coordinate_tooltips(enabled)
-    
-    def _on_pdf_tab_close(self):
-        """Close PDF in the PDF tab."""
-        self.pdf_viewer.close_pdf()
-        if self.session.pdf_state:
-            self.session.clear_pdf_state()
-        self._current_pdf_path = None
-        self.audit_logger = None
-        self._form_fields_cache = []
-        self._current_pdf_template_id = None
-        self._last_pdf_placement = None
-        if hasattr(self, "pdf_form_field_list"):
-            self.pdf_form_field_list.clear()
-        if hasattr(self, "pdf_detected_field_list"):
-            self.pdf_detected_field_list.clear()
-        if hasattr(self, "pdf_template_list"):
-            self.pdf_template_list.clear()
-            if hasattr(self, "pdf_template_name_input"):
-                self.pdf_template_name_input.clear()
-        self.statusBar().showMessage("PDF closed")
-        if hasattr(self, "_refresh_toolbar_action_states"):
-            self._refresh_toolbar_action_states()
-    
-    def _on_pdf_tab_save(self):
-        """Save signed PDF from the PDF tab."""
-        # Check license before allowing PDF save operations
-        from desktop_app.license.restrictions import check_and_enforce_pdf_operations_license
-        if not check_and_enforce_pdf_operations_license(self):
-            self.statusBar().showMessage("PDF operations require a license", 2000)
-            return
-        
-        if not self._current_pdf_path:
-            QMessageBox.warning(self, "No PDF", "No PDF is currently open")
-            return
-        
-        # Get all placed signatures from viewer (already includes sig_path)
-        placed_sigs = self.pdf_viewer.get_placed_signatures()
-        
-        if not placed_sigs:
-            reply = QMessageBox.question(
-                self, "No Signatures",
-                "No signatures have been placed. Save anyway?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-            )
-            if reply != QMessageBox.StandardButton.Yes:
-                return
-        
-        # Ask for output path
-        original_name = Path(self._current_pdf_path).name
-        default_name = f"{Path(original_name).stem}_signed.pdf"
-        
-        output_path = self._native_save_file("Save Signed PDF", default_name, "PDF Files (*.pdf)")
-        if not output_path:
-            return
-        
-        # Sign PDF (placed_sigs already contains sig_path for each signature)
-        try:
-            success = sign_pdf(
-                self._current_pdf_path,
-                output_path,
-                placed_sigs
-            )
-            
-            if success:
-                # Log save operation
-                if self.audit_logger:
-                    self.audit_logger.log_save(output_path, len(placed_sigs))
-                
-                QMessageBox.information(
-                    self, "Success",
-                    f"✅ Signed PDF saved to:\n{output_path}\n\n"
+"
                     f"Signatures placed: {len(placed_sigs)}"
                 )
                 self.statusBar().showMessage(f"💾 Saved: {Path(output_path).name}")
@@ -1715,6 +1384,8 @@ class PdfTabMixin:
                     )
 
             self._finish_bulk_placement_run(run_id, placed_count, len(target_pages))
+            if self._current_pdf_path and self.pdf_viewer:
+                save_document_session(self._current_pdf_path, self.pdf_viewer.get_placed_signatures())
             self._clear_bulk_signature_state()
 
             self.pdf_viewer.goto_page(source_page)
@@ -1766,6 +1437,9 @@ class PdfTabMixin:
             self.audit_logger.log_place_signature(
                 page, self._pending_sig_path, x, y, width, height
             )
+
+        if self._current_pdf_path and self.pdf_viewer:
+            save_document_session(self._current_pdf_path, self.pdf_viewer.get_placed_signatures())
 
         self.statusBar().showMessage(f"✅ Signature placed on page {page + 1}")
 

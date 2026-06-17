@@ -696,6 +696,14 @@ class PDFViewer(QWidget):
                 self.page_view.signatures.append(sig.copy())
             self.page_view.update()
 
+    def restore_signature_placements(self, signatures: List[Dict[str, Any]]) -> None:
+        """Restore persisted signature placements into the in-memory viewer state."""
+        self.all_signatures.clear()
+        for sig in signatures:
+            page_num = int(sig.get("page", 0))
+            self.all_signatures.setdefault(page_num, []).append(dict(sig))
+        self._load_page_signatures()
+
     def _load_page_field_candidates(self) -> None:
         """Load stored field candidates for the current page and map them to view coords."""
         self.page_view.clear_field_candidates()

@@ -150,3 +150,9 @@ In short:
 3. Add `pytesseract` as an optional docs dependency for scanner environments.
 4. Add a small UI hint for users when scan/OCR mode is disabled and no hint candidates will be returned.
 5. See the broader library survey in `docs/analysis/PDF_LIBRARY_EXPLORATION_2026-06-17.md`.
+
+## Durable document sessions
+
+- Signature placements are persisted per PDF so reopening the same document can restore the export recipe later.
+- The signature vault stores the image assets, while the document session store keeps placement geometry and page association.
+- If the source PDF changes materially, the saved placements may be skipped rather than applied blindly.

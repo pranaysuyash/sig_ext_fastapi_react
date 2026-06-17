@@ -6,6 +6,12 @@ from desktop_app.pdf.signer import PDFSigner, sign_pdf
 from desktop_app.pdf.field_detection import SignatureFieldDetector, SignatureFieldCandidate
 from desktop_app.pdf.form_fields import PdfFormFieldEditor, FormFieldCandidate
 from desktop_app.pdf.annotations import PdfAnnotationEditor, PdfAnnotationSpec, PdfAnnotationResult
+from desktop_app.pdf.document_session_store import (
+    DocumentPlacementSession,
+    clear_document_session,
+    load_document_session,
+    save_document_session,
+)
 from desktop_app.pdf.storage import (
     AuditLogger,
     save_signed_pdf,
@@ -36,6 +42,10 @@ __all__ = [
     'PdfAnnotationEditor',
     'PdfAnnotationSpec',
     'PdfAnnotationResult',
+    'DocumentPlacementSession',
+    'clear_document_session',
+    'load_document_session',
+    'save_document_session',
     'AuditLogger',
     'save_signed_pdf',
     'get_audit_logs_for_pdf',
