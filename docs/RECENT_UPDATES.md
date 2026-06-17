@@ -1,6 +1,37 @@
 # Recent Updates
 
-**Last Updated:** November 2, 2025
+**Last Updated:** June 17, 2026
+
+## 📊 Update: API Boundary Hardening From Feedback Review (June 17, 2026)
+
+**Status:** ✅ Implemented and tested
+
+Applied the long-term parts of the ChatGPT review to the desktop API boundary:
+
+- Added typed response objects for login, upload, and processing contracts.
+- Added typed API errors for validation, contract, auth, backend availability, and processing failures.
+- Tightened `ApiClient` input validation for base URLs, uploads, crop rectangles, thresholds, and color values.
+- Moved session mutation for login back into the caller layer instead of the transport method and gave `SessionState` explicit setters.
+- Removed the last direct extraction-session writes from the UI workflow and switched the extraction flow to `SessionState` intent methods.
+- Separated manual offline mode from observed backend reachability so transient health failures do not latch the client forever.
+- Switched backend URL changes to the validated `ApiClient.update_base_url(...)` boundary instead of mutating the public field directly.
+- Added client tests for invalid URLs, contract failures, selection validation, health recovery, and offline behavior.
+
+**See:** [desktop_app/api/client.py](../desktop_app/api/client.py), [desktop_app/api/errors.py](../desktop_app/api/errors.py), [desktop_app/views/login_dialog.py](../desktop_app/views/login_dialog.py), [desktop_app/tests/test_api_client.py](../desktop_app/tests/test_api_client.py)
+
+## 📊 Latest: Capture Input + Positioning Pass (June 17, 2026)
+
+**Status:** ✅ Implemented
+
+Added a camera capture path for environments where users cannot upload files:
+
+- Added `Capture Signature` button and `Ctrl+Shift+C` shortcut in the extraction UI.
+- Introduced a webcam capture dialog with live preview and frame capture.
+- Captured image is fed through the existing `_load_image_from_path` path so extraction, auto-detection, preview, and export behavior stay identical to file uploads.
+- Updated copy in `index.html`, `purchase.html`, and `web/live/index.html` to reflect launch pricing: `$29 launch` then `$39 lifetime`.
+- Kept this on long-term architecture by reusing one extraction pipeline (no duplicate flow or separate contract).
+
+**See:** [desktop_app/views/main_window_parts/extraction.py](../desktop_app/views/main_window_parts/extraction.py), [index.html](../index.html), [purchase.html](../purchase.html), [web/live/index.html](../web/live/index.html), [docs/PRICING.md](../docs/PRICING.md)
 
 ## 📊 Latest: ChatGPT UX Review Analysis (November 2, 2025)
 

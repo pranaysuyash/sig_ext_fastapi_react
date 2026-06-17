@@ -1,17 +1,18 @@
-"""PDF viewer widget with page navigation and zoom."""
+"""PDF viewer widget with page navigation, zoom, and field detection."""
 
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 from pathlib import Path
 import sys
 
 from PySide6.QtCore import Qt, Signal, QRectF, QPointF, QPoint
-from PySide6.QtGui import QPixmap, QPainter, QPen, QColor, QCursor
+from PySide6.QtGui import QPixmap, QPainter, QPen, QColor, QCursor, QFont
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, 
     QScrollArea, QComboBox, QMessageBox, QMenu, QToolTip
 )
 
 from desktop_app.pdf.renderer import PDFRenderer
+from desktop_app.pdf.field_detection import SignatureFieldDetector
 from desktop_app.widgets.modern_mac_button import ModernMacButton
 
 
@@ -65,6 +66,9 @@ class PDFPageView(QWidget):
         super().__init__(parent)
         self.pixmap: Optional[QPixmap] = None
         self.signatures: List[Dict[str, Any]] = []  # [{"x": 100, "y": 200, "width": 150, "height": 50, "pixmap": QPixmap, "sig_path": ""}, ...]
+        self.field_candidates: List[Dict[str, Any]] = []
+        self.selected_field_candidate_index: Optional[int] = None
+        self._confidence_threshold: float = 0.8
         self.setMinimumSize(400, 500)
         
         # Drag/move state
@@ -134,6 +138,16 @@ class PDFPageView(QWidget):
         """Remove all signature overlays."""
         self.signatures.clear()
         self.update()
+
+    def set_field_candidates(self, candidates: List[Dict[str, Any]]) -> None:
+        """Set read-only field candidates to highlight on the page."""
+        self.field_candidates = list(candidates)
+        self.update()
+
+    def clear_field_candidates(self) -> None:
+        """Clear field candidate overlays."""
+        self.field_candidates.clear()
+        self.update()
     
     def paintEvent(self, event):
         """Draw PDF page and signature overlays."""
@@ -161,6 +175,28 @@ class PDFPageView(QWidget):
             # Draw resize handles if this signature is selected
             if i == self.selected_signature:
                 self._draw_resize_handles(painter, sig)
+
+        # Draw candidate field overlays below signatures
+        for idx, candidate in enumerate(self.field_candidates):
+            rect = QRectF(candidate["x"], candidate["y"], candidate["width"], candidate["height"])
+            confidence = candidate.get("confidence", 0.0)
+            label = candidate.get("label") or candidate.get("field_type", "field").replace("_", " ")
+            is_selected = idx == self.selected_field_candidate_index
+            is_confident = float(confidence) >= self._confidence_threshold
+
+            painter.setPen(QPen(QColor(0, 120, 215, 240) if is_selected else QColor(255, 153, 0, 220 if is_confident else 120), 3 if is_selected else 2, Qt.PenStyle.DashLine))
+            painter.setBrush(QColor(0, 120, 215, 55) if is_selected else QColor(255, 193, 7, 42 if is_confident else 22))
+            painter.drawRoundedRect(rect, 4, 4)
+
+            badge_h = 18
+            badge_w = max(72, min(int(rect.width()), 220))
+            badge_x = int(rect.x())
+            badge_y = max(0, int(rect.y()) - badge_h - 2)
+            painter.fillRect(badge_x, badge_y, badge_w, badge_h, QColor(0, 120, 215, 220) if is_selected else QColor(255, 153, 0, 220))
+            painter.setPen(QColor(255, 255, 255))
+            painter.setFont(QFont("Helvetica", 8, QFont.Weight.Bold))
+            badge_text = f"{label} {int(confidence * 100)}%"
+            painter.drawText(badge_x + 5, badge_y + 13, badge_text[:40])
         
         # Draw placement preview if active
         if self.preview_pixmap and self.preview_pos:
@@ -487,6 +523,7 @@ class PDFViewer(QWidget):
     # Signals
     page_changed = Signal(int)  # Current page number
     signature_placed = Signal(int, int, int, int, int)  # page, x, y, width, height
+    _DEFAULT_FIELD_CONFIDENCE_THRESHOLD = 0.8
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -499,8 +536,12 @@ class PDFViewer(QWidget):
         self.base_dpi: int = 150
         # Track all signatures across all pages: {page_num: [sig_dict, ...]}
         self.all_signatures: Dict[int, List[Dict[str, Any]]] = {}
-        
+        self.all_field_candidates: Dict[int, List[Dict[str, Any]]] = {}
+        self.detector = SignatureFieldDetector()
+        self.selected_field_candidate_index: Optional[int] = None
+        self.field_auto_place_confidence = self._DEFAULT_FIELD_CONFIDENCE_THRESHOLD
         self._setup_ui()
+        self.page_view._confidence_threshold = self.field_auto_place_confidence
     
     def _setup_ui(self) -> None:
         """Initialize UI components."""
@@ -530,6 +571,14 @@ class PDFViewer(QWidget):
         self.zoom_combo.setCurrentText("100%")
         self.zoom_combo.currentTextChanged.connect(self._on_zoom_changed)
         toolbar.addWidget(self.zoom_combo)
+
+        self.find_fields_btn = _create_button("Find Fields", self)
+        self.find_fields_btn.clicked.connect(self.find_signature_fields)
+        toolbar.addWidget(self.find_fields_btn)
+
+        self.clear_fields_btn = _create_button("Clear Fields", self)
+        self.clear_fields_btn.clicked.connect(self.clear_signature_fields)
+        toolbar.addWidget(self.clear_fields_btn)
         
         layout.addLayout(toolbar)
         
@@ -551,6 +600,15 @@ class PDFViewer(QWidget):
         """Enable or disable coordinate tooltips in the PDF page view."""
         if self.page_view:
             self.page_view.enable_coordinate_tooltips(enabled)
+
+    def set_field_auto_place_confidence(self, min_confidence: float) -> None:
+        """Set the minimum confidence required for auto field placement."""
+        self.field_auto_place_confidence = max(0.0, min(1.0, float(min_confidence)))
+        self.page_view._confidence_threshold = self.field_auto_place_confidence
+
+    def get_field_auto_place_confidence(self) -> float:
+        """Get the current minimum field placement confidence."""
+        return self.field_auto_place_confidence
     
     def open_pdf(self, pdf_path: str) -> bool:
         """
@@ -567,6 +625,7 @@ class PDFViewer(QWidget):
             # Open new PDF
             self.renderer = PDFRenderer(pdf_path)
             self.current_page = 0
+            self.all_field_candidates.clear()
             
             # Default to showing the whole page on open
             self.zoom_combo.setCurrentText("Whole Page")
@@ -588,7 +647,9 @@ class PDFViewer(QWidget):
             self.renderer = None
         self.page_view.set_page(None)
         self.page_view.clear_signatures()
+        self.page_view.clear_field_candidates()
         self.all_signatures.clear()  # Clear all tracked signatures
+        self.all_field_candidates.clear()
         self._update_controls()
     
     def _render_current_page(self) -> None:
@@ -601,6 +662,7 @@ class PDFViewer(QWidget):
         
         # Restore signatures for this page
         self._load_page_signatures()
+        self._load_page_field_candidates()
         
         self.page_changed.emit(self.current_page)
     
@@ -614,6 +676,16 @@ class PDFViewer(QWidget):
         # Copy signatures from page_view
         for sig in self.page_view.signatures:
             self.all_signatures[self.current_page].append(sig.copy())
+
+    def _save_page_field_candidates(self) -> None:
+        """Save current page field candidates before switching pages."""
+        if self.current_page not in self.all_field_candidates:
+            self.all_field_candidates[self.current_page] = []
+        else:
+            self.all_field_candidates[self.current_page].clear()
+
+        for candidate in self.page_view.field_candidates:
+            self.all_field_candidates[self.current_page].append(candidate.copy())
     
     def _load_page_signatures(self) -> None:
         """Load signatures for current page from storage."""
@@ -623,6 +695,34 @@ class PDFViewer(QWidget):
             for sig in self.all_signatures[self.current_page]:
                 self.page_view.signatures.append(sig.copy())
             self.page_view.update()
+
+    def _load_page_field_candidates(self) -> None:
+        """Load stored field candidates for the current page and map them to view coords."""
+        self.page_view.clear_field_candidates()
+        if not self.renderer or not self.page_view.pixmap:
+            return
+
+        if self.current_page not in self.all_field_candidates:
+            return
+
+        page_width_pt, page_height_pt = self.renderer.get_page_size(self.current_page)
+        pixmap_w = self.page_view.pixmap.width()
+        pixmap_h = self.page_view.pixmap.height()
+        if page_width_pt <= 0 or page_height_pt <= 0 or pixmap_w <= 0 or pixmap_h <= 0:
+            return
+
+        view_candidates: List[Dict[str, Any]] = []
+        for candidate in self.all_field_candidates[self.current_page]:
+            view_candidates.append(
+                {
+                    **candidate,
+                    "x": int(candidate["x"] * pixmap_w / page_width_pt),
+                    "y": int((page_height_pt - (candidate["y"] + candidate["height"])) * pixmap_h / page_height_pt),
+                    "width": int(candidate["width"] * pixmap_w / page_width_pt),
+                    "height": int(candidate["height"] * pixmap_h / page_height_pt),
+                }
+            )
+        self.page_view.set_field_candidates(view_candidates)
     
     def previous_page(self) -> None:
         """Go to previous page."""
@@ -630,6 +730,7 @@ class PDFViewer(QWidget):
             return
         
         if self.current_page > 0:
+            self._save_page_field_candidates()
             self._save_page_signatures()  # Save before switching
             self.current_page -= 1
             self._render_current_page()
@@ -641,6 +742,7 @@ class PDFViewer(QWidget):
             return
         
         if self.current_page < self.renderer.page_count() - 1:
+            self._save_page_field_candidates()
             self._save_page_signatures()  # Save before switching
             self.current_page += 1
             self._render_current_page()
@@ -652,6 +754,7 @@ class PDFViewer(QWidget):
             return
         
         if 0 <= page_num < self.renderer.page_count():
+            self._save_page_field_candidates()
             self._save_page_signatures()  # Save before switching
             self.current_page = page_num
             self._render_current_page()
@@ -733,6 +836,311 @@ class PDFViewer(QWidget):
                     self.zoom_combo.setCurrentIndex(i)
                     break
         self.zoom_combo.blockSignals(False)
+
+    def find_signature_fields(self) -> None:
+        """Detect signature-like fields on the current page."""
+        if not self.renderer:
+            QMessageBox.information(self, "No PDF", "Open a PDF first.")
+            return
+
+        try:
+            candidates = self.detector.detect_page(self.renderer.pdf_path, self.current_page)
+        except Exception as exc:
+            QMessageBox.warning(self, "Field Detection Failed", f"Unable to detect fields:\n{exc}")
+            return
+
+        self.all_field_candidates[self.current_page] = [c.as_dict() for c in candidates if c.page_index == self.current_page]
+        self._load_page_field_candidates()
+        self.set_selected_field_candidate_index(None)
+
+        if not candidates:
+            QMessageBox.information(self, "No Fields Found", "No likely signature fields were detected on this page.")
+            return
+
+        thresholded = [c for c in candidates if c.confidence >= self.field_auto_place_confidence]
+        shown_count = len(candidates)
+        shown_above = len(thresholded)
+        if shown_count and shown_above < shown_count:
+            label = f"\n\n{shown_above}/{shown_count} candidate(s) above auto-placement threshold ({self.field_auto_place_confidence:.0%})."
+        else:
+            label = ""
+
+        label_counts = {}
+        for candidate in candidates:
+            label_counts[candidate.field_type] = label_counts.get(candidate.field_type, 0) + 1
+
+        summary = ", ".join(f"{name.replace('_', ' ')} x{count}" for name, count in sorted(label_counts.items()))
+        QMessageBox.information(
+            self,
+            "Fields Detected",
+            f"Detected {len(candidates)} likely field(s) on page {self.current_page + 1}.\n\n{summary}{label}",
+        )
+
+    def place_signature_on_detected_field(self) -> bool:
+        """Place the pending signature into the best detected field on the current page."""
+        if not self.pending_signature_pixmap:
+            QMessageBox.information(self, "No Signature Selected", "Select a signature first.")
+            return False
+
+        if not self.page_view.field_candidates:
+            self.find_signature_fields()
+            if not self.page_view.field_candidates:
+                return False
+
+        field = self._choose_field_candidate()
+        if field is None:
+            QMessageBox.warning(
+                self,
+                "Confidence Too Low",
+                "No field meets the minimum confidence threshold for auto placement.\n\n"
+                "Move the signature manually on this page, or place a selected field from the list first.",
+            )
+            return False
+
+        return self._place_signature_in_rect(field)
+
+    def place_signature_on_field(self, field: Dict[str, Any]) -> bool:
+        """Place the pending signature into a specific detected field."""
+        if not self.pending_signature_pixmap:
+            QMessageBox.information(self, "No Signature Selected", "Select a signature first.")
+            return False
+        return self._place_signature_in_rect(field)
+
+    def set_selected_field_candidate_index(self, index: Optional[int]) -> None:
+        """Remember which detected field the user selected in the review panel."""
+        self.selected_field_candidate_index = index
+        self.page_view.selected_field_candidate_index = index
+        self.page_view.update()
+
+    def get_selected_field_candidate(self) -> Optional[Dict[str, Any]]:
+        """Return currently selected field candidate if valid."""
+        if self.selected_field_candidate_index is None:
+            return None
+        if 0 <= self.selected_field_candidate_index < len(self.page_view.field_candidates):
+            return self.page_view.field_candidates[self.selected_field_candidate_index]
+        return None
+
+    def _choose_field_candidate(self) -> Optional[Dict[str, Any]]:
+        """Choose the best detected field or the user-selected one."""
+        selected = self.get_selected_field_candidate()
+        if selected is not None:
+            return selected
+
+        field_priority = {"signature_box": 0, "signature_line": 1, "field_box": 2, "initials_box": 3}
+        candidates = sorted(
+            self.page_view.field_candidates,
+            key=lambda item: (
+                field_priority.get(item.get("field_type", ""), 99),
+                -float(item.get("confidence", 0.0)),
+                -float(item.get("width", 0.0)) * float(item.get("height", 0.0)),
+            ),
+        )
+        if not candidates:
+            return None
+
+        candidate = candidates[0]
+        if float(candidate.get("confidence", 0.0)) < self.field_auto_place_confidence:
+            return None
+
+        return candidate
+
+    def _compute_signature_rect_in_field(self, field: Dict[str, Any], sig_w: int, sig_h: int) -> Tuple[int, int, int, int]:
+        """Compute placement rect for a signature inside a detected field."""
+        aspect = sig_w / max(sig_h, 1)
+        field_x = float(field["x"])
+        field_y = float(field["y"])
+        field_w = float(field["width"])
+        field_h = float(field["height"])
+
+        if field_w / max(field_h, 1.0) >= aspect:
+            height = max(20, int(field_h))
+            width = max(20, int(height * aspect))
+        else:
+            width = max(40, int(field_w))
+            height = max(20, int(width / aspect))
+
+        if field_w >= 20:
+            width = min(width, int(field_w))
+        if field_h >= 20:
+            height = min(height, int(field_h))
+        if width <= 0 or height <= 0:
+            width = max(40, int(field_w))
+            height = max(20, int(field_h))
+
+        x = int(field_x + max(0.0, (field_w - width) / 2.0))
+        y = int(field_y + max(0.0, (field_h - height) / 2.0))
+        return x, y, width, height
+
+    def _detect_signature_fields_silent(self) -> List[Dict[str, Any]]:
+        """Detect fields on the current page without showing UI messages."""
+        if not self.renderer:
+            return []
+
+        try:
+            candidates = self.detector.detect_page(self.renderer.pdf_path, self.current_page)
+        except Exception:
+            self.all_field_candidates[self.current_page] = []
+            self.page_view.clear_field_candidates()
+            return []
+
+        self._save_page_field_candidates()
+        self.all_field_candidates[self.current_page] = [c.as_dict() for c in candidates if c.page_index == self.current_page]
+        self._load_page_field_candidates()
+        self.set_selected_field_candidate_index(None)
+        return self.page_view.field_candidates
+
+    def build_scaled_signature_rect(
+        self,
+        x_ratio: float,
+        y_ratio: float,
+        width_ratio: float,
+        height_ratio: float,
+    ) -> Optional[Tuple[int, int, int, int]]:
+        """Build a signature rect based on normalized coordinates for the current page."""
+        if not self.page_view.pixmap:
+            return None
+
+        page_width = self.page_view.pixmap.width()
+        page_height = self.page_view.pixmap.height()
+
+        width_ratio = min(1.0, max(0.0, width_ratio))
+        height_ratio = min(1.0, max(0.0, height_ratio))
+        x_ratio = min(1.0, max(0.0, x_ratio))
+        y_ratio = min(1.0, max(0.0, y_ratio))
+
+        x = int(round(x_ratio * page_width))
+        y = int(round(y_ratio * page_height))
+        width = max(1, int(round(width_ratio * page_width)))
+        height = max(1, int(round(height_ratio * page_height)))
+
+        x = max(0, min(x, page_width - width))
+        y = max(0, min(y, page_height - height))
+        return x, y, width, height
+
+    def _place_signature_in_rect(self, field: Dict[str, Any]) -> bool:
+        sig_w = max(1, int(self.pending_signature_pixmap.width()))  # type: ignore[union-attr]
+        sig_h = max(1, int(self.pending_signature_pixmap.height()))  # type: ignore[union-attr]
+        x, y, width, height = self._compute_signature_rect_in_field(field, sig_w, sig_h)
+
+        self.page_view.add_signature_overlay(
+            x,
+            y,
+            width,
+            height,
+            self.pending_signature_pixmap,  # type: ignore[arg-type]
+            self.pending_signature_path,
+        )
+        self.signature_placed.emit(self.current_page, x, y, width, height)
+        self.pending_signature_pixmap = None
+        self.pending_signature_path = ""
+        self.page_view.set_preview_signature(None)
+        self.setCursor(QCursor(Qt.CursorShape.ArrowCursor))
+        return True
+
+    def place_signature_in_rect(self, x: int, y: int, width: int, height: int) -> bool:
+        """Place pending signature into an explicit rectangle and emit placement signal."""
+        if not self.pending_signature_pixmap:
+            return False
+
+        if self.page_view.pixmap:
+            x = max(0, min(x, self.page_view.pixmap.width() - width))
+            y = max(0, min(y, self.page_view.pixmap.height() - height))
+        width = max(1, width)
+        height = max(1, height)
+
+        self.page_view.add_signature_overlay(
+            x,
+            y,
+            width,
+            height,
+            self.pending_signature_pixmap,  # type: ignore[arg-type]
+            self.pending_signature_path,
+        )
+        self.signature_placed.emit(self.current_page, x, y, width, height)
+        self.pending_signature_pixmap = None
+        self.pending_signature_path = ""
+        self.page_view.set_preview_signature(None)
+        self.setCursor(QCursor(Qt.CursorShape.ArrowCursor))
+        return True
+
+    def build_field_anchor_signature_rect(self, field: Dict[str, Any], x_ratio: float, y_ratio: float) -> Optional[Tuple[int, int, int, int]]:
+        """Build a field-constrained placement rect anchored near a normalized point."""
+        if not self.page_view.pixmap:
+            return None
+
+        # Keep backward compatibility for callers that pass an explicit field:
+        # prefer the provided field when available, otherwise snap to the
+        # nearest detected field around the normalized anchor.
+        if field:
+            try:
+                field_rect = self._scale_rect_for_signature(field)
+                if field_rect is not None:
+                    return field_rect
+            except Exception:
+                pass
+
+        return self.build_field_anchor_signature_rect_from_ratio(x_ratio, y_ratio)
+
+    def build_field_anchor_signature_rect_from_ratio(
+        self,
+        x_ratio: float,
+        y_ratio: float,
+        sig_pixmap: Optional[QPixmap] = None,
+    ) -> Optional[Tuple[int, int, int, int]]:
+        """Build the best field-constrained rect from a normalized anchor."""
+        if not self.page_view.pixmap:
+            return None
+
+        if not self.page_view.field_candidates:
+            return None
+
+        if not sig_pixmap and not self.pending_signature_pixmap:
+            return None
+
+        candidates = self.page_view.field_candidates
+        target_w = float(self.page_view.pixmap.width())
+        target_h = float(self.page_view.pixmap.height())
+        anchor_x = x_ratio * target_w
+        anchor_y = y_ratio * target_h
+
+        best_distance = None
+        best_field: Optional[Dict[str, Any]] = None
+
+        for candidate in candidates:
+            conf = float(candidate.get("confidence", 0.0))
+            if conf < self.field_auto_place_confidence:
+                continue
+            cx = candidate.get("x", 0.0) + candidate.get("width", 0.0) / 2
+            cy = candidate.get("y", 0.0) + candidate.get("height", 0.0) / 2
+            dist = (cx - anchor_x) ** 2 + (cy - anchor_y) ** 2
+            if best_distance is None or dist < best_distance:
+                best_distance = dist
+                best_field = candidate
+
+        if not best_field:
+            return None
+
+        sig_source = sig_pixmap or self.pending_signature_pixmap
+        if not sig_source:
+            return None
+        sig_w = max(1, int(sig_source.width()))
+        sig_h = max(1, int(sig_source.height()))
+        return self._compute_signature_rect_in_field(best_field, sig_w, sig_h)
+
+    def _scale_rect_for_signature(self, field: Dict[str, Any]) -> Optional[Tuple[int, int, int, int]]:
+        """Scale a candidate field by pending signature size and keep it centered."""
+        if not self.pending_signature_pixmap:
+            return None
+        sig_w = max(1, int(self.pending_signature_pixmap.width()))
+        sig_h = max(1, int(self.pending_signature_pixmap.height()))
+        return self._compute_signature_rect_in_field(field, sig_w, sig_h)
+
+    def clear_signature_fields(self) -> None:
+        """Clear detected field overlays for the current document."""
+        self.page_view.clear_field_candidates()
+        self.all_field_candidates.clear()
+        if self.renderer:
+            self._render_current_page()
     
     def _update_controls(self) -> None:
         """Update navigation controls state."""
@@ -764,6 +1172,10 @@ class PDFViewer(QWidget):
         """Handle click on PDF page."""
         if not self.pending_signature_pixmap:
             return
+
+        if self.page_view.field_candidates:
+            if self.place_signature_on_detected_field():
+                return
         
         # Place signature at clicked position
         # Default size: 150x50 pixels (typical signature size)

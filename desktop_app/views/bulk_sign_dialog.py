@@ -85,8 +85,9 @@ class BulkSignDialog(QDialog):
         
         pos_help = QLabel(
             "<small>The signature will be placed at the position you click\n"
-            "on the current page and repeated at the same position\n"
-            "on all selected pages.</small>"
+            "on the current page. If same position is enabled, the placement\n"
+            "is re-scaled to match each page. Otherwise each page tries\n"
+            "to snap to a detected signature field near that point.</small>"
         )
         pos_help.setWordWrap(True)
         pos_layout.addWidget(pos_help)

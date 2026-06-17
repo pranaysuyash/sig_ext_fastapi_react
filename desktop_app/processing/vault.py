@@ -103,6 +103,8 @@ class NotaryVault:
             "id": sig_id,
             "created_at": timestamp,
             "size_bytes": len(png_bytes),
+            "use_count": 0,
+            "last_used_at": None,
             **meta
         }
         self.metadata[sig_id] = entry
@@ -135,8 +137,16 @@ class NotaryVault:
             
         with open(blob_path, "rb") as f:
             encrypted_data = f.read()
-            
-        return self.cipher.decrypt(encrypted_data)
+
+        png_bytes = self.cipher.decrypt(encrypted_data)
+
+        entry = self.metadata.get(sig_id, {})
+        entry["use_count"] = int(entry.get("use_count", 0)) + 1
+        entry["last_used_at"] = time.time()
+        self.metadata[sig_id] = entry
+        self._save_metadata()
+
+        return png_bytes
         
     def delete_signature(self, sig_id: str):
         """Delete a signature from the vault."""

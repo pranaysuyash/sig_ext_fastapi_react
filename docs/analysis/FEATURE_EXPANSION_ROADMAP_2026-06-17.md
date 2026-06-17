@@ -17,6 +17,32 @@ Before expanding, it helps to anchor on what is already real in this codebase:
 
 That means the most valuable next step is not "invent a new product." It is to extend the current signature workflow into adjacent PDF operations and document intelligence that reuse the same asset: the extracted signature library.
 
+## 1.1 Implemented In This Pass
+
+The repo already had the underlying CV and PDF primitives, and this pass surfaced them into the product surface by:
+
+- making auto-detect an explicit extraction action in the Qt UI
+- separating auto-threshold from auto-clean in the extraction workflow
+- adding overlay preview mode for the extracted signature on top of the original crop
+- keeping the canonical PDF signing path in one place instead of a duplicate tab
+- adding vault usage-history metadata so reuse is visible in the UI
+
+The remainder of the roadmap below stays valid as the longer-term expansion plan.
+
+## 1.2 Execution Update (2026-06-17)
+
+- Added durable bulk signature placement behavior in the PDF tab with:
+  - field-aware adaptive replay across selected pages,
+  - optional fixed-ratio replay for same-position mode,
+  - run-level audit manifest for each bulk placement operation.
+- Added SQLite run manifest support and audit log run IDs in `desktop_app/pdf/db_audit.py`.
+- Added field overlay rendering and selection-aware placement helpers in `desktop_app/pdf/viewer.py`.
+- Added explicit PDF tab hooks for detected field listing, native form field detection/fill, and richer control-state refresh flow in `desktop_app/views/main_window_parts/pdf.py`.
+- Added regression coverage for audit runs and geometry helpers in:
+  - `desktop_app/tests/test_db_audit.py`
+  - `desktop_app/tests/test_pdf_field_detection.py`
+- This run also formalizes the open-source stack preference around existing libraries (pypdfium2 + pikepdf + OCR tooling) and keeps full-editor scope constrained to signing workflows first.
+
 ## 2. Highest-Value Features To Add
 
 ### 2.1 Signature Field Identification

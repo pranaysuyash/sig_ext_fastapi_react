@@ -5,6 +5,7 @@ from typing import cast, Optional
 
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QLabel, QPushButton, QMessageBox, QWidget
 
+from desktop_app.api.errors import AuthenticationFailed, BackendUnavailable
 from desktop_app.widgets.modern_mac_button import ModernMacButton
 
 
@@ -77,18 +78,18 @@ class LoginDialog(QDialog):
             QMessageBox.warning(self, "Missing fields", "Please enter email and password")
             return
         try:
-            self.api_client.login(username, pwd)
+            result = self.api_client.login(username, pwd)
+            self.api_client.session.set_authentication(result.access_token, username)
             self.accept()
         except Exception as e:
-            cls = e.__class__
-            mod = getattr(cls, "__module__", "")
-            name = getattr(cls, "__name__", "")
-            if mod.startswith("requests") and name in {"ConnectionError", "Timeout"}:
+            if isinstance(e, BackendUnavailable):
                 base_url = getattr(self.api_client, "base_url", "http://127.0.0.1:8001")
                 msg = (
                     f"The backend at {base_url} is unreachable.\n\n"
                     "Please start the server and try again."
                 )
                 QMessageBox.critical(self, "Login failed", msg)
+            elif isinstance(e, AuthenticationFailed):
+                QMessageBox.warning(self, "Login failed", "Invalid email or password.")
             else:
                 QMessageBox.critical(self, "Login failed", str(e))

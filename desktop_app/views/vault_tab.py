@@ -2,7 +2,7 @@ import logging
 from typing import Optional, cast
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, 
-    QLabel, QPushButton, QSplitter, QMessageBox, QFrame, QSizePolicy
+    QLabel, QPushButton, QSplitter, QMessageBox, QFrame, QSizePolicy, QLineEdit
 )
 from PySide6.QtCore import Qt, QSize, Signal
 from PySide6.QtGui import QIcon, QPixmap, QImage, QColor
@@ -39,6 +39,12 @@ class VaultTab(QWidget):
         header = QLabel("Notary Vault")
         header.setStyleSheet("font-weight: bold; font-size: 14px; padding: 12px 16px;")
         left_layout.addWidget(header)
+
+        self.search_edit = QLineEdit()
+        self.search_edit.setPlaceholderText("Search source, tags, or mode")
+        self.search_edit.setClearButtonEnabled(True)
+        self.search_edit.textChanged.connect(self._apply_filter)
+        left_layout.addWidget(self.search_edit)
         
         # List Widget
         self.sig_list = QListWidget()
@@ -101,6 +107,7 @@ class VaultTab(QWidget):
         right_layout.addLayout(actions_layout)
         
         layout.addWidget(right_panel)
+        self._vault_signatures: list[dict] = []
         
     def refresh_list(self):
         """Reload signatures from vault."""
@@ -112,30 +119,52 @@ class VaultTab(QWidget):
         self.delete_btn.setEnabled(False)
         
         try:
-            signatures = self.vault.list_signatures()
-            for sig in signatures:
-                item = QListWidgetItem()
-                # Use date as label
-                import datetime
-                date_str = datetime.datetime.fromtimestamp(sig['created_at']).strftime('%Y-%m-%d %H:%M')
-                item.setText(f"{date_str}\n{sig.get('source_name', 'Unknown Source')}")
-                item.setData(Qt.ItemDataRole.UserRole, sig['id'])
-                item.setData(Qt.ItemDataRole.UserRole + 1, sig)
-                
-                # Set icon based on health score if available
-                score = sig.get('health_score', 0)
-                if score >= 80:
-                    item.setIcon(get_icon("check")) # Placeholder for Excellent
-                elif score >= 50:
-                    item.setIcon(get_icon("warning")) # Placeholder for Good
-                else:
-                    item.setIcon(get_icon("error")) # Placeholder for Poor
-                    
-                self.sig_list.addItem(item)
+            self._vault_signatures = self.vault.list_signatures()
+            self._apply_filter(self.search_edit.text())
                 
         except Exception as e:
             LOG.error(f"Failed to list signatures: {e}")
             QMessageBox.critical(self, "Vault Error", f"Failed to load vault: {e}")
+
+    def _apply_filter(self, query: str) -> None:
+        """Filter vault items by search text."""
+        self.sig_list.clear()
+        normalized = (query or "").strip().lower()
+        signatures = self._vault_signatures
+
+        if normalized:
+            signatures = [
+                sig for sig in signatures
+                if normalized in str(sig.get("source_name", "")).lower()
+                or normalized in str(sig.get("extraction_mode", "")).lower()
+                or normalized in " ".join(map(str, sig.get("tags", []))).lower()
+            ]
+
+        if not signatures:
+            empty_text = "No signatures match this filter" if normalized else "No signatures saved yet"
+            item = QListWidgetItem(empty_text)
+            item.setFlags(Qt.ItemFlag.NoItemFlags)
+            item.setForeground(Qt.GlobalColor.gray)
+            self.sig_list.addItem(item)
+            return
+
+        for sig in signatures:
+            item = QListWidgetItem()
+            import datetime
+            date_str = datetime.datetime.fromtimestamp(sig['created_at']).strftime('%Y-%m-%d %H:%M')
+            item.setText(f"{date_str}\n{sig.get('source_name', 'Unknown Source')}")
+            item.setData(Qt.ItemDataRole.UserRole, sig['id'])
+            item.setData(Qt.ItemDataRole.UserRole + 1, sig)
+
+            score = sig.get('health_score', 0)
+            if score >= 80:
+                item.setIcon(get_icon("check"))
+            elif score >= 50:
+                item.setIcon(get_icon("warning"))
+            else:
+                item.setIcon(get_icon("error"))
+
+            self.sig_list.addItem(item)
 
     def _on_selection_changed(self, current: QListWidgetItem, previous: QListWidgetItem):
         if not current:
@@ -153,8 +182,14 @@ class VaultTab(QWidget):
             f"Created: {date_str}",
             f"Source: {meta.get('source_name', 'N/A')}",
             f"Size: {meta.get('size_bytes', 0) / 1024:.1f} KB",
-            f"Quality: {meta.get('health_rating', 'Unknown')} ({meta.get('health_score', 0)}/100)"
+            f"Quality: {meta.get('health_rating', 'Unknown')} ({meta.get('health_score', 0)}/100)",
+            f"Uses: {meta.get('use_count', 0)}"
         ]
+        if meta.get("last_used_at"):
+            last_used = datetime.datetime.fromtimestamp(meta["last_used_at"]).strftime('%Y-%m-%d %H:%M:%S')
+            details.append(f"Last used: {last_used}")
+        if meta.get("tags"):
+            details.append(f"Tags: {', '.join(map(str, meta['tags']))}")
         self.meta_label.setText(" • ".join(details))
         
         # Load and decrypt image

@@ -63,3 +63,17 @@ python scripts/util/create_demo_pdf.py
 Note: These scripts are for development and testing purposes only.
 
 Tip: Make the script executable with `chmod +x scripts/util/git_commit_and_push.sh` to run it directly.
+
+### Git hook setup
+
+We also keep the pre-commit hook in the repo so future clones can reuse the same agent-context refresh behavior.
+
+- `scripts/setup_git_hooks.sh` - configures `core.hooksPath` to `.githooks`
+
+Usage:
+
+```bash
+./scripts/setup_git_hooks.sh
+```
+
+That makes Git run the tracked hook from `.githooks/pre-commit` instead of the hidden `.git/hooks` directory.

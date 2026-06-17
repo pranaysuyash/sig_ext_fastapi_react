@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Refresh project-local agent context before commit (best effort).
+PROJECTS_AGENT_START="/Users/pranay/Projects/agent-start"
+
+if [ "${PROJECTS_AGENT_PRECOMMIT_DISABLE:-0}" = "1" ]; then
+  exit 0
+fi
+
+if [ ! -x "$PROJECTS_AGENT_START" ]; then
+  exit 0
+fi
+
+if [ "${PWD#"/Users/pranay/Projects/"}" = "${PWD}" ]; then
+  exit 0
+fi
+
+_cmd_timeout="${PROJECTS_AGENT_PRECOMMIT_TIMEOUT_SECS:-12}"
+
+_run_agent_start() {
+  if command -v timeout >/dev/null 2>&1; then
+    timeout "$_cmd_timeout" "$PROJECTS_AGENT_START" --skip-index --quiet >/dev/null 2>&1 || true
+  elif command -v gtimeout >/dev/null 2>&1; then
+    gtimeout "$_cmd_timeout" "$PROJECTS_AGENT_START" --skip-index --quiet >/dev/null 2>&1 || true
+  else
+    "$PROJECTS_AGENT_START" --skip-index --quiet >/dev/null 2>&1 &
+    _agent_pid=$!
+    (
+      sleep "$_cmd_timeout"
+      kill -TERM "$_agent_pid" >/dev/null 2>&1 || true
+      sleep 1
+      kill -KILL "$_agent_pid" >/dev/null 2>&1 || true
+    ) &
+    _killer_pid=$!
+    wait "$_agent_pid" >/dev/null 2>&1 || true
+    kill "$_killer_pid" >/dev/null 2>&1 || true
+    wait "$_killer_pid" >/dev/null 2>&1 || true
+  fi
+}
+
+_ctx=".agent/SESSION_CONTEXT.md"
+_refresh_secs="${PROJECTS_AGENT_PRECOMMIT_REFRESH_SECS:-21600}"
+_need_refresh="1"
+if [ -f "$_ctx" ]; then
+  _mtime_raw="$(stat -f %m "$_ctx" 2>/dev/null || stat -c %Y "$_ctx" 2>/dev/null || echo 0)"
+  case "$_mtime_raw" in
+    ''|*[!0-9]*)
+      _mtime=0
+      ;;
+    *)
+      _mtime="$_mtime_raw"
+      ;;
+  esac
+  _now="$(date +%s)"
+  _age="$((_now - _mtime))"
+  if [ "$_age" -le "$_refresh_secs" ]; then
+    _need_refresh="0"
+  fi
+fi
+
+if [ "$_need_refresh" = "1" ]; then
+  _run_agent_start
+fi
+
+if [ -d .agent ]; then
+  git add -A .agent >/dev/null 2>&1 || true
+fi

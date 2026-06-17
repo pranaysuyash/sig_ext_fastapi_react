@@ -22,6 +22,7 @@ dist-packages/
 .coverage
 htmlcov/
 .tox/
+.ruff_cache/
 
 # Environment files
 .env

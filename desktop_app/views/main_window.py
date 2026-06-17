@@ -33,7 +33,6 @@ if TYPE_CHECKING:
 
 from desktop_app.processing.vault import NotaryVault
 from desktop_app.views.vault_tab import VaultTab
-from desktop_app.views.pdf_tab import PdfTab
 
 class MainWindow(
     QMainWindow,
@@ -85,11 +84,7 @@ class MainWindow(
         # Setup Vault Tab
         self.vault_tab = VaultTab(self.vault)
         self.tab_widget.addTab(self.vault_tab, "Vault")
-        
-        # Setup PDF Signer Tab
-        self.pdf_tab = PdfTab()
-        self.tab_widget.addTab(self.pdf_tab, "PDF Signer")
-        
+
         root.addWidget(self.tab_widget)
         
         # Force session_id_label to be initialized before any upload

@@ -7,7 +7,7 @@ from unittest.mock import Mock
 PySide6 = pytest.importorskip("PySide6")
 
 
-def test_main_window_mixin_contract():
+def test_main_window_mixin_contract(qapp):
     """Verify all mixin methods exist on MainWindow before instantiation."""
     # Import here to catch import errors
     from desktop_app.api.client import ApiClient
@@ -70,7 +70,7 @@ def test_main_window_mixin_contract():
         pytest.fail(f"MainWindow instantiation failed: {e}")
 
 
-def test_main_window_responsive_breakpoints():
+def test_main_window_responsive_breakpoints(qapp):
     """Verify responsive breakpoint handler exists."""
     from desktop_app.api.client import ApiClient
     from desktop_app.state.session import SessionState

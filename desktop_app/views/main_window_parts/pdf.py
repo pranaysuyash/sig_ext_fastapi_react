@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from datetime import datetime
 import sys
 from pathlib import Path
 from typing import Optional, cast
@@ -18,6 +19,7 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QMenu,
     QMessageBox,
+    QLineEdit,
     QPushButton,
     QTextEdit,
     QSizePolicy,
@@ -77,7 +79,16 @@ from desktop_app.views.bulk_sign_dialog import BulkSignDialog
 try:
     from desktop_app.pdf.viewer import PDFViewer
     from desktop_app.pdf.signer import sign_pdf
+    from desktop_app.pdf.form_fields import PdfFormFieldEditor
     from desktop_app.pdf.db_audit import DatabaseAuditLogger as AuditLogger, get_audit_logs_for_pdf
+    from desktop_app.pdf.template_store import (
+        SignaturePlacementTemplate,
+        create_template,
+        delete_template,
+        list_templates,
+        get_template,
+        save_template,
+    )
 
     PDF_AVAILABLE = True
 except ImportError as exc:  # pragma: no cover - optional dependency
@@ -356,6 +367,60 @@ class PdfTabMixin:
         save_pdf_btn.clicked.connect(self._on_pdf_tab_save)
         pdf_controls.addWidget(save_pdf_btn)
 
+        detect_fields_btn = _create_button("Find Fields", parent_widget)
+        set_button_icon(detect_fields_btn, "search", "Find signature fields", use_emoji=False)
+        detect_fields_btn.setToolTip("Detect likely signature fields on the current PDF page")
+        detect_fields_btn.clicked.connect(self._on_pdf_find_fields)
+        pdf_controls.addWidget(detect_fields_btn)
+
+        place_field_btn = _create_button("Auto Place on Field", parent_widget)
+        set_button_icon(place_field_btn, "sparkle", "Auto place signature on detected field", use_emoji=False)
+        place_field_btn.setToolTip("Snap the selected signature into the best detected field on the current page")
+        place_field_btn.clicked.connect(self._on_pdf_place_on_field)
+        pdf_controls.addWidget(place_field_btn)
+
+        pdf_controls.addWidget(self._make_section_label("Detected Signature Fields", section_color_hex))
+        self.pdf_detected_field_list = QListWidget()
+        self.pdf_detected_field_list.setMaximumHeight(140)
+        self.pdf_detected_field_list.itemSelectionChanged.connect(self._on_detected_field_selection_changed)
+        pdf_controls.addWidget(self.pdf_detected_field_list)
+
+        detected_field_btns = QHBoxLayout()
+        use_best_field_btn = _create_button("Use Best", parent_widget)
+        use_best_field_btn.setToolTip("Clear field selection and use the best detected match")
+        use_best_field_btn.clicked.connect(self._on_use_best_detected_field)
+        detected_field_btns.addWidget(use_best_field_btn)
+
+        use_selected_field_btn = _create_button("Use Selected", parent_widget)
+        use_selected_field_btn.setToolTip("Use the selected detected field for placement")
+        use_selected_field_btn.clicked.connect(self._on_pdf_place_on_field)
+        detected_field_btns.addWidget(use_selected_field_btn)
+        pdf_controls.addLayout(detected_field_btns)
+
+        pdf_controls.addWidget(self._make_section_label("Native Form Fields", section_color_hex))
+        self.pdf_form_field_list = QListWidget()
+        self.pdf_form_field_list.setMaximumHeight(140)
+        self.pdf_form_field_list.itemSelectionChanged.connect(self._on_form_field_selection_changed)
+        pdf_controls.addWidget(self.pdf_form_field_list)
+
+        self.pdf_form_value_edit = QLineEdit()
+        self.pdf_form_value_edit.setPlaceholderText("Text value or checkbox state (on/off)")
+        pdf_controls.addWidget(self.pdf_form_value_edit)
+
+        form_btns = QHBoxLayout()
+        detect_form_btn = _create_button("Detect Forms", parent_widget)
+        detect_form_btn.clicked.connect(self._on_pdf_detect_form_fields)
+        form_btns.addWidget(detect_form_btn)
+
+        apply_form_btn = _create_button("Apply Field", parent_widget)
+        apply_form_btn.clicked.connect(self._on_pdf_fill_selected_form_field)
+        form_btns.addWidget(apply_form_btn)
+        pdf_controls.addLayout(form_btns)
+
+        signature_form_btn = _create_button("Sign Widget", parent_widget)
+        signature_form_btn.clicked.connect(self._on_pdf_fill_signature_widget)
+        pdf_controls.addWidget(signature_form_btn)
+
         pdf_controls.addSpacing(20)
 
         pdf_controls.addWidget(self._make_section_label("Signature Library", section_color_hex))
@@ -398,8 +463,53 @@ class PdfTabMixin:
         lib_buttons.addWidget(paste_sig_btn)
         pdf_controls.addLayout(lib_buttons)
 
-        bulk_sign_btn = _create_button("Apply to Multiple Pages...", parent_widget)
-        set_button_icon(bulk_sign_btn, "bulk", "Apply to Multiple Pages...", use_emoji=False)
+        pdf_controls.addWidget(self._make_section_label("Signature Templates", section_color_hex))
+        pdf_controls.addWidget(QLabel("Save templates from placed signatures to reuse later:"))
+
+        template_header = QHBoxLayout()
+        template_name_label = QLabel("Name")
+        template_header.addWidget(template_name_label)
+        template_header.addStretch()
+        self.pdf_template_name_input = QLineEdit()
+        self.pdf_template_name_input.setPlaceholderText("Template name")
+        self.pdf_template_name_input.setMaximumWidth(160)
+        template_header.addWidget(self.pdf_template_name_input, 1)
+        pdf_controls.addLayout(template_header)
+
+        self.pdf_template_list = QListWidget()
+        self.pdf_template_list.setMaximumHeight(200)
+        self.pdf_template_list.itemSelectionChanged.connect(self._on_pdf_template_selection_changed)
+        pdf_controls.addWidget(self.pdf_template_list)
+
+        template_btns = QHBoxLayout()
+        save_template_btn = _create_button("Save Template", parent_widget)
+        set_button_icon(save_template_btn, "save", "Save current signature as a template", use_emoji=False)
+        save_template_btn.setToolTip("Create a reusable placement template from a placed signature")
+        save_template_btn.clicked.connect(self._on_pdf_template_save)
+        template_btns.addWidget(save_template_btn)
+
+        apply_template_btn = _create_button("Apply Template", parent_widget)
+        set_button_icon(apply_template_btn, "sparkle", "Apply selected template on this page", use_emoji=False)
+        apply_template_btn.setToolTip("Apply the selected template to this page")
+        apply_template_btn.clicked.connect(self._on_pdf_template_apply)
+        template_btns.addWidget(apply_template_btn)
+        pdf_controls.addLayout(template_btns)
+
+        template_batch_btns = QHBoxLayout()
+        apply_template_pages_btn = _create_button("Apply to Pages...", parent_widget)
+        set_button_icon(apply_template_pages_btn, "bulk", "Apply template to selected pages", use_emoji=False)
+        apply_template_pages_btn.setToolTip("Apply the selected template to multiple pages")
+        apply_template_pages_btn.clicked.connect(self._on_pdf_template_apply_to_pages)
+        template_batch_btns.addWidget(apply_template_pages_btn)
+
+        delete_template_btn = _create_button("Delete Template", parent_widget)
+        set_button_icon(delete_template_btn, "close", "Delete selected template", use_emoji=False)
+        delete_template_btn.clicked.connect(self._on_pdf_template_delete)
+        template_batch_btns.addWidget(delete_template_btn)
+        pdf_controls.addLayout(template_batch_btns)
+
+        bulk_sign_btn = _create_button("Apply Signature to Multiple Pages...", parent_widget)
+        set_button_icon(bulk_sign_btn, "bulk", "Apply signature to multiple pages", use_emoji=False)
         bulk_sign_btn.setToolTip("Apply signature to multiple pages at once")
         bulk_sign_btn.clicked.connect(self._on_bulk_sign_clicked)
         pdf_controls.addWidget(bulk_sign_btn)
@@ -437,11 +547,16 @@ class PdfTabMixin:
         self.audit_logger: Optional[AuditLogger] = None
         self._pending_sig_path: Optional[str] = None
         self._current_pdf_path: Optional[str] = None
+        self._form_field_editor = PdfFormFieldEditor() if PDF_AVAILABLE else None
+        self._form_fields_cache = []
+        self._current_pdf_template_id: Optional[str] = None
+        self._last_pdf_placement = None
         # Bulk placement state
         self._bulk_pages: list = []
         self._bulk_sig_path: str = ""
         self._bulk_pixmap: Optional[QPixmap] = None
         self._bulk_use_same_pos: bool = False
+        self._bulk_signature_geometry: Optional[dict] = None
     
     def _setup_pdf_menu(self):
         """Add PDF menu to menu bar. Called from __init__ if PDF_AVAILABLE."""
@@ -480,6 +595,16 @@ class PdfTabMixin:
         save_pdf_act.setStatusTip("Save the signed PDF")
         save_pdf_act.triggered.connect(self.on_pdf_save)
         pdf_menu.addAction(save_pdf_act)
+
+        find_fields_act = QAction("&Find Signature Fields", self)
+        find_fields_act.setStatusTip("Detect likely signature fields on the current page")
+        find_fields_act.triggered.connect(self._on_pdf_find_fields)
+        pdf_menu.addAction(find_fields_act)
+
+        place_field_act = QAction("&Auto Place on Field", self)
+        place_field_act.setStatusTip("Place the selected signature into the best detected field")
+        place_field_act.triggered.connect(self._on_pdf_place_on_field)
+        pdf_menu.addAction(place_field_act)
         
         pdf_menu.addSeparator()
         
@@ -509,10 +634,10 @@ class PdfTabMixin:
         QMessageBox.information(
             self, "PDF Opened",
             f"PDF opened: {Path(path).name}\n\n"
-            "Full PDF viewer with signature placement coming in next phase.\n"
-            "You can already:\n"
-            "• Use signature library\n"
-            "• Sign PDFs programmatically\n"
+            "You can now:\n"
+            "• Browse pages with persistent signature placements\n"
+            "• Detect likely signature fields\n"
+            "• Place signatures from the library or clipboard\n"
             "• Track audit logs"
         )
         
@@ -654,13 +779,20 @@ class PdfTabMixin:
         if self.session.pdf_state:
             self.session.pdf_state.current_pdf_path = path
         self._current_pdf_path = path
+        self._form_fields_cache = []
+        self._last_pdf_placement = None
+        if hasattr(self, "pdf_form_field_list"):
+            self.pdf_form_field_list.clear()
+        if hasattr(self, "pdf_detected_field_list"):
+            self.pdf_detected_field_list.clear()
         
         # Initialize audit logger
         self.audit_logger = AuditLogger(path, self.session.user_email)
         self.audit_logger.log_open()
         
-        # Refresh signature library
+        # Refresh signature and template lists
         self._refresh_pdf_signature_library()
+        self._refresh_pdf_template_list()
         
         self.statusBar().showMessage(f"📄 Opened: {Path(path).name}")
         if hasattr(self, "_refresh_toolbar_action_states"):
@@ -670,6 +802,7 @@ class PdfTabMixin:
         """Handle tab change - refresh PDF signature library when switching to PDF tab."""
         if PDF_AVAILABLE and index == getattr(self, "_pdf_tab_index", -1):
             self._refresh_pdf_signature_library()
+            self._refresh_pdf_template_list()
         if hasattr(self, "_update_toolbar_for_tab"):
             self._update_toolbar_for_tab(index)
     
@@ -696,6 +829,17 @@ class PdfTabMixin:
             self.session.clear_pdf_state()
         self._current_pdf_path = None
         self.audit_logger = None
+        self._form_fields_cache = []
+        self._current_pdf_template_id = None
+        self._last_pdf_placement = None
+        if hasattr(self, "pdf_form_field_list"):
+            self.pdf_form_field_list.clear()
+        if hasattr(self, "pdf_detected_field_list"):
+            self.pdf_detected_field_list.clear()
+        if hasattr(self, "pdf_template_list"):
+            self.pdf_template_list.clear()
+            if hasattr(self, "pdf_template_name_input"):
+                self.pdf_template_name_input.clear()
         self.statusBar().showMessage("PDF closed")
         if hasattr(self, "_refresh_toolbar_action_states"):
             self._refresh_toolbar_action_states()
@@ -760,6 +904,223 @@ class PdfTabMixin:
         finally:
             if hasattr(self, "_refresh_toolbar_action_states"):
                 self._refresh_toolbar_action_states()
+
+    def _on_pdf_find_fields(self):
+        """Detect likely signature fields in the current PDF page."""
+        if not self.pdf_viewer or not self.pdf_viewer.renderer:
+            QMessageBox.information(self, "No PDF Open", "Please open a PDF document first.")
+            return
+
+        self.pdf_viewer.find_signature_fields()
+        self._refresh_detected_field_list()
+        if self.pdf_viewer.page_view.field_candidates:
+            self.statusBar().showMessage(
+                f"Detected {len(self.pdf_viewer.page_view.field_candidates)} field candidate(s) on page {self.pdf_viewer.current_page + 1}",
+                3000,
+            )
+
+    def _on_pdf_place_on_field(self):
+        """Snap the selected signature into the best detected field on the current page."""
+        if not self.pdf_viewer or not self.pdf_viewer.renderer:
+            QMessageBox.information(self, "No PDF Open", "Please open a PDF document first.")
+            return
+
+        if self.pdf_viewer.place_signature_on_detected_field():
+            self.statusBar().showMessage(
+                f"Placed signature on detected field on page {self.pdf_viewer.current_page + 1}",
+                3000,
+            )
+
+    def _refresh_detected_field_list(self):
+        """Populate the sidebar with detected signature fields."""
+        if not hasattr(self, "pdf_detected_field_list"):
+            return
+        self.pdf_detected_field_list.clear()
+        if not self.pdf_viewer or not self.pdf_viewer.page_view.field_candidates:
+            item = QListWidgetItem("No detected signature fields")
+            item.setFlags(Qt.ItemFlag.NoItemFlags)
+            item.setForeground(Qt.GlobalColor.gray)
+            self.pdf_detected_field_list.addItem(item)
+            return
+
+        for index, candidate in enumerate(self.pdf_viewer.page_view.field_candidates):
+            label = candidate.get("label") or candidate.get("field_type", "field").replace("_", " ")
+            confidence = int(float(candidate.get("confidence", 0.0)) * 100)
+            item = QListWidgetItem(
+                f"{label}  •  p{self.pdf_viewer.current_page + 1}  •  {confidence}%"
+            )
+            item.setData(Qt.ItemDataRole.UserRole, index)
+            item.setToolTip(
+                f"{candidate.get('field_type', 'field')} @ "
+                f"{candidate.get('x', 0)}, {candidate.get('y', 0)}"
+            )
+            self.pdf_detected_field_list.addItem(item)
+
+    def _on_detected_field_selection_changed(self):
+        """Update the viewer with the selected detected field."""
+        if not self.pdf_viewer:
+            return
+        selected = self.pdf_detected_field_list.selectedItems()
+        if not selected:
+            self.pdf_viewer.set_selected_field_candidate_index(None)
+            return
+        self.pdf_viewer.set_selected_field_candidate_index(int(selected[0].data(Qt.ItemDataRole.UserRole)))
+
+    def _on_use_best_detected_field(self):
+        """Clear detected field selection and use the best match."""
+        if self.pdf_viewer:
+            self.pdf_viewer.set_selected_field_candidate_index(None)
+            if hasattr(self, "pdf_detected_field_list"):
+                self.pdf_detected_field_list.clearSelection()
+
+    def _on_pdf_detect_form_fields(self):
+        """Inspect native form widgets in the current PDF."""
+        if not self._form_field_editor or not self._current_pdf_path:
+            QMessageBox.information(self, "No PDF Open", "Please open a PDF document first.")
+            return
+
+        self._refresh_pdf_form_field_list()
+        if hasattr(self, "pdf_form_field_list"):
+            self.statusBar().showMessage(
+                f"Detected {self.pdf_form_field_list.count()} native form field(s)",
+                3000,
+            )
+
+    def _refresh_pdf_form_field_list(self):
+        """Populate the sidebar with native PDF form fields."""
+        if not hasattr(self, "pdf_form_field_list"):
+            return
+
+        self.pdf_form_field_list.clear()
+        if not self._form_field_editor or not self._current_pdf_path:
+            return
+
+        try:
+            fields = self._form_field_editor.detect_pdf(self._current_pdf_path)
+        except Exception as exc:
+            QMessageBox.warning(self, "Form Detection Failed", f"Unable to inspect native form fields:\n{exc}")
+            return
+
+        self._form_fields_cache = fields
+        if not fields:
+            item = QListWidgetItem("No native form fields detected")
+            item.setFlags(Qt.ItemFlag.NoItemFlags)
+            item.setForeground(Qt.GlobalColor.gray)
+            self.pdf_form_field_list.addItem(item)
+            return
+
+        for index, field in enumerate(fields):
+            item = QListWidgetItem(
+                f"{field.field_name}  •  {field.field_type}  •  p{field.page_index + 1}"
+            )
+            item.setData(Qt.ItemDataRole.UserRole, index)
+            tooltip_bits = [field.tooltip or field.value or field.field_name]
+            if field.choices:
+                tooltip_bits.append("Choices: " + ", ".join(field.choices))
+            if field.on_state:
+                tooltip_bits.append(f"On state: {field.on_state}")
+            item.setToolTip(" | ".join(bit for bit in tooltip_bits if bit))
+            self.pdf_form_field_list.addItem(item)
+
+    def _on_form_field_selection_changed(self):
+        """Load the selected form field value into the editor."""
+        if not hasattr(self, "_form_fields_cache") or not self.pdf_form_field_list.selectedItems():
+            return
+        index = int(self.pdf_form_field_list.selectedItems()[0].data(Qt.ItemDataRole.UserRole))
+        if 0 <= index < len(self._form_fields_cache):
+            field = self._form_fields_cache[index]
+            self.pdf_form_value_edit.setText(field.value if field.value != "Off" else "")
+
+    def _on_pdf_fill_selected_form_field(self):
+        """Fill the selected native form field with the entered value."""
+        if not self._form_field_editor or not self._current_pdf_path:
+            QMessageBox.information(self, "No PDF Open", "Please open a PDF document first.")
+            return
+        selected = self.pdf_form_field_list.selectedItems()
+        if not selected:
+            QMessageBox.information(self, "No Field Selected", "Select a form field first.")
+            return
+
+        index = int(selected[0].data(Qt.ItemDataRole.UserRole))
+        if not hasattr(self, "_form_fields_cache") or not (0 <= index < len(self._form_fields_cache)):
+            return
+
+        field = self._form_fields_cache[index]
+        value = self.pdf_form_value_edit.text().strip()
+        if not value and "check" in field.field_type.lower():
+            value = "on"
+        if not value and "text" in field.field_type.lower():
+            QMessageBox.information(self, "Missing Value", "Enter a value for the text field.")
+            return
+
+        output_path = self._current_edit_output_path()
+        try:
+            changed = self._form_field_editor.fill_field(
+                self._current_pdf_path,
+                output_path,
+                field.field_name,
+                value=value,
+            )
+            if not changed:
+                QMessageBox.warning(self, "No Change", "The selected field could not be updated.")
+                return
+            self._reload_edited_pdf(output_path)
+            self._refresh_pdf_form_field_list()
+            self.statusBar().showMessage(f"Filled form field: {field.field_name}", 3000)
+        except Exception as exc:
+            QMessageBox.critical(self, "Form Fill Failed", f"Unable to fill the field:\n{exc}")
+
+    def _on_pdf_fill_signature_widget(self):
+        """Insert the selected signature into a native signature field if present."""
+        if not self._form_field_editor or not self._current_pdf_path:
+            QMessageBox.information(self, "No PDF Open", "Please open a PDF document first.")
+            return
+        if not self._pending_sig_path or not Path(self._pending_sig_path).exists():
+            QMessageBox.information(self, "No Signature Selected", "Select a signature image first.")
+            return
+
+        selected = self.pdf_form_field_list.selectedItems()
+        if not selected:
+            QMessageBox.information(self, "No Field Selected", "Select a form field first.")
+            return
+
+        index = int(selected[0].data(Qt.ItemDataRole.UserRole))
+        if not hasattr(self, "_form_fields_cache") or not (0 <= index < len(self._form_fields_cache)):
+            return
+
+        field = self._form_fields_cache[index]
+        output_path = self._current_edit_output_path()
+        try:
+            changed = self._form_field_editor.fill_field(
+                self._current_pdf_path,
+                output_path,
+                field.field_name,
+                signature_image_path=self._pending_sig_path,
+            )
+            if not changed:
+                QMessageBox.warning(self, "No Change", "The selected field could not be signed.")
+                return
+            self._reload_edited_pdf(output_path)
+            self._refresh_pdf_form_field_list()
+            self.statusBar().showMessage(f"Signed native widget: {field.field_name}", 3000)
+        except Exception as exc:
+            QMessageBox.critical(self, "Widget Signing Failed", f"Unable to sign the widget:\n{exc}")
+
+    def _current_edit_output_path(self) -> str:
+        """Return the current editable output path for native PDF changes."""
+        if not self._current_pdf_path:
+            raise ValueError("No active PDF")
+        path = Path(self._current_pdf_path)
+        return str(path.with_name(f"{path.stem}_edited{path.suffix}"))
+
+    def _reload_edited_pdf(self, output_path: str):
+        """Reload the viewer after a native PDF edit save."""
+        if self.pdf_viewer:
+            self.pdf_viewer.open_pdf(output_path)
+        self._current_pdf_path = output_path
+        self._form_fields_cache = []
+        if self.session.pdf_state:
+            self.session.pdf_state.current_pdf_path = output_path
     
     def _on_pdf_signature_selected(self, item):
         """Handle signature selection from library."""
@@ -788,52 +1149,527 @@ class PdfTabMixin:
         self.pdf_viewer.set_signature_for_placement(pixmap, sig_path)
         
         self.statusBar().showMessage(f"✏️ Click on PDF to place signature: {Path(sig_path).name}")
+
+    def _refresh_pdf_template_list(self):
+        """Refresh template list in the PDF controls panel."""
+        self.pdf_template_list.clear()
+        templates = list_templates()
+
+        if not templates:
+            item = QListWidgetItem("📝 No signature templates yet")
+            item.setFlags(Qt.ItemFlag.NoItemFlags)
+            item.setForeground(Qt.GlobalColor.gray)
+            self.pdf_template_list.addItem(item)
+            return
+
+        for template in templates:
+            anchor_note = ""
+            if template.use_field_anchor:
+                anchor_note = " • anchored"
+            item = QListWidgetItem(
+                f"{template.name}  •  p{template.page_index + 1}{anchor_note}"
+            )
+            item.setData(Qt.ItemDataRole.UserRole, template.template_id)
+            item.setToolTip(
+                f"Signature: {template.signature_path}\n"
+                f"Source PDF: {template.source_pdf_name or 'Current document'}\n"
+                f"Relative box: x={template.x_ratio:.3f}, y={template.y_ratio:.3f}, "
+                f"w={template.width_ratio:.3f}, h={template.height_ratio:.3f}"
+            )
+            self.pdf_template_list.addItem(item)
+
+        if self._current_pdf_template_id:
+            for index in range(self.pdf_template_list.count()):
+                item = self.pdf_template_list.item(index)
+                if item.data(Qt.ItemDataRole.UserRole) == self._current_pdf_template_id:
+                    self.pdf_template_list.setCurrentItem(item)
+                    break
+
+    def _on_pdf_template_selection_changed(self):
+        """Load selected template into template controls."""
+        selected = self.pdf_template_list.selectedItems()
+        if not selected:
+            return
+
+        template_id = selected[0].data(Qt.ItemDataRole.UserRole)
+        if not template_id:
+            return
+
+        template = get_template(template_id)
+        if not template:
+            return
+
+        self._current_pdf_template_id = template_id
+        if hasattr(self, "pdf_template_name_input"):
+            self.pdf_template_name_input.setText(template.name)
+
+    def _resolve_signature_placement_rect(
+        self,
+        template: SignaturePlacementTemplate,
+        sig_pixmap: QPixmap,
+    ) -> Optional[tuple]:
+        """Resolve template placement rectangle for the active page."""
+        if not self.pdf_viewer:
+            return None
+
+        if not self.pdf_viewer.page_view.pixmap:
+            return None
+
+        if template.use_field_anchor and template.anchor_x_ratio is not None and template.anchor_y_ratio is not None:
+            self.pdf_viewer._detect_signature_fields_silent()
+            rect = self.pdf_viewer.build_field_anchor_signature_rect_from_ratio(
+                template.anchor_x_ratio,
+                template.anchor_y_ratio,
+                sig_pixmap=sig_pixmap,
+            )
+            if rect is not None:
+                return rect
+
+        return self.pdf_viewer.build_scaled_signature_rect(
+            template.x_ratio,
+            template.y_ratio,
+            template.width_ratio,
+            template.height_ratio,
+        )
+
+    def _apply_template_to_target_page(
+        self,
+        page_num: int,
+        template: SignaturePlacementTemplate,
+        run_id: Optional[str],
+    ) -> bool:
+        """Apply one template on one page."""
+        if not self.pdf_viewer or not self.pdf_viewer.renderer:
+            return False
+
+        if page_num < 0 or page_num >= self.pdf_viewer.renderer.page_count():
+            return False
+
+        if not Path(template.signature_path).exists():
+            return False
+
+        self.pdf_viewer.goto_page(page_num)
+
+        if self.pdf_viewer.page_view.signatures is None:
+            self.pdf_viewer.page_view.signatures = []
+
+        signature_pixmap = QPixmap(template.signature_path)
+        if signature_pixmap.isNull():
+            return False
+
+        rect = self._resolve_signature_placement_rect(template, signature_pixmap)
+        if rect is None:
+            return False
+
+        x, y, width, height = rect
+        self.pdf_viewer.page_view.add_signature_overlay(
+            x,
+            y,
+            width,
+            height,
+            signature_pixmap,
+            template.signature_path,
+        )
+
+        if self.audit_logger:
+            details = (
+                f"Template '{template.name}' applied on page {page_num + 1}"
+            )
+            self.audit_logger.log_place_signature(
+                page_num,
+                template.signature_path,
+                x,
+                y,
+                width,
+                height,
+                run_id=run_id,
+                details=details,
+            )
+        return True
+
+    def _on_pdf_template_apply(self):
+        """Apply the selected template on the current page."""
+        if not self._current_pdf_path:
+            QMessageBox.information(self, "No PDF", "Please open a PDF document first.")
+            return
+        if not hasattr(self, "pdf_template_list"):
+            return
+
+        template_id = self._current_pdf_template_id
+        if not template_id:
+            selected = self.pdf_template_list.selectedItems()
+            if selected:
+                template_id = selected[0].data(Qt.ItemDataRole.UserRole)
+
+        if not template_id:
+            QMessageBox.information(self, "No Template", "Please select a template first.")
+            return
+
+        template = get_template(template_id)
+        if not template:
+            QMessageBox.warning(self, "Template Missing", "Template not found.")
+            return
+
+        current_page = self.pdf_viewer.current_page if self.pdf_viewer else 0
+        if self._apply_template_to_target_page(current_page, template, run_id=None):
+            self.statusBar().showMessage(f"✅ Template '{template.name}' applied")
+        else:
+            QMessageBox.warning(self, "Template Apply Failed", "Template could not be applied on this page.")
+
+    def _on_pdf_template_apply_to_pages(self):
+        """Apply selected template to multiple pages."""
+        if not self._current_pdf_path or not self.pdf_viewer or not self.pdf_viewer.renderer:
+            QMessageBox.information(self, "No PDF", "Please open a PDF document first.")
+            return
+
+        if not hasattr(self, "pdf_template_list"):
+            return
+
+        template_id = self._current_pdf_template_id
+        selected = self.pdf_template_list.selectedItems()
+        if selected:
+            template_id = selected[0].data(Qt.ItemDataRole.UserRole)
+        if not template_id:
+            QMessageBox.information(self, "No Template", "Please select a template first.")
+            return
+
+        template = get_template(template_id)
+        if not template:
+            QMessageBox.warning(self, "Template Missing", "Template not found.")
+            return
+
+        dialog = BulkSignDialog(
+            self.pdf_viewer.renderer.page_count(),
+            self.pdf_viewer.current_page,
+            self
+        )
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+
+        target_pages = dialog.get_selected_pages()
+        target_pages = sorted(set(target_pages))
+        if not target_pages:
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "Apply Template",
+            f"Apply template '{template.name}' to {len(target_pages)} page(s)?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+
+        run_id = None
+        if self.audit_logger:
+            run_id = self.audit_logger.start_run(
+                "template_apply",
+                details=f"Applying template '{template.name}'",
+                page_count=len(target_pages),
+            )
+
+        placed_count = 0
+        for page_num in target_pages:
+            if self._apply_template_to_target_page(page_num, template, run_id=run_id):
+                placed_count += 1
+
+        if self.audit_logger and run_id:
+            self.audit_logger.finish_run(
+                run_id,
+                success=(placed_count == len(target_pages)),
+                signature_count=placed_count,
+                details=f"Template applied on {placed_count}/{len(target_pages)} page(s)",
+            )
+
+        if placed_count:
+            skipped = len(target_pages) - placed_count
+            if skipped:
+                self.statusBar().showMessage(
+                    f"✅ Template '{template.name}' placed on {placed_count} page(s), {skipped} skipped."
+                )
+            else:
+                self.statusBar().showMessage(
+                    f"✅ Template '{template.name}' placed on {placed_count} page(s)"
+                )
+        else:
+            QMessageBox.warning(self, "Template Apply Failed", "Template could not be applied to any page.")
+
+    def _on_pdf_template_save(self):
+        """Save the currently placed signature as a reusable template."""
+        if not self._current_pdf_path:
+            QMessageBox.information(self, "No PDF", "Please open a PDF document first.")
+            return
+
+        if not self._last_pdf_placement:
+            QMessageBox.information(
+                self,
+                "No Placement",
+                "Place a signature on the page first, then save it as a template.",
+            )
+            return
+
+        sig_path = self._last_pdf_placement.get("sig_path")
+        if not sig_path or not Path(sig_path).exists():
+            QMessageBox.warning(self, "Missing Signature", "No saved signature image found for this placement.")
+            return
+
+        placement_width = int(self._last_pdf_placement.get("width") or 0)
+        if placement_width <= 0:
+            QMessageBox.warning(self, "Invalid Placement", "Placement geometry is not available.")
+            return
+
+        template_name = getattr(self, "pdf_template_name_input", None)
+        if template_name is None or not template_name.text().strip():
+            template_name = Path(sig_path).stem
+        else:
+            template_name = template_name.text().strip()
+
+        template = create_template(
+            signature_path=sig_path,
+            page_index=int(self._last_pdf_placement.get("page") or 0),
+            x_ratio=float(self._last_pdf_placement.get("x_ratio") or 0.0),
+            y_ratio=float(self._last_pdf_placement.get("y_ratio") or 0.0),
+            width_ratio=float(self._last_pdf_placement.get("width_ratio") or 0.0),
+            height_ratio=float(self._last_pdf_placement.get("height_ratio") or 0.0),
+            name=str(template_name),
+            use_field_anchor=bool(self._last_pdf_placement.get("use_field_anchor")),
+            field_type=self._last_pdf_placement.get("field_type"),
+            field_label=self._last_pdf_placement.get("field_label"),
+            field_confidence=self._last_pdf_placement.get("field_confidence"),
+            anchor_x_ratio=self._last_pdf_placement.get("anchor_x_ratio"),
+            anchor_y_ratio=self._last_pdf_placement.get("anchor_y_ratio"),
+            source_pdf_path=self._current_pdf_path,
+            source_pdf_name=Path(self._current_pdf_path).name,
+        )
+
+        self._current_pdf_template_id = template.template_id
+        self._refresh_pdf_template_list()
+        self.statusBar().showMessage(f"💾 Template saved: {template.name}")
+
+    def _on_pdf_template_delete(self):
+        """Delete selected template."""
+        if not hasattr(self, "pdf_template_list"):
+            return
+
+        selected = self.pdf_template_list.selectedItems()
+        if not selected:
+            QMessageBox.information(self, "No Template", "Please select a template to delete.")
+            return
+
+        template_id = selected[0].data(Qt.ItemDataRole.UserRole)
+        if not template_id:
+            return
+
+        template = get_template(template_id)
+        if not template:
+            QMessageBox.warning(self, "Template Missing", "Template not found.")
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "Delete Template",
+            f"Delete template '{template.name}'?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+
+        if delete_template(template_id):
+            if self._current_pdf_template_id == template_id:
+                self._current_pdf_template_id = None
+            self._refresh_pdf_template_list()
+            self.statusBar().showMessage(f"🗑️ Deleted template: {template.name}")
+        else:
+            QMessageBox.warning(self, "Delete Failed", "Template could not be deleted.")
     
     def _on_pdf_signature_placed(self, page, x, y, width, height):
         """Handle signature placement on PDF."""
         # Check if this is bulk placement
         if self._bulk_pages and self._bulk_pixmap:
-            # Apply to all selected pages at same position
-            current_page = self.pdf_viewer.current_page
-            
-            for target_page in self._bulk_pages:
-                if target_page == current_page:
-                    # Already placed on current page by user click
-                    continue
-                
-                # Navigate to target page and place signature
-                self.pdf_viewer.goto_page(target_page)
-                self.pdf_viewer.page_view.add_signature_overlay(
-                    x, y, width, height,
-                    self._bulk_pixmap,
-                    self._bulk_sig_path
+            source_page = self.pdf_viewer.current_page
+            self._bulk_signature_geometry = self._build_bulk_signature_geometry(x, y, width, height)
+            if not self._bulk_signature_geometry:
+                self.statusBar().showMessage(
+                    "⚠️ Bulk placement skipped: unable to compute placement geometry."
                 )
-                
+                self._clear_bulk_signature_state()
+                self.pdf_viewer.goto_page(source_page)
+                return
+
+            target_pages = [p for p in self._bulk_pages if p != source_page]
+            if self.audit_logger:
+                run_id = self.audit_logger.start_run(
+                    "bulk_signature_placement",
+                    details=f"Bulk placement on {len(set(self._bulk_pages))} page(s) from page {source_page + 1}",
+                    page_count=len(set(target_pages)),
+                )
+            else:
+                run_id = None
+
+            placed_count = 0
+            for target_page in target_pages:
+                self.pdf_viewer.goto_page(target_page)
+                if self._bulk_use_same_pos:
+                    rect = self._compute_bulk_signature_rect_for_target(use_same_pos=True)
+                else:
+                    rect = self._compute_bulk_signature_rect_for_target(use_same_pos=False)
+
+                if not rect:
+                    continue
+
+                tx, ty, tw, th = rect
+                self.pdf_viewer.page_view.add_signature_overlay(
+                    tx,
+                    ty,
+                    tw,
+                    th,
+                    self._bulk_pixmap,
+                    self._bulk_sig_path,
+                )
+                placed_count += 1
+
                 if self.audit_logger:
                     self.audit_logger.log_place_signature(
-                        target_page, self._bulk_sig_path, x, y, width, height
+                        target_page,
+                        self._bulk_sig_path,
+                        tx,
+                        ty,
+                        tw,
+                        th,
+                        run_id=run_id,
                     )
-            
-            # Return to original page
-            self.pdf_viewer.goto_page(current_page)
-            
-            self.statusBar().showMessage(
-                f"✅ Signature placed on {len(self._bulk_pages)} page(s)"
-            )
-            
-            # Clear bulk state
-            self._bulk_pages = []
-            self._bulk_sig_path = ""
-            self._bulk_pixmap = None
-            self._bulk_use_same_pos = False
-        else:
-            # Single placement
-            if self.audit_logger and self._pending_sig_path:
-                self.audit_logger.log_place_signature(
-                    page, self._pending_sig_path, x, y, width, height
+
+            self._finish_bulk_placement_run(run_id, placed_count, len(target_pages))
+            self._clear_bulk_signature_state()
+
+            self.pdf_viewer.goto_page(source_page)
+            if placed_count == len(target_pages):
+                self.statusBar().showMessage(f"✅ Signature placed on {placed_count + 1} page(s)")
+            else:
+                skipped = len(target_pages) - placed_count
+                self.statusBar().showMessage(
+                    f"✅ Signature placed on {placed_count + 1} page(s), {skipped} page(s) skipped."
                 )
-            
-            self.statusBar().showMessage(f"✅ Signature placed on page {page + 1}")
+            return
+
+        # Single placement
+        selected_field_index = None
+        field_metadata = {}
+        if self.pdf_viewer and self.pdf_viewer.page_view.selected_field_candidate_index is not None:
+            selected_field_index = self.pdf_viewer.page_view.selected_field_candidate_index
+            try:
+                field_metadata = self.pdf_viewer.page_view.field_candidates[selected_field_index]
+            except Exception:
+                field_metadata = {}
+
+        page_width = 1
+        page_height = 1
+        if self.pdf_viewer and self.pdf_viewer.page_view.pixmap:
+            page_width = max(1, self.pdf_viewer.page_view.pixmap.width())
+            page_height = max(1, self.pdf_viewer.page_view.pixmap.height())
+
+        self._last_pdf_placement = {
+            "page": page,
+            "sig_path": self._pending_sig_path,
+            "x": x,
+            "y": y,
+            "width": width,
+            "height": height,
+            "x_ratio": x / page_width,
+            "y_ratio": y / page_height,
+            "width_ratio": width / page_width,
+            "height_ratio": height / page_height,
+            "use_field_anchor": selected_field_index is not None,
+            "field_type": field_metadata.get("field_type"),
+            "field_label": field_metadata.get("label") or field_metadata.get("field_type"),
+            "field_confidence": field_metadata.get("confidence"),
+            "anchor_x_ratio": (x + width / 2) / page_width,
+            "anchor_y_ratio": (y + height / 2) / page_height,
+        }
+
+        if self.audit_logger and self._pending_sig_path:
+            self.audit_logger.log_place_signature(
+                page, self._pending_sig_path, x, y, width, height
+            )
+
+        self.statusBar().showMessage(f"✅ Signature placed on page {page + 1}")
+
+    def _build_bulk_signature_geometry(self, x: int, y: int, width: int, height: int) -> Optional[dict]:
+        """Capture placement geometry as page-relative ratios."""
+        if not self.pdf_viewer or not self.pdf_viewer.page_view.pixmap:
+            return None
+
+        page_width = self.pdf_viewer.page_view.pixmap.width()
+        page_height = self.pdf_viewer.page_view.pixmap.height()
+        if page_width <= 0 or page_height <= 0:
+            return None
+
+        return {
+            "source_page": self.pdf_viewer.current_page,
+            "x_ratio": x / page_width,
+            "y_ratio": y / page_height,
+            "width_ratio": width / page_width,
+            "height_ratio": height / page_height,
+            "anchor_x_ratio": (x + width / 2) / page_width,
+            "anchor_y_ratio": (y + height / 2) / page_height,
+        }
+
+    def _compute_bulk_signature_rect_for_target(self, use_same_pos: bool) -> Optional[tuple]:
+        """Compute signature placement rectangle for the active target page."""
+        if not self.pdf_viewer or not self._bulk_signature_geometry:
+            return None
+
+        geometry = self._bulk_signature_geometry
+        if use_same_pos:
+            return self.pdf_viewer.build_scaled_signature_rect(
+                geometry["x_ratio"],
+                geometry["y_ratio"],
+                geometry["width_ratio"],
+                geometry["height_ratio"],
+            )
+
+        # Adaptive mode: auto-snapping to nearest detected field near anchor.
+        self.pdf_viewer._detect_signature_fields_silent()
+        rect = self.pdf_viewer.build_field_anchor_signature_rect_from_ratio(
+            geometry["anchor_x_ratio"],
+            geometry["anchor_y_ratio"],
+            self._bulk_pixmap,
+        )
+        if rect is not None:
+            return rect
+
+        # Fallback to scaled placement when no usable field is found.
+        return self.pdf_viewer.build_scaled_signature_rect(
+            geometry["x_ratio"],
+            geometry["y_ratio"],
+            geometry["width_ratio"],
+            geometry["height_ratio"],
+        )
+
+    def _finish_bulk_placement_run(
+        self,
+        run_id: Optional[str],
+        placed_count: int,
+        total_count: int,
+    ) -> None:
+        """Finish the active bulk run with a final summary."""
+        if not self.audit_logger or not run_id:
+            return
+
+        self.audit_logger.finish_run(
+            run_id,
+            success=(placed_count == total_count),
+            signature_count=placed_count,
+            details=f"Bulk placement completed on {placed_count}/{total_count} target page(s)",
+        )
+
+    def _clear_bulk_signature_state(self) -> None:
+        """Reset bulk placement state."""
+        self._bulk_pages = []
+        self._bulk_sig_path = ""
+        self._bulk_pixmap = None
+        self._bulk_use_same_pos = False
+        self._bulk_signature_geometry = None
     
     def _on_pdf_paste_signature(self):
         """Paste signature from clipboard for placement."""

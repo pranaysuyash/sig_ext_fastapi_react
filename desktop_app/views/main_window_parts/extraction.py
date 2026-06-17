@@ -5,6 +5,7 @@ import io
 import logging
 import os
 import sys
+from tempfile import NamedTemporaryFile
 from functools import partial
 from typing import TYPE_CHECKING, Any, Callable, Optional, Protocol, cast
 
@@ -28,6 +29,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
     QComboBox,
+    QDialog,
     QHBoxLayout,
     QLabel,
     QListWidget,
@@ -41,8 +43,8 @@ from PySide6.QtWidgets import (
     QSlider,
     QSizePolicy,
     QStatusBar,
-    QToolButton,
     QVBoxLayout,
+    QToolButton,
     QWidget,
 )
 
@@ -76,6 +78,148 @@ if TYPE_CHECKING:
 LOG = logging.getLogger(__name__)
 
 ShortcutKey = QKeySequence | QKeySequence.StandardKey | str
+
+
+class _SignatureCaptureDialog(QDialog):
+    """Capture a signature from webcam and return a local image path."""
+
+    _FRAME_INTERVAL_MS = 33
+
+    def __init__(self, parent: Optional[QWidget] = None, *, camera_index: int = 0) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("Capture Signature")
+        self.setObjectName("captureDialog")
+        self.setMinimumSize(640, 520)
+        self.setModal(True)
+        self._camera_index = camera_index
+        self._captured_path: str | None = None
+        self._last_error: str | None = None
+        self._frame_bgr: Any | None = None
+        self._cap: Any | None = None
+        self._cv2 = None
+        self._frame_errors = 0
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(12)
+
+        self._preview = QLabel("Starting camera...")
+        self._preview.setMinimumSize(600, 420)
+        self._preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._preview.setStyleSheet(
+            "background: #111; color: #fff; border-radius: 8px; border: 1px solid #666;"
+        )
+        layout.addWidget(self._preview)
+
+        hint = QLabel("Position the signature in frame, then click Capture.")
+        hint.setObjectName("captureHint")
+        layout.addWidget(hint)
+
+        button_row = QHBoxLayout()
+        self._capture_button = _create_button("Capture", parent_widget=cast(QWidget, self), primary=True)
+        self._capture_button.setObjectName("captureButton")
+        self._capture_button.clicked.connect(self._capture_current_frame)
+        self._cancel_button = _create_button("Cancel", parent_widget=cast(QWidget, self))
+        self._cancel_button.clicked.connect(self.reject)
+        button_row.addWidget(self._capture_button)
+        button_row.addWidget(self._cancel_button)
+        layout.addLayout(button_row)
+
+        self._timer = QTimer(self)
+        self._timer.setInterval(self._FRAME_INTERVAL_MS)
+        self._timer.timeout.connect(self._update_frame)
+        self._start_camera()
+        self.finished.connect(self._stop_camera)
+
+    def _start_camera(self) -> None:
+        try:
+            import cv2
+            self._cv2 = cv2
+        except Exception as exc:
+            self._handle_error(str(exc))
+            self._capture_button.setEnabled(False)
+            return
+
+        candidates = [self._camera_index, 0, 1, 2]
+        opened_cap = None
+        for index in dict.fromkeys(c for c in candidates if c >= 0):
+            cap = self._cv2.VideoCapture(
+                index,
+                self._cv2.CAP_DSHOW if hasattr(self._cv2, "CAP_DSHOW") else self._cv2.CAP_ANY,
+            )
+            if cap.isOpened():
+                opened_cap = cap
+                LOG.debug("Opened camera index %s", index)
+                break
+            cap.release()
+
+        if opened_cap is None:
+            self._handle_error(
+                "No camera available. Connect a webcam and grant camera permission."
+            )
+            self._capture_button.setEnabled(False)
+            return
+
+        opened_cap.set(self._cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        opened_cap.set(self._cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        self._cap = opened_cap
+        self._timer.start()
+
+    def _stop_camera(self) -> None:
+        if self._timer.isActive():
+            self._timer.stop()
+        if self._cap is not None:
+            self._cap.release()
+            self._cap = None
+
+    def _handle_error(self, message: str) -> None:
+        self._last_error = message
+        self._preview.setText(message)
+        self._capture_button.setEnabled(False)
+
+    def _update_frame(self) -> None:
+        if self._cap is None or self._cv2 is None:
+            return
+        ret, frame = self._cap.read()
+        if not ret or frame is None:
+            self._frame_errors += 1
+            if self._frame_errors >= 10:
+                self._handle_error("Camera read failed. Retry or switch source.")
+            return
+        self._frame_errors = 0
+        self._frame_bgr = frame
+        frame_rgb = self._cv2.cvtColor(frame, self._cv2.COLOR_BGR2RGB)
+        h, w, c = frame_rgb.shape
+        qimg = QImage(
+            frame_rgb.data,
+            w,
+            h,
+            c * w,
+            QImage.Format.Format_RGB888,
+        ).copy()
+        pix = QPixmap.fromImage(qimg)
+        self._preview.setPixmap(
+            pix.scaled(self._preview.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        )
+
+    def _capture_current_frame(self) -> None:
+        if self._frame_bgr is None or self._cv2 is None:
+            self._handle_error("No frame available. Wait for camera preview.")
+            return
+        frame_copy = self._frame_bgr.copy()
+        try:
+            _, encoded = self._cv2.imencode(".png", frame_copy)
+            with NamedTemporaryFile(suffix=".png", delete=False) as output:
+                output.write(encoded.tobytes())
+                self._captured_path = output.name
+            self.accept()
+        except Exception as exc:
+            self._handle_error(f"Failed to capture frame: {exc}")
+
+    def capture_path(self) -> Optional[str]:
+        if self.exec() == QDialog.DialogCode.Accepted:
+            return self._captured_path
+        return None
 
 
 class ExtractionTabMixin:
@@ -515,6 +659,12 @@ class ExtractionTabMixin:
         self.open_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.open_btn.clicked.connect(self.on_open)
 
+        self.capture_btn = _create_button("Capture Signature", parent_widget)
+        self.capture_btn.setObjectName("captureSignatureButton")
+        self.capture_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.capture_btn.setToolTip("Open webcam and capture signature")
+        self.capture_btn.clicked.connect(self.on_capture_signature)
+
         self.sample_btn = _create_button("Try with sample signature", parent_widget)
         self.sample_btn.setObjectName("sampleButton")
         self.sample_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -523,6 +673,7 @@ class ExtractionTabMixin:
 
         controls.addWidget(self._make_section_label("Upload", section_color_hex, top_margin=0))
         controls.addWidget(self.open_btn)
+        controls.addWidget(self.capture_btn)
         controls.addWidget(self.sample_btn)
 
         controls.addWidget(self._make_section_label("Extraction Mode", section_color_hex))
@@ -564,12 +715,18 @@ class ExtractionTabMixin:
         self.auto_threshold_badge.setVisible(False)
         threshold_row.addWidget(self.auto_threshold_badge, 0)
 
-        self.auto_threshold_cb = QCheckBox("Auto")
+        self.auto_threshold_cb = QCheckBox("Auto Threshold")
         self.auto_threshold_cb.setObjectName("autoThresholdCheck")
-        self.auto_threshold_cb.setToolTip("Let the backend compute an optimal threshold based on the selection")
+        self.auto_threshold_cb.setToolTip("Compute an optimal threshold from the selected pixels")
         self.auto_threshold_cb.setChecked(False)
         self.auto_threshold_cb.stateChanged.connect(self._on_auto_threshold_toggled)
         threshold_row.addWidget(self.auto_threshold_cb, 0)
+
+        self.auto_clean_cb = QCheckBox("Auto Clean")
+        self.auto_clean_cb.setObjectName("autoCleanCheck")
+        self.auto_clean_cb.setToolTip("Use adaptive thresholding and despeckle cleanup for scanned signatures")
+        self.auto_clean_cb.setChecked(False)
+        threshold_row.addWidget(self.auto_clean_cb, 0)
         controls.addLayout(threshold_row)
 
         self.color_label = QLabel("Color: #000000")
@@ -667,12 +824,18 @@ class ExtractionTabMixin:
         self.clear_sel_btn.setToolTip("Clear current selection")
         self.clear_sel_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.clear_sel_btn.setProperty("compact", True)
+        self.auto_detect_btn = ElidingButton("Auto Detect")
+        self.auto_detect_btn.setObjectName("autoDetectSelectionButton")
+        self.auto_detect_btn.setToolTip("Auto-detect the signature region in the current image")
+        self.auto_detect_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.auto_detect_btn.setProperty("compact", True)
         self.clean_session_btn = ElidingButton("Clean Viewport")
         self.clean_session_btn.setObjectName("cleanViewportButton")
         self.clean_session_btn.setToolTip("Clear the current upload and reset all panes")
         self.clean_session_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.clean_session_btn.setProperty("compact", True)
         controls.addWidget(self.toggle_mode_btn)
+        controls.addWidget(self.auto_detect_btn)
         controls.addWidget(self.clear_sel_btn)
         controls.addWidget(self.clean_session_btn)
 
@@ -749,10 +912,16 @@ class ExtractionTabMixin:
         export_row_2.addWidget(self.export_json_btn)
         controls.addLayout(export_row_2)
 
+        self.overlay_preview_cb = QCheckBox("Overlay preview")
+        self.overlay_preview_cb.setObjectName("overlayPreviewCheck")
+        self.overlay_preview_cb.setToolTip("Show the extracted signature over the original crop in the preview pane")
+        self.overlay_preview_cb.setChecked(True)
+        controls.addWidget(self.overlay_preview_cb)
+
         self.sign_pdf_btn = _create_button("Sign a PDF with this", parent_widget)
         self.sign_pdf_btn.setObjectName("signPdfButton")
         self.sign_pdf_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        self.sign_pdf_btn.setToolTip("Switch to PDF Signer tab and use this extracted signature")
+        self.sign_pdf_btn.setToolTip("Switch to the PDF Signing tab and use this extracted signature")
         self.sign_pdf_btn.clicked.connect(self._sign_pdf_with_extracted)
         self.sign_pdf_btn.setEnabled(False)
         controls.addWidget(self.sign_pdf_btn)
@@ -806,7 +975,7 @@ class ExtractionTabMixin:
         # Add modern welcome/help text with clean design
         welcome_label = QLabel(
             "<span style='font-size: 14px; font-weight: 600; color: #ffffff; margin-bottom: 8px;'>Get Started</span><br><br>"
-            "<span style='color: rgba(255, 255, 255, 0.9);'>1. Open & upload image</span><br>"
+            "<span style='color: rgba(255, 255, 255, 0.9);'>1. Open or capture signature</span><br>"
             "<span style='color: rgba(255, 255, 255, 0.9);'>2. Select signature area</span><br>"
             "<span style='color: rgba(255, 255, 255, 0.9);'>3. Preview automatically</span><br>"
             "<span style='color: rgba(255, 255, 255, 0.9);'>4. Export when ready</span><br><br>"
@@ -1040,6 +1209,7 @@ class ExtractionTabMixin:
         self._last_result_png: bytes | None = None
         self._last_local_path: str | None = None
         self._current_image_data: bytes | None = None
+        self._current_crop_preview_pixmap: QPixmap | None = None
         self._licensed = is_licensed()
         self._active_pane = "source"
         self._auto_threshold_enabled = False
@@ -1086,6 +1256,8 @@ class ExtractionTabMixin:
         self.res_view.viewChanged.connect(self._update_coordinate_display)
         self.res_view.zoomChanged.connect(self._update_pane_labels_with_zoom)
         self.threshold.valueChanged.connect(self.on_adjustment_changed)
+        self.auto_detect_btn.clicked.connect(self._auto_detect_current_region)
+        self.auto_clean_cb.stateChanged.connect(lambda _: self.schedule_preview())
 
         self._update_action_states()
         self._refresh_library_list()
@@ -1100,7 +1272,9 @@ class ExtractionTabMixin:
         # Main workflow order: Open → Mode toggle → Clear → View controls → Processing controls
         parent_widget = cast(QWidget, self)
         parent_widget.setTabOrder(self.open_btn, self.toggle_mode_btn)
-        parent_widget.setTabOrder(self.toggle_mode_btn, self.clear_sel_btn)
+        parent_widget.setTabOrder(self.toggle_mode_btn, self.capture_btn)
+        parent_widget.setTabOrder(self.capture_btn, self.sample_btn)
+        parent_widget.setTabOrder(self.sample_btn, self.clear_sel_btn)
         parent_widget.setTabOrder(self.clear_sel_btn, self.zoom_in_btn)
         parent_widget.setTabOrder(self.zoom_in_btn, self.zoom_out_btn)
         parent_widget.setTabOrder(self.zoom_out_btn, self.fit_btn)
@@ -1111,7 +1285,8 @@ class ExtractionTabMixin:
         parent_widget.setTabOrder(self.rotate_cw_btn, self.pick_color_btn)
         parent_widget.setTabOrder(self.pick_color_btn, self.threshold)
         parent_widget.setTabOrder(self.threshold, self.auto_threshold_cb)
-        parent_widget.setTabOrder(self.auto_threshold_cb, self.copy_btn)
+        parent_widget.setTabOrder(self.auto_threshold_cb, self.auto_clean_cb)
+        parent_widget.setTabOrder(self.auto_clean_cb, self.copy_btn)
         parent_widget.setTabOrder(self.copy_btn, self.export_btn)
         parent_widget.setTabOrder(self.export_btn, self.save_to_library_btn)
         parent_widget.setTabOrder(self.save_to_library_btn, self.library_list)
@@ -1129,11 +1304,13 @@ class ExtractionTabMixin:
             ("Meta+0", self._on_reset_zoom),
             ("Ctrl+1", self._on_fit),
             ("Meta+1", self._on_fit),
+            ("Ctrl+Shift+C", self.on_capture_signature),
             ("Ctrl+E", self.on_export),
             ("Meta+E", self.on_export),
             ("Ctrl+D", self.on_clear_selection),
             ("Ctrl+Shift+X", self.on_clean_session),
             ("Ctrl+T", self.on_toggle_mode),
+            ("Ctrl+Shift+A", self._auto_detect_current_region),
             ("Ctrl+L", self.on_save_to_library),
         ]
         self._shortcuts: list[QShortcut] = []
@@ -1184,12 +1361,47 @@ class ExtractionTabMixin:
             self.status_bar.showMessage("Upload cancelled", 2000)
             return
         except Exception as e:
+            if self._offer_camera_fallback(
+                "Upload failed. We can capture a signature from your camera instead and continue with the same extraction pipeline."
+            ):
+                return
             # Immediately flip health indicator to offline on upload failure
             if hasattr(self, "backend_status_label"):
                 self.backend_status_label.setText("Backend: Offline")
                 self.backend_status_label.setStyleSheet("color: #cc0000; padding: 2px 8px;")
             self._handle_backend_exception(e, context="Upload failed")
             self.status_bar.showMessage("Upload failed", 3000)
+
+    def _offer_camera_fallback(self, message: str) -> bool:
+        """Offer webcam capture when upload/load fails.
+
+        Returns:
+            True if the user chose to continue with camera capture.
+        """
+        try:
+            reply = QMessageBox.question(
+                cast(QWidget, self),
+                "Upload unavailable",
+                f"{message}\n\nWould you like to capture the signature from your webcam instead?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+        except Exception as error:
+            LOG.debug("Camera fallback prompt failed: %s", error)
+            return False
+
+        if reply != QMessageBox.StandardButton.Yes:
+            return False
+
+        try:
+            self.on_capture_signature()
+        except Exception as error:
+            LOG.debug("Camera fallback capture failed: %s", error)
+            self._handle_backend_exception(error, context="Camera fallback failed")
+            self.status_bar.showMessage("Capture fallback failed", 3000)
+            return False
+
+        return True
 
     def _load_sample_image(self) -> None:
         """Generate and load a sample signature image for first-time users."""
@@ -1228,6 +1440,7 @@ class ExtractionTabMixin:
         self._current_rotation_angle = 0
         self._pre_rotation_zoom = 1.0
         self._pre_rotation_transform = None
+        self._current_crop_preview_pixmap = None
 
         # Re-apply modern styling after image loading to maintain design consistency
         QTimer.singleShot(25, lambda: self._update_pane_borders())
@@ -1239,6 +1452,8 @@ class ExtractionTabMixin:
         # Process image locally (offline-first approach)
         self.status_bar.showMessage("Loading image...", 0)
         self.open_btn.setEnabled(False)  # Disable during processing
+        if hasattr(self, "capture_btn"):
+            self.capture_btn.setEnabled(False)  # Disable alternate source while loading
         self.open_btn.setText("Loading...")
 
         try:
@@ -1260,6 +1475,8 @@ class ExtractionTabMixin:
         except Exception as e:
             LOG.error(f"Failed to create local session: {e}", exc_info=True)
             self.open_btn.setEnabled(True)
+            if hasattr(self, "capture_btn"):
+                self.capture_btn.setEnabled(True)
             self.open_btn.setText("Choose Image")  # Reset button text
             self.status_bar.showMessage(f"Failed to load image: {str(e)[:50]}", 5000)
             raise
@@ -1267,6 +1484,8 @@ class ExtractionTabMixin:
     def _on_upload_finished(self, file_path: str, payload) -> None:
         """Handle completion of async upload."""
         self.open_btn.setEnabled(True)  # Re-enable
+        if hasattr(self, "capture_btn"):
+            self.capture_btn.setEnabled(True)  # Re-enable capture while extraction is ready
         self.open_btn.setText("Choose Image")  # Reset button text
         try:
             LOG.info(f"Upload finished. Payload type: {type(payload)}, Payload: {payload}")
@@ -1285,7 +1504,7 @@ class ExtractionTabMixin:
                 session_id = f"local-{int(time.time())}"
 
             LOG.info(f"Setting session_id to: {session_id}")
-            self.session.session_id = session_id
+            self.session.set_extraction_session(session_id)
             LOG.info(f"Session ID set successfully: {self.session.session_id}")
             
             if hasattr(self, "session_id_label"):
@@ -1306,6 +1525,7 @@ class ExtractionTabMixin:
             self._last_result_png = None
             self.preview_view.clear_image()
             self.res_view.scene().clear()
+            self._current_crop_preview_pixmap = None
             self.export_btn.setEnabled(False)
             self.save_to_library_btn.setEnabled(False)
             # Keep panel mounted but show empty overlays
@@ -1333,6 +1553,8 @@ class ExtractionTabMixin:
         """Handle error in async upload."""
         LOG.error(f"Upload error for {file_path}: {error}")
         self.open_btn.setEnabled(True)  # Re-enable
+        if hasattr(self, "capture_btn"):
+            self.capture_btn.setEnabled(True)
         self.open_btn.setText("Choose Image")  # Reset button text
         # Immediately flip health indicator to offline on upload failure
         if hasattr(self, "backend_status_label"):
@@ -1341,10 +1563,26 @@ class ExtractionTabMixin:
         self._handle_backend_exception(error, context="Upload failed")
         self.status_bar.showMessage("Upload failed", 3000)
 
+    def on_capture_signature(self) -> None:
+        """Capture signature from camera and run the same import pipeline."""
+        try:
+            dialog = _SignatureCaptureDialog(cast(QWidget, self))
+            captured_path = dialog.capture_path()
+            if not captured_path:
+                self.status_bar.showMessage("Camera capture cancelled", 1500)
+                return
+            self._track_temp_file(captured_path)
+            self._load_image_from_path(captured_path)
+        except Exception as e:
+            self._handle_backend_exception(e, context="Camera capture failed")
+            self.status_bar.showMessage("Camera capture failed", 3000)
+
     def _on_source_file_dropped(self, file_path: str) -> None:
         try:
             self._load_image_from_path(file_path)
         except Exception as exc:
+            if self._offer_camera_fallback("Upload via drag-and-drop failed."):
+                return
             self._handle_backend_exception(exc, context="Upload via drag-and-drop failed")
             self.status_bar.showMessage("Upload failed", 3000)
 
@@ -1383,7 +1621,7 @@ class ExtractionTabMixin:
         QTimer.singleShot(25, lambda: self._update_pane_borders())
 
         self._on_pane_clicked("source")
-        self.session.session_id = "demo-session"
+        self.session.set_extraction_session("demo-session")
         self.status_bar.showMessage("Demo image loaded", 1500)
         self._update_action_states()
         self._update_coordinate_display()
@@ -1402,7 +1640,7 @@ class ExtractionTabMixin:
         QTimer.singleShot(25, lambda: self._update_pane_borders())
 
         self._on_pane_clicked("source")
-        self.session.session_id = "demo-session"
+        self.session.set_extraction_session("demo-session")
         self.status_bar.showMessage("Demo image created", 1200)
         self._update_action_states()
         self._update_coordinate_display()
@@ -1503,6 +1741,7 @@ class ExtractionTabMixin:
         self.threshold_label.setEnabled(not is_forensic)
         self.threshold_value_label.setEnabled(not is_forensic)
         self.auto_threshold_cb.setEnabled(not is_forensic)
+        self.auto_clean_cb.setEnabled(not is_forensic)
         
         # Trigger preview update
         self.schedule_preview()
@@ -1553,14 +1792,24 @@ class ExtractionTabMixin:
                     k=2  # Default to 2 clusters (Ink vs Background)
                 )
             else:
-                # Use standard thresholding
-                png_bytes = self.local_extractor.process_selection(
-                    session_id=self.session.session_id,
-                    x1=x1, y1=y1, x2=x2, y2=y2,
-                    color=self._color_hex,
-                    threshold=int(self.threshold.value()),
-                    auto_clean=self.auto_threshold_cb.isChecked()
-                )
+                auto_threshold_active = self.auto_threshold_cb.isChecked()
+                threshold_value = int(self.threshold.value())
+                if auto_threshold_active:
+                    computed = self._compute_auto_threshold()
+                    if computed is not None:
+                        threshold_value = int(round(computed))
+                        self.threshold.blockSignals(True)
+                        self.threshold.setValue(threshold_value)
+                        self.threshold.blockSignals(False)
+
+            # Use standard thresholding
+            png_bytes = self.local_extractor.process_selection(
+                session_id=self.session.session_id,
+                x1=x1, y1=y1, x2=x2, y2=y2,
+                color=self._color_hex,
+                threshold=threshold_value,
+                auto_clean=self.auto_clean_cb.isChecked()
+            )
             
             
             # Call the existing process finished handler
@@ -1635,6 +1884,11 @@ class ExtractionTabMixin:
 
             self._last_result_png = png_bytes
             self.res_view.load_image_bytes(png_bytes)
+            if self.overlay_preview_cb.isChecked() and self._current_crop_preview_pixmap is not None:
+                overlay_pixmap = self._build_overlay_preview_pixmap(self._current_crop_preview_pixmap, png_bytes)
+                if overlay_pixmap is not None:
+                    self.preview_view.set_image(overlay_pixmap.toImage())
+                    self.preview_view.fit()
             # Show result view, hide empty overlay
             self.result_empty.setVisible(False)
             self.res_view.setVisible(True)
@@ -1664,6 +1918,7 @@ class ExtractionTabMixin:
         self.src_view.clear_selection()
         self.sel_info.setText("Selection: –")
         self.preview_view.clear_image()
+        self._current_crop_preview_pixmap = None
         self.export_btn.setEnabled(False)
         self.save_to_library_btn.setEnabled(False)
         # Don't collapse panel - just show empty overlays
@@ -1788,6 +2043,8 @@ class ExtractionTabMixin:
 
                 # Enable actions that depend on backend
                 self.open_btn.setEnabled(True)
+                if hasattr(self, "capture_btn"):
+                    self.capture_btn.setEnabled(True)
             else:
                 # Failure - check if we should retry
                 if self._health_check_attempt < self._max_health_check_attempts:
@@ -1813,9 +2070,10 @@ class ExtractionTabMixin:
                     )
                     # Make clickable
                     self.backend_status_label.mousePressEvent = lambda e: self._open_document("docs/HELP.md")
-
-                    # Disable upload action when offline
-                    self.open_btn.setEnabled(False)
+                    # Core local functionality stays available even when backend is unreachable.
+                    self.open_btn.setEnabled(True)
+                    if hasattr(self, "capture_btn"):
+                        self.capture_btn.setEnabled(True)
 
     def _on_health_check_error(self, error) -> None:
         """Handle health check exception."""
@@ -1857,13 +2115,14 @@ class ExtractionTabMixin:
         self.src_view.clear_image()
         self.preview_view.clear_image()
         self.res_view.clear_image()
+        self._current_crop_preview_pixmap = None
         # Keep panel mounted to prevent layout jump - show empty overlays instead
         self.preview_view.setVisible(False)
         self.preview_empty.setVisible(True)
         self.res_view.setVisible(False)
         self.result_empty.setVisible(True)
         self.sel_info.setText("Selection: –")
-        self.session.session_id = ""
+        self.session.clear_extraction_session()
         if hasattr(self, "session_id_label"):
             self.session_id_label.setText("No session")
             self.session_id_label.setToolTip("")
@@ -1896,12 +2155,14 @@ class ExtractionTabMixin:
             cropped = self.src_view.crop_selection()
             if cropped and not cropped.isNull():
                 LOG.debug("Crop preview size: %d×%d", cropped.width(), cropped.height())
+                self._current_crop_preview_pixmap = QPixmap.fromImage(cropped)
                 self.preview_view.set_image(cropped)
                 self.preview_view.fit()
                 # Show preview view, hide empty overlay
                 self.preview_view.setVisible(True)
                 self.preview_empty.setVisible(False)
             else:
+                self._current_crop_preview_pixmap = None
                 self.preview_view.clear_image()
             if self._auto_threshold_enabled:
                 if self._apply_auto_threshold():
@@ -1916,6 +2177,7 @@ class ExtractionTabMixin:
         else:
             self.sel_info.setText("Selection: –")
             self.preview_view.clear_image()
+            self._current_crop_preview_pixmap = None
             self.save_to_library_btn.setEnabled(False)
             # Don't collapse panel - just show empty overlay
             self.preview_view.setVisible(False)
@@ -2092,7 +2354,7 @@ class ExtractionTabMixin:
                 x1=x1, y1=y1, x2=x2, y2=y2,
                 threshold=int(self.threshold.value()),
                 color=self._color_hex,
-                auto_clean=self.auto_threshold_cb.isChecked()
+                auto_clean=self.auto_clean_cb.isChecked()
             )
         
         self.status_bar.showMessage("Opening export dialog...", 1000)
@@ -2131,7 +2393,9 @@ class ExtractionTabMixin:
                 "source_name": source_name,
                 "health_score": health_score,
                 "health_rating": health_rating,
-                "extraction_mode": self.mode_combo.currentText() if hasattr(self, 'mode_combo') else "Standard"
+                "extraction_mode": self.mode_combo.currentText() if hasattr(self, 'mode_combo') else "Standard",
+                "auto_threshold": bool(self.auto_threshold_cb.isChecked()),
+                "auto_clean": bool(self.auto_clean_cb.isChecked()),
             }
             
             # Access vault from main window (self is mixed into MainWindow)
@@ -2166,6 +2430,8 @@ class ExtractionTabMixin:
                 "selection": {"x1": x1, "y1": y1, "x2": x2, "y2": y2},
                 "threshold": int(self.threshold.value()),
                 "color": self._color_hex,
+                "auto_threshold": bool(self.auto_threshold_cb.isChecked()),
+                "auto_clean": bool(self.auto_clean_cb.isChecked()),
                 "image_size": {"width": int(img.width()) if img else 0, "height": int(img.height()) if img else 0}
             }
             import json
@@ -2197,6 +2463,8 @@ class ExtractionTabMixin:
                     "selection": {"x1": x1, "y1": y1, "x2": x2, "y2": y2},
                     "threshold": int(self.threshold.value()),
                     "color": self._color_hex,
+                    "auto_threshold": bool(self.auto_threshold_cb.isChecked()),
+                    "auto_clean": bool(self.auto_clean_cb.isChecked()),
                     "image_size": {"width": int(img.width()) if img else 0, "height": int(img.height()) if img else 0}
                 }
             except Exception:
@@ -2212,7 +2480,7 @@ class ExtractionTabMixin:
             self.status_bar.showMessage("Save failed", 3000)
 
     def _sign_pdf_with_extracted(self) -> None:
-        """Save extracted signature and switch to PDF Signer tab."""
+        """Save extracted signature and switch to the canonical PDF Signing tab."""
         if not self._last_result_png:
             self.status_bar.showMessage("Extract a signature first", 2000)
             return
@@ -2221,10 +2489,10 @@ class ExtractionTabMixin:
             tmp = tempfile.mktemp(suffix=".png")
             with open(tmp, "wb") as f:
                 f.write(self._last_result_png)
-            # Switch to PDF Signer tab (index 3)
+            # Switch to the canonical PDF Signing tab
             pdf_tab_index = -1
             for i in range(self.tab_widget.count()):
-                if self.tab_widget.tabText(i) == "PDF Signer":
+                if self.tab_widget.tabText(i) == "📄 PDF Signing":
                     pdf_tab_index = i
                     break
             if pdf_tab_index >= 0:
@@ -2234,10 +2502,10 @@ class ExtractionTabMixin:
                     pdf_tab.set_signature_image(tmp)
                 self.status_bar.showMessage("Signature ready — open a PDF to sign", 4000)
             else:
-                self.status_bar.showMessage("PDF Signer tab not found", 3000)
+                self.status_bar.showMessage("PDF Signing tab not found", 3000)
         except Exception as e:
             LOG.error(f"Failed to pass signature to PDF tab: {e}")
-            self.status_bar.showMessage("Could not switch to PDF Signer", 3000)
+            self.status_bar.showMessage("Could not switch to PDF Signing", 3000)
     
     def _refresh_library_list(self):
         """Refresh library list in Extraction tab with coordinate tooltips."""
@@ -2339,7 +2607,7 @@ class ExtractionTabMixin:
             if not session_id:
                 raise RuntimeError("Upload succeeded but no session id returned")
 
-            self.session.session_id = session_id
+            self.session.set_extraction_session(session_id)
             if hasattr(self, "session_id_label"):
                 self.session_id_label.setText(f"Session: {session_id[:8]}...")
                 self.session_id_label.setToolTip(f"Full session ID: {session_id}")
@@ -2348,6 +2616,7 @@ class ExtractionTabMixin:
             self._last_result_png = None
             self.preview_view.clear_image()
             self.res_view.scene().clear()
+            self._current_crop_preview_pixmap = None
             # Keep stack visible with empty overlays
             self._set_preview_panel_visible(True)
             self.preview_label.setVisible(True)
@@ -2501,7 +2770,7 @@ class ExtractionTabMixin:
                     # Revert state on rotation failure
                     self._current_image_data = old_image_data
                     self._last_local_path = old_local_path
-                    self.session.session_id = old_session_id
+                    self.session.set_extraction_session(old_session_id)
                     
                     # Re-enable rotation buttons
                     self.rotate_cw_btn.setEnabled(True)
@@ -2511,7 +2780,7 @@ class ExtractionTabMixin:
                 # Revert state on rotation/save failure
                 self._current_image_data = old_image_data
                 self._last_local_path = old_local_path
-                self.session.session_id = old_session_id
+                self.session.set_extraction_session(old_session_id)
                 LOG.warning("Rotation failed, reverted to previous state: %s", e)
                 self._handle_backend_exception(e, context="Rotate failed")
                 self.status_bar.showMessage("Rotate failed - state reverted", 3000)
@@ -2558,7 +2827,7 @@ class ExtractionTabMixin:
             # Re-apply modern styling after rotation to maintain design consistency
             QTimer.singleShot(75, lambda: self._update_pane_borders())
 
-            self.session.session_id = session_id
+            self.session.set_extraction_session(session_id)
             if hasattr(self, "session_id_label"):
                 self.session_id_label.setText(f"Session: {session_id[:8]}...")
                 self.session_id_label.setToolTip(f"Full session ID: {session_id}")
@@ -2567,6 +2836,7 @@ class ExtractionTabMixin:
             self._last_result_png = None
             self.preview_view.clear_image()
             self.res_view.scene().clear()
+            self._current_crop_preview_pixmap = None
             # Keep stack visible with empty overlays
             self._set_preview_panel_visible(True)
             self.preview_label.setVisible(True)
@@ -2592,7 +2862,7 @@ class ExtractionTabMixin:
                 backup = self._rotation_backup
                 self._current_image_data = backup['old_image_data']
                 self._last_local_path = backup['old_local_path']
-                self.session.session_id = backup['old_session_id']
+                self.session.set_extraction_session(backup['old_session_id'])
                 delattr(self, '_rotation_backup')
                 LOG.warning("Rotation upload failed, reverted to previous state: %s", e)
             if hasattr(self, "backend_status_label"):
@@ -2613,7 +2883,7 @@ class ExtractionTabMixin:
             backup = self._rotation_backup
             self._current_image_data = backup['old_image_data']
             self._last_local_path = backup['old_local_path']
-            self.session.session_id = backup['old_session_id']
+            self.session.set_extraction_session(backup['old_session_id'])
             delattr(self, '_rotation_backup')
             LOG.warning("Rotation upload failed, reverted to previous state: %s", error)
         if hasattr(self, "backend_status_label"):
@@ -3383,12 +3653,8 @@ class ExtractionTabMixin:
 
     def _auto_adjust_threshold(self) -> None:
         """Automatically adjust threshold based on image content."""
-        if hasattr(self, 'threshold_slider'):
-            # Simple auto-threshold: set to middle value
-            # This could be enhanced with actual image analysis
-            self.threshold_slider.setValue(128)
-            if hasattr(self, 'on_preview'):
-                self.on_preview()
+        if self._apply_auto_threshold():
+            self.schedule_preview()
 
     def _invert_colors(self) -> None:
         """Invert the current color selection."""
@@ -3403,6 +3669,63 @@ class ExtractionTabMixin:
             # Apply inverted color
             if hasattr(self, '_apply_color'):
                 self._apply_color(inverted_hex)
+
+    def _auto_detect_current_region(self) -> None:
+        """Auto-detect the signature region and apply it to the source selection."""
+        if not self.session.session_id:
+            QMessageBox.information(cast(QWidget, self), "No image uploaded", "Open an image first.")
+            return
+
+        try:
+            region = self.local_extractor.auto_detect_signature(self.session.session_id)
+            if not region:
+                self.status_bar.showMessage("No signature region detected", 3000)
+                return
+
+            x1, y1, x2, y2 = region
+            self.src_view.set_selection_from_coords(x1, y1, x2, y2)
+            self.status_bar.showMessage("Signature region auto-detected", 2500)
+            self.schedule_preview()
+        except Exception as exc:
+            LOG.warning("Auto-detect failed: %s", exc)
+            self.status_bar.showMessage("Auto-detect failed - use manual selection", 3000)
+
+    def _capture_crop_preview(self) -> None:
+        """Cache the current crop preview for overlay rendering."""
+        try:
+            cropped = self.src_view.crop_selection()
+            if cropped and not cropped.isNull():
+                self._current_crop_preview_pixmap = QPixmap.fromImage(cropped)
+            else:
+                self._current_crop_preview_pixmap = None
+        except Exception:
+            self._current_crop_preview_pixmap = None
+
+    def _build_overlay_preview_pixmap(self, base_pixmap: QPixmap, overlay_png: bytes) -> Optional[QPixmap]:
+        """Composite the extracted signature over the crop preview."""
+        if base_pixmap.isNull():
+            return None
+
+        overlay = QPixmap()
+        if not overlay.loadFromData(overlay_png):
+            return None
+
+        result = QPixmap(base_pixmap)
+        from PySide6.QtGui import QPainter
+
+        painter = QPainter(result)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+        painter.drawPixmap(
+            0,
+            0,
+            overlay.scaled(
+                result.size(),
+                Qt.AspectRatioMode.IgnoreAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            ),
+        )
+        painter.end()
+        return result
 
     def _copy_result_to_clipboard(self) -> None:
         """Copy the result image to clipboard."""

@@ -100,7 +100,7 @@ def main():
         try:
             if backend_manager.start():
                 # Point client to the dynamically selected backend port
-                client.base_url = f"http://127.0.0.1:{backend_manager.port}"
+                client.update_base_url(f"http://127.0.0.1:{backend_manager.port}")
                 print(f"Backend started successfully at {client.base_url} - cloud features enabled")
             else:
                 print("Backend not available - running in offline mode")

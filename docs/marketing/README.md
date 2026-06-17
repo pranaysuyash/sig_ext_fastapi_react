@@ -10,6 +10,9 @@ Complete marketing strategy covering all channels, timelines, and tactics. Start
 ### [Comprehensive Marketing Action Plan](COMPREHENSIVE_MARKETING_ACTION_PLAN.md)
 Month-by-month roadmap from Nov 2025 to Dec 2026 with specific tasks, timelines, and resource requirements.
 
+### [GTM Research and Positioning](GTM_RESEARCH_2026-06-17.md)
+Current go-to-market synthesis covering market size, competitor pricing, demand signals, ICPs, positioning, and channel priority.
+
 ## 🚀 Launch Strategy
 
 ### [Product Hunt Launch Strategy](PRODUCT_HUNT_LAUNCH_STRATEGY.md)

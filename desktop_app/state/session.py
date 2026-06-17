@@ -28,6 +28,24 @@ class SessionState:
         if not self.access_token:
             return {}
         return {"Authorization": f"Bearer {self.access_token}"}
+
+    def set_authentication(self, access_token: str, user_email: Optional[str] = None) -> None:
+        """Store authenticated user state in one place."""
+        self.access_token = access_token
+        self.user_email = user_email
+
+    def clear_authentication(self) -> None:
+        """Clear authenticated user state."""
+        self.access_token = None
+        self.user_email = None
+
+    def set_extraction_session(self, session_id: Optional[str]) -> None:
+        """Store the current extraction session id."""
+        self.session_id = session_id
+
+    def clear_extraction_session(self) -> None:
+        """Clear the current extraction session id."""
+        self.session_id = None
     
     # NEW: PDF state management
     def init_pdf_state(self) -> None:

@@ -147,7 +147,7 @@ def test_source_rotation_reuploads_and_clears_selection(main_window):
     tmp.flush()
     tmp.close()
     original_session_id = main_window.local_extractor.create_session(tmp.name)
-    main_window.session.session_id = original_session_id
+    main_window.session.set_extraction_session(original_session_id)
     main_window._last_local_path = tmp.name
 
     _set_source_selection(main_window, QPointF(2, 2), QPointF(8, 8))
@@ -203,7 +203,7 @@ def test_clear_selection_hides_preview(main_window):
 
 
 def test_clean_session_resets_views(main_window):
-    main_window.session.session_id = "active-session"
+    main_window.session.set_extraction_session("active-session")
     main_window._last_result_png = b"pngbytes"
     main_window.src_view.set_image(_make_image())
     main_window.preview_view.set_image(_make_image(40, 30))
@@ -216,7 +216,7 @@ def test_clean_session_resets_views(main_window):
 
     main_window.on_clean_session()
 
-    assert main_window.session.session_id == ""
+    assert main_window.session.session_id is None
     assert not main_window.src_view.has_image()
     assert not main_window.preview_view.has_image()
     assert not main_window.res_view.has_image()
@@ -257,6 +257,16 @@ def test_library_delete_button_enables_with_selection(main_window):
     item.setSelected(True)
     main_window._update_library_controls()
     assert main_window.delete_from_library_btn.isEnabled()
+
+
+def test_main_window_uses_single_canonical_pdf_tab(main_window):
+    pdf_tabs = [
+        main_window.tab_widget.tabText(i)
+        for i in range(main_window.tab_widget.count())
+        if "PDF" in main_window.tab_widget.tabText(i)
+    ]
+
+    assert pdf_tabs == ["📄 PDF Signing"]
 
 
 def test_on_delete_selected_library(monkeypatch, main_window):

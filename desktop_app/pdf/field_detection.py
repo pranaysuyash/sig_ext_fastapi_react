@@ -1,0 +1,331 @@
+"""Signature field detection helpers for PDF pages.
+
+This module combines two practical signal sources:
+
+1. AcroForm/widget inspection for real PDF form fields.
+2. OpenCV layout heuristics for scanned or flattened documents.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+import logging
+import re
+from pathlib import Path
+from typing import Any, Iterable, List, Optional, Sequence
+
+import cv2
+import numpy as np
+import pikepdf
+import pypdfium2 as pdfium
+
+LOG = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class SignatureFieldCandidate:
+    """A likely signature-related field or placement area."""
+
+    page_index: int
+    field_type: str
+    x: float
+    y: float
+    width: float
+    height: float
+    confidence: float
+    source: str
+    reason: str
+    label: str = ""
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "page_index": self.page_index,
+            "field_type": self.field_type,
+            "x": self.x,
+            "y": self.y,
+            "width": self.width,
+            "height": self.height,
+            "confidence": self.confidence,
+            "source": self.source,
+            "reason": self.reason,
+            "label": self.label,
+        }
+
+
+class SignatureFieldDetector:
+    """Detect likely signature fields in PDF documents."""
+
+    def detect_pdf(self, pdf_path: str, page_index: Optional[int] = None) -> List[SignatureFieldCandidate]:
+        if not Path(pdf_path).exists():
+            raise FileNotFoundError(f"PDF not found: {pdf_path}")
+
+        candidates: list[SignatureFieldCandidate] = []
+        with pikepdf.open(pdf_path) as pdf:
+            page_indexes = [page_index] if page_index is not None else list(range(len(pdf.pages)))
+            for idx in page_indexes:
+                if idx < 0 or idx >= len(pdf.pages):
+                    continue
+                candidates.extend(self._detect_acroform_candidates(pdf, idx))
+
+        if page_index is not None:
+            pages_for_heuristics = [page_index]
+        else:
+            pages_for_heuristics = page_indexes[:3]
+
+        for idx in pages_for_heuristics:
+            try:
+                candidates.extend(self._detect_rendered_page_candidates(pdf_path, idx))
+            except Exception as exc:
+                LOG.debug("Rendered candidate detection failed for page %s: %s", idx, exc)
+
+        return self._dedupe_candidates(candidates)
+
+    def detect_page(self, pdf_path: str, page_index: int) -> List[SignatureFieldCandidate]:
+        return self.detect_pdf(pdf_path, page_index=page_index)
+
+    def _detect_acroform_candidates(
+        self,
+        pdf: pikepdf.Pdf,
+        page_index: int,
+    ) -> List[SignatureFieldCandidate]:
+        candidates: list[SignatureFieldCandidate] = []
+        page = pdf.pages[page_index]
+        annotations = page.get("/Annots", [])
+
+        for annot_ref in annotations:
+            try:
+                annot = annot_ref.get_object()
+            except Exception:
+                annot = annot_ref
+
+            if str(annot.get("/Subtype", "")) != "/Widget":
+                continue
+
+            rect = annot.get("/Rect")
+            if not rect or len(rect) != 4:
+                continue
+
+            x0, y0, x1, y1 = [float(v) for v in rect]
+            width = max(0.0, x1 - x0)
+            height = max(0.0, y1 - y0)
+            if width <= 0 or height <= 0:
+                continue
+
+            field_type, confidence, reason = self._infer_form_field_type(annot)
+            label = self._extract_field_label(annot)
+            if field_type == "unknown" and not label:
+                continue
+
+            candidates.append(
+                SignatureFieldCandidate(
+                    page_index=page_index,
+                    field_type=field_type,
+                    x=x0,
+                    y=y0,
+                    width=width,
+                    height=height,
+                    confidence=confidence,
+                    source="acroform",
+                    reason=reason,
+                    label=label,
+                )
+            )
+
+        return candidates
+
+    def _infer_form_field_type(self, annot: Any) -> tuple[str, float, str]:
+        field_type = self._pdf_text(annot.get("/FT"))
+        field_name = self._extract_field_label(annot).lower()
+        tooltip = self._pdf_text(annot.get("/TU")).lower()
+        combined = f"{field_name} {tooltip}".strip()
+
+        if field_type == "/Sig" or any(k in combined for k in ("signature", "sign here")):
+            return "signature", 0.99 if field_type == "/Sig" else 0.93, "AcroForm signature widget"
+        if any(k in combined for k in ("initial", "initials")):
+            return "initials", 0.91, "Widget label suggests initials"
+        if "date" in combined:
+            return "date", 0.88, "Widget label suggests date field"
+        if field_type == "/Btn":
+            return "checkbox", 0.84, "AcroForm button widget"
+        if field_type == "/Tx":
+            return "text", 0.72, "AcroForm text widget"
+        return "unknown", 0.5, "Widget present without clear signature semantics"
+
+    def _extract_field_label(self, annot: Any) -> str:
+        parts: list[str] = []
+        for key in ("/T", "/TU", "/TM"):
+            value = self._pdf_text(annot.get(key))
+            if value:
+                parts.append(value)
+        return " ".join(parts).strip()
+
+    def _detect_rendered_page_candidates(
+        self,
+        pdf_path: str,
+        page_index: int,
+    ) -> List[SignatureFieldCandidate]:
+        pdf = pdfium.PdfDocument(pdf_path)
+        try:
+            page = pdf[page_index]
+            page_width_pt = float(page.get_width())
+            page_height_pt = float(page.get_height())
+            bitmap = page.render(scale=2.0, rotation=0)
+            image = np.array(bitmap.to_pil().convert("RGB"))
+            heuristics = self._detect_from_image(image)
+
+            candidates: list[SignatureFieldCandidate] = []
+            for item in heuristics:
+                candidates.append(
+                    SignatureFieldCandidate(
+                        page_index=page_index,
+                        field_type=item["field_type"],
+                        x=item["x"] * page_width_pt / image.shape[1],
+                        y=page_height_pt - (item["y"] + item["height"]) * page_height_pt / image.shape[0],
+                        width=item["width"] * page_width_pt / image.shape[1],
+                        height=item["height"] * page_height_pt / image.shape[0],
+                        confidence=item["confidence"],
+                        source="heuristic",
+                        reason=item["reason"],
+                        label=item["label"],
+                    )
+                )
+            return candidates
+        finally:
+            pdf.close()
+
+    def _detect_from_image(self, image: np.ndarray) -> List[dict[str, Any]]:
+        gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        blur = cv2.GaussianBlur(gray, (5, 5), 0)
+        _, binary = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+        height, width = gray.shape[:2]
+        candidates: list[dict[str, Any]] = []
+
+        horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (max(20, width // 12), 1))
+        horizontal = cv2.morphologyEx(binary, cv2.MORPH_OPEN, horizontal_kernel)
+        for contour in self._contours(horizontal):
+            x, y, w, h = cv2.boundingRect(contour)
+            if self._looks_like_signature_line(w, h, width):
+                candidates.append(
+                    {
+                        "field_type": "signature_line",
+                        "x": float(x),
+                        "y": float(y),
+                        "width": float(w),
+                        "height": float(max(h, 4)),
+                        "confidence": self._score_line_candidate(x, y, w, h, width, height),
+                        "reason": "Long horizontal rule near document text",
+                        "label": "signature line",
+                    }
+                )
+
+        rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+        closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, rect_kernel, iterations=2)
+        for contour in self._contours(closed):
+            x, y, w, h = cv2.boundingRect(contour)
+            if self._looks_like_field_box(w, h, width, height):
+                field_type = self._classify_box(w, h)
+                candidates.append(
+                    {
+                        "field_type": field_type,
+                        "x": float(x),
+                        "y": float(y),
+                        "width": float(w),
+                        "height": float(h),
+                        "confidence": self._score_box_candidate(x, y, w, h, width, height),
+                        "reason": "Rectangular field-like region detected",
+                        "label": field_type.replace("_", " "),
+                    }
+                )
+
+        return self._dedupe_candidate_dicts(candidates)
+
+    def _looks_like_signature_line(self, w: int, h: int, page_width: int) -> bool:
+        return w >= max(90, int(page_width * 0.12)) and h <= 16 and (w / max(h, 1)) >= 7
+
+    def _looks_like_field_box(self, w: int, h: int, page_width: int, page_height: int) -> bool:
+        if w < 70 or h < 18:
+            return False
+        if w > page_width * 0.75:
+            return False
+        if h > max(160, int(page_height * 0.18)):
+            return False
+        return (w / max(h, 1)) >= 1.2
+
+    def _classify_box(self, w: int, h: int) -> str:
+        ratio = w / max(h, 1)
+        if ratio >= 4.5 and h <= 50:
+            return "signature_box"
+        if ratio >= 2.0 and h <= 35:
+            return "signature_box"
+        if w <= 90 and h <= 50:
+            return "initials_box"
+        return "field_box"
+
+    def _score_line_candidate(self, x: int, y: int, w: int, h: int, page_width: int, page_height: int) -> float:
+        length_score = min(1.0, w / max(page_width * 0.45, 1))
+        thin_score = 1.0 - min(1.0, h / 16.0)
+        bottom_bonus = 0.12 if y > page_height * 0.45 else 0.0
+        return round(min(0.99, 0.45 + 0.4 * length_score + 0.2 * thin_score + bottom_bonus), 3)
+
+    def _score_box_candidate(self, x: int, y: int, w: int, h: int, page_width: int, page_height: int) -> float:
+        size_score = min(1.0, (w * h) / max((page_width * page_height) * 0.01, 1))
+        aspect_score = min(1.0, max(w / max(h, 1), h / max(w, 1)))
+        bottom_bonus = 0.1 if y > page_height * 0.45 else 0.0
+        return round(min(0.95, 0.35 + 0.4 * size_score + 0.15 * aspect_score + bottom_bonus), 3)
+
+    def _contours(self, image: np.ndarray) -> Iterable[np.ndarray]:
+        found = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if len(found) == 3:
+            _, contours, _ = found
+        else:
+            contours, _ = found
+        return contours
+
+    def _dedupe_candidates(self, candidates: Sequence[SignatureFieldCandidate]) -> List[SignatureFieldCandidate]:
+        ordered = sorted(candidates, key=lambda c: c.confidence, reverse=True)
+        output: list[SignatureFieldCandidate] = []
+        for candidate in ordered:
+            if any(self._rect_overlap((candidate.x, candidate.y, candidate.width, candidate.height), (existing.x, existing.y, existing.width, existing.height)) > 0.55 for existing in output):
+                continue
+            output.append(candidate)
+        return sorted(output, key=lambda c: (c.page_index, -c.confidence, c.y, c.x))
+
+    def _dedupe_candidate_dicts(self, candidates: Sequence[dict[str, Any]]) -> List[dict[str, Any]]:
+        ordered = sorted(candidates, key=lambda c: c["confidence"], reverse=True)
+        output: list[dict[str, Any]] = []
+        for candidate in ordered:
+            if any(self._rect_overlap((candidate["x"], candidate["y"], candidate["width"], candidate["height"]), (existing["x"], existing["y"], existing["width"], existing["height"])) > 0.55 for existing in output):
+                continue
+            output.append(candidate)
+        return output
+
+    def _rect_overlap(
+        self,
+        a: tuple[float, float, float, float],
+        b: tuple[float, float, float, float],
+    ) -> float:
+        ax, ay, aw, ah = a
+        bx, by, bw, bh = b
+        a1 = (ax, ay, ax + aw, ay + ah)
+        b1 = (bx, by, bx + bw, by + bh)
+
+        ix0 = max(a1[0], b1[0])
+        iy0 = max(a1[1], b1[1])
+        ix1 = min(a1[2], b1[2])
+        iy1 = min(a1[3], b1[3])
+        if ix1 <= ix0 or iy1 <= iy0:
+            return 0.0
+
+        inter = (ix1 - ix0) * (iy1 - iy0)
+        a_area = aw * ah
+        b_area = bw * bh
+        return inter / max((a_area + b_area - inter), 1.0)
+
+    def _pdf_text(self, value: Any) -> str:
+        if value is None:
+            return ""
+        text = str(value).strip()
+        if text.startswith("(") and text.endswith(")"):
+            text = text[1:-1]
+        return re.sub(r"\s+", " ", text)

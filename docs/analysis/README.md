@@ -67,6 +67,16 @@ Grounded expansion memo covering:
 
 **Use this for**: Product expansion planning rooted in the current codebase and open-source PDF/CV tooling
 
+### [UNIQUE_PROPOSITION_BRIEF_2026-06-17.md](./UNIQUE_PROPOSITION_BRIEF_2026-06-17.md)
+
+A concise rationale for what is defensible today:
+
+- Single extract-sign-place workflow
+- Native PDF signature intelligence
+- Offline-first handling and pricing support for the wedge
+
+**Use this for**: Product positioning and pricing alignment grounded in existing implementation
+
 ### [ROADMAP_30_60_90_2026-06-17.md](./ROADMAP_30_60_90_2026-06-17.md)
 
 Execution-oriented 30/60/90 plan for the first quarter of expansion work.
@@ -84,6 +94,12 @@ Backlog-style epic decomposition with goals, scope, dependencies, and acceptance
 Technical spec covering field detection, template placement, native PDF editing, OCR cleanup, and testing strategy.
 
 **Use this for**: Architecture and implementation design for the core PDF-aware workflow
+
+### [EXPANSION_DECISION_MEMO_2026-06-17.md](./EXPANSION_DECISION_MEMO_2026-06-17.md)
+
+Decision memo summarizing the recommended first slice, the values guiding the roadmap, and the open-source repos to watch.
+
+**Use this for**: Quick prioritization when you want the answer, not just the research
 
 ## Related Documentation
 

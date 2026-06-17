@@ -6,9 +6,12 @@ PyQt/PySide6 desktop client for signature extraction. Connects to the FastAPI ba
 
 - Direct image upload (no login required by default)
 - Interactive region selection with rubber band
-- Real-time threshold and color controls
-- Preview extracted signature
+- One-click auto-detect for likely signature regions
+- Real-time threshold and color controls with auto-threshold and auto-clean modes
+- Overlay preview showing the extracted signature on the original crop
 - Save result as PNG with transparency
+- Secure vault storage with usage history
+- Canonical PDF signing workflow with persistent per-page placements
 
 ## Installation
 
@@ -52,9 +55,9 @@ python -m desktop_app.main
 
 1. Open & Upload Image
 2. Select region (Selection mode) or Pan (Pan mode)
-3. Adjust Threshold (0–255) and Color
-4. Preview to process the selection
-5. Export/Copy/Save to Library
+3. Optionally use Auto Detect, Auto Threshold, and Auto Clean
+4. Preview to process the selection, or use overlay preview to inspect placement
+5. Export, copy, save to library, or save to vault
 
 Viewport controls
 - Zoom In/Out, editable Zoom % (supports Fit), Reset Viewport, Rotate
