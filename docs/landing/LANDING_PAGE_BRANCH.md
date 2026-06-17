@@ -13,7 +13,7 @@ The landing page is now deployed from the repository's `main` branch. It contain
 
 The canonical live landing site lives in the repository root pages plus `web/live/` assets.
 
-The old `landing-page` branch is legacy history only.
+The old `landing-page` branch is archived/deprecated and is kept on the remote for historical reference only.
 
 ---
 
@@ -511,7 +511,7 @@ git push origin main
 **Important**:
 
 - Keep `main` as the single source of truth for the landing page
-- Keep the old `landing-page` branch only as historical reference
+- Keep the archived `landing-page` branch only as historical reference on the remote
 
 ### Recent Commits (Nov 18, 2025)
 
