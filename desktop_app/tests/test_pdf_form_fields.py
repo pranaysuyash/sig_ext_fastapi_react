@@ -16,6 +16,12 @@ from reportlab.pdfgen import canvas
 from desktop_app.pdf.form_fields import PdfFormFieldEditor
 
 
+@pytest.fixture(autouse=True)
+def enable_fitz_for_forms(monkeypatch) -> None:
+    """Ensure form editing tests run with the policy flag enabled."""
+    monkeypatch.setenv("SIGNKIT_ALLOW_PYMUPDF_SIGNING", "1")
+
+
 @pytest.fixture
 def sample_form_pdf() -> str:
     """Create a PDF with native text, checkbox, combo, and radio widgets."""

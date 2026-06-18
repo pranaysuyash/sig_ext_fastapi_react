@@ -126,6 +126,39 @@ class MainWindow(
         # Show onboarding dialog on first run
         QTimer.singleShot(500, self._maybe_show_onboarding)
 
+    def _on_tab_changed(self, index: int) -> None:
+        """Handle tab-switching between extraction, PDF, and vault workflows."""
+        try:
+            if hasattr(self, "_update_toolbar_for_tab"):
+                self._update_toolbar_for_tab(index)
+            if hasattr(self, "_refresh_toolbar_action_states"):
+                self._refresh_toolbar_action_states()
+
+            extraction_index = getattr(self, "_extraction_tab_index", 0)
+            pdf_index = getattr(self, "_pdf_tab_index", -1)
+
+            if index == extraction_index and hasattr(self, "status_bar"):
+                self.status_bar.showMessage("Ready — signature extraction", 1200)
+            elif index == pdf_index and hasattr(self, "status_bar"):
+                self.status_bar.showMessage("Ready — PDF signing", 1200)
+        except Exception as error:
+            LOG.debug("Tab change handler failed: %s", error)
+
+    def _on_pdf_tab_open(self) -> None:
+        """Backward-compatible PDF tab open hook used by toolbar and control wiring."""
+        if hasattr(self, "on_pdf_open"):
+            self.on_pdf_open()
+
+    def _on_pdf_tab_save(self) -> None:
+        """Backward-compatible PDF tab save hook used by toolbar and control wiring."""
+        if hasattr(self, "on_pdf_save"):
+            self.on_pdf_save()
+
+    def _on_pdf_tab_close(self) -> None:
+        """Backward-compatible PDF tab close hook used by toolbar and control wiring."""
+        if hasattr(self, "on_pdf_close"):
+            self.on_pdf_close()
+
     # ----- Backend Health Monitoring -----
     def _check_backend_health(self) -> None:
         """Check if backend is available and update status indicator."""

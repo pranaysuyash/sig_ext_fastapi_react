@@ -1,6 +1,6 @@
 # PDF Stack Setup and Selection Policy
 
-Last updated: `2026-06-17`
+Last updated: `2026-06-18`
 
 ## Why this exists
 
@@ -83,8 +83,14 @@ python -m pip install pypdfium2 pikepdf
   - `python -m pip install pikepdf`
   - plus `python -m pip install pypdfium2` if PDF viewer is needed
 - Full current feature set (non-default opt-in):
-  - `python -m pip install pypdfium2 PyMuPDF pikepdf`
+  - `python -m pip install pypdfium2 pikepdf`
+  - `python -m pip install -r desktop_app/requirements-pymupdf-optional.txt`
+  - `python -m pip install -r desktop_app/requirements-pdf-optional.txt`
   - set `SIGNKIT_ALLOW_PYMUPDF_SIGNING=1`
+
+The optional files keep non-default capabilities explicit and discoverable:
+- `requirements-pymupdf-optional.txt`: explicit `PyMuPDF` enablement
+- `requirements-pdf-optional.txt`: optional `pypdf` (annotations) and `pytesseract` (OCR hints)
 - Scan/OCR heuristics:
   - `python -m pip install opencv-python pytesseract`
   - install system Tesseract binary (required by pytesseract)
@@ -95,6 +101,7 @@ python -m pip install pypdfium2 pikepdf
 - Rendering is split from signing because one library is not best-in-class for both.
 - Signing keeps a robust fallback (`pikepdf`) so the app remains operational when `fitz` is disabled.
 - OCR/scan preprocessing is explicitly opt-in because it adds runtime and dependency overhead.
+- This follows the long-term rule that each workflow may combine multiple engines, but each engine gets one explicit role.
 
 ## Environment toggles
 
@@ -150,9 +157,16 @@ In short:
 3. Add `pytesseract` as an optional docs dependency for scanner environments.
 4. Add a small UI hint for users when scan/OCR mode is disabled and no hint candidates will be returned.
 5. See the broader library survey in `docs/analysis/PDF_LIBRARY_EXPLORATION_2026-06-17.md`.
+6. See the preserved long-form architecture memo in `docs/analysis/LONG_TERM_PDF_WORKSPACE_ARCHITECTURE_2026-06-18.md`.
 
 ## Durable document sessions
 
 - Signature placements are persisted per PDF so reopening the same document can restore the export recipe later.
 - The signature vault stores the image assets, while the document session store keeps placement geometry and page association.
 - If the source PDF changes materially, the saved placements may be skipped rather than applied blindly.
+
+## Cross-References
+
+- [Long-Term PDF Workspace Architecture](analysis/LONG_TERM_PDF_WORKSPACE_ARCHITECTURE_2026-06-18.md)
+- [PDF Library Exploration](analysis/PDF_LIBRARY_EXPLORATION_2026-06-17.md)
+- [PDF Platform Convergence](analysis/PDF_PLATFORM_CONVERGENCE_2026-06-17.md)

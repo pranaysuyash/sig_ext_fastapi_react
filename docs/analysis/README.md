@@ -101,6 +101,12 @@ Decision memo summarizing the recommended first slice, the values guiding the ro
 
 **Use this for**: Quick prioritization when you want the answer, not just the research
 
+### [LONG_TERM_PDF_WORKSPACE_ARCHITECTURE_2026-06-18.md](./LONG_TERM_PDF_WORKSPACE_ARCHITECTURE_2026-06-18.md)
+
+Long-form architecture memo for the PDF workspace direction, capability ownership, and product-owned workflow semantics.
+
+**Use this for**: Preserving the first-principles PDF workspace direction and the durable ownership model behind the PDF tab
+
 ## Related Documentation
 
 - [ROADMAP.md](../ROADMAP.md) - Product development roadmap with 8 phases
@@ -112,4 +118,4 @@ Decision memo summarizing the recommended first slice, the values guiding the ro
 
 These analysis documents were created during the initial project assessment (October 2025) and provide valuable reference material for future development. They complement the main documentation and provide deeper technical and business insights.
 
-**Last Updated**: June 17, 2026
+**Last Updated**: June 18, 2026

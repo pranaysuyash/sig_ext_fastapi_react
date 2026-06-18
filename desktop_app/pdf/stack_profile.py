@@ -201,13 +201,11 @@ def stack_install_hint() -> str:
     scan_preprocess_enabled = is_scan_preprocess_enabled()
     packages = profile.get("packages", {})
     if not isinstance(packages, dict):
-        return "pip install pypdfium2 pypdf PyMuPDF pikepdf"
+        return "pip install pypdfium2 pikepdf"
 
     required: List[str] = []
     if not bool(packages.get("pypdfium2", {}).get("available")):
         required.append("pypdfium2")
-    if not bool(packages.get("pypdf", {}).get("available")):
-        required.append("pypdf")
     if _is_fitz_allowed() and not bool(packages.get("fitz", {}).get("available")):
         required.append("PyMuPDF")
     if not bool(packages.get("pikepdf", {}).get("available")):

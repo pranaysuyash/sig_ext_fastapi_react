@@ -8,15 +8,13 @@ sys.path.insert(0, 'desktop_app')
 
 from PySide6.QtCore import Qt, QBuffer, QIODevice
 from PySide6.QtGui import QImage
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLabel, QSizePolicy
 from desktop_app.widgets.image_view import ImageView
 
-def test_result_layout():
+def _run_layout_probe():
     """Test the exact layout structure used in the app"""
     print("=== Testing Result Layout Structure ===")
-    
-    app = QApplication([])
-    
+
     # Create main window
     window = QMainWindow()
     central = QWidget()
@@ -34,7 +32,7 @@ def test_result_layout():
     # Create res_view
     res_view = ImageView()
     res_view.setObjectName("resultImageView")
-    res_view.setSizePolicy(Qt.SizePolicy.Expanding, Qt.SizePolicy.Expanding)
+    res_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
     res_view.toggle_selection_mode(False)
     res_view.setVisible(False)
     result_layout.addWidget(res_view)
@@ -113,5 +111,17 @@ def test_result_layout():
     print(f"Even when we call result_empty.setVisible(False), there might be")
     print(f"layout/drawing issues that prevent res_view from showing properly.")
 
+
+def test_result_layout(qapp):
+    """Test the exact layout structure used in the app."""
+    _run_layout_probe()
+
 if __name__ == "__main__":
-    test_result_layout()
+    app = None
+    try:
+        from PySide6.QtWidgets import QApplication
+        app = QApplication([])
+        _run_layout_probe()
+    finally:
+        if app is not None:
+            app.quit()

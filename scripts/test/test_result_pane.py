@@ -8,16 +8,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'desktop_app'))
 
 from PySide6.QtCore import Qt, QBuffer, QIODevice
 from PySide6.QtGui import QImage
-from PySide6.QtWidgets import QApplication
 from desktop_app.widgets.image_view import ImageView
+from PySide6.QtWidgets import QApplication
 
-def test_result_pane():
-    """Test the result pane functionality"""
+def _run_result_pane_probe():
+    """Run the result pane probe logic."""
     print("Testing result pane functionality...")
-    
-    # Create QApplication
-    app = QApplication([])
-    
+
     # Create result view (like in the app)
     res_view = ImageView()
     res_view.toggle_selection_mode(False)  # Disable selection mode for result view
@@ -46,10 +43,10 @@ def test_result_pane():
         image = res_view.image()
         if image:
             print(f"Image dimensions: {image.width()}x{image.height()}")
-    
+
     # Check scene
-    if res_view.scene():
-        items = res_view.scene().items()
+    if res_view.scene:
+        items = res_view.scene.items()
         print(f"Scene has {len(items)} items")
     
     print("Result pane test completed successfully!")
@@ -59,8 +56,14 @@ def test_result_pane():
     print("2. Make a selection on the source image")
     print("3. Wait for processing to complete")
     print("4. Check the app logs for any errors")
-    
-    return True
+
+def test_result_pane(qapp):
+    """Test the result pane functionality"""
+    _run_result_pane_probe()
 
 if __name__ == "__main__":
-    test_result_pane()
+    app = QApplication([])
+    try:
+        _run_result_pane_probe()
+    finally:
+        app.quit()

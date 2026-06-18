@@ -4,6 +4,8 @@
 
 This plan adds PDF signing capability to your signature extractor app **without breaking existing features**.
 
+For the long-term product boundary and workflow-ownership model, see [Long-Term PDF Workspace Architecture](analysis/LONG_TERM_PDF_WORKSPACE_ARCHITECTURE_2026-06-18.md).
+
 ## 🎯 What Users Get
 
 1. **Open PDFs** and view them page-by-page
@@ -13,6 +15,8 @@ This plan adds PDF signing capability to your signature extractor app **without 
 5. **Audit logs** track every operation for compliance
 
 ## 🏗️ Architecture
+
+This guide documents the implementation slice; the preserved architecture memo captures the broader first-principles workspace direction.
 
 ```
 ┌─────────────────────────────────────┐
@@ -40,10 +44,14 @@ This plan adds PDF signing capability to your signature extractor app **without 
 ### Step 1: Install Dependencies (5 min)
 
 ```bash
-# Add to desktop_app/requirements.txt
-echo "pypdfium2>=4.26.0" >> desktop_app/requirements.txt
-echo "PyMuPDF>=1.23.0" >> desktop_app/requirements.txt
-echo "pikepdf>=8.10.0" >> desktop_app/requirements.txt  # fallback
+# Add the current OSS-first baseline to your app environment
+python -m pip install pypdfium2 pikepdf
+
+# Optional advanced path (enable intentionally)
+python -m pip install -r desktop_app/requirements-pymupdf-optional.txt
+
+# Optional annotations/OCR helpers (if needed)
+python -m pip install -r desktop_app/requirements-pdf-optional.txt
 
 # Install
 pip install -r desktop_app/requirements.txt
@@ -234,11 +242,11 @@ Created/Updated:
 
 1. **Review**: Read full plan in `docs/PDF_FEATURE_IMPLEMENTATION.md`
 2. **Install**: Run `pip install pypdfium2 pikepdf`
-3. **Test**: Verify PDF libraries work: `python -c "import pypdfium2; import fitz; import pikepdf; print('✓ Ready')"`
+3. **Test**: Verify PDF libraries work: `python -c "import pypdfium2; import pikepdf; print('✓ Ready')"`
 4. **Code**: Start with Phase 1 (Foundation)
 
 ---
 
 **Questions?** Check the full implementation guide or ask!
 
-**Next Command**: `pip install pypdfium2 PyMuPDF pikepdf` 🚀
+**Next Command**: `pip install pypdfium2 pikepdf && python -c "import pypdfium2; import pikepdf; print('✓ Ready')"` 🚀

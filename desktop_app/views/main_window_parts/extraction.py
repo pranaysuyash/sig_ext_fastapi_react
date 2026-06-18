@@ -116,10 +116,10 @@ class _SignatureCaptureDialog(QDialog):
         layout.addWidget(hint)
 
         button_row = QHBoxLayout()
-        self._capture_button = _create_button("Capture", parent_widget=cast(QWidget, self), primary=True)
+        self._capture_button = _create_button("Capture", cast(QWidget, self), primary=True)
         self._capture_button.setObjectName("captureButton")
         self._capture_button.clicked.connect(self._capture_current_frame)
-        self._cancel_button = _create_button("Cancel", parent_widget=cast(QWidget, self))
+        self._cancel_button = _create_button("Cancel", cast(QWidget, self))
         self._cancel_button.clicked.connect(self.reject)
         button_row.addWidget(self._capture_button)
         button_row.addWidget(self._cancel_button)
@@ -177,30 +177,63 @@ class _SignatureCaptureDialog(QDialog):
         self._preview.setText(message)
         self._capture_button.setEnabled(False)
 
+    def _frame_to_rgb(self, frame: Any) -> Any:
+        """Normalize a camera frame into an RGB array suitable for Qt preview."""
+        if self._cv2 is None:
+            raise RuntimeError("Camera backend is unavailable")
+        if frame is None:
+            raise ValueError("No camera frame available")
+
+        if hasattr(frame, "ndim") and frame.ndim == 2:
+            return self._cv2.cvtColor(frame, self._cv2.COLOR_GRAY2RGB)
+
+        if hasattr(frame, "ndim") and frame.ndim == 3:
+            channels = frame.shape[2]
+            if channels == 3:
+                return self._cv2.cvtColor(frame, self._cv2.COLOR_BGR2RGB)
+            if channels == 4:
+                return self._cv2.cvtColor(frame, self._cv2.COLOR_BGRA2RGBA)
+            if channels == 1:
+                return self._cv2.cvtColor(frame, self._cv2.COLOR_GRAY2RGB)
+
+        raise ValueError(f"Unsupported camera frame shape: {getattr(frame, 'shape', None)}")
+
     def _update_frame(self) -> None:
         if self._cap is None or self._cv2 is None:
             return
-        ret, frame = self._cap.read()
-        if not ret or frame is None:
-            self._frame_errors += 1
-            if self._frame_errors >= 10:
-                self._handle_error("Camera read failed. Retry or switch source.")
-            return
-        self._frame_errors = 0
-        self._frame_bgr = frame
-        frame_rgb = self._cv2.cvtColor(frame, self._cv2.COLOR_BGR2RGB)
-        h, w, c = frame_rgb.shape
-        qimg = QImage(
-            frame_rgb.data,
-            w,
-            h,
-            c * w,
-            QImage.Format.Format_RGB888,
-        ).copy()
-        pix = QPixmap.fromImage(qimg)
-        self._preview.setPixmap(
-            pix.scaled(self._preview.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-        )
+        try:
+            ret, frame = self._cap.read()
+            if not ret or frame is None:
+                self._frame_errors += 1
+                if self._frame_errors >= 10:
+                    self._handle_error("Camera read failed. Retry or switch source.")
+                return
+            self._frame_errors = 0
+            self._frame_bgr = frame
+            frame_rgb = self._frame_to_rgb(frame)
+            h, w = frame_rgb.shape[:2]
+            channels = 1 if frame_rgb.ndim == 2 else frame_rgb.shape[2]
+            bytes_per_line = channels * w
+            if channels == 1:
+                fmt = QImage.Format.Format_Grayscale8
+            elif channels == 4:
+                fmt = QImage.Format.Format_RGBA8888
+            else:
+                fmt = QImage.Format.Format_RGB888
+            qimg = QImage(
+                frame_rgb.data,
+                w,
+                h,
+                bytes_per_line,
+                fmt,
+            ).copy()
+            pix = QPixmap.fromImage(qimg)
+            self._preview.setPixmap(
+                pix.scaled(self._preview.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            )
+        except Exception as exc:
+            LOG.exception("Camera preview update failed")
+            self._handle_error(f"Camera preview failed: {exc}")
 
     def _capture_current_frame(self) -> None:
         if self._frame_bgr is None or self._cv2 is None:

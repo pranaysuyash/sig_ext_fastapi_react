@@ -48,7 +48,7 @@ a = Analysis(
         "pydantic", "pydantic_settings", "passlib", "passlib.context",
         # Uvicorn HTTP dependencies
         "h11", "anyio", "sniffio", "click",
-        "python_multipart", "jose", "psycopg2", "pypdfium2", "fitz", "pikepdf",
+        "python_multipart", "jose", "psycopg2", "pypdfium2", "pikepdf",
         "queue", "threading", "asyncio", "json", "base64", "hashlib", "datetime",
         "pathlib", "subprocess", "socket", "tempfile", "shutil", "gc", "uuid",
         "secrets", "hmac", "time", "logging", "urllib.parse", "email.utils", "io", "atexit",

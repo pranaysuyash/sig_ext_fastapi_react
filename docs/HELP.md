@@ -70,8 +70,9 @@ The preview and result panes only appear after you make a valid selection. Draw 
 - Install with one or more profiles from [PDF setup](docs/PDF_SETUP.md):
   - Preview: `pip install pypdfium2`
   - Signing fallback-safe: `pip install pypdfium2 pikepdf`
-  - Advanced signing quality: `SIGNKIT_ALLOW_PYMUPDF_SIGNING=1 pip install PyMuPDF`
-  - Full stack: `pip install pypdfium2 PyMuPDF pikepdf`
+  - Advanced signing quality (opt-in): `SIGNKIT_ALLOW_PYMUPDF_SIGNING=1 pip install -r desktop_app/requirements-pymupdf-optional.txt`
+  - Optional annotations/OCR support: `pip install -r desktop_app/requirements-pdf-optional.txt`
+  - Full stack with optional advanced mode: `pip install pypdfium2 pikepdf` plus both optional files above
   - Scan/OCR assistance: `pip install opencv-python pytesseract` + `SIGNKIT_PDF_SCAN_PREPROCESS=true`
 - The app works without PDF features for signature extraction
 

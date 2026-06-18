@@ -26,6 +26,7 @@
 - **[PDF Stack Setup](docs/PDF_SETUP.md)** — runtime library policy, role mapping, and install matrix
 - **[PDF Library Exploration](docs/analysis/PDF_LIBRARY_EXPLORATION_2026-06-17.md)** — broader OSS candidate survey and rationale
 - **[PDF Platform Convergence](docs/analysis/PDF_PLATFORM_CONVERGENCE_2026-06-17.md)** — long-term architecture for editing, annotations, signing, and export
+- **[Long-Term PDF Workspace Architecture](docs/analysis/LONG_TERM_PDF_WORKSPACE_ARCHITECTURE_2026-06-18.md)** — preserved first-principles memo for the durable PDF workspace direction
 - **[PDF Implementation](docs/PDF_FEATURE_IMPLEMENTATION.md)** — Technical details for developers
 - **[Pricing Strategy](docs/PRICING.md)** — Freemium model with Pro/Team/Enterprise tiers
 - **[Product Roadmap](docs/ROADMAP.md)** — 8-phase development plan (auto-recognition, integrations, deployment)
@@ -92,8 +93,8 @@ Install dependencies:
 ```zsh
 pip install PySide6 requests python-dotenv pillow opencv-python numpy
 
-# Optional: For PDF signing features
-python -m pip install pypdfium2 PyMuPDF pikepdf
+# Optional: PDF feature stack (OSS-first default)
+python -m pip install pypdfium2 pikepdf
 ```
 
 Use the stack matrix in **[PDF_SETUP](docs/PDF_SETUP.md)** if you only need part of the PDF workflow:
@@ -103,10 +104,14 @@ Use the stack matrix in **[PDF_SETUP](docs/PDF_SETUP.md)** if you only need part
 python -m pip install pypdfium2
 
 # Signing only
-python -m pip install PyMuPDF pikepdf
+python -m pip install pikepdf
 
 # Full stack for current PDF feature set
-python -m pip install pypdfium2 PyMuPDF pikepdf
+python -m pip install pypdfium2 pikepdf
+# Advanced/optional PyMuPDF path (if explicitly enabled)
+python -m pip install -r desktop_app/requirements-pymupdf-optional.txt
+# Optional annotation and OCR helpers (if needed)
+python -m pip install -r desktop_app/requirements-pdf-optional.txt
 ```
 
 Run app:
@@ -117,7 +122,7 @@ python -m desktop_app.main
 
 **PDF Features** (optional):
 
-- If pypdfium2/PyMuPDF/pikepdf are installed, PDF menu appears with signing capabilities
+- If PDF feature stack is installed (or optional PyMuPDF is enabled), the PDF menu appears with signing capabilities
 - Without them, signature extraction still works normally
 - See **[PDF Quick Start](docs/PDF_QUICK_START.md)** for detailed PDF workflow
 
@@ -129,7 +134,7 @@ python -m desktop_app.main
 - 🔍 Interactive PDF viewer with zoom and navigation
 - 💾 Save signed PDFs with embedded signatures
 - 📊 Comprehensive audit logging for compliance (JSONL format)
-- ⚡ Powered by pypdfium2 (Chrome's PDFium), PyMuPDF, and pikepdf (QPDF)
+- ⚡ Powered by pypdfium2 (Chrome's PDFium), pikepdf, and optional PyMuPDF
 
 ✅ **Fixed & Enhanced UX**:
 

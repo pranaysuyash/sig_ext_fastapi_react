@@ -89,7 +89,6 @@ a = Analysis(
 
         # PDF processing libraries
         "pypdfium2",
-        "fitz",  # PyMuPDF
         "pikepdf",
 
         # Standard library modules

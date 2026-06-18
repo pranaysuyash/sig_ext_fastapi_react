@@ -746,6 +746,122 @@ class PdfTabMixin:
             if hasattr(self, "_refresh_toolbar_action_states"):
                 self._refresh_toolbar_action_states()
 
+    def _on_pdf_coord_tooltips_toggled(self, state: int) -> None:
+        """Toggle coordinate tooltips in the PDF viewer."""
+        if self.pdf_viewer:
+            self.pdf_viewer.enable_coordinate_tooltips(bool(state))
+
+    def _selected_pdf_field_for_annotation(self) -> Optional[dict]:
+        """Return currently selected detected field metadata or None."""
+        if not self.pdf_viewer or not self._current_pdf_path:
+            QMessageBox.information(
+                self,
+                "No PDF Open",
+                "Please open a PDF document first.",
+            )
+            return None
+
+        candidate = self.pdf_viewer.get_selected_field_candidate()
+        if not candidate:
+            QMessageBox.information(
+                self,
+                "No Field Selected",
+                "Select a detected field in the signature field list first.",
+            )
+            return None
+        return candidate
+
+    def _annotation_output_path(self) -> str:
+        """Return an output path for annotation changes."""
+        return self._current_edit_output_path()
+
+    def _on_pdf_add_highlight_to_selected_field(self) -> None:
+        """Add a highlight annotation to the selected detected field."""
+        candidate = self._selected_pdf_field_for_annotation()
+        if not candidate:
+            return
+        if not self._current_pdf_path:
+            return
+        try:
+            editor = PdfAnnotationEditor(self._current_pdf_path)
+            output_path = self._annotation_output_path()
+            editor.add_highlight(
+                output_path,
+                page_index=int(candidate.get("page_index", 0)),
+                x=float(candidate.get("x", 0.0)),
+                y=float(candidate.get("y", 0.0)),
+                width=float(candidate.get("width", 0.0)),
+                height=float(candidate.get("height", 0.0)),
+                contents=str(candidate.get("field_type", "field")),
+            )
+            self._reload_edited_pdf(output_path)
+            self.statusBar().showMessage("✅ Highlight added to selected field")
+        except Exception as exc:
+            QMessageBox.critical(self, "Add Highlight Failed", f"Unable to add highlight:\n{exc}")
+
+    def _on_pdf_add_comment_to_selected_field(self) -> None:
+        """Add a comment annotation to the selected detected field."""
+        candidate = self._selected_pdf_field_for_annotation()
+        if not candidate:
+            return
+        if not self._current_pdf_path:
+            return
+
+        comment, ok = QInputDialog.getMultiLineText(
+            self,
+            "Add Comment",
+            "Comment text:",
+            "Please review this field.",
+        )
+        if not ok or not comment.strip():
+            return
+
+        try:
+            editor = PdfAnnotationEditor(self._current_pdf_path)
+            output_path = self._annotation_output_path()
+            editor.add_note(
+                output_path,
+                page_index=int(candidate.get("page_index", 0)),
+                x=float(candidate.get("x", 0.0)),
+                y=float(candidate.get("y", 0.0)),
+                contents=comment,
+            )
+            self._reload_edited_pdf(output_path)
+            self.statusBar().showMessage("✅ Comment added to selected field")
+        except Exception as exc:
+            QMessageBox.critical(self, "Add Comment Failed", f"Unable to add comment:\n{exc}")
+
+    def on_pdf_view_audit_logs(self) -> None:
+        """Show audit logs for the currently open PDF."""
+        if not self._current_pdf_path:
+            QMessageBox.information(self, "No PDF", "Open a PDF document first to view audit logs.")
+            return
+
+        if not self.audit_logger:
+            QMessageBox.information(
+                self,
+                "No Audit Data",
+                "No audit session is active for the current PDF.",
+            )
+            return
+
+        logs = get_audit_logs_for_pdf(self._current_pdf_path)
+        if not logs:
+            QMessageBox.information(self, "Audit Logs", "No audit events found for this PDF.")
+            return
+
+        lines = ["PDF Audit Log"]
+        for entry in logs[:200]:
+            detail = entry.details or ""
+            lines.append(f"{entry.timestamp} | {entry.operation} | {detail}")
+
+        QMessageBox.information(
+            self,
+            "Audit Logs",
+            "\n".join(lines),
+        )
+
+
     def _on_pdf_find_fields(self):
         """Detect likely signature fields in the current PDF page."""
         if not self.pdf_viewer or not self.pdf_viewer.renderer:

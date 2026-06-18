@@ -1,6 +1,18 @@
 # Recent Updates
 
-**Last Updated:** June 17, 2026
+**Last Updated:** June 18, 2026
+
+## 📊 Update: Capture Signature Crash Hardening (June 18, 2026)
+
+**Status:** ✅ Implemented and tested
+
+Hardened the webcam preview path so `Capture Signature` no longer depends on every frame being a perfect 3-channel BGR image:
+
+- Normalized camera frames before rendering them into the preview widget.
+- Wrapped the live preview timer slot in exception handling so unexpected camera data stays inside the dialog instead of crashing the app.
+- Added regression tests for grayscale frames and unsupported frame shapes.
+
+**See:** [desktop_app/views/main_window_parts/extraction.py](../desktop_app/views/main_window_parts/extraction.py), [desktop_app/tests/test_capture_dialog.py](../desktop_app/tests/test_capture_dialog.py), [docs/signature_capture_crash_issue_review_2026-06-18.md](./signature_capture_crash_issue_review_2026-06-18.md)
 
 ## 📊 Update: API Boundary Hardening From Feedback Review (June 17, 2026)
 

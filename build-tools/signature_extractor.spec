@@ -50,7 +50,6 @@ a = Analysis(
 
         # PDF processing libraries
         "pypdfium2",
-        "PyMuPDF",
         "pikepdf",
 
         # Standard library modules that might be missed
