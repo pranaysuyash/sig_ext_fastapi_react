@@ -404,13 +404,14 @@ class SignatureExtractor:
     
     def get_session(self, session_id: str) -> Optional[ProcessingSession]:
         """Get processing session by ID.
-        
+
         Args:
             session_id: Session identifier
-            
+
         Returns:
             ProcessingSession if found, None otherwise
         """
+        return self.sessions.get(session_id)
 
     def auto_detect_signature(self, session_id: str) -> Optional[Tuple[int, int, int, int]]:
         """Detect the most likely signature region in the image.
@@ -489,7 +490,6 @@ class SignatureExtractor:
         
         LOG.info(f"Auto-detected signature region: ({x1},{y1})-({x2},{y2})")
         return (x1, y1, x2, y2)
-        return self.sessions.get(session_id)
     
     def process_selection(
         self,

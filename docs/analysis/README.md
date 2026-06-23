@@ -105,6 +105,10 @@ Decision memo summarizing the recommended first slice, the values guiding the ro
 
 Long-form architecture memo for the PDF workspace direction, capability ownership, and product-owned workflow semantics.
 
+### [Discussion Map: Wide Open Brainstorm](../exploration/2026-06-19_wide_open_brainstorm/discussion_map.md)
+
+Exploration-backed discussion menu and decision gate for what to discuss, what to build, and what to exclude based on long-term first-principles scope.
+
 **Use this for**: Preserving the first-principles PDF workspace direction and the durable ownership model behind the PDF tab
 
 ## Related Documentation

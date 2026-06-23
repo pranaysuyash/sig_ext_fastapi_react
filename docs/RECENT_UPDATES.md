@@ -1,6 +1,19 @@
 # Recent Updates
 
-**Last Updated:** June 18, 2026
+**Last Updated:** June 23, 2026
+
+## 📊 Update: Landing Page Refresh and Mobile Gallery Fix (June 23, 2026)
+
+**Status:** ✅ Implemented and locally smoke-tested
+
+Refreshed the SignKit landing page control variant to make the hero more polished and conversion-focused:
+
+- Tightened the headline, added a trust strip, and improved the paper-style visual system.
+- Fixed the in-page anchors so the footer `Screenshots` and `FAQ` links now resolve correctly.
+- Swapped the weakest gallery image for a clearer workflow shot and added responsive `srcset` handling so mobile gets the smaller optimized screenshots.
+- Applied the same control-variant refresh to `root.html` so `/` and `/root` stay visually aligned while keeping root-specific analytics intact.
+
+**See:** [index.html](../index.html), [root.html](../root.html)
 
 ## 📊 Update: Capture Signature Crash Hardening (June 18, 2026)
 

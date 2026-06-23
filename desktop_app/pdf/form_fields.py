@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, List, Optional, TYPE_CHECKING
 
+from desktop_app.pdf.field_taxonomy import normalize_field_kind
 from desktop_app.pdf.stack_profile import _is_fitz_allowed
 
 if TYPE_CHECKING:
@@ -105,7 +106,7 @@ class PdfFormFieldEditor:
         return FormFieldCandidate(
             page_index=page_index,
             field_name=widget.field_name or "",
-            field_type=widget.field_type_string or "Unknown",
+            field_type=normalize_field_kind(widget.field_type_string or "Unknown"),
             value=str(widget.field_value or ""),
             x=float(rect.x0),
             y=float(rect.y0),

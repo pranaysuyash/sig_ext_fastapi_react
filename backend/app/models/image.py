@@ -22,21 +22,21 @@
 #         return f"<Image(id={self.id}, filename={self.filename})>"
 
 from sqlalchemy import Column, String, ForeignKey, DateTime
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
 from backend.app.database import Base
+from backend.app.db_types import GUID
 
 class Image(Base):
     __tablename__ = "images"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4, index=True)
+    user_id = Column(GUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     filename = Column(String, nullable=False)
     file_path = Column(String, nullable=False)
     content_type = Column(String, nullable=False)
-    original_image_id = Column(UUID(as_uuid=True), ForeignKey("images.id", ondelete="CASCADE"), nullable=True)
+    original_image_id = Column(GUID(), ForeignKey("images.id", ondelete="CASCADE"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
 

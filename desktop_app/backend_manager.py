@@ -120,6 +120,65 @@ class BackendManager:
         
         LOG.warning("Backend executable not found")
         return None
+
+    def _local_sqlite_url(self) -> str:
+        """Return a user-writable SQLite URL for local fallback mode."""
+        base = self._local_data_dir()
+        db_path = os.path.join(base, "signature_extractor.db")
+        return f"sqlite:///{db_path}"
+
+    def _local_data_dir(self) -> str:
+        """Return a user-writable application data directory."""
+        override = os.environ.get("SIGNKIT_DATA_DIR")
+        if override:
+            os.makedirs(override, exist_ok=True)
+            return override
+
+        app_name = "SignKit"
+        if sys.platform == "darwin":
+            base = os.path.expanduser(f"~/Library/Application Support/{app_name}")
+        elif sys.platform == "win32":
+            base = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), app_name)
+        else:
+            base = os.path.expanduser(f"~/.local/share/{app_name}")
+        os.makedirs(base, exist_ok=True)
+        return base
+
+    def _prepare_backend_env(self, env: dict[str, str]) -> dict[str, str]:
+        """Prepare backend environment variables for local or production startup."""
+        prepared = env.copy()
+        sqlite_fallback = self._local_sqlite_url()
+
+        # Preserve explicit production configuration, but make local startup work
+        # even when DATABASE_URL is absent.
+        if not prepared.get("DATABASE_URL"):
+            prepared["DATABASE_URL"] = sqlite_fallback
+
+        # Persist and provide a JWT secret if missing.
+        if not prepared.get("JWT_SECRET"):
+            base_dir = self._local_data_dir()
+            secrets_dir = os.path.join(base_dir, "secrets")
+            os.makedirs(secrets_dir, exist_ok=True)
+            secret_file = os.path.join(secrets_dir, "jwt_secret")
+            try:
+                if os.path.exists(secret_file):
+                    with open(secret_file, "r", encoding="utf-8") as f:
+                        secret = f.read().strip()
+                else:
+                    import secrets as _secrets
+                    secret = _secrets.token_hex(32)
+                    with open(secret_file, "w", encoding="utf-8") as f:
+                        f.write(secret)
+                prepared["JWT_SECRET"] = secret
+            except Exception as e:
+                LOG.warning(f"Failed to persist JWT secret, generating ephemeral one: {e}")
+                try:
+                    import secrets as _secrets
+                    prepared["JWT_SECRET"] = _secrets.token_hex(32)
+                except Exception:
+                    pass
+
+        return prepared
     
     def start(self) -> bool:
         """Start backend as subprocess (non-blocking).
@@ -201,51 +260,8 @@ class BackendManager:
                 cmd = [backend_path, "--port", str(self.port)]
                 cwd = None
 
-            # Prepare environment for subprocess with sane defaults in packaged app
-            env = os.environ.copy()
-
-            def _user_data_dir() -> str:
-                app_name = "SignKit"
-                if sys.platform == "darwin":
-                    base = os.path.expanduser(f"~/Library/Application Support/{app_name}")
-                elif sys.platform == "win32":
-                    base = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), app_name)
-                else:
-                    base = os.path.expanduser(f"~/.local/share/{app_name}")
-                os.makedirs(base, exist_ok=True)
-                return base
-
-            base_dir = _user_data_dir()
-
-            # Backend requires PostgreSQL. If DATABASE_URL is not configured,
-            # keep operating in offline mode (desktop local processing).
-            if not env.get("DATABASE_URL"):
-                LOG.info("DATABASE_URL not set; backend remains disabled (offline-first mode).")
-                return False
-
-            # Persist and provide a JWT secret if missing
-            if not env.get("JWT_SECRET"):
-                secrets_dir = os.path.join(base_dir, "secrets")
-                os.makedirs(secrets_dir, exist_ok=True)
-                secret_file = os.path.join(secrets_dir, "jwt_secret")
-                try:
-                    if os.path.exists(secret_file):
-                        with open(secret_file, "r", encoding="utf-8") as f:
-                            secret = f.read().strip()
-                    else:
-                        # Generate a 32-byte hex secret
-                        import secrets as _secrets
-                        secret = _secrets.token_hex(32)
-                        with open(secret_file, "w", encoding="utf-8") as f:
-                            f.write(secret)
-                    env["JWT_SECRET"] = secret
-                except Exception as e:
-                    LOG.warning(f"Failed to persist JWT secret, generating ephemeral one: {e}")
-                    try:
-                        import secrets as _secrets
-                        env["JWT_SECRET"] = _secrets.token_hex(32)
-                    except Exception:
-                        pass
+            # Prepare environment for subprocess with sane defaults in packaged app.
+            env = self._prepare_backend_env(os.environ)
             
             # Start process
             creation_flags = 0
@@ -399,16 +415,7 @@ class BackendManager:
             import uvicorn  # type: ignore
 
             # Prepare a user-writable environment (same as subprocess branch)
-            env = os.environ
-            if not env.get("DATABASE_URL"):
-                LOG.info("DATABASE_URL not set; backend remains disabled (offline-first mode).")
-                return False
-            if not env.get("JWT_SECRET"):
-                try:
-                    import secrets as _secrets
-                    env["JWT_SECRET"] = _secrets.token_hex(32)
-                except Exception:
-                    pass
+            env = self._prepare_backend_env(dict(os.environ))
 
             config = uvicorn.Config(
                 "backend.app.main:app",

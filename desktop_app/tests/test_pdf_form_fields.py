@@ -69,7 +69,7 @@ def test_detect_native_form_fields(sample_form_pdf: str) -> None:
     assert "plan" in names
     assert any("text" in field_type for field_type in types)
     assert any("check" in field_type for field_type in types)
-    assert any("combo" in field_type for field_type in types)
+    assert any("choice" in field_type or "combo" in field_type for field_type in types)
     assert any("radio" in field_type for field_type in types)
 
 

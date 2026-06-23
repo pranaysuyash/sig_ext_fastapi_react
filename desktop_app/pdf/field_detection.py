@@ -21,6 +21,8 @@ import numpy as np
 from desktop_app.pdf.stack_profile import is_scan_preprocess_enabled
 
 LOG = logging.getLogger(__name__)
+MAX_HEURISTIC_CANDIDATES_PER_PAGE = 3
+MAX_TOTAL_CANDIDATES_PER_PAGE = 12
 
 
 @dataclass(frozen=True)
@@ -87,7 +89,7 @@ class SignatureFieldDetector:
                 except Exception as exc:
                     LOG.debug("OCR candidate detection failed for page %s: %s", idx, exc)
 
-        return self._dedupe_candidates(candidates)
+        return self._limit_candidates_per_page(self._dedupe_candidates(candidates))
 
     def detect_page(self, pdf_path: str, page_index: int) -> List[SignatureFieldCandidate]:
         return self.detect_pdf(pdf_path, page_index=page_index)
@@ -156,6 +158,8 @@ class SignatureFieldDetector:
             return "date", 0.88, "Widget label suggests date field"
         if field_type == "/Btn":
             return "checkbox", 0.84, "AcroForm button widget"
+        if field_type == "/Ch":
+            return "choice", 0.78, "AcroForm choice widget"
         if field_type == "/Tx":
             return "text", 0.72, "AcroForm text widget"
         return "unknown", 0.5, "Widget present without clear signature semantics"
@@ -429,6 +433,28 @@ class SignatureFieldDetector:
             if any(self._rect_overlap((candidate["x"], candidate["y"], candidate["width"], candidate["height"]), (existing["x"], existing["y"], existing["width"], existing["height"])) > 0.55 for existing in output):
                 continue
             output.append(candidate)
+        return output
+
+    def _limit_candidates_per_page(self, candidates: Sequence[SignatureFieldCandidate]) -> List[SignatureFieldCandidate]:
+        by_page: dict[int, list[SignatureFieldCandidate]] = {}
+        for candidate in candidates:
+            by_page.setdefault(candidate.page_index, []).append(candidate)
+
+        output: list[SignatureFieldCandidate] = []
+        for page_index in sorted(by_page):
+            page_candidates = by_page[page_index]
+            acroform = [candidate for candidate in page_candidates if candidate.source == "acroform"]
+            heuristic = [candidate for candidate in page_candidates if candidate.source != "acroform"]
+
+            heuristic.sort(key=lambda c: (-c.confidence, c.y, c.x, c.field_type))
+            heuristic = heuristic[:MAX_HEURISTIC_CANDIDATES_PER_PAGE]
+
+            page_output = sorted(
+                acroform + heuristic,
+                key=lambda c: (-c.confidence, c.source != "acroform", c.y, c.x, c.field_type),
+            )
+            output.extend(page_output[:MAX_TOTAL_CANDIDATES_PER_PAGE])
+
         return output
 
     def _rect_overlap(

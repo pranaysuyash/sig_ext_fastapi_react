@@ -43,6 +43,53 @@ def signature_field_pdf() -> str:
     Path(temp.name).unlink(missing_ok=True)
 
 
+@pytest.fixture
+def native_form_benchmark_pdf() -> str:
+    """Create a reusable AcroForm PDF with multiple native widget types."""
+    temp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+    temp.close()
+
+    pdf = canvas.Canvas(temp.name, pagesize=letter)
+    width, height = letter
+
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(72, height - 54, "Native Form Benchmark")
+    pdf.setFont("Helvetica", 11)
+    pdf.drawString(72, height - 78, "This fixture exercises real AcroForm widgets.")
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(72, height - 112, "Full Name")
+    pdf.setFont("Helvetica", 11)
+    pdf.acroForm.textfield(name="full_name", tooltip="Full Name", x=180, y=height - 124, width=240, height=20)
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(72, height - 154, "Agree Terms")
+    pdf.acroForm.checkbox(name="agree_terms", tooltip="Agree Terms", x=180, y=height - 166, buttonStyle="check", checked=False)
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(72, height - 196, "Country")
+    pdf.acroForm.choice(
+        name="country",
+        tooltip="Country",
+        value="US",
+        options=["US", "CA", "UK"],
+        x=180,
+        y=height - 208,
+        width=120,
+        height=20,
+    )
+
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(72, height - 238, "Plan")
+    pdf.acroForm.radio(name="plan", value="basic", selected=True, x=180, y=height - 250, tooltip="Plan")
+    pdf.acroForm.radio(name="plan", value="pro", selected=False, x=260, y=height - 250, tooltip="Plan")
+    pdf.showPage()
+    pdf.save()
+
+    yield temp.name
+    Path(temp.name).unlink(missing_ok=True)
+
+
 def test_detect_signature_fields(signature_field_pdf: str) -> None:
     """Detect obvious signature-like fields in a generated PDF."""
     detector = SignatureFieldDetector()
@@ -102,6 +149,19 @@ def test_place_signature_on_detected_field(signature_field_pdf: str, monkeypatch
 
     viewer.close_pdf()
     Path(temp_sig.name).unlink(missing_ok=True)
+
+
+def test_detect_native_widgets_and_limit_heuristics(native_form_benchmark_pdf: str) -> None:
+    """Detect real widgets and keep heuristic noise bounded on a form-heavy PDF."""
+    detector = SignatureFieldDetector()
+    candidates = detector.detect_pdf(native_form_benchmark_pdf)
+
+    acroform_types = {candidate.field_type.lower() for candidate in candidates if candidate.source == "acroform"}
+    heuristic_candidates = [candidate for candidate in candidates if candidate.source != "acroform"]
+
+    assert {"text", "checkbox", "choice"} <= acroform_types
+    assert len(heuristic_candidates) <= 3
+    assert len(candidates) <= 12
 
 
 def test_build_scaled_signature_rect() -> None:

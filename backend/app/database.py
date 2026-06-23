@@ -15,19 +15,23 @@ if ENV_DB_URL:
 else:
     SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 
-if not SQLALCHEMY_DATABASE_URL.startswith("postgresql://") and not SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+engine_kwargs = {"echo": False}
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite:///"):
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+elif SQLALCHEMY_DATABASE_URL.startswith("postgresql://") or SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    engine_kwargs.update(
+        {
+            "pool_pre_ping": True,
+            "pool_size": 5,
+            "max_overflow": 10,
+        }
+    )
+else:
     raise ValueError(
-        "Unsupported DATABASE_URL scheme. This backend requires PostgreSQL. "
-        "Set DATABASE_URL to a postgresql://... URL."
+        "Unsupported DATABASE_URL scheme. Use sqlite:///... for local dev or postgresql://... for production."
     )
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    echo=False,
-    pool_pre_ping=True,
-    pool_size=5,
-    max_overflow=10,
-)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, **engine_kwargs)
 
 # Create session factory
 SessionLocal = sessionmaker(

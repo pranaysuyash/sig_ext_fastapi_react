@@ -16,7 +16,7 @@
 
 - **Frontend**: PySide6 desktop application (macOS, Windows, Linux)
 - **Backend**: FastAPI REST API (Python 3.9+)
-- **Database**: PostgreSQL (backend)
+- **Database**: SQLite for local dev, PostgreSQL for production/backend scaling
 - **Processing**: OpenCV, NumPy, PIL for image manipulation
 
 ## Documentation
@@ -66,8 +66,10 @@ JWT_SECRET=your_secure_32_byte_hex_key_here
 # REQUIRED: API endpoint for desktop app
 API_BASE_URL=http://127.0.0.1:8001
 
-# REQUIRED: Database (PostgreSQL)
-DATABASE_URL=postgresql://username:password@localhost:5432/signature_extractor
+# Database:
+# - Local dev fallback: sqlite:///./signature_extractor.db
+# - Production / multi-user: postgresql://username:password@localhost:5432/signature_extractor
+DATABASE_URL=sqlite:///./signature_extractor.db
 ```
 
 See `.env.example` for complete configuration options and examples.
@@ -120,6 +122,12 @@ Run app:
 python -m desktop_app.main
 ```
 
+Local one-command launcher:
+
+```zsh
+./scripts/run-desktop-dev.sh
+```
+
 **PDF Features** (optional):
 
 - If PDF feature stack is installed (or optional PyMuPDF is enabled), the PDF menu appears with signing capabilities
@@ -156,7 +164,7 @@ python -m desktop_app.main
 ✅ **Cleanup**:
 
 - Removed React frontend (simplified to desktop-only)
-- PostgreSQL as backend DB (required)
+- SQLite fallback for local testing, PostgreSQL for production/backend scaling
 - Updated all docs and specs
 
 ## Use Cases

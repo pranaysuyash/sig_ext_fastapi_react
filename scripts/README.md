@@ -60,6 +60,12 @@ python scripts/test/test_modern_mac_button.py
 python scripts/util/create_demo_pdf.py
 ```
 
+Desktop launcher for local testing:
+
+```bash
+./scripts/run-desktop-dev.sh
+```
+
 Note: These scripts are for development and testing purposes only.
 
 Tip: Make the script executable with `chmod +x scripts/util/git_commit_and_push.sh` to run it directly.

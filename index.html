@@ -127,6 +127,10 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <style>
       :root {
@@ -608,6 +612,255 @@
         font-size: 0.8rem;
         color: var(--text-muted);
       }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        position: relative;
+        background:
+          radial-gradient(circle at top left, rgba(79, 70, 229, 0.1), transparent 32%),
+          radial-gradient(circle at 80% 10%, rgba(255, 184, 0, 0.16), transparent 24%),
+          linear-gradient(180deg, #faf7ef 0%, #f5f5f2 52%, #f1f3f7 100%);
+        color: #111827;
+        font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont,
+          'Segoe UI', sans-serif;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(17, 24, 39, 0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(17, 24, 39, 0.02) 1px, transparent 1px);
+        background-size: 36px 36px;
+        mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 85%);
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+      }
+
+      .shell {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 253, 248, 0.96));
+        border-color: rgba(17, 24, 39, 0.94);
+        box-shadow: 16px 16px 0 rgba(17, 24, 39, 0.92);
+        padding: 28px;
+      }
+
+      .brand-text-main,
+      .hero-main h1,
+      .preview-heading,
+      .screenshots-section h2,
+      .faq-section h2,
+      .footer {
+        font-family: 'Space Grotesk', 'IBM Plex Sans', system-ui, sans-serif;
+      }
+
+      .top-bar {
+        padding-bottom: 22px;
+        border-bottom: 2px solid rgba(17, 24, 39, 0.12);
+        margin-bottom: 28px;
+      }
+
+      .price-pill {
+        background: linear-gradient(180deg, #ffd34d 0%, #ffbf1f 100%);
+      }
+
+      .grid {
+        gap: 28px;
+        align-items: start;
+      }
+
+      .hero-main h1 {
+        font-size: clamp(2.55rem, 4vw, 4.2rem);
+        line-height: 0.96;
+        letter-spacing: -0.05em;
+        max-width: 12ch;
+        margin-bottom: 16px;
+      }
+
+      .hero-main p.lead {
+        font-size: 1.06rem;
+        line-height: 1.7;
+        max-width: 54ch;
+        color: #374151;
+      }
+
+      .hero-main ul {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 22px;
+      }
+
+      .hero-main li {
+        align-items: flex-start;
+        gap: 10px;
+        min-height: 72px;
+        padding: 14px 14px 14px 12px;
+        background: rgba(255, 255, 255, 0.82);
+        border: 2px solid rgba(17, 24, 39, 0.16);
+        border-radius: 18px;
+        box-shadow: 0 10px 24px rgba(17, 24, 39, 0.05);
+      }
+
+      .hero-bullet-icon {
+        flex: 0 0 auto;
+        background: linear-gradient(180deg, #ffffff, #f8fafc);
+      }
+
+      .hero-main li span {
+        font-size: 0.88rem;
+        line-height: 1.55;
+      }
+
+      .hero-actions {
+        margin-bottom: 16px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(180deg, #5568ff 0%, #4254e0 100%);
+      }
+
+      .btn-ghost {
+        background: rgba(255, 255, 255, 0.88);
+      }
+
+      .preview-card {
+        background: linear-gradient(180deg, #fffefb 0%, #ffffff 100%);
+        border-radius: 28px;
+        box-shadow: 18px 18px 0 rgba(17, 24, 39, 0.88);
+      }
+
+      .preview-tag {
+        letter-spacing: 0.16em;
+      }
+
+      .preview-window {
+        background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+        padding: 12px;
+      }
+
+      .preview-footer {
+        align-items: flex-end;
+      }
+
+      .preview-badges {
+        max-width: 62%;
+      }
+
+      .trust-strip {
+        margin-top: 28px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .trust-card {
+        background: rgba(255, 255, 255, 0.84);
+        border: 2px solid rgba(17, 24, 39, 0.16);
+        border-radius: 20px;
+        padding: 16px 18px;
+        box-shadow: 0 12px 26px rgba(17, 24, 39, 0.06);
+      }
+
+      .trust-card strong {
+        display: block;
+        font-size: 1rem;
+        margin-bottom: 4px;
+      }
+
+      .trust-card p {
+        color: #4b5563;
+        font-size: 0.9rem;
+        line-height: 1.55;
+      }
+
+      .screenshots-section,
+      .faq-section {
+        margin-top: 54px !important;
+      }
+
+      .screenshots-section h2,
+      .faq-section h2 {
+        font-size: clamp(1.65rem, 2.4vw, 2.4rem) !important;
+        letter-spacing: -0.04em;
+        margin-bottom: 18px !important;
+      }
+
+      .screenshot-grid {
+        gap: 18px !important;
+      }
+
+      .screenshot-grid img {
+        background: #fff;
+        padding: 10px;
+        border-radius: 22px !important;
+        box-shadow: 12px 12px 0 rgba(17, 24, 39, 0.88) !important;
+      }
+
+      .faq-section > div {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        max-width: 920px;
+      }
+
+      .faq-item {
+        margin-bottom: 0 !important;
+        background: rgba(255, 255, 255, 0.88) !important;
+        border-radius: 22px !important;
+        box-shadow: 0 12px 28px rgba(17, 24, 39, 0.06) !important;
+      }
+
+      .footer {
+        margin-top: 58px !important;
+        padding: 34px 28px !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+        border-radius: 28px !important;
+        box-shadow: 16px 16px 0 rgba(17, 24, 39, 0.9) !important;
+      }
+
+      .footer > div:first-child {
+        display: grid !important;
+        grid-template-columns: 1.6fr 1fr 1fr 1fr;
+        gap: 28px !important;
+      }
+
+      .footer > div:last-child {
+        border-top-color: rgba(17, 24, 39, 0.12) !important;
+      }
+
+      @media (max-width: 1040px) {
+        .hero-main ul,
+        .trust-strip,
+        .faq-section > div,
+        .footer > div:first-child {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 840px) {
+        .hero-main ul,
+        .trust-strip,
+        .faq-section > div,
+        .footer > div:first-child {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-main h1 {
+          max-width: none;
+        }
+
+        .preview-badges {
+          max-width: none;
+        }
+      }
     </style>
   </head>
   <body>
@@ -644,13 +897,10 @@
           <!-- Left: hero -->
           <div class="hero-main">
             <div class="hero-highlight">Privacy-first • No subscriptions</div>
-            <h1>
-              Extract signatures and sign PDFs offline. Your files never leave
-              your computer.
-            </h1>
+            <h1>Extract signatures, sign PDFs, and keep every file offline.</h1>
             <p class="lead">
               SignKit is a privacy-first desktop app that captures signatures
-              from documents, builds your signature library, and signs PDFs—all
+              from documents, builds your signature library, and signs PDFs
               without cloud upload or monthly fees.
             </p>
 
@@ -776,6 +1026,12 @@
               <img
                 src="web/live/assets/screenshots/step2-select.png"
                 alt="SignKit signature extraction screen"
+                srcset="
+                  web/live/assets/screenshots/step2-select-380.webp 380w,
+                  web/live/assets/screenshots/step2-select-768.webp 768w,
+                  web/live/assets/screenshots/step2-select-1200.webp 1200w
+                "
+                sizes="(max-width: 840px) 92vw, 520px"
                 style="display: block; width: 100%; height: auto"
               />
             </div>
@@ -803,7 +1059,22 @@
         </div>
 
         <!-- Screenshots section -->
-        <div class="screenshots-section" style="margin-top: 48px">
+        <div class="trust-strip">
+          <div class="trust-card">
+            <strong>100% offline</strong>
+            <p>Your PDFs and signatures stay on your machine from start to finish.</p>
+          </div>
+          <div class="trust-card">
+            <strong>One-time purchase</strong>
+            <p>Launch pricing is $29, then $39 lifetime. No subscription pressure.</p>
+          </div>
+          <div class="trust-card">
+            <strong>Cross-platform desktop</strong>
+            <p>Built for macOS, Windows, and Linux so the workflow matches your setup.</p>
+          </div>
+        </div>
+
+        <div class="screenshots-section" id="screenshots" style="margin-top: 48px">
           <h2 style="text-align: center; font-size: 2rem; margin-bottom: 24px">
             See SignKit in action
           </h2>
@@ -816,8 +1087,15 @@
             "
           >
             <img
-              src="web/live/assets/screenshots/step1-upload.png"
-              alt="SignKit signature extraction interface"
+              src="web/live/assets/screenshots/step3-clean.png"
+              alt="Cleaned signature extraction result"
+              srcset="
+                web/live/assets/screenshots/step3-clean-380.webp 380w,
+                web/live/assets/screenshots/step3-clean-768.webp 768w,
+                web/live/assets/screenshots/step3-clean-1200.webp 1200w
+              "
+              sizes="(max-width: 840px) 92vw, (max-width: 1100px) 31vw, 360px"
+              decoding="async"
               style="
                 width: 100%;
                 border-radius: 16px;
@@ -828,6 +1106,13 @@
             <img
               src="web/live/assets/screenshots/step2-select.png"
               alt="Signature extraction workflow"
+              srcset="
+                web/live/assets/screenshots/step2-select-380.webp 380w,
+                web/live/assets/screenshots/step2-select-768.webp 768w,
+                web/live/assets/screenshots/step2-select-1200.webp 1200w
+              "
+              sizes="(max-width: 840px) 92vw, (max-width: 1100px) 31vw, 360px"
+              decoding="async"
               style="
                 width: 100%;
                 border-radius: 16px;
@@ -838,6 +1123,13 @@
             <img
               src="web/live/assets/screenshots/step4-sign.png"
               alt="PDF signing with signature library"
+              srcset="
+                web/live/assets/screenshots/step4-sign-380.webp 380w,
+                web/live/assets/screenshots/step4-sign-768.webp 768w,
+                web/live/assets/screenshots/step4-sign-1200.webp 1200w
+              "
+              sizes="(max-width: 840px) 92vw, (max-width: 1100px) 31vw, 360px"
+              decoding="async"
               style="
                 width: 100%;
                 border-radius: 16px;
@@ -849,7 +1141,7 @@
         </div>
 
         <!-- FAQ section -->
-        <div class="faq-section" style="margin-top: 48px">
+        <div class="faq-section" id="faq" style="margin-top: 48px">
           <h2 style="text-align: center; font-size: 2rem; margin-bottom: 24px">
             Frequently Asked Questions
           </h2>

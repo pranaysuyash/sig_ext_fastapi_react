@@ -23,7 +23,7 @@ echo "JWT_SECRET=your_generated_key_here" >> .env
 
 **Solutions**:
 
-**For PostgreSQL (required for backend)**:
+**For PostgreSQL (production or multi-user mode)**:
 ```env
 # Make sure PostgreSQL is running
 DATABASE_URL=postgresql://username:password@localhost:5432/signature_extractor
@@ -59,9 +59,15 @@ DATABASE_NAME=signature_extractor
    curl http://127.0.0.1:8001/health
    ```
 
+**For local single-user development**:
+```env
+# SQLite fallback works for the backend and desktop app startup
+DATABASE_URL=sqlite:///./signature_extractor.db
+```
+
 Notes:
 - The desktop app can run fully offline for signature extraction.
-- The backend requires `DATABASE_URL` configured for PostgreSQL.
+- The backend supports SQLite for local testing and PostgreSQL for production/backend scaling.
 
 ### 4. "Invalid API_BASE_URL format" Error
 
@@ -168,7 +174,7 @@ If you need to use a different port:
 
 ## Database Setup
 
-### PostgreSQL Setup (required for backend)
+### PostgreSQL Setup (production / multi-user backend)
 
 1. **Install PostgreSQL**:
    ```bash

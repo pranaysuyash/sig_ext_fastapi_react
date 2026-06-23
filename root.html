@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="SignKit is a fast offline desktop app to extract signatures and sign PDFs without sending your files to the cloud."
+      content="SignKit is a fast offline desktop app to extract signatures and sign PDFs without sending your files to the cloud. $29 launch, $39 lifetime."
     />
 
     <!-- Favicons -->
@@ -28,31 +28,48 @@
       href="assets/files/signkit_icon_256x256.png"
     />
 
-    <!-- Open Graph / Social Media -->
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://signkit.work" />
     <meta property="og:title" content="SignKit - Extract & Sign PDFs Offline" />
     <meta
       property="og:description"
-      content="Desktop app to extract signatures and sign PDFs offline. No cloud upload. $29 - own it forever."
+      content="Privacy-first desktop app to extract signatures and sign PDFs. 100% offline. No subscriptions. $29 launch, then $39 lifetime."
     />
-    <meta property="og:url" content="https://signkit.work" />
-    <meta property="og:type" content="website" />
     <meta
       property="og:image"
-      content="https://signkit.work/web/live/assets/screenshots/step2-select.png"
+      content="https://signkit.work/assets/og-image.png"
     />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="SignKit - Privacy-first PDF signature tool"
+    />
+    <meta property="og:site_name" content="SignKit" />
+
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://signkit.work" />
     <meta
       name="twitter:title"
       content="SignKit - Extract & Sign PDFs Offline"
     />
     <meta
       name="twitter:description"
-      content="Desktop app to extract signatures and sign PDFs offline. No cloud upload. $29 - own it forever."
+      content="Privacy-first desktop app to extract signatures and sign PDFs. 100% offline. No subscriptions. $29 launch, then $39 lifetime."
     />
     <meta
       name="twitter:image"
-      content="https://signkit.work/web/live/assets/screenshots/step2-select.png"
+      content="https://signkit.work/assets/og-image.png"
     />
+    <meta
+      name="twitter:image:alt"
+      content="SignKit - Privacy-first PDF signature tool"
+    />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://signkit.work" />
 
     <!-- Google tag (gtag.js) -->
     <script
@@ -66,7 +83,7 @@
       }
       gtag('js', new Date());
 
-      // Internal traffic exclusion
+      // Internal traffic exclusion (cookie + ?internal=1)
       const params = new URLSearchParams(window.location.search);
       if (params.get('internal') === '1') {
         document.cookie = 'ga_internal=true; path=/; max-age=31536000';
@@ -75,9 +92,7 @@
         gtag('set', 'user_properties', { traffic_type: 'internal' });
       }
 
-      gtag('config', 'G-PCJDGBMRRN', {
-        variant: 'root',
-      });
+      gtag('config', 'G-PCJDGBMRRN', { variant: 'root' });
 
       // Track variant view
       gtag('event', 'variant_view', {
@@ -102,7 +117,7 @@
       })(window, document, 'clarity', 'script', 'u8zyh41jr0');
     </script>
 
-    <!-- Analytics Helpers -->
+    <!-- Use central analytics helper -->
     <script src="web/live/js/analytics.js"></script>
 
     <!-- Fonts -->
@@ -110,6 +125,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
@@ -593,6 +612,255 @@
         font-size: 0.8rem;
         color: var(--text-muted);
       }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        position: relative;
+        background:
+          radial-gradient(circle at top left, rgba(79, 70, 229, 0.1), transparent 32%),
+          radial-gradient(circle at 80% 10%, rgba(255, 184, 0, 0.16), transparent 24%),
+          linear-gradient(180deg, #faf7ef 0%, #f5f5f2 52%, #f1f3f7 100%);
+        color: #111827;
+        font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont,
+          'Segoe UI', sans-serif;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(17, 24, 39, 0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(17, 24, 39, 0.02) 1px, transparent 1px);
+        background-size: 36px 36px;
+        mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 85%);
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+      }
+
+      .shell {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 253, 248, 0.96));
+        border-color: rgba(17, 24, 39, 0.94);
+        box-shadow: 16px 16px 0 rgba(17, 24, 39, 0.92);
+        padding: 28px;
+      }
+
+      .brand-text-main,
+      .hero-main h1,
+      .preview-heading,
+      .screenshots-section h2,
+      .faq-section h2,
+      .footer {
+        font-family: 'Space Grotesk', 'IBM Plex Sans', system-ui, sans-serif;
+      }
+
+      .top-bar {
+        padding-bottom: 22px;
+        border-bottom: 2px solid rgba(17, 24, 39, 0.12);
+        margin-bottom: 28px;
+      }
+
+      .price-pill {
+        background: linear-gradient(180deg, #ffd34d 0%, #ffbf1f 100%);
+      }
+
+      .grid {
+        gap: 28px;
+        align-items: start;
+      }
+
+      .hero-main h1 {
+        font-size: clamp(2.55rem, 4vw, 4.2rem);
+        line-height: 0.96;
+        letter-spacing: -0.05em;
+        max-width: 12ch;
+        margin-bottom: 16px;
+      }
+
+      .hero-main p.lead {
+        font-size: 1.06rem;
+        line-height: 1.7;
+        max-width: 54ch;
+        color: #374151;
+      }
+
+      .hero-main ul {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 22px;
+      }
+
+      .hero-main li {
+        align-items: flex-start;
+        gap: 10px;
+        min-height: 72px;
+        padding: 14px 14px 14px 12px;
+        background: rgba(255, 255, 255, 0.82);
+        border: 2px solid rgba(17, 24, 39, 0.16);
+        border-radius: 18px;
+        box-shadow: 0 10px 24px rgba(17, 24, 39, 0.05);
+      }
+
+      .hero-bullet-icon {
+        flex: 0 0 auto;
+        background: linear-gradient(180deg, #ffffff, #f8fafc);
+      }
+
+      .hero-main li span {
+        font-size: 0.88rem;
+        line-height: 1.55;
+      }
+
+      .hero-actions {
+        margin-bottom: 16px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(180deg, #5568ff 0%, #4254e0 100%);
+      }
+
+      .btn-ghost {
+        background: rgba(255, 255, 255, 0.88);
+      }
+
+      .preview-card {
+        background: linear-gradient(180deg, #fffefb 0%, #ffffff 100%);
+        border-radius: 28px;
+        box-shadow: 18px 18px 0 rgba(17, 24, 39, 0.88);
+      }
+
+      .preview-tag {
+        letter-spacing: 0.16em;
+      }
+
+      .preview-window {
+        background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+        padding: 12px;
+      }
+
+      .preview-footer {
+        align-items: flex-end;
+      }
+
+      .preview-badges {
+        max-width: 62%;
+      }
+
+      .trust-strip {
+        margin-top: 28px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .trust-card {
+        background: rgba(255, 255, 255, 0.84);
+        border: 2px solid rgba(17, 24, 39, 0.16);
+        border-radius: 20px;
+        padding: 16px 18px;
+        box-shadow: 0 12px 26px rgba(17, 24, 39, 0.06);
+      }
+
+      .trust-card strong {
+        display: block;
+        font-size: 1rem;
+        margin-bottom: 4px;
+      }
+
+      .trust-card p {
+        color: #4b5563;
+        font-size: 0.9rem;
+        line-height: 1.55;
+      }
+
+      .screenshots-section,
+      .faq-section {
+        margin-top: 54px !important;
+      }
+
+      .screenshots-section h2,
+      .faq-section h2 {
+        font-size: clamp(1.65rem, 2.4vw, 2.4rem) !important;
+        letter-spacing: -0.04em;
+        margin-bottom: 18px !important;
+      }
+
+      .screenshot-grid {
+        gap: 18px !important;
+      }
+
+      .screenshot-grid img {
+        background: #fff;
+        padding: 10px;
+        border-radius: 22px !important;
+        box-shadow: 12px 12px 0 rgba(17, 24, 39, 0.88) !important;
+      }
+
+      .faq-section > div {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        max-width: 920px;
+      }
+
+      .faq-item {
+        margin-bottom: 0 !important;
+        background: rgba(255, 255, 255, 0.88) !important;
+        border-radius: 22px !important;
+        box-shadow: 0 12px 28px rgba(17, 24, 39, 0.06) !important;
+      }
+
+      .footer {
+        margin-top: 58px !important;
+        padding: 34px 28px !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+        border-radius: 28px !important;
+        box-shadow: 16px 16px 0 rgba(17, 24, 39, 0.9) !important;
+      }
+
+      .footer > div:first-child {
+        display: grid !important;
+        grid-template-columns: 1.6fr 1fr 1fr 1fr;
+        gap: 28px !important;
+      }
+
+      .footer > div:last-child {
+        border-top-color: rgba(17, 24, 39, 0.12) !important;
+      }
+
+      @media (max-width: 1040px) {
+        .hero-main ul,
+        .trust-strip,
+        .faq-section > div,
+        .footer > div:first-child {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 840px) {
+        .hero-main ul,
+        .trust-strip,
+        .faq-section > div,
+        .footer > div:first-child {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-main h1 {
+          max-width: none;
+        }
+
+        .preview-badges {
+          max-width: none;
+        }
+      }
     </style>
   </head>
   <body>
@@ -617,8 +885,9 @@
           </div>
 
           <div class="price-pill">
-            <span class="tag">Own Forever</span>
-            <span class="amount">$29</span>
+            <span class="tag">Launch Offer</span>
+            <span class="amount">$39</span>
+            <span>$29 launch</span>
             <span>one time</span>
           </div>
         </div>
@@ -628,13 +897,10 @@
           <!-- Left: hero -->
           <div class="hero-main">
             <div class="hero-highlight">Privacy-first • No subscriptions</div>
-            <h1>
-              Extract signatures and sign PDFs offline. Your files never leave
-              your computer.
-            </h1>
+            <h1>Extract signatures, sign PDFs, and keep every file offline.</h1>
             <p class="lead">
               SignKit is a privacy-first desktop app that captures signatures
-              from documents, builds your signature library, and signs PDFs—all
+              from documents, builds your signature library, and signs PDFs
               without cloud upload or monthly fees.
             </p>
 
@@ -649,7 +915,7 @@
               <li>
                 <div class="hero-bullet-icon">💰</div>
                 <span
-                  >$29 one-time purchase. No subscriptions. No monthly
+                  >$29 launch price, then $39 lifetime. No subscriptions. No monthly
                   fees.</span
                 >
               </li>
@@ -669,7 +935,7 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span>Get SignKit for $29</span>
+                <span>Get SignKit for $29 launch</span>
                 <span>↗</span>
               </a>
 
@@ -733,8 +999,8 @@
             </div>
 
             <div class="tiny-note" style="margin-top: 8px">
-              One-time payment. Own it forever. Your data never touches our
-              servers.
+              One-time payment. Own it forever. Intro launch: $29, regular $39.
+              Your data never touches our servers.
             </div>
           </div>
 
@@ -760,6 +1026,12 @@
               <img
                 src="web/live/assets/screenshots/step2-select.png"
                 alt="SignKit signature extraction screen"
+                srcset="
+                  web/live/assets/screenshots/step2-select-380.webp 380w,
+                  web/live/assets/screenshots/step2-select-768.webp 768w,
+                  web/live/assets/screenshots/step2-select-1200.webp 1200w
+                "
+                sizes="(max-width: 840px) 92vw, 520px"
                 style="display: block; width: 100%; height: auto"
               />
             </div>
@@ -772,8 +1044,9 @@
               </div>
               <div class="preview-price">
                 <span class="amount" style="font-weight: 800; font-size: 1.3rem"
-                  >$29</span
+                  >$39</span
                 >
+                <span>$29 launch</span>
                 <span>One-time payment</span>
               </div>
             </div>
@@ -786,7 +1059,22 @@
         </div>
 
         <!-- Screenshots section -->
-        <div class="screenshots-section" style="margin-top: 48px">
+        <div class="trust-strip">
+          <div class="trust-card">
+            <strong>100% offline</strong>
+            <p>Your PDFs and signatures stay on your machine from start to finish.</p>
+          </div>
+          <div class="trust-card">
+            <strong>One-time purchase</strong>
+            <p>Launch pricing is $29, then $39 lifetime. No subscription pressure.</p>
+          </div>
+          <div class="trust-card">
+            <strong>Cross-platform desktop</strong>
+            <p>Built for macOS, Windows, and Linux so the workflow matches your setup.</p>
+          </div>
+        </div>
+
+        <div class="screenshots-section" id="screenshots" style="margin-top: 48px">
           <h2 style="text-align: center; font-size: 2rem; margin-bottom: 24px">
             See SignKit in action
           </h2>
@@ -799,8 +1087,15 @@
             "
           >
             <img
-              src="web/live/assets/screenshots/step1-upload.png"
-              alt="SignKit signature extraction interface"
+              src="web/live/assets/screenshots/step3-clean.png"
+              alt="Cleaned signature extraction result"
+              srcset="
+                web/live/assets/screenshots/step3-clean-380.webp 380w,
+                web/live/assets/screenshots/step3-clean-768.webp 768w,
+                web/live/assets/screenshots/step3-clean-1200.webp 1200w
+              "
+              sizes="(max-width: 840px) 92vw, (max-width: 1100px) 31vw, 360px"
+              decoding="async"
               style="
                 width: 100%;
                 border-radius: 16px;
@@ -811,6 +1106,13 @@
             <img
               src="web/live/assets/screenshots/step2-select.png"
               alt="Signature extraction workflow"
+              srcset="
+                web/live/assets/screenshots/step2-select-380.webp 380w,
+                web/live/assets/screenshots/step2-select-768.webp 768w,
+                web/live/assets/screenshots/step2-select-1200.webp 1200w
+              "
+              sizes="(max-width: 840px) 92vw, (max-width: 1100px) 31vw, 360px"
+              decoding="async"
               style="
                 width: 100%;
                 border-radius: 16px;
@@ -821,6 +1123,13 @@
             <img
               src="web/live/assets/screenshots/step4-sign.png"
               alt="PDF signing with signature library"
+              srcset="
+                web/live/assets/screenshots/step4-sign-380.webp 380w,
+                web/live/assets/screenshots/step4-sign-768.webp 768w,
+                web/live/assets/screenshots/step4-sign-1200.webp 1200w
+              "
+              sizes="(max-width: 840px) 92vw, (max-width: 1100px) 31vw, 360px"
+              decoding="async"
               style="
                 width: 100%;
                 border-radius: 16px;
@@ -832,7 +1141,7 @@
         </div>
 
         <!-- FAQ section -->
-        <div class="faq-section" style="margin-top: 48px">
+        <div class="faq-section" id="faq" style="margin-top: 48px">
           <h2 style="text-align: center; font-size: 2rem; margin-bottom: 24px">
             Frequently Asked Questions
           </h2>
@@ -873,8 +1182,9 @@
                 Is there a subscription or is it really one time?
               </h3>
               <p style="color: #4b5563; font-size: 0.9rem">
-                It is truly one time payment. $29 and you own it forever, with
-                future minor updates included. No recurring charges.
+                It is truly one-time. Launch offer is $29, then $39 for
+                lifetime access. Future minor updates are included. No recurring
+                charges.
               </p>
             </div>
 
@@ -963,7 +1273,7 @@
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 <a href="#screenshots" style="font-size: 0.85rem; color: #4b5563; text-decoration: none;">Screenshots</a>
                 <a href="#faq" style="font-size: 0.85rem; color: #4b5563; text-decoration: none;">FAQ</a>
-                <a href="https://pranaysuyash.gumroad.com/l/signkit-v1" style="font-size: 0.85rem; color: #4f46e5; text-decoration: none; font-weight: 500;">Buy — $29</a>
+                <a href="https://pranaysuyash.gumroad.com/l/signkit-v1" style="font-size: 0.85rem; color: #4f46e5; text-decoration: none; font-weight: 500;">Buy — $29 launch</a>
               </div>
             </div>
 
@@ -995,5 +1305,57 @@
         </div>
       </div>
     </div>
+
+    <!-- Privacy-friendly analytics by Plausible (disabled; paid service)
+    <script async src="https://plausible.io/js/pa-Z7IHNxIIEUXGeZe1RBq2s.js"></script>
+    <script>
+      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+      plausible.init()
+    </script>
+    -->
+
+    <script>
+      // A/B Test Configuration
+      // Set AUTO_SPLIT to true for automatic random traffic splitting from root
+      // Direct paths (/root, /buy, /purchase, /gum) always work regardless of AUTO_SPLIT
+      const AUTO_SPLIT = false; // Change to true to enable auto A/B testing
+
+      const path = window.location.pathname;
+
+      // Automatic traffic splitting ONLY on root path '/'
+      // Paths like /root, /buy, /purchase, /gum will NEVER auto-redirect
+      if (AUTO_SPLIT && (path === '/' || path === '/index.html')) {
+        const existingVariant = localStorage.getItem('ab_variant');
+        let variant;
+
+        if (existingVariant) {
+          // Keep user on same variant
+          variant = existingVariant;
+        } else {
+          // Randomly assign variant (25% each)
+          const rand = Math.random();
+          if (rand < 0.25) variant = 'root'; // control on /root
+          else if (rand < 0.5) variant = 'buy';
+          else if (rand < 0.75) variant = 'purchase';
+          else variant = 'gum';
+
+          localStorage.setItem('ab_variant', variant);
+        }
+
+        // Redirect to assigned variant
+        if (variant === 'root') window.location.href = '/root';
+        else if (variant === 'buy') window.location.href = '/buy';
+        else if (variant === 'purchase') window.location.href = '/purchase';
+        else if (variant === 'gum') window.location.href = '/gum';
+      }
+
+      // Track control variant impression (index.html is the control)
+      // if (window.gtag && (path === '/' || path === '/index.html')) {
+      //   gtag('event', 'ab_test_impression', {
+      //     variant: 'control',
+      //     experiment_id: 'checkout_flow_test',
+      //   });
+      // }
+    </script>
   </body>
 </html>
