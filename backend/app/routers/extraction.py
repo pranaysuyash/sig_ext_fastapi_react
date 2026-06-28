@@ -1,27 +1,23 @@
 
 # extraction.py
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-    status,
-    UploadFile,
-    File,
-    Request,
-    Form,
-)
+from datetime import datetime, timezone
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from backend.app.database import get_db
 from fastapi.responses import StreamingResponse
 from io import BytesIO
+from pathlib import Path
 from PIL import Image
 import numpy as np
+import json
 import cv2
 import logging
 import uuid
 import os
 import traceback
+from pydantic import BaseModel, Field
+from typing import Tuple
 
 from backend.app.paths import UPLOADS_DIR
 from backend.app.security import UploadSecurity
@@ -36,6 +32,76 @@ router = APIRouter(tags=["Extraction"])
 os.makedirs(str(UPLOADS_DIR), exist_ok=True)
 
 
+# Ensure the per-session region metadata directory exists
+REGION_METADATA_DIR = Path(str(UPLOADS_DIR)) / "regions"
+REGION_METADATA_DIR.mkdir(parents=True, exist_ok=True)
+
+
+class RegionSelectionRequest(BaseModel):
+    session_id: str = Field(..., min_length=1, description="Session ID returned by upload")
+    x1: int = Field(..., ge=0)
+    y1: int = Field(..., ge=0)
+    x2: int = Field(..., ge=0)
+    y2: int = Field(..., ge=0)
+    color: str = Field(..., min_length=7, max_length=7)
+    threshold: int = Field(..., ge=0, le=255)
+
+
+def _resolve_upload_path(session_id: str) -> str:
+    """Resolve uploaded file by session id with legacy-compatible behavior."""
+    session_id = UploadSecurity.validate_session_id(session_id)
+
+    direct_png = Path(str(UPLOADS_DIR)) / f"{session_id}.png"
+    if direct_png.exists():
+        return str(direct_png)
+
+    for extension in sorted(UploadSecurity.ALLOWED_EXTENSIONS):
+        candidate = Path(str(UPLOADS_DIR)) / f"{session_id}{extension}"
+        if candidate.exists():
+            return str(candidate)
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Image file not found."
+    )
+
+
+def _normalize_crop_bounds(
+    width: int,
+    height: int,
+    x1: int,
+    y1: int,
+    x2: int,
+    y2: int,
+) -> Tuple[int, int, int, int]:
+    start_x, end_x = sorted((x1, x2))
+    start_y, end_y = sorted((y1, y2))
+    start_x = max(0, min(start_x, width))
+    end_x = max(0, min(end_x, width))
+    start_y = max(0, min(start_y, height))
+    end_y = max(0, min(end_y, height))
+
+    if start_x == end_x or start_y == end_y:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid crop dimensions: area is zero"
+        )
+
+    return start_x, start_y, end_x, end_y
+
+
+def _selection_metadata_path(session_id: str) -> Path:
+    return REGION_METADATA_DIR / f"{session_id}.json"
+
+
+def _persist_selection(session_id: str, selection_payload: dict) -> None:
+    metadata_path = _selection_metadata_path(session_id)
+    try:
+        metadata_path.write_text(json.dumps(selection_payload, indent=2), encoding="utf-8")
+    except Exception as exc:
+        logger.warning("Failed to persist selection metadata for %s: %s", session_id, exc)
+
+
 # Upload image endpoint
 @router.post("/upload")
 def upload_image_endpoint(
@@ -48,25 +114,26 @@ def upload_image_endpoint(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="No file provided"
             )
-
+        filename = (file.filename or "").strip()
+        extension = Path(filename).suffix.lower()
         data = file.file.read()
-        UploadSecurity.validate_image_bytes(file.filename or "", data)
+        UploadSecurity.validate_image_bytes(filename, data)
 
         # Generate unique filename and save
         file_id = str(uuid.uuid4())
-        filename = f"{file_id}.png"
-        file_path = os.path.join(str(UPLOADS_DIR), filename)
+        saved_filename = f"{file_id}{extension}"
+        file_path = os.path.join(str(UPLOADS_DIR), saved_filename)
 
         with open(file_path, "wb") as buffer:
             buffer.write(data)
 
-        logger.info(f"Successfully uploaded image: {filename}")
+        logger.info("Successfully uploaded image: %s (source: %s)", saved_filename, filename)
 
         # Return the URL path relative to the static files mount
         return {
             "id": file_id,
-            "filename": filename,
-            "file_path": f"/uploads/images/{filename}"
+            "filename": saved_filename,
+            "file_path": f"/uploads/images/{saved_filename}",
         }
     except ValueError as e:
         logger.warning("Upload rejected: %s", e)
@@ -78,30 +145,56 @@ def upload_image_endpoint(
 
 # Select region endpoint
 @router.post("/select_region/")
-async def select_region(
-    request: Request,
+def select_region(
+    payload: RegionSelectionRequest,
     db: Session = Depends(get_db)
 ):
     try:
-        data = await request.json()
-        # Variables extracted for potential future use
-        session_id = data.get('session_id')  # noqa: F841
-        x1 = data.get('x1')  # noqa: F841
-        y1 = data.get('y1')  # noqa: F841
-        x2 = data.get('x2')  # noqa: F841
-        y2 = data.get('y2')  # noqa: F841
-        color = data.get('color')  # noqa: F841
-        threshold = data.get('threshold')  # noqa: F841
+        session_id = UploadSecurity.validate_session_id(payload.session_id)
+        threshold = UploadSecurity.validate_threshold(payload.threshold)
+        color = UploadSecurity.validate_hex_color(payload.color)
+        file_path = _resolve_upload_path(session_id)
 
-        # Process the image region (this could call process_image
-        # or similar logic). For example, save the selected region
-        # data to the session or database
+        # Read image dimensions and validate bounds without forcing a crop write.
+        image = cv2.imread(file_path)
+        if image is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to read image file"
+            )
 
-        logger.info("select_region endpoint was called with data:")
-        logger.info(data)
+        height, width = image.shape[:2]
+        x1, y1, x2, y2 = _normalize_crop_bounds(
+            width=width,
+            height=height,
+            x1=payload.x1,
+            y1=payload.y1,
+            x2=payload.x2,
+            y2=payload.y2
+        )
 
-        # For demonstration, we'll just return the data back
-        return {"message": "Region selected", "data": data}
+        metadata = {
+            "session_id": session_id,
+            "selected_at": datetime.now(timezone.utc).isoformat(),
+            "selection": {
+                "x1": x1,
+                "y1": y1,
+                "x2": x2,
+                "y2": y2,
+                "threshold": threshold,
+                "color": color,
+            },
+            "image_bounds": {"width": width, "height": height},
+        }
+        _persist_selection(session_id, metadata)
+
+        return {
+            "message": "Region selected",
+            "session_id": session_id,
+            "selection": metadata["selection"],
+            "image": metadata["image_bounds"],
+            "file_path": f"/uploads/images/{Path(file_path).name}",
+        }
     except Exception as e:
         logger.error(f"Error in select_region: {str(e)}")
         raise HTTPException(
@@ -128,7 +221,7 @@ def process_image_endpoint(
         color = UploadSecurity.validate_hex_color(color)
 
         # Correctly reference the saved image file based on session_id
-        file_path = os.path.join(str(UPLOADS_DIR), f"{session_id}.png")
+        file_path = _resolve_upload_path(session_id)
 
         logger.info("[BACKEND] process_image_endpoint called")
         logger.info(f"[BACKEND] Session ID: {session_id}")
@@ -152,16 +245,15 @@ def process_image_endpoint(
             )
         logger.info(f"[BACKEND] Image shape: {image.shape}")
 
-        # Swap inverted coordinates
-        x_start, x_end = min(x1, x2), max(x1, x2)
-        y_start, y_end = min(y1, y2), max(y1, y2)
-
-        # Ensure coordinates are within image bounds
         height, width = image.shape[:2]
-        x_start = max(0, min(x_start, width))
-        x_end = max(0, min(x_end, width))
-        y_start = max(0, min(y_start, height))
-        y_end = max(0, min(y_end, height))
+        x_start, y_start, x_end, y_end = _normalize_crop_bounds(
+            width=width,
+            height=height,
+            x1=x1,
+            y1=y1,
+            x2=x2,
+            y2=y2
+        )
 
         logger.info(f"[BACKEND] Clamped coords: ({x_start}, {y_start}) → ({x_end}, {y_end})")
         logger.info(f"[BACKEND] Crop size: {x_end-x_start} x {y_end-y_start}")

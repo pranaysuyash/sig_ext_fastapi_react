@@ -5,6 +5,7 @@ import io
 import logging
 import os
 import sys
+from uuid import uuid4
 from tempfile import NamedTemporaryFile
 from functools import partial
 from typing import TYPE_CHECKING, Any, Callable, Optional, Protocol, cast
@@ -49,6 +50,7 @@ from PySide6.QtWidgets import (
 )
 
 from desktop_app.api.client import ApiClient
+from desktop_app.api.errors import ApiContractError
 from desktop_app.library import storage as lib
 from desktop_app.license.storage import is_licensed
 from desktop_app.resources.icons import get_icon, set_button_icon
@@ -709,6 +711,79 @@ class ExtractionTabMixin:
         controls.addWidget(self.capture_btn)
         controls.addWidget(self.sample_btn)
 
+        controls.addWidget(self._make_section_label("Batch Queue", section_color_hex))
+        self.batch_add_btn = _create_button("Add to Queue", parent_widget)
+        self.batch_add_btn.setObjectName("batchAddButton")
+        self.batch_add_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.batch_add_btn.setToolTip("Add multiple image files to the processing queue")
+        self.batch_add_btn.setProperty("compact", True)
+        self.batch_add_btn.clicked.connect(self.on_add_to_batch_queue)
+
+        self.batch_process_selected_btn = _create_button("Process Selected", parent_widget)
+        self.batch_process_selected_btn.setObjectName("batchProcessSelectedButton")
+        self.batch_process_selected_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.batch_process_selected_btn.setToolTip("Load the selected queue item into the extraction workspace")
+        self.batch_process_selected_btn.setProperty("compact", True)
+        self.batch_process_selected_btn.setEnabled(False)
+        self.batch_process_selected_btn.clicked.connect(self.on_batch_process_selected)
+
+        self.batch_process_next_btn = _create_button("Process Next", parent_widget)
+        self.batch_process_next_btn.setObjectName("batchProcessNextButton")
+        self.batch_process_next_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.batch_process_next_btn.setToolTip("Load the next queued item into the extraction workspace")
+        self.batch_process_next_btn.setProperty("compact", True)
+        self.batch_process_next_btn.clicked.connect(self.on_batch_process_next)
+
+        queue_btn_row = QHBoxLayout()
+        queue_btn_row.addWidget(self.batch_add_btn)
+        queue_btn_row.addWidget(self.batch_process_selected_btn)
+        queue_btn_row.addWidget(self.batch_process_next_btn)
+        controls.addLayout(queue_btn_row)
+
+        self.batch_process_all_btn = _create_button("Process Queue", parent_widget, primary=True)
+        self.batch_process_all_btn.setObjectName("batchProcessAllButton")
+        self.batch_process_all_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.batch_process_all_btn.setToolTip("Process all queued items in order")
+        self.batch_process_all_btn.setProperty("compact", True)
+        self.batch_process_all_btn.clicked.connect(self.on_batch_process_all)
+
+        self.batch_remove_btn = _create_button("Remove Selected", parent_widget)
+        self.batch_remove_btn.setObjectName("batchRemoveButton")
+        self.batch_remove_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.batch_remove_btn.setToolTip("Remove selected queue items")
+        self.batch_remove_btn.setProperty("compact", True)
+        self.batch_remove_btn.setEnabled(False)
+        self.batch_remove_btn.clicked.connect(self.on_batch_remove_selected)
+
+        self.batch_clear_btn = _create_button("Clear Queue", parent_widget, destructive=True)
+        self.batch_clear_btn.setObjectName("batchClearButton")
+        self.batch_clear_btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.batch_clear_btn.setToolTip("Clear all queued items")
+        self.batch_clear_btn.setProperty("compact", True)
+        self.batch_clear_btn.clicked.connect(self.on_batch_clear)
+
+        queue_action_row = QHBoxLayout()
+        queue_action_row.addWidget(self.batch_process_all_btn)
+        queue_action_row.addWidget(self.batch_remove_btn)
+        queue_action_row.addWidget(self.batch_clear_btn)
+        controls.addLayout(queue_action_row)
+
+        self.batch_status_label = QLabel("Queue: 0 / 0 done")
+        self.batch_status_label.setObjectName("batchStatusLabel")
+        self.batch_status_label.setToolTip("Tracks queue progress during batch processing")
+        self.batch_status_label.setStyleSheet("color: rgba(150, 150, 150, 0.85);")
+        controls.addWidget(self.batch_status_label)
+
+        self.batch_queue_list = QListWidget()
+        self.batch_queue_list.setObjectName("batchQueueList")
+        self.batch_queue_list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
+        self.batch_queue_list.itemDoubleClicked.connect(self._on_batch_queue_item_open)
+        self.batch_queue_list.itemSelectionChanged.connect(self._update_batch_queue_controls)
+        self.batch_queue_list.setMinimumHeight(120)
+        self.batch_queue_list.setTextElideMode(Qt.TextElideMode.ElideRight)
+        self.batch_queue_list.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        controls.addWidget(self.batch_queue_list)
+
         controls.addWidget(self._make_section_label("Extraction Mode", section_color_hex))
         self.mode_combo = QComboBox()
         self.mode_combo.setObjectName("modeCombo")
@@ -1044,6 +1119,12 @@ class ExtractionTabMixin:
             )
             for btn in (
                 self.open_btn,
+                self.batch_add_btn,
+                self.batch_process_selected_btn,
+                self.batch_process_next_btn,
+                self.batch_process_all_btn,
+                self.batch_remove_btn,
+                self.batch_clear_btn,
                 self.pick_color_btn,
                 self.zoom_in_btn,
                 self.zoom_out_btn,
@@ -1249,6 +1330,10 @@ class ExtractionTabMixin:
         self._updating_zoom_combo = False
         self._last_valid_zoom_text = "100%"
         self._temp_files: list[str] = []
+        self._backend_session_id: str | None = None
+        self._batch_queue_items: list[dict[str, Any]] = []
+        self._batch_current_index: int | None = None
+        self._batch_auto_processing = False
 
         # Rotation coordinate mapping state
         self._current_rotation_angle = 0  # Track current rotation in degrees
@@ -1294,7 +1379,9 @@ class ExtractionTabMixin:
 
         self._update_action_states()
         self._refresh_library_list()
+        self._refresh_batch_queue_list()
         self._update_library_controls()
+        self._update_batch_queue_controls()
         self._update_pane_borders()
 
         # Apply initial breakpoint labels
@@ -1307,7 +1394,13 @@ class ExtractionTabMixin:
         parent_widget.setTabOrder(self.open_btn, self.toggle_mode_btn)
         parent_widget.setTabOrder(self.toggle_mode_btn, self.capture_btn)
         parent_widget.setTabOrder(self.capture_btn, self.sample_btn)
-        parent_widget.setTabOrder(self.sample_btn, self.clear_sel_btn)
+        parent_widget.setTabOrder(self.sample_btn, self.batch_add_btn)
+        parent_widget.setTabOrder(self.batch_add_btn, self.batch_process_selected_btn)
+        parent_widget.setTabOrder(self.batch_process_selected_btn, self.batch_process_next_btn)
+        parent_widget.setTabOrder(self.batch_process_next_btn, self.batch_process_all_btn)
+        parent_widget.setTabOrder(self.batch_process_all_btn, self.batch_remove_btn)
+        parent_widget.setTabOrder(self.batch_remove_btn, self.batch_clear_btn)
+        parent_widget.setTabOrder(self.batch_clear_btn, self.clear_sel_btn)
         parent_widget.setTabOrder(self.clear_sel_btn, self.zoom_in_btn)
         parent_widget.setTabOrder(self.zoom_in_btn, self.zoom_out_btn)
         parent_widget.setTabOrder(self.zoom_out_btn, self.fit_btn)
@@ -1405,6 +1498,249 @@ class ExtractionTabMixin:
             self._handle_backend_exception(e, context="Upload failed")
             self.status_bar.showMessage("Upload failed", 3000)
 
+    def on_add_to_batch_queue(self) -> None:
+        """Select and enqueue files for batch processing."""
+        try:
+            file_paths = self._native_open_multiple_files("Select images for queue", "Images (*.png *.jpg *.jpeg)")
+            if not file_paths:
+                return
+            self._add_to_batch_queue(file_paths)
+        except Exception as e:
+            LOG.error("Failed to add files to queue: %s", e, exc_info=True)
+            self.status_bar.showMessage("Failed to add files to queue", 3000)
+
+    def _add_to_batch_queue(self, file_paths: list[str]) -> None:
+        if not file_paths:
+            return
+
+        normalized: list[str] = []
+        for path in file_paths:
+            if not path:
+                continue
+            if not os.path.exists(path):
+                LOG.warning("Skipping missing file for batch queue: %s", path)
+                continue
+            if not os.path.isfile(path):
+                LOG.warning("Skipping non-file entry for batch queue: %s", path)
+                continue
+            normalized.append(os.path.abspath(path))
+
+        if not normalized:
+            self.status_bar.showMessage("No valid files selected for queue", 2000)
+            return
+
+        existing_paths = {item.get("path") for item in self._batch_queue_items}
+        added_count = 0
+        for path in normalized:
+            if path in existing_paths:
+                self.status_bar.showMessage(f"Skipping duplicate path: {os.path.basename(path)}", 2000)
+                continue
+            self._batch_queue_items.append({
+                "id": uuid4().hex,
+                "path": path,
+                "name": os.path.basename(path),
+                "status": "pending",
+                "session_id": None,
+                "error": None,
+            })
+            existing_paths.add(path)
+            added_count += 1
+
+        if added_count:
+            self._refresh_batch_queue_list()
+            self.status_bar.showMessage(f"Added {added_count} file(s) to queue", 2500)
+
+    def on_batch_remove_selected(self) -> None:
+        selected_items = self.batch_queue_list.selectedItems()
+        if not selected_items:
+            return
+
+        selected_indices = []
+        for item in selected_items:
+            data = item.data(Qt.ItemDataRole.UserRole)
+            if isinstance(data, int):
+                selected_indices.append(data)
+
+        if not selected_indices:
+            return
+
+        for idx in sorted(set(selected_indices), reverse=True):
+            if 0 <= idx < len(self._batch_queue_items):
+                self._batch_queue_items.pop(idx)
+
+        self._batch_current_index = None
+        self._refresh_batch_queue_list()
+        self.status_bar.showMessage("Queue updated", 1500)
+
+    def on_batch_clear(self) -> None:
+        if not self._batch_queue_items:
+            return
+        self._batch_queue_items = []
+        self._batch_current_index = None
+        self._batch_auto_processing = False
+        self.batch_process_all_btn.setText("Process Queue")
+        self._refresh_batch_queue_list()
+        self.status_bar.showMessage("Queue cleared", 2000)
+
+    def on_batch_process_selected(self) -> None:
+        selected = self.batch_queue_list.selectedItems()
+        if not selected:
+            return
+        data = selected[0].data(Qt.ItemDataRole.UserRole)
+        if not isinstance(data, int):
+            return
+        self._start_batch_queue_item(data)
+
+    def on_batch_process_next(self) -> None:
+        next_index = self._get_next_batch_index()
+        if next_index is None:
+            self.status_bar.showMessage("No pending queue items", 1500)
+            return
+        self._start_batch_queue_item(next_index)
+
+    def on_batch_process_all(self) -> None:
+        if self._batch_auto_processing:
+            self._batch_auto_processing = False
+            self.batch_process_all_btn.setText("Process Queue")
+            self.status_bar.showMessage("Batch queue processing stopped", 1500)
+            return
+
+        next_index = self._get_next_batch_index(start_from=0)
+        if next_index is None:
+            self.status_bar.showMessage("No pending queue items", 2000)
+            return
+
+        self._batch_auto_processing = True
+        self.batch_process_all_btn.setText("Stop Queue")
+        self._start_batch_queue_item(next_index, auto_advance=True)
+
+    def _on_batch_queue_item_open(self, item: QListWidgetItem) -> None:
+        if not item:
+            return
+        data = item.data(Qt.ItemDataRole.UserRole)
+        if isinstance(data, int):
+            self._start_batch_queue_item(data)
+
+    def _start_batch_queue_item(self, queue_index: int, *, auto_advance: bool = False) -> None:
+        if queue_index < 0 or queue_index >= len(self._batch_queue_items):
+            return
+
+        item = self._batch_queue_items[queue_index]
+        self._update_batch_item_status(queue_index, "processing")
+        self._batch_current_index = queue_index
+        self._refresh_batch_queue_controls()
+
+        file_path = item.get("path", "")
+        display = str(item.get("name", os.path.basename(file_path)))
+        if not file_path:
+            self._update_batch_item_status(queue_index, "failed", "Missing file path")
+            self._continue_batch_queue_if_needed(auto_advance)
+            return
+
+        try:
+            self.status_bar.showMessage(f"Loading {display} from queue", 0)
+            session_id = self._load_image_from_path(file_path)
+            item["session_id"] = session_id
+            self._update_batch_item_status(queue_index, "done")
+            self.status_bar.showMessage(f"Loaded: {display}", 1500)
+        except Exception as exc:
+            LOG.warning("Batch queue item failed: %s", exc)
+            item["error"] = str(exc)
+            self._update_batch_item_status(queue_index, "failed")
+            self.status_bar.showMessage(f"Batch item failed: {display}", 2000)
+        finally:
+            self._continue_batch_queue_if_needed(auto_advance)
+
+    def _continue_batch_queue_if_needed(self, auto_advance: bool) -> None:
+        if not auto_advance or not self._batch_auto_processing:
+            return
+
+        next_index = self._get_next_batch_index(start_from=(self._batch_current_index or 0) + 1)
+        if next_index is None:
+            self._batch_auto_processing = False
+            self.batch_process_all_btn.setText("Process Queue")
+            self.status_bar.showMessage("Batch queue completed", 2200)
+            self._refresh_batch_queue_controls()
+            return
+
+        QTimer.singleShot(250, lambda: self._start_batch_queue_item(next_index, auto_advance=True))
+
+    def _get_next_batch_index(self, start_from: int = 0) -> int | None:
+        for index in range(start_from, len(self._batch_queue_items)):
+            if self._batch_queue_items[index].get("status") in {"pending", "failed"}:
+                return index
+        return None
+
+    def _update_batch_item_status(self, queue_index: int, status: str, error: str | None = None) -> None:
+        if queue_index < 0 or queue_index >= len(self._batch_queue_items):
+            return
+        item = self._batch_queue_items[queue_index]
+        item["status"] = status
+        if error is not None:
+            item["error"] = error
+        self._refresh_batch_queue_list()
+        self._refresh_batch_queue_controls()
+
+    def _refresh_batch_queue_list(self) -> None:
+        self.batch_queue_list.clear()
+        self.batch_queue_list.setDisabled(True)
+
+        if not self._batch_queue_items:
+            empty = QListWidgetItem("No queue items yet")
+            empty.setFlags(Qt.ItemFlag.NoItemFlags)
+            empty.setForeground(Qt.GlobalColor.gray)
+            self.batch_queue_list.addItem(empty)
+            self.batch_queue_list.setEnabled(False)
+        else:
+            for idx, item in enumerate(self._batch_queue_items):
+                status = str(item.get("status", "pending"))
+                status_label = {
+                    "pending": "○",
+                    "processing": "◑",
+                    "done": "✓",
+                    "failed": "✗",
+                }.get(status, "•")
+
+                text = f"{status_label} {item.get('name', 'Unknown file')}"
+                path = str(item.get("path", ""))
+                queue_item = QListWidgetItem(text)
+                queue_item.setData(Qt.ItemDataRole.UserRole, idx)
+                queue_item.setData(Qt.ItemDataRole.UserRole + 1, item.get("id"))
+                queue_item.setToolTip(
+                    f"{path}\nStatus: {status}\n"
+                    f"Session: {item.get('session_id') or 'N/A'}"
+                    f"{'\\nError: ' + str(item.get('error')) if item.get('error') else ''}"
+                )
+                self.batch_queue_list.addItem(queue_item)
+            self.batch_queue_list.setEnabled(True)
+
+        self._refresh_batch_queue_controls()
+        self._update_batch_status_label()
+
+    def _refresh_batch_queue_controls(self) -> None:
+        selected_items = self.batch_queue_list.selectedItems()
+        selected_has_item = any(
+            item.flags() & Qt.ItemFlag.ItemIsSelectable and isinstance(item.data(Qt.ItemDataRole.UserRole), int)
+            for item in selected_items
+        )
+        has_pending_next = self._get_next_batch_index(start_from=0) is not None
+        current_selected_status = None
+        if selected_items:
+            index = selected_items[0].data(Qt.ItemDataRole.UserRole)
+            if isinstance(index, int) and 0 <= index < len(self._batch_queue_items):
+                current_selected_status = self._batch_queue_items[index].get("status")
+        selected_process_enabled = selected_has_item and (current_selected_status in {"pending", "failed"})
+
+        self.batch_process_selected_btn.setEnabled(selected_process_enabled)
+        self.batch_remove_btn.setEnabled(selected_has_item)
+        self.batch_process_next_btn.setEnabled(has_pending_next)
+        self.batch_process_all_btn.setEnabled(self._batch_auto_processing or has_pending_next)
+
+    def _update_batch_status_label(self) -> None:
+        done_count = sum(1 for item in self._batch_queue_items if item.get("status") == "done")
+        total_count = len(self._batch_queue_items)
+        self.batch_status_label.setText(f"Queue: {done_count}/{total_count} done")
+
     def _offer_camera_fallback(self, message: str) -> bool:
         """Offer webcam capture when upload/load fails.
 
@@ -1450,7 +1786,7 @@ class ExtractionTabMixin:
             LOG.error(f"Failed to load sample image: {e}", exc_info=True)
             self.status_bar.showMessage(f"Failed to load sample: {str(e)[:50]}", 3000)
 
-    def _load_image_from_path(self, file_path: str) -> None:
+    def _load_image_from_path(self, file_path: str) -> str | None:
         if not os.path.exists(file_path):
             raise FileNotFoundError(file_path)
 
@@ -1481,6 +1817,7 @@ class ExtractionTabMixin:
         # Auto-fit with margin for better initial view
         QTimer.singleShot(50, lambda: self.src_view.fit(margin_percent=5.0))
         self._on_pane_clicked("source")
+        self._set_backend_session_id(None)
 
         # Process image locally (offline-first approach)
         self.status_bar.showMessage("Loading image...", 0)
@@ -1503,8 +1840,9 @@ class ExtractionTabMixin:
             }
             
             # Call the existing upload finished handler
-            self._on_upload_finished(file_path, payload)
-            
+            loaded_session_id = self._on_upload_finished(file_path, payload)
+            self._sync_backend_session(file_path)
+            return loaded_session_id
         except Exception as e:
             LOG.error(f"Failed to create local session: {e}", exc_info=True)
             self.open_btn.setEnabled(True)
@@ -1514,7 +1852,7 @@ class ExtractionTabMixin:
             self.status_bar.showMessage(f"Failed to load image: {str(e)[:50]}", 5000)
             raise
 
-    def _on_upload_finished(self, file_path: str, payload) -> None:
+    def _on_upload_finished(self, file_path: str, payload) -> str | None:
         """Handle completion of async upload."""
         self.open_btn.setEnabled(True)  # Re-enable
         if hasattr(self, "capture_btn"):
@@ -1574,6 +1912,7 @@ class ExtractionTabMixin:
             self._update_view_actions_enabled()
             self._update_coordinate_display()
             self._update_pane_borders()
+            return session_id
         except Exception as e:
             # Immediately flip health indicator to offline on upload failure
             if hasattr(self, "backend_status_label"):
@@ -1581,6 +1920,7 @@ class ExtractionTabMixin:
                 self.backend_status_label.setStyleSheet("color: #cc0000; padding: 2px 8px;")
             self._handle_backend_exception(e, context="Upload failed")
             self.status_bar.showMessage("Upload failed", 3000)
+            return None
 
     def _on_upload_error(self, file_path: str, error) -> None:
         """Handle error in async upload."""
@@ -1601,6 +1941,86 @@ class ExtractionTabMixin:
             self.backend_status_label.setStyleSheet("color: #cc0000; padding: 2px 8px;")
         self._handle_backend_exception(error, context="Upload failed")
         self.status_bar.showMessage("Upload failed", 3000)
+
+    def _set_backend_session_id(self, session_id: Optional[str]) -> None:
+        self._backend_session_id = session_id if session_id else None
+
+    def _session_id_from_upload(self, upload_result) -> Optional[str]:
+        """Read session_id from upload response while supporting client stubs in tests."""
+        if hasattr(upload_result, "session_id"):
+            return str(upload_result.session_id)
+
+        if isinstance(upload_result, dict):
+            session_id = (
+                upload_result.get("session_id")
+                or upload_result.get("id")
+                or upload_result.get("image_id")
+            )
+            if session_id:
+                return str(session_id)
+
+        return None
+
+    def _sync_backend_session(self, file_path: str) -> None:
+        """Upload/refresh the backend session for the current image when possible."""
+        self._set_backend_session_id(None)
+
+        if self.api_client.is_offline():
+            LOG.debug("Skipping backend session sync because API client is offline")
+            return
+
+        try:
+            result = self.api_client.upload_image(file_path)
+            session_id = self._session_id_from_upload(result)
+            if not session_id:
+                raise ApiContractError("Upload response missing session identifier")
+
+            self._set_backend_session_id(session_id)
+            LOG.info("Backend upload session synced: %s", session_id)
+            if hasattr(self, "backend_status_label"):
+                self.backend_status_label.setText("● Backend: Online")
+                self.backend_status_label.setStyleSheet("color: #2e7d32; padding: 2px 8px;")
+                self.backend_status_label.setToolTip(f"Cloud-sync active for session {session_id[:8]}...")
+        except Exception as exc:
+            LOG.warning("Backend session sync failed: %s", exc)
+            self._set_backend_session_id(None)
+            if hasattr(self, "backend_status_label"):
+                self.backend_status_label.setText("○ Backend: Offline")
+                self.backend_status_label.setStyleSheet("color: #666666; padding: 2px 8px;")
+                self.backend_status_label.setToolTip("Running in offline mode. Core features remain available.")
+
+    def _persist_selection_to_backend(
+        self,
+        *,
+        x1: int,
+        y1: int,
+        x2: int,
+        y2: int,
+        threshold: int,
+        color: str,
+    ) -> None:
+        """Best-effort sync of selection to backend session metadata."""
+        if not self._backend_session_id:
+            return
+        if self.api_client.is_offline():
+            return
+        if not hasattr(self.api_client, "select_region"):
+            return
+
+        try:
+            self.api_client.select_region(
+                session_id=self._backend_session_id,
+                x1=x1,
+                y1=y1,
+                x2=x2,
+                y2=y2,
+                color=color,
+                threshold=threshold,
+            )
+            LOG.debug("Selection synchronized to backend session %s", self._backend_session_id)
+        except Exception as exc:
+            # Keep local processing as source of truth for immediate UX.
+            LOG.warning("Backend selection sync failed (non-blocking): %s", exc)
 
     def on_capture_signature(self) -> None:
         """Capture signature from camera and run the same import pipeline."""
@@ -1822,7 +2242,8 @@ class ExtractionTabMixin:
         try:
             # Check extraction mode
             is_forensic = self.mode_combo.currentIndex() == 1
-            
+            threshold_value = int(self.threshold.value())
+
             if is_forensic:
                 # Use K-Means clustering
                 png_bytes = self.local_extractor.process_selection_kmeans(
@@ -1832,7 +2253,6 @@ class ExtractionTabMixin:
                 )
             else:
                 auto_threshold_active = self.auto_threshold_cb.isChecked()
-                threshold_value = int(self.threshold.value())
                 if auto_threshold_active:
                     computed = self._compute_auto_threshold()
                     if computed is not None:
@@ -1841,16 +2261,24 @@ class ExtractionTabMixin:
                         self.threshold.setValue(threshold_value)
                         self.threshold.blockSignals(False)
 
-            # Use standard thresholding
-            png_bytes = self.local_extractor.process_selection(
-                session_id=self.session.session_id,
-                x1=x1, y1=y1, x2=x2, y2=y2,
-                color=self._color_hex,
+                # Use standard thresholding
+                png_bytes = self.local_extractor.process_selection(
+                    session_id=self.session.session_id,
+                    x1=x1, y1=y1, x2=x2, y2=y2,
+                    color=self._color_hex,
+                    threshold=threshold_value,
+                    auto_clean=self.auto_clean_cb.isChecked()
+                )
+
+            self._persist_selection_to_backend(
+                x1=x1,
+                y1=y1,
+                x2=x2,
+                y2=y2,
                 threshold=threshold_value,
-                auto_clean=self.auto_clean_cb.isChecked()
+                color=self._color_hex,
             )
-            
-            
+
             # Call the existing process finished handler
             self._on_process_finished(png_bytes, start_time)
             cast(QWidget, self).unsetCursor()
@@ -2154,6 +2582,10 @@ class ExtractionTabMixin:
         self.src_view.clear_image()
         self.preview_view.clear_image()
         self.res_view.clear_image()
+        if self._batch_auto_processing:
+            self._batch_auto_processing = False
+            self.batch_process_all_btn.setText("Process Queue")
+            self._refresh_batch_queue_controls()
         self._current_crop_preview_pixmap = None
         # Keep panel mounted to prevent layout jump - show empty overlays instead
         self.preview_view.setVisible(False)
@@ -2162,6 +2594,7 @@ class ExtractionTabMixin:
         self.result_empty.setVisible(True)
         self.sel_info.setText("Selection: –")
         self.session.clear_extraction_session()
+        self._set_backend_session_id(None)
         if hasattr(self, "session_id_label"):
             self.session_id_label.setText("No session")
             self.session_id_label.setToolTip("")
@@ -2594,7 +3027,7 @@ class ExtractionTabMixin:
         try:
             with open(path, "rb") as f:
                 data = f.read()
-            # Load into Source view and create a new backend session so user can reprocess
+            # Load into Source view and create a new local session so user can reprocess
             # Store image data for rotate operations
             self._current_image_data = data
             self.src_view.load_image_bytes(data)
@@ -2602,6 +3035,7 @@ class ExtractionTabMixin:
             # Auto-fit with margin for better initial view
             QTimer.singleShot(50, lambda: self.src_view.fit(margin_percent=5.0))
             self._on_pane_clicked("source")
+            self._set_backend_session_id(None)
             # Upload to backend to establish a fresh session
             from tempfile import NamedTemporaryFile
             tmp = NamedTemporaryFile(suffix=".png", delete=False)
@@ -2630,6 +3064,7 @@ class ExtractionTabMixin:
                 
                 # Call the existing library upload finished handler
                 self._on_library_upload_finished(tmp.name, payload)
+                self._sync_backend_session(tmp.name)
                 
             except Exception as e:
                 LOG.error(f"Failed to create local session for library image: {e}")
@@ -2748,6 +3183,14 @@ class ExtractionTabMixin:
             old_image_data = self._current_image_data
             old_local_path = self._last_local_path
             old_session_id = self.session.session_id
+            old_backend_session_id = self._backend_session_id
+            self._set_backend_session_id(None)
+            self._rotation_backup = {
+                'old_image_data': old_image_data,
+                'old_local_path': old_local_path,
+                'old_session_id': old_session_id,
+                'old_backend_session_id': old_backend_session_id,
+            }
 
             try:
                 from tempfile import NamedTemporaryFile
@@ -2810,19 +3253,33 @@ class ExtractionTabMixin:
                     self._current_image_data = old_image_data
                     self._last_local_path = old_local_path
                     self.session.set_extraction_session(old_session_id)
+                    self._set_backend_session_id(old_backend_session_id)
                     
                     # Re-enable rotation buttons
                     self.rotate_cw_btn.setEnabled(True)
                     self.rotate_ccw_btn.setEnabled(True)
                     self.status_bar.showMessage("Rotation failed", 3000)
+                    self._rotation_backup = {
+                        'old_image_data': old_image_data,
+                        'old_local_path': old_local_path,
+                        'old_session_id': old_session_id,
+                        'old_backend_session_id': old_backend_session_id,
+                    }
             except Exception as e:
                 # Revert state on rotation/save failure
                 self._current_image_data = old_image_data
                 self._last_local_path = old_local_path
                 self.session.set_extraction_session(old_session_id)
+                self._set_backend_session_id(old_backend_session_id)
                 LOG.warning("Rotation failed, reverted to previous state: %s", e)
                 self._handle_backend_exception(e, context="Rotate failed")
                 self.status_bar.showMessage("Rotate failed - state reverted", 3000)
+                self._rotation_backup = {
+                    'old_image_data': old_image_data,
+                    'old_local_path': old_local_path,
+                    'old_session_id': old_session_id,
+                    'old_backend_session_id': old_backend_session_id,
+                }
                 self._update_view_actions_enabled()
             return
 
@@ -2870,6 +3327,7 @@ class ExtractionTabMixin:
             if hasattr(self, "session_id_label"):
                 self.session_id_label.setText(f"Session: {session_id[:8]}...")
                 self.session_id_label.setToolTip(f"Full session ID: {session_id}")
+            self._sync_backend_session(tmp_path)
 
             # Reset previous outputs and CLEAR SELECTION (coordinates no longer valid)
             self._last_result_png = None
@@ -2902,6 +3360,7 @@ class ExtractionTabMixin:
                 self._current_image_data = backup['old_image_data']
                 self._last_local_path = backup['old_local_path']
                 self.session.set_extraction_session(backup['old_session_id'])
+                self._set_backend_session_id(backup.get('old_backend_session_id'))
                 delattr(self, '_rotation_backup')
                 LOG.warning("Rotation upload failed, reverted to previous state: %s", e)
             if hasattr(self, "backend_status_label"):
@@ -2923,6 +3382,7 @@ class ExtractionTabMixin:
             self._current_image_data = backup['old_image_data']
             self._last_local_path = backup['old_local_path']
             self.session.set_extraction_session(backup['old_session_id'])
+            self._set_backend_session_id(backup.get('old_backend_session_id'))
             delattr(self, '_rotation_backup')
             LOG.warning("Rotation upload failed, reverted to previous state: %s", error)
         if hasattr(self, "backend_status_label"):
@@ -3537,25 +3997,31 @@ class ExtractionTabMixin:
 
     def _setup_keyboard_navigation(self) -> None:
         """Set up comprehensive keyboard shortcuts and navigation."""
+        def _shortcut(mac: str, other: str) -> str:
+            return mac if sys.platform == "darwin" else other
+
         # Pane switching shortcuts
-        shortcut_source = QShortcut(QKeySequence("Ctrl+1"), cast(QWidget, self))
+        shortcut_source = QShortcut(QKeySequence(_shortcut("Meta+1", "Ctrl+1")), cast(QWidget, self))
         shortcut_source.activated.connect(lambda: self._on_pane_clicked("source"))
 
-        shortcut_preview = QShortcut(QKeySequence("Ctrl+2"), cast(QWidget, self))
+        shortcut_preview = QShortcut(QKeySequence(_shortcut("Meta+2", "Ctrl+2")), cast(QWidget, self))
         shortcut_preview.activated.connect(lambda: self._on_pane_clicked("preview"))
 
-        shortcut_result = QShortcut(QKeySequence("Ctrl+3"), cast(QWidget, self))
+        shortcut_result = QShortcut(QKeySequence(_shortcut("Meta+3", "Ctrl+3")), cast(QWidget, self))
         shortcut_result.activated.connect(lambda: self._on_pane_clicked("result"))
 
         # Action shortcuts
         shortcut_clear = QShortcut(QKeySequence("Delete"), cast(QWidget, self))
         shortcut_clear.activated.connect(self.on_clear_selection)
 
-        shortcut_export = QShortcut(QKeySequence("Ctrl+E"), cast(QWidget, self))
+        shortcut_export = QShortcut(QKeySequence(_shortcut("Meta+E", "Ctrl+E")), cast(QWidget, self))
         shortcut_export.activated.connect(self.on_export)
 
-        shortcut_open = QShortcut(QKeySequence("Ctrl+O"), cast(QWidget, self))
+        shortcut_open = QShortcut(QKeySequence(_shortcut("Meta+O", "Ctrl+O")), cast(QWidget, self))
         shortcut_open.activated.connect(self.on_open)
+
+        shortcut_save = QShortcut(QKeySequence.StandardKey.Save, cast(QWidget, self))
+        shortcut_save.activated.connect(self.on_save_to_library)
 
         # Accessibility help shortcut
         shortcut_help = QShortcut(QKeySequence("F1"), cast(QWidget, self))

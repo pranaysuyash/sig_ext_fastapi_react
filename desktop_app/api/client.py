@@ -9,7 +9,7 @@ from uuid import uuid4
 
 import requests
 
-from desktop_app.api.contracts import LoginResponse, ProcessResponse, UploadResponse
+from desktop_app.api.contracts import LoginResponse, ProcessResponse, RegionSelectionResponse, UploadResponse
 from desktop_app.api.errors import (
     ApiContractError,
     ApiValidationError,
@@ -130,6 +130,65 @@ class ApiClient:
         return UploadResponse(
             session_id=str(session_id),
             filename=str(payload.get("filename")) if payload.get("filename") else None,
+            file_path=str(payload.get("file_path")) if payload.get("file_path") else None,
+            payload=payload,
+        )
+
+    def select_region(
+        self,
+        *,
+        session_id: str,
+        x1: int,
+        y1: int,
+        x2: int,
+        y2: int,
+        color: str,
+        threshold: int,
+    ) -> RegionSelectionResponse:
+        session_id = self._validate_session_id(session_id)
+        self._validate_selection(x1=x1, y1=y1, x2=x2, y2=y2)
+        self._validate_threshold(threshold)
+        self._validate_color(color)
+
+        url = f"{self.base_url}/extraction/select_region/"
+        data = {
+            "session_id": session_id,
+            "x1": x1,
+            "y1": y1,
+            "x2": x2,
+            "y2": y2,
+            "color": color,
+            "threshold": threshold,
+        }
+        try:
+            resp = requests.post(url, data=data, headers=self._headers(), timeout=30)
+        except requests.Timeout as exc:
+            raise BackendUnavailable("Backend timed out while selecting region") from exc
+        except requests.RequestException as exc:
+            raise BackendUnavailable("Backend is unreachable while selecting region") from exc
+
+        if resp.status_code == 404:
+            raise ExtractionSessionMissing("Session not found for select region")
+        if resp.status_code in {400, 422}:
+            detail = self._response_detail(resp) or "Invalid region selection"
+            raise ApiValidationError(detail)
+        if resp.status_code in {401, 403}:
+            raise AuthenticationFailed("Authentication is required to select region")
+        if resp.status_code >= 400:
+            detail = self._response_detail(resp) or f"Select region failed with status {resp.status_code}"
+            if resp.status_code >= 500:
+                raise ApiContractError(detail)
+            raise ApiContractError(detail)
+
+        payload = self._json_payload(resp, "select region")
+        payload_session_id = payload.get("session_id")
+        if not payload_session_id:
+            raise ApiContractError("Select region response missing session_id")
+        return RegionSelectionResponse(
+            session_id=str(payload_session_id),
+            message=str(payload.get("message")) if payload.get("message") else None,
+            selection=payload.get("selection") if isinstance(payload.get("selection"), dict) else None,
+            image=payload.get("image") if isinstance(payload.get("image"), dict) else None,
             file_path=str(payload.get("file_path")) if payload.get("file_path") else None,
             payload=payload,
         )

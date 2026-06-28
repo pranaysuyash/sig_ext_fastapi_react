@@ -569,7 +569,7 @@ class PdfTabMixin:
         self.menuBar().addMenu(pdf_menu)
         
         open_pdf_act = QAction("&Open PDF...", self)
-        open_pdf_act.setShortcut(QKeySequence("Ctrl+Shift+O"))
+        open_pdf_act.setShortcut(QKeySequence("Meta+Shift+O"))
         open_pdf_act.setStatusTip("Open a PDF file for signing")
         open_pdf_act.triggered.connect(self.on_pdf_open)
         pdf_menu.addAction(open_pdf_act)
@@ -582,13 +582,13 @@ class PdfTabMixin:
         pdf_menu.addSeparator()
         
         load_sig_act = QAction("&Load Signature...", self)
-        load_sig_act.setShortcut(QKeySequence("Ctrl+Shift+L"))
+        load_sig_act.setShortcut(QKeySequence("Meta+Shift+L"))
         load_sig_act.setStatusTip("Load signature image from file")
         load_sig_act.triggered.connect(self._on_load_signature_clicked)
         pdf_menu.addAction(load_sig_act)
         
         paste_sig_act = QAction("&Paste Signature from Clipboard", self)
-        paste_sig_act.setShortcut(QKeySequence("Ctrl+Shift+V"))
+        paste_sig_act.setShortcut(QKeySequence.StandardKey.Paste)
         paste_sig_act.setStatusTip("Paste signature from clipboard for placement")
         paste_sig_act.triggered.connect(self._on_pdf_paste_signature)
         pdf_menu.addAction(paste_sig_act)
@@ -596,7 +596,7 @@ class PdfTabMixin:
         pdf_menu.addSeparator()
         
         save_pdf_act = QAction("&Save Signed PDF...", self)
-        save_pdf_act.setShortcut(QKeySequence("Ctrl+Shift+S"))
+        save_pdf_act.setShortcut(QKeySequence.StandardKey.SaveAs)
         save_pdf_act.setStatusTip("Save the signed PDF")
         save_pdf_act.triggered.connect(self.on_pdf_save)
         pdf_menu.addAction(save_pdf_act)

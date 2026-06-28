@@ -170,6 +170,52 @@ def test_process_image_returns_typed_response(monkeypatch):
     assert result.content_type == "image/png"
 
 
+def test_select_region_validates_input():
+    client = ApiClient("http://127.0.0.1:8001", SessionState())
+
+    with pytest.raises(ApiValidationError, match="session_id is required"):
+        client.select_region(session_id=" ", x1=0, y1=0, x2=10, y2=10, color="#000000", threshold=128)
+
+    with pytest.raises(ApiValidationError, match="x2 must be > x1"):
+        client.select_region(session_id="session-1", x1=10, y1=0, x2=5, y2=10, color="#000000", threshold=128)
+
+
+def test_select_region_maps_missing_session(monkeypatch):
+    client = ApiClient("http://127.0.0.1:8001", SessionState())
+
+    def fake_post(url, data=None, headers=None, timeout=None):
+        return _FakeResponse(status_code=404, payload={"detail": "Session not found"})
+
+    monkeypatch.setattr(requests, "post", fake_post)
+
+    with pytest.raises(ExtractionSessionMissing, match="Session not found"):
+        client.select_region(session_id="session-1", x1=0, y1=0, x2=10, y2=10, color="#000000", threshold=128)
+
+
+def test_select_region_returns_typed_response(monkeypatch):
+    client = ApiClient("http://127.0.0.1:8001", SessionState())
+
+    def fake_post(url, data=None, headers=None, timeout=None):
+        return _FakeResponse(
+            payload={
+                "message": "Region selected",
+                "session_id": "session-123",
+                "selection": {"x1": 1, "y1": 2, "x2": 3, "y2": 4},
+                "image": {"width": 20, "height": 10},
+                "file_path": "/uploads/images/session-123.png",
+            }
+        )
+
+    monkeypatch.setattr(requests, "post", fake_post)
+
+    result = client.select_region(session_id="session-1", x1=0, y1=0, x2=10, y2=10, color="#000000", threshold=128)
+
+    assert result.session_id == "session-123"
+    assert result.selection == {"x1": 1, "y1": 2, "x2": 3, "y2": 4}
+    assert result.image == {"width": 20, "height": 10}
+    assert result.payload["session_id"] == "session-123"
+
+
 def test_health_check_recovers_after_transient_failure(monkeypatch):
     client = ApiClient("http://127.0.0.1:8001", SessionState())
     calls = {"count": 0}

@@ -6,14 +6,15 @@ import sys
 from typing import Optional, cast, TYPE_CHECKING
 
 from PySide6.QtCore import QSettings, QTimer
-from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QWidget, QTabWidget
+from PySide6.QtGui import QAction, QKeySequence
+from PySide6.QtWidgets import QApplication, QHBoxLayout, QMainWindow, QMessageBox, QWidget, QTabWidget
 
 from desktop_app.api.client import ApiClient
 from desktop_app.processing import SignatureExtractor
 from desktop_app.resources.icons import get_icon
 from desktop_app.state.session import SessionState
 from desktop_app.views.onboarding_dialog import OnboardingDialog
+from desktop_app.views.preferences_dialog import PreferencesDialog
 from desktop_app.pdf.stack_profile import stack_install_hint
 from desktop_app.views.main_window_parts import (
     ExtractionTabMixin,
@@ -78,7 +79,8 @@ class MainWindow(
 
         # Initialize status bar FIRST, before any UI setup that might use it
         self._init_status_bar()
-        
+        self._setup_menus()
+
         self._setup_extraction_ui()
         self._setup_pdf_ui()
         
@@ -105,8 +107,6 @@ class MainWindow(
 
         # macOS palette needs reapplication after views exist (see docs/APPLE_NATIVE_IMPROVEMENTS.md)
         self._setup_dark_mode_support()
-
-        self._setup_menus()
 
         self._backend_online = False
         # Set up periodic backend health checks
@@ -259,7 +259,7 @@ class MainWindow(
 
     def _save_window_state(self) -> None:
         """Save window geometry and active tab for next session."""
-        settings = QSettings("SignatureExtractor", "DesktopApp")
+        settings = QSettings("SignKit", "DesktopApp")
 
         # Save window geometry
         settings.setValue("window/geometry", self.saveGeometry())
@@ -321,6 +321,141 @@ class MainWindow(
     def _setup_menus(self) -> None:
         menu_bar = self.menuBar()
 
+        app_menu = menu_bar.addMenu("SignKit")
+        about_action = QAction("About SignKit", self)
+        about_action.setMenuRole(QAction.MenuRole.AboutRole)
+        about_action.triggered.connect(self._show_about_dialog)
+        app_menu.addAction(about_action)
+
+        preferences_action = QAction("Preferences…", self)
+        preferences_action.setMenuRole(QAction.MenuRole.PreferencesRole)
+        preferences_action.setShortcut(QKeySequence.StandardKey.Preferences)
+        preferences_action.triggered.connect(self._show_preferences_dialog)
+        app_menu.addAction(preferences_action)
+        app_menu.addSeparator()
+
+        quit_action = QAction("Quit SignKit", self)
+        quit_action.setMenuRole(QAction.MenuRole.QuitRole)
+        quit_action.setShortcut(QKeySequence.StandardKey.Quit)
+        quit_action.triggered.connect(lambda: QApplication.instance().quit())
+        app_menu.addAction(quit_action)
+
+        file_menu = menu_bar.addMenu("File")
+
+        open_image_action = QAction("Open Image…", self)
+        open_image_action.setShortcut(QKeySequence.StandardKey.Open)
+        open_image_action.triggered.connect(self.on_open)
+        file_menu.addAction(open_image_action)
+
+        open_pdf_action = QAction("Open PDF…", self)
+        open_pdf_action.setShortcut(QKeySequence("Meta+Shift+O"))
+        open_pdf_action.triggered.connect(self.on_pdf_open)
+        file_menu.addAction(open_pdf_action)
+
+        file_menu.addSeparator()
+
+        export_action = QAction("Export Signature…", self)
+        export_action.setShortcut(QKeySequence("Meta+E"))
+        export_action.triggered.connect(self.on_export)
+        file_menu.addAction(export_action)
+
+        save_library_action = QAction("Save to Library", self)
+        save_library_action.setShortcut(QKeySequence.StandardKey.Save)
+        save_library_action.triggered.connect(self.on_save_to_library)
+        file_menu.addAction(save_library_action)
+
+        save_pdf_action = QAction("Save Signed PDF…", self)
+        save_pdf_action.setShortcut(QKeySequence.StandardKey.SaveAs)
+        save_pdf_action.triggered.connect(self.on_pdf_save)
+        save_pdf_action.setEnabled(PDF_AVAILABLE)
+        file_menu.addAction(save_pdf_action)
+
+        file_menu.addSeparator()
+
+        close_window_action = QAction("Close Window", self)
+        close_window_action.setShortcut(QKeySequence.StandardKey.Close)
+        close_window_action.triggered.connect(self.close)
+        file_menu.addAction(close_window_action)
+
+        edit_menu = menu_bar.addMenu("Edit")
+        undo_action = QAction("Undo", self)
+        undo_action.setShortcut(QKeySequence.StandardKey.Undo)
+        undo_action.setEnabled(False)
+        edit_menu.addAction(undo_action)
+        redo_action = QAction("Redo", self)
+        redo_action.setShortcut(QKeySequence.StandardKey.Redo)
+        redo_action.setEnabled(False)
+        edit_menu.addAction(redo_action)
+        edit_menu.addSeparator()
+
+        copy_action = QAction("Copy", self)
+        copy_action.setShortcut(QKeySequence.StandardKey.Copy)
+        copy_action.triggered.connect(self._handle_copy_action)
+        edit_menu.addAction(copy_action)
+
+        paste_action = QAction("Paste Signature from Clipboard", self)
+        paste_action.setShortcut(QKeySequence.StandardKey.Paste)
+        paste_action.triggered.connect(self._handle_paste_action)
+        edit_menu.addAction(paste_action)
+
+        select_all_action = QAction("Select All", self)
+        select_all_action.setShortcut(QKeySequence.StandardKey.SelectAll)
+        select_all_action.triggered.connect(self._handle_select_all_action)
+        edit_menu.addAction(select_all_action)
+
+        view_menu = menu_bar.addMenu("View")
+        fit_action = QAction("Fit to View", self)
+        fit_action.setShortcut(QKeySequence("Meta+1"))
+        fit_action.triggered.connect(self._on_fit)
+        view_menu.addAction(fit_action)
+
+        reset_action = QAction("Reset Zoom", self)
+        reset_action.setShortcut(QKeySequence("Meta+0"))
+        reset_action.triggered.connect(self._on_reset_zoom)
+        view_menu.addAction(reset_action)
+
+        view_menu.addSeparator()
+
+        full_screen_action = QAction("Enter Full Screen", self)
+        full_screen_action.setShortcut(QKeySequence.StandardKey.FullScreen)
+        full_screen_action.triggered.connect(self.showFullScreen)
+        view_menu.addAction(full_screen_action)
+
+        window_menu = menu_bar.addMenu("Window")
+        minimize_action = QAction("Minimize", self)
+        minimize_action.setShortcut(QKeySequence("Meta+M"))
+        minimize_action.triggered.connect(self.showMinimized)
+        window_menu.addAction(minimize_action)
+
+        zoom_action = QAction("Zoom", self)
+        zoom_action.triggered.connect(self._toggle_window_zoom)
+        window_menu.addAction(zoom_action)
+
+        window_menu.addSeparator()
+
+        bring_all_action = QAction("Bring All to Front", self)
+        bring_all_action.triggered.connect(self._bring_all_windows_to_front)
+        window_menu.addAction(bring_all_action)
+
+        help_menu = menu_bar.addMenu("Help")
+        self.open_help_action = QAction("Help & Troubleshooting", self)
+        self.open_help_action.triggered.connect(lambda: self._open_document("docs/HELP.md"))
+        help_menu.addAction(self.open_help_action)
+
+        self.open_shortcuts_action = QAction("Keyboard Shortcuts", self)
+        self.open_shortcuts_action.triggered.connect(lambda: self._open_document("docs/SHORTCUTS.md"))
+        help_menu.addAction(self.open_shortcuts_action)
+
+        help_menu.addSeparator()
+
+        self.check_updates_action = QAction("Check for Updates…", self)
+        self.check_updates_action.triggered.connect(self.on_check_updates)
+        help_menu.addAction(self.check_updates_action)
+
+        self.check_health_action = QAction("Open Backend Health", self)
+        self.check_health_action.triggered.connect(lambda: self._open_url(f"{self.api_client.base_url}/health"))
+        help_menu.addAction(self.check_health_action)
+
         license_menu = menu_bar.addMenu("License")
 
         # Check current license status
@@ -353,31 +488,59 @@ class MainWindow(
         self.buy_license_action.triggered.connect(self.on_buy_license)
         license_menu.addAction(self.buy_license_action)
 
-        help_menu = menu_bar.addMenu("Help")
-        self.open_help_action = QAction("Help & Troubleshooting", self)
-        self.open_help_action.triggered.connect(lambda: self._open_document("docs/HELP.md"))
-        help_menu.addAction(self.open_help_action)
-
-        self.open_shortcuts_action = QAction("Keyboard Shortcuts", self)
-        self.open_shortcuts_action.triggered.connect(lambda: self._open_document("docs/SHORTCUTS.md"))
-        help_menu.addAction(self.open_shortcuts_action)
-
-        help_menu.addSeparator()
-
-        self.check_updates_action = QAction("Check for Updates…", self)
-        self.check_updates_action.triggered.connect(self.on_check_updates)
-        help_menu.addAction(self.check_updates_action)
-
-        self.check_health_action = QAction("Open Backend Health", self)
-        self.check_health_action.triggered.connect(lambda: self._open_url(f"{self.api_client.base_url}/health"))
-        help_menu.addAction(self.check_health_action)
-        
         # Tools Menu
         tools_menu = menu_bar.addMenu("Tools")
         
         self.verify_sig_action = QAction("Verify Signature...", self)
         self.verify_sig_action.triggered.connect(self.on_verify_signature)
         tools_menu.addAction(self.verify_sig_action)
+
+    def _show_about_dialog(self) -> None:
+        QMessageBox.about(
+            self,
+            "About SignKit",
+            "SignKit is a native desktop workflow for extracting signatures and signing PDFs.\n\n"
+            "Designed to stay close to macOS conventions while keeping the processing surface local."
+        )
+
+    def _show_preferences_dialog(self) -> None:
+        dialog = PreferencesDialog(self)
+        dialog.exec()
+
+    def _handle_paste_action(self) -> None:
+        focus_widget = QApplication.focusWidget()
+        if focus_widget and hasattr(focus_widget, "paste"):
+            focus_widget.paste()
+            return
+
+        pdf_index = getattr(self, "_pdf_tab_index", -1)
+        if PDF_AVAILABLE and pdf_index >= 0 and getattr(self, "tab_widget", None) and self.tab_widget.currentIndex() == pdf_index:
+            if hasattr(self, "_on_pdf_paste_signature"):
+                self._on_pdf_paste_signature()
+
+    def _handle_copy_action(self) -> None:
+        focus_widget = QApplication.focusWidget()
+        if focus_widget and hasattr(focus_widget, "copy"):
+            focus_widget.copy()
+            return
+
+        if hasattr(self, "on_copy"):
+            self.on_copy()
+
+    def _handle_select_all_action(self) -> None:
+        focus_widget = QApplication.focusWidget()
+        if focus_widget and hasattr(focus_widget, "selectAll"):
+            focus_widget.selectAll()
+
+    def _bring_all_windows_to_front(self) -> None:
+        self.raise_()
+        self.activateWindow()
+
+    def _toggle_window_zoom(self) -> None:
+        if self.isMaximized():
+            self.showNormal()
+        else:
+            self.showMaximized()
 
     def on_check_updates(self):
         """Check for application updates by fetching updates.json from CDN."""

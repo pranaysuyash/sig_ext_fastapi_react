@@ -23,3 +23,13 @@ class ProcessResponse:
     png_bytes: bytes
     content_type: str
     payload: Optional[Dict[str, Any]] = None
+
+
+@dataclass(frozen=True)
+class RegionSelectionResponse:
+    session_id: str
+    selection: Optional[Dict[str, Any]]
+    image: Optional[Dict[str, Any]]
+    message: Optional[str]
+    file_path: Optional[str]
+    payload: Dict[str, Any]

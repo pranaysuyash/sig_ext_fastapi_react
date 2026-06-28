@@ -6,6 +6,7 @@ from typing import cast
 
 from PySide6.QtCore import QObject, QSize, Qt
 from PySide6.QtGui import QAction
+from PySide6.QtGui import QKeySequence
 from PySide6.QtWidgets import QToolBar, QWidget
 
 from desktop_app.resources.icons import get_icon
@@ -30,49 +31,31 @@ class ToolbarMixin:
         toolbar.setAllowedAreas(Qt.ToolBarArea.TopToolBarArea)
         toolbar.setMovable(False)
         toolbar.setFloatable(False)
-        toolbar.setIconSize(QSize(20, 20))
-        toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        toolbar.setIconSize(QSize(22, 22))
+        toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
         # Remove custom stylesheet to allow native macOS styling
         # The unified title/toolbar handles appearance automatically
 
         parent = cast(QObject, self)
-        toolbar_parent = cast(QWidget, self)
 
         # Primary workflow actions
         open_action = QAction(get_icon("open"), "Open", parent)
-        open_action.setShortcut("Ctrl+O")
+        open_action.setShortcut(QKeySequence.StandardKey.Open)
         open_action.setStatusTip("Open an image for signature extraction or a PDF for signing")
         open_action.triggered.connect(self._handle_toolbar_open)
         toolbar.addAction(open_action)
 
         export_action = QAction(get_icon("export"), "Export", parent)
-        export_action.setShortcut("Ctrl+E")
+        export_action.setShortcut("Meta+E")
         export_action.setStatusTip("Export the processed signature to a file")
         export_action.triggered.connect(self._handle_toolbar_export)
         toolbar.addAction(export_action)
 
         save_library_action = QAction(get_icon("save"), "Save", parent)
-        save_library_action.setShortcut("Ctrl+L")
+        save_library_action.setShortcut(QKeySequence.StandardKey.Save)
         save_library_action.setStatusTip("Save the signature to your personal library for later use")
         save_library_action.triggered.connect(self.on_save_to_library)
         toolbar.addAction(save_library_action)
-
-        toolbar.addSeparator()
-
-        # Undo/redo reserved for future implementation – keep placeholders disabled
-        self.undo_action = QAction(get_icon("undo"), "Undo", parent)
-        self.undo_action.setEnabled(False)
-        toolbar.addAction(self.undo_action)
-
-        self.redo_action = QAction(get_icon("redo"), "Redo", parent)
-        self.redo_action.setEnabled(False)
-        toolbar.addAction(self.redo_action)
-
-        toolbar.addSeparator()
-
-        help_action = QAction(get_icon("help"), "Help", parent)
-        help_action.triggered.connect(lambda: self._open_document("docs/HELP.md"))
-        toolbar.addAction(help_action)
 
         self.addToolBar(toolbar)
         self.setUnifiedTitleAndToolBarOnMac(True)
@@ -81,7 +64,7 @@ class ToolbarMixin:
         self._toolbar_open_action = open_action
         self._toolbar_export_action = export_action
         self._toolbar_save_action = save_library_action
-        self._toolbar_help_action = help_action
+        self._toolbar_help_action = None
 
         self._update_toolbar_for_tab(self.tab_widget.currentIndex())
         self._refresh_toolbar_action_states()
