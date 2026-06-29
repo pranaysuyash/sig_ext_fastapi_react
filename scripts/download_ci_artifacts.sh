@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Download CI artifacts from GitHub Actions
 RUN_ID="${1:-19420175173}"
-REPO="pranaysuyash/sig_ext_fastapi_react"
+REPO="pranaysuyash/signkit"
 TODAY=$(date +%Y-%m-%d)
 OUTDIR="$HOME/Downloads/SignKit-CI-$TODAY"
 

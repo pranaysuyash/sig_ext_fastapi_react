@@ -237,7 +237,7 @@ OVERALL               ████████░    85% 🟢
 **Landing Page:** https://signkit.work  
 **Support Email:** support@signkit.work  
 **Downloads Folder:** ~/Downloads/SignKit-Builds-2025-11-15/  
-**GitHub Repo:** https://github.com/pranaysuyash/sig_ext_fastapi_react
+**GitHub Repo:** https://github.com/pranaysuyash/signkit
 
 ---
 

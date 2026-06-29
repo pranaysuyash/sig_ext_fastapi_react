@@ -236,7 +236,7 @@ None currently.
 ## 📞 Support
 
 - **Cloudflare Pages:** https://dash.cloudflare.com/pages/signkit-landing
-- **GitHub Repo:** https://github.com/pranaysuyash/sig_ext_fastapi_react
+- **GitHub Repo:** https://github.com/pranaysuyash/signkit
 - **Branch:** `main`
 - **Documentation:** See `QUICK_START.md` for quick reference
 

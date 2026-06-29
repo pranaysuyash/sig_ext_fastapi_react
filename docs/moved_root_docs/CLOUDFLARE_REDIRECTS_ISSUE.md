@@ -175,7 +175,7 @@ The changes might not have propagated yet, though this seems unlikely since we t
 
 - We're using Cloudflare Pages (not Workers)
 - No build step required (static HTML files)
-- GitHub repo: pranaysuyash/sig_ext_fastapi_react
+- GitHub repo: pranaysuyash/signkit
 - Branch: landing-page
 - This is for A/B testing different checkout flows to optimize conversion rates
 - We need to track each variant separately in Google Analytics (already configured with variant-specific tracking)

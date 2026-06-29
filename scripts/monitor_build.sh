@@ -8,7 +8,7 @@ echo ""
 RUN_ID=$(gh run list --workflow=build-all-platforms.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 
 echo "Run ID: $RUN_ID"
-echo "URL: https://github.com/pranaysuyash/sig_ext_fastapi_react/actions/runs/$RUN_ID"
+echo "URL: https://github.com/pranaysuyash/signkit/actions/runs/$RUN_ID"
 echo ""
 
 # Watch the run

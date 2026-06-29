@@ -250,8 +250,8 @@ Contributions welcome! Focus areas:
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/pranaysuyash/sig_ext_fastapi_react/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/pranaysuyash/sig_ext_fastapi_react/discussions)
+- **Issues**: [GitHub Issues](https://github.com/pranaysuyash/signkit/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/pranaysuyash/signkit/discussions)
 - **Email**: [Add support email]
 
 ---

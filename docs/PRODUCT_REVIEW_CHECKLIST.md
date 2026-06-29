@@ -751,7 +751,7 @@ hdiutil create \
 **CI/CD builds:**
 
 - GitHub Actions artifacts: Go to Actions tab → Select workflow run → Download artifacts
-- GitHub Releases: `https://github.com/pranaysuyash/sig_ext_fastapi_react/releases`
+- GitHub Releases: `https://github.com/pranaysuyash/signkit/releases`
 
 **Build outputs are gitignored** - never committed to repo, only stored as GitHub Release assets.
 

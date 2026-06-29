@@ -55,7 +55,7 @@ You have 3 options:
 # Trigger the build workflow
 # This will build all platforms automatically
 git push  # Already done!
-# Check: https://github.com/pranaysuyash/sig_ext_fastapi_react/actions
+# Check: https://github.com/pranaysuyash/signkit/actions
 ```
 
 **Option B: Build Locally (macOS only)**

@@ -87,7 +87,7 @@ v1.2.3
 
 **How it works:**
 
-1. App checks: `https://api.github.com/repos/pranaysuyash/sig_ext_fastapi_react/releases/latest`
+1. App checks: `https://api.github.com/repos/pranaysuyash/signkit/releases/latest`
 2. Compares current version with latest
 3. Shows notification if update available
 4. User downloads manually from GitHub
@@ -132,7 +132,7 @@ v1.2.3
             <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
             <pubDate>Mon, 20 Nov 2025 10:00:00 +0000</pubDate>
             <enclosure
-                url="https://github.com/pranaysuyash/sig_ext_fastapi_react/releases/download/v1.1.0/SignatureExtractor_ARM64.dmg"
+                url="https://github.com/pranaysuyash/signkit/releases/download/v1.1.0/SignatureExtractor_ARM64.dmg"
                 sparkle:version="1.1.0"
                 type="application/octet-stream"
             />

@@ -318,7 +318,7 @@ wrangler pages deploy .deploy --project-name=signkit-landing --branch=landing-pa
 
 ### Repository
 
-- **GitHub:** https://github.com/pranaysuyash/sig_ext_fastapi_react
+- **GitHub:** https://github.com/pranaysuyash/signkit
 - **Branch:** `landing-page`
 - **Issues:** Report via GitHub Issues
 

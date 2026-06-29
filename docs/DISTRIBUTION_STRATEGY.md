@@ -130,7 +130,7 @@ git tag -a v1.0.0 -m "Release v1.0.0"
 git push origin v1.0.0
 
 # Wait for GitHub Actions to build both versions
-# Download from: https://github.com/pranaysuyash/sig_ext_fastapi_react/releases
+# Download from: https://github.com/pranaysuyash/signkit/releases
 ```
 
 ## Market Coverage

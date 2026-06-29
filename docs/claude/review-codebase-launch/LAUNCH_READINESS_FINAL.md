@@ -44,7 +44,7 @@
 **1. Create App Icon** (2-4 hours)
 ```bash
 # Quick option: Run the placeholder script
-cd /home/user/sig_ext_fastapi_react
+cd /home/user/signkit
 python build-tools/create_placeholder_icon.py
 
 # Then convert to platform formats (see docs/ICON_CREATION_GUIDE.md)

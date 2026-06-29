@@ -30,7 +30,7 @@ gh run watch
 ```
 
 **View in browser:**
-https://github.com/pranaysuyash/sig_ext_fastapi_react/actions
+https://github.com/pranaysuyash/signkit/actions
 
 ---
 
@@ -91,7 +91,7 @@ gh run download <RUN_ID> -n SignKit-Linux
 ```
 
 **Or download from web:**
-1. Go to: https://github.com/pranaysuyash/sig_ext_fastapi_react/actions
+1. Go to: https://github.com/pranaysuyash/signkit/actions
 2. Click on the latest "Build All Platforms" run
 3. Scroll to "Artifacts" section
 4. Download each platform's artifact
@@ -195,7 +195,7 @@ Windows           🔄 Building   ~12 min
 Linux             🔄 Building   ~12 min
 ```
 
-**Check status:** https://github.com/pranaysuyash/sig_ext_fastapi_react/actions/runs/19393425638
+**Check status:** https://github.com/pranaysuyash/signkit/actions/runs/19393425638
 
 ---
 
