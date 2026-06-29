@@ -4,6 +4,16 @@
 **Project**: Signature Extractor Desktop App  
 **Section**: Copy Writing & Messaging Framework
 
+## Addendum (2026-06-29)
+
+Interpret the copy drafts through the current canonical product story:
+
+- lead with sensitive-document cleanup and reuse
+- keep legal, tax, CA, real-estate, and office-admin examples explicit
+- avoid generic e-signature platform framing
+- keep license activation separate from auth and purchase state
+- assume the launch model is one-time purchase + separate license activation
+
 ---
 
 ## Core Value Propositions

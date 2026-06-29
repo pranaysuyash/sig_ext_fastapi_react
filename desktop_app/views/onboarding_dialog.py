@@ -87,7 +87,7 @@ class OnboardingDialog(QDialog):
 
         # Subtitle
         subtitle = QLabel(
-            "Extract, clean, and sign documents with your signature"
+            "Handle sensitive signed documents locally"
         )
         subtitle.setStyleSheet("font-size: 14px; color: gray;")
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -105,9 +105,9 @@ class OnboardingDialog(QDialog):
         layout.addWidget(why_label)
 
         features = [
-            ("info", "Privacy First", "Your documents never leave your device. Works 100% offline."),
-            ("ok", "One-Time Purchase", "No monthly subscriptions. Pay once, own it forever."),
-            ("apply", "Smart Cleaning", "Auto-removes shadows and noise for perfect signatures."),
+            ("info", "Privacy First", "Contracts, intake forms, HR packets, and signed PDFs stay on your device. Works 100% offline."),
+            ("ok", "Reusable Signature Library", "Extract once, save reusable signatures, and place them across future PDFs."),
+            ("apply", "Local PDF Workflow", "Clean signatures, keep a vault history, and finish sensitive documents without cloud upload."),
         ]
 
         for emoji, title, description in features:
@@ -126,10 +126,10 @@ class OnboardingDialog(QDialog):
         layout.addWidget(guide_label)
 
         steps = [
-            ("1.", "Open an image", "Click 'Open & Upload Image' to load a document containing your signature"),
+            ("1.", "Open a signed document", "Click 'Open & Upload Image' to load a scan, form, contract, or other document containing the signature you need"),
             ("2.", "Select signature", "Draw a rectangle around your signature in the source view"),
             ("3.", "Adjust settings", "Fine-tune the threshold and color removal to isolate your signature"),
-            ("4.", "Export or sign", "Export the cleaned signature or use it to sign PDF documents"),
+            ("4.", "Reuse locally", "Export the cleaned signature, save it to your library, or place it on a PDF packet"),
         ]
 
         for emoji, title, description in steps:

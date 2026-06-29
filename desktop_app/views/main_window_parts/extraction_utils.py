@@ -97,6 +97,7 @@ def _create_button(
     *,
     use_modern_mac: bool = None,
     primary: bool = False,
+    destructive: bool = False,
     color: str = 'blue',
     compact: bool = False,
 ) -> QPushButton:
@@ -109,21 +110,29 @@ def _create_button(
     if use_modern_mac is None:
         use_modern_mac = sys.platform == "darwin"
 
+    resolved_color = 'red' if destructive and color == 'blue' else color
+
     if use_modern_mac:
         try:
             from desktop_app.widgets.modern_mac_button import ModernMacButton
             btn = ModernMacButton(
                 text, parent,
                 primary=primary,
-                color=color,
+                color=resolved_color,
                 glass=True,
                 compact=compact,
             )
+            if destructive:
+                btn.setProperty("destructive", True)
             return btn
         except (NameError, TypeError):
             pass
 
     btn = QPushButton(text, parent)
+    if primary:
+        btn.setProperty("primary", True)
+    if destructive:
+        btn.setProperty("destructive", True)
     if compact:
         btn.setProperty("compact", True)
     return btn

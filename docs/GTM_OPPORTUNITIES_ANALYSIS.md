@@ -18,6 +18,31 @@ SignKit is a privacy-first desktop app for extracting signatures from images and
 - Cross-platform (macOS, Windows, Linux)
 - Privacy-first positioning
 
+## Product Direction Addendum
+
+The strongest GTM is not "full e-signature platform." The strongest wedge is a narrow document-asset utility that handles noisy real-world inputs well.
+
+### Vertical Wedge
+- Primary vertical: CA, tax, legal, and document-service offices
+- Why: repeated use, messy scans, willingness to pay, and obvious privacy value
+- Best workflow: batch signature/stamp/seal cleanup from scans and PDFs
+
+### Horizontal Wedge
+- Core primitive: extract document assets from noisy pages
+- Immediate expansion: signatures, stamps, seals, logos, and handwritten fields
+- Next step: batch PDF page processing with local/offline execution
+
+### Boundary Separation
+- `auth/login` is only an app/session boundary
+- license activation is a separate product boundary
+- Gumroad purchase, entitlement checks, and export/save gating should stay distinct from user identity auth
+- Do not grow `auth.py` into licensing or account-management plumbing
+
+### Positioning Guardrail
+- Avoid generic "e-signature platform" language
+- Avoid implying DocuSign/Adobe-style agreement management
+- Position around local asset cleanup, privacy, and document preparation
+
 ---
 
 ## Market Opportunity

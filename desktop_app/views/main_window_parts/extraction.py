@@ -1736,6 +1736,10 @@ class ExtractionTabMixin:
         self.batch_process_next_btn.setEnabled(has_pending_next)
         self.batch_process_all_btn.setEnabled(self._batch_auto_processing or has_pending_next)
 
+    def _update_batch_queue_controls(self) -> None:
+        """Backward-compatible alias for older signal wiring."""
+        self._refresh_batch_queue_controls()
+
     def _update_batch_status_label(self) -> None:
         done_count = sum(1 for item in self._batch_queue_items if item.get("status") == "done")
         total_count = len(self._batch_queue_items)

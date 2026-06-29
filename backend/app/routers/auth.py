@@ -19,7 +19,11 @@ router = APIRouter(
 )
 
 
-@router.post("/register", response_model=UserResponse)
+@router.post(
+    "/register",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
     try:
         db_user = create_user(db, user)
@@ -49,10 +53,10 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
 
         access_token_expires = timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
-            data={"sub": str(user.id), "email": user.email},
+            data={"sub": str(user.id)},
             expires_delta=access_token_expires
         )
-        logger.info("User %s logged in", user.email)
+        logger.info("User login succeeded")
         return {"access_token": access_token, "token_type": "bearer"}
     except HTTPException:
         raise

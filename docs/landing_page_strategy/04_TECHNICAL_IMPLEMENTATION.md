@@ -4,6 +4,17 @@
 **Project**: Signature Extractor Desktop App  
 **Section**: Technical Architecture & Development Guide
 
+## Addendum (2026-06-29)
+
+Treat the implementation guidance as supporting the current product boundary:
+
+- the landing page should sell sensitive-document cleanup, not a generic e-signature platform
+- legal, tax, CA, real-estate, and office-admin examples are the strongest first-pass segments
+- license activation stays separate from auth and from Gumroad purchase state
+- the launch model is one-time purchase + separate license activation
+- unsupported claims or inflated social proof should not be introduced into the page architecture
+
+
 ---
 
 ## Architecture Overview

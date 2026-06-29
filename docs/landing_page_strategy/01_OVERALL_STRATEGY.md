@@ -14,6 +14,17 @@ The Signature Extractor landing page will position the app as the **complete sig
 **Primary CTA**: "Buy Lifetime - $29" (with intro ribbon)  
 **Secondary CTA**: "Watch 45-second demo"
 
+## Addendum (2026-06-29)
+
+The durable positioning should be read through a narrower lens than the original draft:
+
+- Lead with sensitive-document cleanup, not a generic e-signature platform.
+- Make legal, real-estate, tax, and office-admin workflows the most explicit examples.
+- Keep extraction, PDF placement, and local asset cleanup as the visible product loop.
+- Avoid claims that imply broad agreement-management or cloud e-signature parity.
+- Keep license activation and auth separate in the product architecture and docs.
+- Assume the launch pricing model is one-time purchase + separate license activation, not subscription-first SaaS.
+
 ---
 
 ## Strategic Positioning

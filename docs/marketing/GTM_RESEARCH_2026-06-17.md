@@ -16,6 +16,15 @@ Three things stand out:
 
 My read: the best near-term GTM is not paid acquisition at scale. It is bottom-of-funnel SEO, comparison pages, Product Hunt, Reddit, and trust-building proof that the app is genuinely offline.
 
+## Addendum (2026-06-29)
+
+The stronger long-term wedge is document-asset cleanup for sensitive workflows, not a broad e-signature platform.
+
+- Primary verticals: legal, tax, CA, and document-service offices.
+- Horizontal expansion: signatures, stamps, seals, logos, and handwritten fields.
+- Product boundaries: auth/login, license activation, and Gumroad entitlement should remain separate concerns.
+- Messaging should stay local/offline/privacy-first, with explicit examples from document-heavy office workflows.
+
 ## What The Market Looks Like
 
 The market is consistently described as fast-growing, but the size estimates vary widely:

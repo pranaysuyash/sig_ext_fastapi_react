@@ -8,6 +8,17 @@
 **Unique Value**: Local signature extraction + document signing at 60-85% lower cost than cloud competitors  
 **Business Model**: Tiered annual licensing (Trial, Basic $29, Professional $79, Enterprise $299)
 
+## Addendum (2026-06-29)
+
+The canonical launch shape has narrowed since this strategy was first drafted.
+
+- Primary wedge: local document-asset cleanup for sensitive paper scans and PDFs.
+- Primary verticals: legal, tax, CA offices, and document-service workflows.
+- Horizontal expansion: signatures, stamps, seals, logos, and handwritten fields.
+- Launch entitlement model: user auth is separate from license activation and Gumroad purchase state.
+- Current launch pricing model: one-time purchase with separate license activation, not annual licensing.
+- Pricing language in launch docs should reflect that launch model unless a separate recurring plan is intentionally introduced later.
+
 ## Product Vision
 
 **Mission**: Empower professionals to extract, manage, and apply signatures to documents with complete privacy and control, without expensive cloud subscriptions.

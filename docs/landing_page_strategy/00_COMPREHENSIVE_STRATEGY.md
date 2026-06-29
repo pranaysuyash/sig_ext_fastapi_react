@@ -18,6 +18,17 @@ This comprehensive document consolidates the complete landing page strategy for 
 - **Value Proposition**: Complete workflow (Extract → Organize → Place on PDFs)
 - **Target Segments**: Legal, Real Estate, Healthcare (70% of effort)
 
+## Addendum (2026-06-29)
+
+This master plan remains useful for landing-page structure, but the canonical product story is narrower than the original wording:
+
+- The best wedge is sensitive-document cleanup and reuse, not a generic full e-signature platform.
+- The most credible verticals are legal, tax, CA, and document-service offices.
+- The product loop is local extraction, asset cleanup, PDF placement, and reuse on the next packet.
+- License activation should stay distinct from user auth and from Gumroad purchase state.
+- The launch model is one-time purchase + separate license activation, not annual subscription-first SaaS.
+- Unsupported social proof or market claims should stay out of public-facing copy unless they are evidence-backed.
+
 ---
 
 ## Table of Contents
